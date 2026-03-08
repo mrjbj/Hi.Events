@@ -1,3 +1,4 @@
+
 -- =============================================================================
 -- export_orders(p_event_id INT)
 --
@@ -72,7 +73,7 @@ BEGIN
         || E'       o.first_name,\n'
         || E'       o.last_name,\n'
         || E'       o.email,\n'
-        || E'       TO_CHAR(o.created_at, ''YYYYMMDD"T"HH24MISS'') AS created_at,\n'
+        || E'       TO_CHAR(o.created_at, ''YYYY-MM-DD HH24:MI:SS'') AS created_at,\n'
         || E'       o.notes,\n'
         -- Line-item detail columns
         || E'       oi.item_name as item,\n'
