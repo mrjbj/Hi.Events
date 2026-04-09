@@ -10,48 +10,134 @@
 ## Branch Strategy
 
 ```
-upstream/develop  (source of truth - never commit here)
+upstream/develop  (source of truth)
     |
-    +-- develop  (local, tracks upstream - kept clean/synced)
+    +-- develop  (local mirror of upstream - never commit directly)
     |     |
     |     +-- feature/*  or  fix/*   (PR branches, one per feature/fix)
     |     |
-    |     +-- jbj/local              (your working copy - everything you want)
+    |     +-- jbj/local              (production branch - everything you want)
 ```
 
 | Branch | Rule |
 |--------|------|
-| `develop` | Always mirrors `upstream/develop`. Never commit directly. |
-| `feature/*`, `fix/*` | Fork from `develop`. One branch per PR. Rebase before submitting. |
-| `jbj/local` | Your working copy. Rebased on develop. Has everything: merged PRs (via develop), rejected/pending PRs (cherry-picked in), and personal utilities. Push to `origin` for backup. |
+| `develop` | Always mirrors `upstream/develop`. Never commit directly. Only advances via `merge --ff-only`. |
+| `feature/*`, `fix/*` | Fork from `develop`. One branch per PR. Keep atomic — one fix or feature per branch. |
+| `jbj/local` | **Your production branch.** Rebased on develop. Includes everything: upstream's work, your pending/rejected PRs, and personal utilities. Deploy from here. |
 
 ### Why jbj/local exists
 
-`develop` only contains what upstream has accepted. If you submit a PR and upstream rejects it
-(or just hasn't merged it yet), that work disappears from `develop` on your next sync.
+`develop` only contains what upstream has accepted. Your development will always be ahead of
+upstream — you'll have fixes and features that are pending review, rejected, or personal. You
+need a branch that has *all* of it.
 
-`jbj/local` is your **complete working copy** — it sits on top of develop and includes:
-- Everything upstream has merged (via rebase onto develop)
-- PRs that are pending or rejected but you still want (cherry-pick them in)
+`jbj/local` is that branch. It sits on top of develop and includes:
+- Everything upstream has merged (comes in automatically via rebase onto develop)
+- Your pending PRs, squash-merged in so you don't wait for upstream approval
+- Rejected PRs you still want (same — they stay in jbj/local permanently)
 - Personal utilities that will never be PR'd (SQL scripts, cheatsheet, etc.)
 
-This means `jbj/local` is always the most complete branch. Use it when you want
-"everything I care about in one place."
-
-### Current branches (as of 2026-04-09)
-
-| Branch | Status |
-|--------|--------|
-| `feature/ses-bounce-handling` | SES bounce/complaint suppression. Needs SES simulator testing. |
-| `fix/stripe-charge-refunded` | Stripe charge.refunded webhook handler. Nearly PR-ready. |
-| `fix/image-resize-lost-on-save` | TipTap image resize fix. PR submitted to upstream. |
-| `jbj/local` | Personal utilities + any unmerged work you want locally. |
+`jbj/local` is always the most complete branch and is what you deploy to production.
 
 ---
 
-## Scenarios
+## Core Workflow: Build, PR, Ship, Move On
 
-### Start of session — sync everything
+This is the common pattern. You work atomically — one fix or feature per branch — and
+squash-merge each into jbj/local for your production without waiting for upstream.
+
+### 1. Start a new fix or feature
+
+```bash
+git checkout -b fix/some-bug develop
+# ... work, test, commit (as many commits as needed) ...
+git push -u origin fix/some-bug
+```
+
+### 2. Submit PR to upstream
+
+```bash
+# Sync develop first, then rebase your branch to be current
+git fetch upstream
+git checkout develop && git merge --ff-only upstream/develop
+git checkout fix/some-bug
+git rebase develop
+git push --force-with-lease origin fix/some-bug
+
+# Submit via GitHub UI:
+# https://github.com/HiEventsDev/Hi.Events/compare/develop...mrjbj:Hi.Events:fix/some-bug
+```
+
+### 3. Squash-merge into jbj/local (don't wait for upstream)
+
+```bash
+git checkout jbj/local
+git merge --squash fix/some-bug
+git commit -m "fix: some bug (pending upstream PR)"
+git push --force-with-lease origin jbj/local
+```
+
+`--squash` collapses all the feature branch commits into a single clean commit on jbj/local.
+This is better than cherry-picking individual commits — one command regardless of how many
+commits the feature branch has.
+
+### 4. Move on to the next thing
+
+```bash
+git checkout -b feature/next-thing develop
+# ... repeat the cycle ...
+```
+
+You can have multiple feature branches in flight at once, each with a pending PR,
+and jbj/local has all of them squash-merged in for your production.
+
+---
+
+## Lifecycle: What Happens to PRs Over Time
+
+### Upstream merges your PR
+
+```bash
+# Start-of-session sync brings it into develop
+git fetch upstream
+git checkout develop && git merge --ff-only upstream/develop && git push origin develop
+
+# Rebase jbj/local — the squashed copy may conflict with the now-merged version
+git checkout jbj/local
+git rebase develop
+# If conflict on your squashed commit (because develop now has the same changes):
+git rebase --skip    # drop YOUR copy, develop's version is now the official one
+git push --force-with-lease origin jbj/local
+
+# Clean up the feature branch
+git branch -d fix/some-bug
+git push origin --delete fix/some-bug
+```
+
+After this, jbj/local has the feature via develop (the upstream version) and your
+redundant squashed copy is gone. Clean.
+
+### Upstream rejects your PR (but you still want the changes)
+
+No action needed — the squash-merged commit is already in jbj/local from step 3.
+It stays there permanently through future rebases since develop never gets a
+conflicting version. Just delete the feature branch:
+
+```bash
+git branch -d fix/rejected-thing
+git push origin --delete fix/rejected-thing
+```
+
+### PR still pending (most common)
+
+Do nothing. The feature branch stays open for the PR. Your squash-merged copy
+in jbj/local means your production already has it. Move on.
+
+---
+
+## Start of Session — Sync Everything
+
+Run this at the start of each session to stay current:
 
 ```bash
 # 1. Sync develop with upstream
@@ -60,116 +146,67 @@ git checkout develop
 git merge --ff-only upstream/develop
 git push origin develop
 
-# 2. Rebase personal branch on top of latest develop
+# 2. Rebase jbj/local on latest develop
 git checkout jbj/local
 git rebase develop
-git push --force-with-lease origin jbj/local
-```
-
-### Start new work
-
-```bash
-git checkout -b feature/my-thing develop
-# ... make changes, commit ...
-git push -u origin feature/my-thing
-```
-
-### Ready to submit a PR
-
-```bash
-# First, sync develop and rebase your branch
-git checkout develop && git fetch upstream && git merge --ff-only upstream/develop
-git checkout feature/my-thing
-git rebase develop
-git push --force-with-lease origin feature/my-thing
-
-# Submit (or use the GitHub UI if gh token doesn't support cross-fork PRs)
-gh pr create --repo HiEventsDev/Hi.Events --base develop \
-  --title "feat: My thing" --body "Description here"
-
-# GitHub UI alternative:
-# https://github.com/HiEventsDev/Hi.Events/compare/develop...mrjbj:Hi.Events:feature/my-thing
-```
-
-### After upstream merges your PR
-
-```bash
-# Sync develop — your merged work now appears here
-git fetch upstream
-git checkout develop
-git merge --ff-only upstream/develop
-git push origin develop
-
-# Delete the merged feature branch (it's in develop now)
-git branch -d feature/my-thing
-git push origin --delete feature/my-thing
-
-# Rebase personal branch — it picks up the merged work automatically
-git checkout jbj/local
-git rebase develop
-git push --force-with-lease origin jbj/local
-```
-
-### After upstream rejects your PR (but you still want the changes)
-
-```bash
-# Sync develop as usual
-git fetch upstream
-git checkout develop && git merge --ff-only upstream/develop && git push origin develop
-
-# Cherry-pick the rejected work into your personal branch
-git checkout jbj/local
-git rebase develop
-git cherry-pick <commit-hash>    # from the rejected feature branch
+# Resolve any conflicts (use --skip for squashed commits that upstream has now merged)
 git push --force-with-lease origin jbj/local
 
-# Optionally delete the rejected feature branch
-git branch -d feature/rejected-thing
-git push origin --delete feature/rejected-thing
-```
-
-Now the rejected work lives in `jbj/local` and stays with you even though
-upstream didn't take it.
-
-### Access personal files while on another branch
-
-```bash
-# View a file from jbj/local without switching branches
-git show jbj/local:sql/rebuild_stats.sql
-
-# Pipe a SQL script directly to psql
-git show jbj/local:sql/rebuild_stats.sql | psql -d your_db
+# 3. Rebase any active feature branches (optional, only if stale)
+git checkout feature/active-thing
+git rebase develop
+git push --force-with-lease origin feature/active-thing
 ```
 
 ---
 
-## Reference
+## Quick Reference
+
+### Access personal files from any branch
+
+```bash
+git show jbj/local:sql/rebuild_stats.sql
+git show jbj/local:sql/rebuild_stats.sql | psql -d your_db
+```
 
 ### Handling rebase conflicts
 
-If git pauses during rebase with conflicts:
-
 ```bash
-# Edit the conflicted files, then:
+# Normal conflict — edit files, then:
 git add <resolved-files>
 git rebase --continue
-```
 
-To abort and return to pre-rebase state:
+# Squashed commit that upstream already merged — skip your copy:
+git rebase --skip
 
-```bash
+# Something went wrong — abort and start over:
 git rebase --abort
 ```
 
 ### Why `--force-with-lease`?
 
-- `--force` overwrites the remote branch unconditionally, even if someone else pushed commits you haven't seen.
-- `--force-with-lease` only overwrites if the remote branch matches what you last fetched. If it's changed, the push fails instead of silently destroying work.
+- `--force` overwrites the remote unconditionally.
+- `--force-with-lease` only overwrites if the remote matches what you last fetched.
 
-Force is needed after rebase because rebase rewrites commit hashes. Since you're the only one using this fork, the risk is minimal, but `--force-with-lease` is a good habit.
+Force is needed after rebase because rebase rewrites commit hashes. Since you're the
+only one using this fork, the risk is minimal, but `--force-with-lease` is a good habit.
 
 ### Why `--ff-only` on develop?
 
-Fast-forward only merge ensures develop stays a clean mirror of upstream. If the merge
-can't fast-forward, it means something was accidentally committed to develop — the merge
-fails instead of silently creating a merge commit, so you can fix the mistake.
+Ensures develop stays a clean mirror. If it can't fast-forward, something was
+accidentally committed to develop — the command fails so you can fix it.
+
+### Why `--squash` into jbj/local?
+
+Squash collapses a multi-commit feature branch into one clean commit. This keeps
+jbj/local history readable and makes it easy to `--skip` during rebase when upstream
+eventually merges the same work.
+
+### Current branches (as of 2026-04-09)
+
+| Branch | Status |
+|--------|--------|
+| `feature/ses-bounce-handling` | SES bounce/complaint suppression. Needs SES simulator testing. |
+| `fix/stripe-charge-refunded` | Stripe charge.refunded webhook handler. Nearly PR-ready. |
+| `fix/image-resize-lost-on-save` | TipTap image resize fix. PR submitted to upstream. |
+| `jbj/local` | Production branch. Personal utilities + all unmerged work. |
