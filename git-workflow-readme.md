@@ -39,6 +39,14 @@ need a branch that has *all* of it.
 
 `jbj/local` is always the most complete branch and is what you deploy to production.
 
+### Where to commit
+
+| What you're doing | Where |
+|---|---|
+| Fix or feature you want upstream to consider | Branch from `develop`, work there, PR, then squash-merge into `jbj/local` |
+| Personal stuff (scripts, docs, utilities) | Commit directly to `jbj/local` |
+| Never | Commit to `develop` directly |
+
 ---
 
 ## Core Workflow: Build, PR, Ship, Move On
