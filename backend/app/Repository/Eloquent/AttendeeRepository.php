@@ -145,6 +145,9 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
         $results = $this->model
             ->where('event_id', $eventId)
             ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereIn('product_id', function ($query) {
+                $query->select('product_id')->from('product_check_in_lists')->whereNull('deleted_at');
+            })
             ->whereHas('check_ins')
             ->get($columns);
 
@@ -158,6 +161,9 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
         $results = $this->model
             ->where('event_id', $eventId)
             ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereIn('product_id', function ($query) {
+                $query->select('product_id')->from('product_check_in_lists')->whereNull('deleted_at');
+            })
             ->whereDoesntHave('check_ins')
             ->get($columns);
 
@@ -171,6 +177,9 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
         $count = $this->model
             ->where('event_id', $eventId)
             ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereIn('product_id', function ($query) {
+                $query->select('product_id')->from('product_check_in_lists')->whereNull('deleted_at');
+            })
             ->whereHas('check_ins')
             ->count();
 
@@ -184,6 +193,9 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
         $count = $this->model
             ->where('event_id', $eventId)
             ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereIn('product_id', function ($query) {
+                $query->select('product_id')->from('product_check_in_lists')->whereNull('deleted_at');
+            })
             ->whereDoesntHave('check_ins')
             ->count();
 
