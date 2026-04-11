@@ -12,24 +12,17 @@ use Throwable;
 
 class SesIncomingWebhookAction extends BaseAction
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, IncomingSesWebhookHandler $handler): Response
     {
         try {
-            $payload = $request->getContent();
-
-            dispatch(static function (IncomingSesWebhookHandler $handler) use ($payload) {
-                $handler->handle(new SesWebhookDTO(
-                    payload: $payload,
-                ));
-            })->catch(function (Throwable $exception) use ($payload) {
-                logger()->error(__('Failed to handle incoming SES webhook'), [
-                    'exception' => $exception,
-                    'payload' => $payload,
-                ]);
-            });
-
+            $handler->handle(new SesWebhookDTO(
+                payload: $request->getContent(),
+            ));
         } catch (Throwable $exception) {
-            logger()?->error($exception->getMessage(), $exception->getTrace());
+            logger()?->error(__('Failed to handle incoming SES webhook'), [
+                'exception' => $exception,
+                'payload' => $request->getContent(),
+            ]);
             return $this->noContentResponse(ResponseCodes::HTTP_BAD_REQUEST);
         }
 
