@@ -211,6 +211,7 @@ class SendEventEmailMessagesService
     {
         $attendees = $this->attendeeRepository->findCheckedInAttendees(
             eventId: $messageData->event_id,
+            checkInListId: $messageData->check_in_list_id,
             columns: ['first_name', 'last_name', 'email'],
         );
 
@@ -221,6 +222,7 @@ class SendEventEmailMessagesService
     {
         $attendees = $this->attendeeRepository->findNotCheckedInAttendees(
             eventId: $messageData->event_id,
+            checkInListId: $messageData->check_in_list_id,
             columns: ['first_name', 'last_name', 'email'],
         );
 

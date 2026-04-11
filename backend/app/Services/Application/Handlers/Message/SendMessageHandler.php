@@ -119,6 +119,7 @@ class SendMessageHandler
                 'account_id' => $messageData->account_id,
                 'attendee_ids' => $messageData->attendee_ids,
                 'product_ids' => $messageData->product_ids,
+                'check_in_list_id' => $messageData->check_in_list_id,
             ],
         ]);
 
@@ -139,6 +140,7 @@ class SendMessageHandler
                 'id' => $message->getId(),
                 'attendee_ids' => $message->getAttendeeIds(),
                 'product_ids' => $message->getProductIds(),
+                'check_in_list_id' => $messageData->check_in_list_id,
             ]);
 
             SendMessagesJob::dispatch($updatedData);
@@ -166,9 +168,11 @@ class SendMessageHandler
             ),
             MessageTypeEnum::CHECKED_IN_ATTENDEES => $this->attendeeRepository->countCheckedInAttendees(
                 eventId: $messageData->event_id,
+                checkInListId: $messageData->check_in_list_id,
             ),
             MessageTypeEnum::NOT_CHECKED_IN_ATTENDEES => $this->attendeeRepository->countNotCheckedInAttendees(
                 eventId: $messageData->event_id,
+                checkInListId: $messageData->check_in_list_id,
             ),
         };
     }
