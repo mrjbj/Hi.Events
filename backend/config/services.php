@@ -32,6 +32,7 @@ return [
         'sns_topic_arn' => env('AWS_SNS_TOPIC_ARN'),
         'sns_verify_signature' => env('AWS_SNS_VERIFY_SIGNATURE', true),
         'suppression_enabled' => env('SES_SUPPRESSION_ENABLED', false),
+        'configuration_set' => env('SES_CONFIGURATION_SET'),
     ],
 
     'stripe' => [
