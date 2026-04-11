@@ -71,7 +71,9 @@ class IncomingSesWebhookHandler
 
             // Parse the inner SES message
             $message = json_decode($payload['Message'] ?? '{}', true, 512, JSON_THROW_ON_ERROR);
-            $notificationType = $message['notificationType'] ?? null;
+
+            // SES Notifications use 'notificationType', SES Event Destinations use 'eventType'
+            $notificationType = $message['notificationType'] ?? $message['eventType'] ?? null;
 
             switch ($notificationType) {
                 case 'Bounce':
