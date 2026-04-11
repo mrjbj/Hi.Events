@@ -139,4 +139,56 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             limit: min($params->per_page, 250),
         );
     }
+
+    public function findCheckedInAttendees(int $eventId, array $columns = ['*']): Collection
+    {
+        $results = $this->model
+            ->where('event_id', $eventId)
+            ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereHas('check_ins')
+            ->get($columns);
+
+        $this->resetModel();
+
+        return $this->handleResults($results);
+    }
+
+    public function findNotCheckedInAttendees(int $eventId, array $columns = ['*']): Collection
+    {
+        $results = $this->model
+            ->where('event_id', $eventId)
+            ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereDoesntHave('check_ins')
+            ->get($columns);
+
+        $this->resetModel();
+
+        return $this->handleResults($results);
+    }
+
+    public function countCheckedInAttendees(int $eventId): int
+    {
+        $count = $this->model
+            ->where('event_id', $eventId)
+            ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereHas('check_ins')
+            ->count();
+
+        $this->resetModel();
+
+        return $count;
+    }
+
+    public function countNotCheckedInAttendees(int $eventId): int
+    {
+        $count = $this->model
+            ->where('event_id', $eventId)
+            ->where('status', AttendeeStatus::ACTIVE->name)
+            ->whereDoesntHave('check_ins')
+            ->count();
+
+        $this->resetModel();
+
+        return $count;
+    }
 }

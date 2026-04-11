@@ -164,6 +164,12 @@ class SendMessageHandler
                 productIds: $messageData->product_ids ?? [],
                 orderStatuses: $messageData->order_statuses ?? ['COMPLETED'],
             ),
+            MessageTypeEnum::CHECKED_IN_ATTENDEES => $this->attendeeRepository->countCheckedInAttendees(
+                eventId: $messageData->event_id,
+            ),
+            MessageTypeEnum::NOT_CHECKED_IN_ATTENDEES => $this->attendeeRepository->countNotCheckedInAttendees(
+                eventId: $messageData->event_id,
+            ),
         };
     }
 

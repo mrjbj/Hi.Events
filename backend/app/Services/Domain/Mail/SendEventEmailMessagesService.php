@@ -88,6 +88,12 @@ class SendEventEmailMessagesService
             case MessageTypeEnum::ORDER_OWNERS_WITH_PRODUCT:
                 $this->sendProductMessages($messageData, $event);
                 break;
+            case MessageTypeEnum::CHECKED_IN_ATTENDEES:
+                $this->sendCheckedInMessages($messageData, $event);
+                break;
+            case MessageTypeEnum::NOT_CHECKED_IN_ATTENDEES:
+                $this->sendNotCheckedInMessages($messageData, $event);
+                break;
         }
 
         $this->updateMessageStatus($messageData, MessageStatus::SENT);
@@ -196,6 +202,26 @@ class SendEventEmailMessagesService
                 'status' => AttendeeStatus::ACTIVE->name,
             ],
             columns: ['first_name', 'last_name', 'email']
+        );
+
+        $this->emailAttendees($attendees, $messageData, $event);
+    }
+
+    private function sendCheckedInMessages(SendMessageDTO $messageData, EventDomainObject $event): void
+    {
+        $attendees = $this->attendeeRepository->findCheckedInAttendees(
+            eventId: $messageData->event_id,
+            columns: ['first_name', 'last_name', 'email'],
+        );
+
+        $this->emailAttendees($attendees, $messageData, $event);
+    }
+
+    private function sendNotCheckedInMessages(SendMessageDTO $messageData, EventDomainObject $event): void
+    {
+        $attendees = $this->attendeeRepository->findNotCheckedInAttendees(
+            eventId: $messageData->event_id,
+            columns: ['first_name', 'last_name', 'email'],
         );
 
         $this->emailAttendees($attendees, $messageData, $event);

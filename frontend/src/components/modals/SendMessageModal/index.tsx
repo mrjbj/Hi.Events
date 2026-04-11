@@ -293,6 +293,14 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
                                             value: 'ORDER_OWNERS_WITH_PRODUCT',
                                             label: t`Order owners with a specific product`,
                                         },
+                                        {
+                                            value: 'CHECKED_IN_ATTENDEES',
+                                            label: t`Attendees who checked in`,
+                                        },
+                                        {
+                                            value: 'NOT_CHECKED_IN_ATTENDEES',
+                                            label: t`Attendees who did not check in`,
+                                        },
                                     ]}
                                     label={t`Recipients`}
                                     description={t`Select which attendees should receive this message`}
