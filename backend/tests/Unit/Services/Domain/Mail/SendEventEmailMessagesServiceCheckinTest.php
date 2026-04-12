@@ -52,8 +52,8 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
             userRepository: $this->userRepository,
             logger: new Logger(),
             dispatcher: $this->dispatcher,
-            emailSuppressionService: Mockery::mock(EmailSuppressionService::class),
-            outgoingMessageRepository: Mockery::mock(OutgoingMessageRepositoryInterface::class),
+            emailSuppressionService: Mockery::mock(EmailSuppressionService::class)->shouldIgnoreMissing(),
+            outgoingMessageRepository: Mockery::mock(OutgoingMessageRepositoryInterface::class)->shouldIgnoreMissing(),
         );
     }
 
@@ -119,7 +119,9 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
         $this->attendeeRepository
             ->shouldReceive('findCheckedInAttendees')
             ->once()
-            ->with(10, ['first_name', 'last_name', 'email'])
+            ->withArgs(function ($eventId, $checkInListId, $columns) {
+                return $eventId === 10 && $checkInListId === null && $columns === ['first_name', 'last_name', 'email'];
+            })
             ->andReturn(new Collection([$attendee]));
 
         $this->dispatcher
@@ -144,7 +146,9 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
         $this->attendeeRepository
             ->shouldReceive('findNotCheckedInAttendees')
             ->once()
-            ->with(10, ['first_name', 'last_name', 'email'])
+            ->withArgs(function ($eventId, $checkInListId, $columns) {
+                return $eventId === 10 && $checkInListId === null && $columns === ['first_name', 'last_name', 'email'];
+            })
             ->andReturn(new Collection([$attendee]));
 
         $this->dispatcher
