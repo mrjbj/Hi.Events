@@ -24,6 +24,7 @@ class BounceHandlerTest extends TestCase
         parent::setUp();
         $this->suppressionService = m::mock(EmailSuppressionService::class);
         $this->outgoingMessageRepository = m::mock(OutgoingMessageRepositoryInterface::class);
+        $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')->andReturn(false)->byDefault();
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
 
         $this->handler = new BounceHandler(
@@ -114,5 +115,33 @@ class BounceHandlerTest extends TestCase
             ->andReturn($suppression);
 
         $this->handler->handle($message, ['MessageId' => 'msg-789']);
+    }
+
+    public function testMarksOutgoingMessageAsBounced(): void
+    {
+        $message = [
+            'bounce' => [
+                'bounceType' => 'Permanent',
+                'bouncedRecipients' => [
+                    ['emailAddress' => 'bounced@example.com'],
+                ],
+            ],
+        ];
+
+        $this->outgoingMessageRepository->shouldReceive('findAccountIdByRecipientEmail')
+            ->with('bounced@example.com')
+            ->andReturn(1);
+
+        $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')
+            ->with('bounced@example.com')
+            ->once()
+            ->andReturn(true);
+
+        $suppression = m::mock(EmailSuppressionDomainObject::class);
+        $this->suppressionService->shouldReceive('suppressEmail')
+            ->once()
+            ->andReturn($suppression);
+
+        $this->handler->handle($message, ['MessageId' => 'msg-bounce']);
     }
 }
