@@ -149,12 +149,13 @@ readonly class EventStatsFetchService
                 $endDate = (clone $adjustedStart)->addDays(90);
                 break;
             case 'event':
+                $eventEnd = $event->getEndDate() ? Carbon::parse($event->getEndDate()) : null;
                 $endCandidates = array_filter([
-                    $event->getEndDate() ? Carbon::parse($event->getEndDate()) : null,
+                    $eventEnd,
                     $bounds?->max_date ? Carbon::parse($bounds->max_date) : null,
-                    Carbon::now(),
+                    (!$eventEnd || $eventEnd->isFuture()) ? Carbon::now() : null,
                 ]);
-                $endDate = max($endCandidates);
+                $endDate = $endCandidates ? max($endCandidates) : Carbon::now();
                 break;
             default: // 'month'
                 $endDate = (clone $adjustedStart)->addDays(30);
