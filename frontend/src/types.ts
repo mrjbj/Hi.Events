@@ -773,6 +773,18 @@ export interface OutgoingMessage {
     created_at?: string;
 }
 
+export interface OutgoingTransactionMessage {
+    id: IdParam;
+    event_id: number | null;
+    order_id: number | null;
+    attendee_id: number | null;
+    email_type: string;
+    recipient: string;
+    subject: string;
+    status: 'SENT' | 'FAILED' | 'BOUNCED' | 'SUPPRESSED';
+    created_at: string;
+}
+
 export enum QuestionType {
     ADDRESS = 'ADDRESS',
     SINGLE_LINE_TEXT = 'SINGLE_LINE_TEXT',

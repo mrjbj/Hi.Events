@@ -12,8 +12,10 @@ use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\MessageRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
 use HiEvents\Repository\Interfaces\UserRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Message\DTO\SendMessageDTO;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Mail\SendEventEmailMessagesService;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Collection;
@@ -50,6 +52,8 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
             userRepository: $this->userRepository,
             logger: new Logger(),
             dispatcher: $this->dispatcher,
+            emailSuppressionService: Mockery::mock(EmailSuppressionService::class),
+            outgoingMessageRepository: Mockery::mock(OutgoingMessageRepositoryInterface::class),
         );
     }
 

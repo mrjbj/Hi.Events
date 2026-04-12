@@ -6,6 +6,7 @@ use HiEvents\DomainObjects\EmailSuppressionDomainObject;
 use HiEvents\DomainObjects\Status\EmailSuppressionReasonEnum;
 use HiEvents\DomainObjects\Status\EmailSuppressionSourceEnum;
 use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingTransactionMessageRepositoryInterface;
 use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
 use Illuminate\Log\Logger;
@@ -16,6 +17,7 @@ class ComplaintHandlerTest extends TestCase
 {
     private EmailSuppressionService $suppressionService;
     private OutgoingMessageRepositoryInterface $outgoingMessageRepository;
+    private OutgoingTransactionMessageRepositoryInterface $outgoingTransactionMessageRepository;
     private Logger $logger;
     private ComplaintHandler $handler;
 
@@ -25,11 +27,15 @@ class ComplaintHandlerTest extends TestCase
         $this->suppressionService = m::mock(EmailSuppressionService::class);
         $this->outgoingMessageRepository = m::mock(OutgoingMessageRepositoryInterface::class);
         $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')->andReturn(false)->byDefault();
+        $this->outgoingTransactionMessageRepository = m::mock(OutgoingTransactionMessageRepositoryInterface::class);
+        $this->outgoingTransactionMessageRepository->shouldReceive('findRecentByRecipient')->andReturn(null)->byDefault();
+        $this->outgoingTransactionMessageRepository->shouldReceive('findAccountIdByRecipientEmail')->andReturn(null)->byDefault();
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
 
         $this->handler = new ComplaintHandler(
             $this->suppressionService,
             $this->outgoingMessageRepository,
+            $this->outgoingTransactionMessageRepository,
             $this->logger,
         );
     }
@@ -112,33 +118,5 @@ class ComplaintHandlerTest extends TestCase
             ->andReturn($suppression);
 
         $this->handler->handle($message, ['MessageId' => 'msg-789']);
-    }
-
-    public function testMarksOutgoingMessageAsBounced(): void
-    {
-        $message = [
-            'complaint' => [
-                'complaintFeedbackType' => 'abuse',
-                'complainedRecipients' => [
-                    ['emailAddress' => 'complained@example.com'],
-                ],
-            ],
-        ];
-
-        $this->outgoingMessageRepository->shouldReceive('findAccountIdByRecipientEmail')
-            ->with('complained@example.com')
-            ->andReturn(1);
-
-        $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')
-            ->with('complained@example.com')
-            ->once()
-            ->andReturn(true);
-
-        $suppression = m::mock(EmailSuppressionDomainObject::class);
-        $this->suppressionService->shouldReceive('suppressEmail')
-            ->once()
-            ->andReturn($suppression);
-
-        $this->handler->handle($message, ['MessageId' => 'msg-complaint']);
     }
 }
