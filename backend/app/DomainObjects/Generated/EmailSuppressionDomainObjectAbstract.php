@@ -33,7 +33,7 @@ abstract class EmailSuppressionDomainObjectAbstract extends \HiEvents\DomainObje
     protected ?string $complaint_type = null;
     protected string $source;
     protected ?string $sns_message_id = null;
-    protected mixed $raw_payload = null;
+    protected array|string|null $raw_payload = null;
     protected ?string $created_at = null;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
@@ -156,13 +156,13 @@ abstract class EmailSuppressionDomainObjectAbstract extends \HiEvents\DomainObje
         return $this->sns_message_id;
     }
 
-    public function setRawPayload(mixed $raw_payload): self
+    public function setRawPayload(array|string|null $raw_payload): self
     {
         $this->raw_payload = $raw_payload;
         return $this;
     }
 
-    public function getRawPayload(): mixed
+    public function getRawPayload(): array|string|null
     {
         return $this->raw_payload;
     }

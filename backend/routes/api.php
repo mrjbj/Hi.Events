@@ -83,6 +83,7 @@ use HiEvents\Http\Actions\Images\DeleteImageAction;
 use HiEvents\Http\Actions\Images\GetAccountImagesAction;
 use HiEvents\Http\Actions\Messages\CancelMessageAction;
 use HiEvents\Http\Actions\Messages\GetMessageRecipientsAction;
+use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessageFailuresAction;
 use HiEvents\Http\Actions\Messages\GetMessagesAction;
 use HiEvents\Http\Actions\Messages\SendMessageAction;
 use HiEvents\Http\Actions\Orders\CancelOrderAction;
@@ -408,6 +409,9 @@ $router->middleware(['auth:api'])->group(
         $router->get('/events/{event_id}/messages', GetMessagesAction::class);
         $router->post('/events/{event_id}/messages/{message_id}/cancel', CancelMessageAction::class);
         $router->get('/events/{event_id}/messages/{message_id}/recipients', GetMessageRecipientsAction::class);
+
+        // Transaction Messages
+        $router->get('/events/{event_id}/transaction-messages/failures', GetTransactionMessageFailuresAction::class);
 
         // Event Settings
         $router->get('/events/{event_id}/settings', GetEventSettingsAction::class);
