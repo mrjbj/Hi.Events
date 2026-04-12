@@ -52,6 +52,10 @@ class BounceHandler
                 snsMessageId: $snsMessageId,
                 rawPayload: $snsPayload,
             );
+
+            if ($this->outgoingMessageRepository->markRecentAsBounced($email)) {
+                $this->logger->info('Marked outgoing message as bounced', ['email' => $email]);
+            }
         }
     }
 }

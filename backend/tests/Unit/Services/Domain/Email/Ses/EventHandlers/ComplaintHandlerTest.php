@@ -24,6 +24,7 @@ class ComplaintHandlerTest extends TestCase
         parent::setUp();
         $this->suppressionService = m::mock(EmailSuppressionService::class);
         $this->outgoingMessageRepository = m::mock(OutgoingMessageRepositoryInterface::class);
+        $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')->andReturn(false)->byDefault();
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
 
         $this->handler = new ComplaintHandler(
@@ -111,5 +112,33 @@ class ComplaintHandlerTest extends TestCase
             ->andReturn($suppression);
 
         $this->handler->handle($message, ['MessageId' => 'msg-789']);
+    }
+
+    public function testMarksOutgoingMessageAsBounced(): void
+    {
+        $message = [
+            'complaint' => [
+                'complaintFeedbackType' => 'abuse',
+                'complainedRecipients' => [
+                    ['emailAddress' => 'complained@example.com'],
+                ],
+            ],
+        ];
+
+        $this->outgoingMessageRepository->shouldReceive('findAccountIdByRecipientEmail')
+            ->with('complained@example.com')
+            ->andReturn(1);
+
+        $this->outgoingMessageRepository->shouldReceive('markRecentAsBounced')
+            ->with('complained@example.com')
+            ->once()
+            ->andReturn(true);
+
+        $suppression = m::mock(EmailSuppressionDomainObject::class);
+        $this->suppressionService->shouldReceive('suppressEmail')
+            ->once()
+            ->andReturn($suppression);
+
+        $this->handler->handle($message, ['MessageId' => 'msg-complaint']);
     }
 }
