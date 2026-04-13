@@ -300,7 +300,7 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Delivery notification for $TARGET_EMAIL (unhandled type — check logs)"
+    send_sns_payload "$payload" "Delivery notification for $TARGET_EMAIL (should update to DELIVERED)"
 }
 
 cmd_subscribe() {
