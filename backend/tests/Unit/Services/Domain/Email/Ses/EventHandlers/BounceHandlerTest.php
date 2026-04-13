@@ -3,7 +3,9 @@
 namespace Tests\Unit\Services\Domain\Email\Ses\EventHandlers;
 
 use HiEvents\DomainObjects\EmailSuppressionDomainObject;
+use HiEvents\DomainObjects\OutgoingTransactionMessageDomainObject;
 use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingTransactionMessageRepositoryInterface;
 use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\BounceHandler;
 use Illuminate\Log\Logger;
@@ -14,6 +16,7 @@ class BounceHandlerTest extends TestCase
 {
     private EmailSuppressionService $suppressionService;
     private OutgoingMessageRepositoryInterface $outgoingMessageRepository;
+    private OutgoingTransactionMessageRepositoryInterface $outgoingTransactionMessageRepository;
     private Logger $logger;
     private BounceHandler $handler;
 
@@ -23,11 +26,15 @@ class BounceHandlerTest extends TestCase
         $this->suppressionService = m::mock(EmailSuppressionService::class);
         $this->outgoingMessageRepository = m::mock(OutgoingMessageRepositoryInterface::class);
         $this->outgoingMessageRepository->shouldReceive('markAsBounced')->andReturn(false)->byDefault();
+        $this->outgoingTransactionMessageRepository = m::mock(OutgoingTransactionMessageRepositoryInterface::class);
+        $this->outgoingTransactionMessageRepository->shouldReceive('findBySesMessageId')->andReturn(null)->byDefault();
+        $this->outgoingTransactionMessageRepository->shouldReceive('findAccountIdByRecipientEmail')->andReturn(null)->byDefault();
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
 
         $this->handler = new BounceHandler(
             $this->suppressionService,
             $this->outgoingMessageRepository,
+            $this->outgoingTransactionMessageRepository,
             $this->logger,
         );
     }
@@ -145,6 +152,45 @@ class BounceHandlerTest extends TestCase
         $this->handler->handle($message, ['MessageId' => 'sns-123']);
     }
 
+    public function testMarksTransactionMessageAsBouncedBySesMessageId(): void
+    {
+        $message = [
+            'bounce' => [
+                'bounceType' => 'Permanent',
+                'bouncedRecipients' => [
+                    ['emailAddress' => 'bounced@example.com'],
+                ],
+            ],
+            'mail' => [
+                'messageId' => 'ses-msg-002',
+            ],
+        ];
+
+        $this->outgoingMessageRepository->shouldReceive('findAccountIdByRecipientEmail')
+            ->andReturn(1);
+        $this->outgoingMessageRepository->shouldReceive('markAsBounced')
+            ->with('ses-msg-002')
+            ->andReturn(false);
+
+        $transactionMessage = m::mock(OutgoingTransactionMessageDomainObject::class);
+        $transactionMessage->shouldReceive('getId')->andReturn(99);
+
+        $this->outgoingTransactionMessageRepository->shouldReceive('findBySesMessageId')
+            ->with('ses-msg-002')
+            ->andReturn($transactionMessage);
+
+        $this->outgoingTransactionMessageRepository->shouldReceive('markAsBounced')
+            ->with(99)
+            ->once();
+
+        $suppression = m::mock(EmailSuppressionDomainObject::class);
+        $this->suppressionService->shouldReceive('suppressEmail')
+            ->once()
+            ->andReturn($suppression);
+
+        $this->handler->handle($message, ['MessageId' => 'sns-456']);
+    }
+
     public function testDoesNotMarkWhenNoSesMessageId(): void
     {
         $message = [
@@ -160,6 +206,7 @@ class BounceHandlerTest extends TestCase
             ->andReturn(1);
 
         $this->outgoingMessageRepository->shouldNotReceive('markAsBounced');
+        $this->outgoingTransactionMessageRepository->shouldNotReceive('findBySesMessageId');
 
         $suppression = m::mock(EmailSuppressionDomainObject::class);
         $this->suppressionService->shouldReceive('suppressEmail')

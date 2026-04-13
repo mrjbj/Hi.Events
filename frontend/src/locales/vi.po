@@ -13,12 +13,12 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/layouts/Event/index.tsx:192
+#: src/components/layouts/Event/index.tsx:193
 #: src/components/layouts/OrganizerLayout/index.tsx:213
 msgid "- Click to Publish"
 msgstr "- Nhấp để xuất bản"
 
-#: src/components/layouts/Event/index.tsx:194
+#: src/components/layouts/Event/index.tsx:195
 #: src/components/layouts/OrganizerLayout/index.tsx:215
 msgid "- Click to Unpublish"
 msgstr "- Nhấp để gỡ bỏ"
@@ -921,12 +921,12 @@ msgstr "Bạn có chắc là bạn muốn xóa webhook này không?"
 msgid "Are you sure you want to leave?"
 msgstr "Bạn có chắc chắn muốn rời đi?"
 
-#: src/components/layouts/Event/index.tsx:154
+#: src/components/layouts/Event/index.tsx:155
 #: src/components/routes/event/EventDashboard/index.tsx:73
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "Bạn có chắc chắn muốn chuyển sự kiện này thành bản nháp không? Điều này sẽ làm cho sự kiện không hiển thị với công chúng."
 
-#: src/components/layouts/Event/index.tsx:155
+#: src/components/layouts/Event/index.tsx:156
 #: src/components/routes/event/EventDashboard/index.tsx:74
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "Bạn có chắc mình muốn công khai sự kiện này không? "
@@ -1105,6 +1105,7 @@ msgstr "Trạng Thái Người Tham Dự"
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:95
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:201
 #: src/components/modals/ManageAttendeeModal/index.tsx:172
+#: src/components/routes/event/DeliveryIssues/index.tsx:34
 msgid "Attendee Ticket"
 msgstr "Vé tham dự"
 
@@ -1475,7 +1476,7 @@ msgstr "Phân bổ sức chứa đã được xóa thành công"
 msgid "Capacity Assignments"
 msgstr "Phân bổ sức chứa"
 
-#: src/components/layouts/Event/index.tsx:122
+#: src/components/layouts/Event/index.tsx:123
 msgid "Capacity Management"
 msgstr "Quản lý sức chứa"
 
@@ -1939,7 +1940,7 @@ msgstr "Xác nhận mật khẩu"
 msgid "Confirm Password"
 msgstr "Xác nhận mật khẩu"
 
-#: src/components/layouts/Event/index.tsx:257
+#: src/components/layouts/Event/index.tsx:258
 msgid "Confirm your email to access all features."
 msgstr "Xác nhận email của bạn để sử dụng đầy đủ tính năng."
 
@@ -2584,6 +2585,7 @@ msgstr "Quyền sở hữu dữ liệu"
 #: src/components/common/OrderDetails/index.tsx:39
 #: src/components/forms/QuestionForm/index.tsx:136
 #: src/components/routes/admin/EmailSuppressions/index.tsx:184
+#: src/components/routes/event/DeliveryIssues/index.tsx:90
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:56
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:24
 msgid "Date"
@@ -2690,6 +2692,11 @@ msgstr "Xóa câu hỏi này? Hành động này không thể hoàn tác."
 #: src/components/common/WebhookTable/index.tsx:127
 msgid "Delete webhook"
 msgstr "Xóa webhook"
+
+#: src/components/layouts/Event/index.tsx:121
+#: src/components/routes/event/DeliveryIssues/index.tsx:58
+msgid "Delivery Issues"
+msgstr "Sự cố gửi email"
 
 #: src/components/forms/ProductForm/index.tsx:280
 #: src/components/forms/TaxAndFeeForm/index.tsx:81
@@ -2813,7 +2820,7 @@ msgid "Downloading Invoice"
 msgstr "Tải xuống hóa đơn"
 
 #: src/components/common/EventCard/index.tsx:84
-#: src/components/layouts/Event/index.tsx:191
+#: src/components/layouts/Event/index.tsx:192
 #: src/components/layouts/OrganizerLayout/index.tsx:212
 msgid "Draft"
 msgstr "Bản nháp"
@@ -3134,6 +3141,10 @@ msgstr "Chặn email"
 #: src/components/routes/organizer/Settings/index.tsx:65
 msgid "Email Templates"
 msgstr "Mẫu email"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:87
+msgid "Email Type"
+msgstr "Loại email"
 
 #: src/components/layouts/OrganizerLayout/index.tsx:288
 msgid "Email Verification Required"
@@ -3460,7 +3471,7 @@ msgstr "Sự kiện không có sẵn"
 msgid "Event organizer name"
 msgstr "Tên ban tổ chức sự kiện"
 
-#: src/components/layouts/Event/index.tsx:246
+#: src/components/layouts/Event/index.tsx:247
 msgid "Event Page"
 msgstr "Trang sự kiện"
 
@@ -3475,7 +3486,7 @@ msgstr "Cài đặt sự kiện"
 
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
-#: src/components/layouts/Event/index.tsx:170
+#: src/components/layouts/Event/index.tsx:171
 #: src/components/routes/event/EventDashboard/index.tsx:88
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
@@ -3483,7 +3494,7 @@ msgstr "Cập nhật trạng thái sự kiện thất bại. Vui lòng thử l�
 
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
-#: src/components/layouts/Event/index.tsx:166
+#: src/components/layouts/Event/index.tsx:167
 #: src/components/routes/event/EventDashboard/index.tsx:85
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
@@ -3733,6 +3744,10 @@ msgstr "Xuất báo cáo thất bại. Vui lòng thử lại."
 #: src/components/modals/EditCheckInListModal/index.tsx:79
 msgid "Failed to load Check-In List"
 msgstr "Không thể tải danh sách check-in"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:69
+msgid "Failed to load delivery issues"
+msgstr "Không thể tải sự cố gửi email"
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:48
 msgid "Failed to load recipients"
@@ -4532,7 +4547,7 @@ msgstr "Instagram"
 msgid "Instant Payouts"
 msgstr "Thanh toán ngay lập tức"
 
-#: src/components/layouts/Event/index.tsx:125
+#: src/components/layouts/Event/index.tsx:126
 #: src/components/layouts/OrganizerLayout/index.tsx:93
 msgid "Integrations"
 msgstr "Tích hợp"
@@ -4837,7 +4852,7 @@ msgid "Links Allowed"
 msgstr "Liên kết được phép"
 
 #: src/components/common/EventCard/index.tsx:87
-#: src/components/layouts/Event/index.tsx:193
+#: src/components/layouts/Event/index.tsx:194
 #: src/components/layouts/OrganizerLayout/index.tsx:214
 msgid "Live"
 msgstr "Trực tiếp"
@@ -5339,6 +5354,10 @@ msgstr "Không tìm thấy dữ liệu cho bộ lọc đã chọn. Hãy thử đ
 msgid "No data to show. Please select a date range"
 msgstr "Không có dữ liệu để hiển thị. Vui lòng chọn khoảng thời gian"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:76
+msgid "No delivery issues found. All transactional emails have been delivered successfully."
+msgstr "Không tìm thấy sự cố gửi email. Tất cả email giao dịch đã được gửi thành công."
+
 #: src/components/forms/PromoCodeForm/index.tsx:77
 msgid "No Discount"
 msgstr "Không giảm giá"
@@ -5820,6 +5839,7 @@ msgstr "Đơn hàng hoàn tất"
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:94
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:200
+#: src/components/routes/event/DeliveryIssues/index.tsx:30
 msgid "Order Confirmation"
 msgstr "Xác nhận đơn hàng"
 
@@ -5850,6 +5870,10 @@ msgstr "Chi tiết đơn hàng"
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:26
 msgid "Order Email"
 msgstr "Email đơn hàng"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:32
+msgid "Order Failed"
+msgstr "Đơn hàng thất bại"
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:24
 msgid "Order First Name"
@@ -6621,8 +6645,8 @@ msgstr "Xem trước"
 msgid "Preview checkout form"
 msgstr "Xem trước biểu mẫu thanh toán"
 
-#: src/components/layouts/Event/index.tsx:239
-#: src/components/layouts/Event/index.tsx:243
+#: src/components/layouts/Event/index.tsx:240
+#: src/components/layouts/Event/index.tsx:244
 msgid "Preview Event page"
 msgstr "Xem trước trang sự kiện"
 
@@ -6949,6 +6973,7 @@ msgid "recipient"
 msgstr "người nhận"
 
 #: src/components/modals/SendMessageModal/index.tsx:60
+#: src/components/routes/event/DeliveryIssues/index.tsx:86
 msgid "Recipient"
 msgstr "Người nhận"
 
@@ -7108,7 +7133,7 @@ msgstr "Gửi lại xác nhận"
 msgid "Resend Confirmation Email"
 msgstr "Gửi lại email xác nhận"
 
-#: src/components/layouts/Event/index.tsx:259
+#: src/components/layouts/Event/index.tsx:260
 msgid "Resend email"
 msgstr "Gửi lại email"
 
@@ -7815,8 +7840,8 @@ msgstr "Chia sẻ"
 msgid "Share Affiliate Link"
 msgstr "Chia sẻ liên kết đối tác"
 
-#: src/components/layouts/Event/index.tsx:209
-#: src/components/layouts/Event/index.tsx:215
+#: src/components/layouts/Event/index.tsx:210
+#: src/components/layouts/Event/index.tsx:216
 #: src/components/modals/EventLiveCelebrationModal/index.tsx:102
 #: src/components/modals/EventLiveCelebrationModal/index.tsx:131
 msgid "Share Event"
@@ -8053,6 +8078,7 @@ msgstr "Thống kê dựa trên ngày tạo tài khoản"
 #: src/components/routes/admin/Messages/index.tsx:120
 #: src/components/routes/admin/Messages/index.tsx:167
 #: src/components/routes/admin/Messages/index.tsx:293
+#: src/components/routes/event/DeliveryIssues/index.tsx:89
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:88
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:62
 msgid "Status"
@@ -8100,6 +8126,7 @@ msgstr "Thiết lập Stripe đã hoàn tất."
 #: src/components/modals/SendMessageModal/index.tsx:347
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
+#: src/components/routes/event/DeliveryIssues/index.tsx:88
 msgid "Subject"
 msgstr "Chủ đề"
 
@@ -9093,6 +9120,10 @@ msgstr "Theo dõi doanh số, doanh thu và lượng người tham dự với b�
 msgid "Transaction Fee:"
 msgstr "Phí giao dịch:"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:56
+msgid "Transactional emails that failed to deliver, bounced, or were suppressed."
+msgstr "Các email giao dịch không gửi được, bị trả lại hoặc bị chặn."
+
 #: src/components/routes/admin/EmailSuppressions/index.tsx:279
 msgid "Transient"
 msgstr "Tạm thời"
@@ -9524,7 +9555,7 @@ msgstr "Đã xác minh"
 msgid "Verify Email"
 msgstr "Xác thực email"
 
-#: src/components/layouts/Event/index.tsx:256
+#: src/components/layouts/Event/index.tsx:257
 msgid "Verify your email"
 msgstr "Xác minh email của bạn"
 
@@ -9596,6 +9627,7 @@ msgstr "Xem trên Google Maps"
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:57
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:69
 #: src/components/common/WaitlistTable/index.tsx:61
+#: src/components/routes/event/DeliveryIssues/index.tsx:109
 #: src/components/routes/my-tickets/index.tsx:110
 msgid "View Order"
 msgstr "Xem đơn hàng"
@@ -9659,20 +9691,32 @@ msgstr "Đang chờ"
 msgid "Waiting for payment"
 msgstr "Đang chờ thanh toán"
 
-#: src/components/layouts/Event/index.tsx:121
+#: src/components/layouts/Event/index.tsx:122
 #: src/components/routes/event/Settings/index.tsx:76
 #: src/components/routes/event/Settings/Sections/WaitlistSettings/index.tsx:51
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:49
 msgid "Waitlist"
 msgstr "Danh sách chờ"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:38
+msgid "Waitlist Confirmation"
+msgstr "Xác nhận danh sách chờ"
+
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:295
 msgid "Waitlist Enabled"
 msgstr ""
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:36
+msgid "Waitlist Offer"
+msgstr "Ưu đãi danh sách chờ"
+
 #: src/components/routes/product-widget/CollectInformation/index.tsx:372
 msgid "Waitlist offer expired"
 msgstr ""
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:40
+msgid "Waitlist Offer Expired"
+msgstr "Ưu đãi danh sách chờ đã hết hạn"
 
 #: src/components/routes/admin/Configurations/index.tsx:212
 msgid "Warning: This is the system default configuration. Changes will affect all accounts that don't have a specific configuration assigned."
@@ -9799,7 +9843,7 @@ msgstr "Webhook sẽ không gửi thông báo"
 msgid "Webhook will send notifications"
 msgstr "Webhook sẽ gửi thông báo"
 
-#: src/components/layouts/Event/index.tsx:127
+#: src/components/layouts/Event/index.tsx:128
 #: src/components/layouts/OrganizerLayout/index.tsx:94
 #: src/components/modals/DuplicateEventModal/index.tsx:32
 #: src/components/routes/event/Webhooks/index.tsx:32
@@ -9987,7 +10031,7 @@ msgstr "Ai đang tổ chức sự kiện này?"
 msgid "Who should be asked this question?"
 msgstr "Ai nên được hỏi câu hỏi này?"
 
-#: src/components/layouts/Event/index.tsx:126
+#: src/components/layouts/Event/index.tsx:127
 msgid "Widget Embed"
 msgstr "Nhúng Widget"
 

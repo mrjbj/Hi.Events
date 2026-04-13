@@ -5,15 +5,17 @@ namespace HiEvents\Services\Domain\Email\Ses\EventHandlers;
 use HiEvents\DomainObjects\Status\EmailSuppressionReasonEnum;
 use HiEvents\DomainObjects\Status\EmailSuppressionSourceEnum;
 use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingTransactionMessageRepositoryInterface;
 use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use Illuminate\Log\Logger;
 
 class BounceHandler
 {
     public function __construct(
-        private readonly EmailSuppressionService              $emailSuppressionService,
-        private readonly OutgoingMessageRepositoryInterface   $outgoingMessageRepository,
-        private readonly Logger                               $logger,
+        private readonly EmailSuppressionService                          $emailSuppressionService,
+        private readonly OutgoingMessageRepositoryInterface               $outgoingMessageRepository,
+        private readonly OutgoingTransactionMessageRepositoryInterface    $outgoingTransactionMessageRepository,
+        private readonly Logger                                           $logger,
     )
     {
     }
@@ -34,7 +36,8 @@ class BounceHandler
                 continue;
             }
 
-            $accountId = $this->outgoingMessageRepository->findAccountIdByRecipientEmail($email);
+            $accountId = $this->outgoingMessageRepository->findAccountIdByRecipientEmail($email)
+                ?? $this->outgoingTransactionMessageRepository->findAccountIdByRecipientEmail($email);
 
             $this->logger->info('Processing SES bounce', [
                 'email' => $email,
@@ -55,9 +58,26 @@ class BounceHandler
                 rawPayload: $snsPayload,
             );
 
-            if ($sesMessageId && $this->outgoingMessageRepository->markAsBounced($sesMessageId)) {
-                $this->logger->info('Marked outgoing message as bounced', ['ses_message_id' => $sesMessageId]);
+            if ($sesMessageId) {
+                $this->markOutgoingMessagesAsBounced($sesMessageId);
             }
+        }
+    }
+
+    private function markOutgoingMessagesAsBounced(string $sesMessageId): void
+    {
+        if ($this->outgoingMessageRepository->markAsBounced($sesMessageId)) {
+            $this->logger->info('Marked outgoing message as bounced', ['ses_message_id' => $sesMessageId]);
+        }
+
+        $transactionMessage = $this->outgoingTransactionMessageRepository->findBySesMessageId($sesMessageId);
+
+        if ($transactionMessage) {
+            $this->outgoingTransactionMessageRepository->markAsBounced($transactionMessage->getId());
+            $this->logger->info('Marked transaction message as bounced', [
+                'ses_message_id' => $sesMessageId,
+                'transaction_message_id' => $transactionMessage->getId(),
+            ]);
         }
     }
 }

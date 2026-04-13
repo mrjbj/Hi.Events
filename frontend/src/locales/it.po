@@ -13,12 +13,12 @@ msgstr ""
 "Language-Team: Italian\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/components/layouts/Event/index.tsx:192
+#: src/components/layouts/Event/index.tsx:193
 #: src/components/layouts/OrganizerLayout/index.tsx:213
 msgid "- Click to Publish"
 msgstr "- Clicca per pubblicare"
 
-#: src/components/layouts/Event/index.tsx:194
+#: src/components/layouts/Event/index.tsx:195
 #: src/components/layouts/OrganizerLayout/index.tsx:215
 msgid "- Click to Unpublish"
 msgstr "- Clicca per annullare la pubblicazione"
@@ -921,12 +921,12 @@ msgstr "Sei sicuro di voler eliminare questo webhook?"
 msgid "Are you sure you want to leave?"
 msgstr "Sei sicuro di voler uscire?"
 
-#: src/components/layouts/Event/index.tsx:154
+#: src/components/layouts/Event/index.tsx:155
 #: src/components/routes/event/EventDashboard/index.tsx:73
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "Sei sicuro di voler rendere questo evento una bozza? Questo renderà l'evento invisibile al pubblico"
 
-#: src/components/layouts/Event/index.tsx:155
+#: src/components/layouts/Event/index.tsx:156
 #: src/components/routes/event/EventDashboard/index.tsx:74
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "Sei sicuro di voler rendere questo evento pubblico? Questo renderà l'evento visibile al pubblico"
@@ -1105,6 +1105,7 @@ msgstr "Stato del Partecipante"
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:95
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:201
 #: src/components/modals/ManageAttendeeModal/index.tsx:172
+#: src/components/routes/event/DeliveryIssues/index.tsx:34
 msgid "Attendee Ticket"
 msgstr "Biglietto Partecipante"
 
@@ -1475,7 +1476,7 @@ msgstr "Assegnazione di Capacità eliminata con successo"
 msgid "Capacity Assignments"
 msgstr "Assegnazioni di capacità"
 
-#: src/components/layouts/Event/index.tsx:122
+#: src/components/layouts/Event/index.tsx:123
 msgid "Capacity Management"
 msgstr "Gestione capacità"
 
@@ -1939,7 +1940,7 @@ msgstr "Conferma password"
 msgid "Confirm Password"
 msgstr "Conferma Password"
 
-#: src/components/layouts/Event/index.tsx:257
+#: src/components/layouts/Event/index.tsx:258
 msgid "Confirm your email to access all features."
 msgstr "Conferma la tua email per accedere a tutte le funzionalità."
 
@@ -2584,6 +2585,7 @@ msgstr "Proprietà dei dati"
 #: src/components/common/OrderDetails/index.tsx:39
 #: src/components/forms/QuestionForm/index.tsx:136
 #: src/components/routes/admin/EmailSuppressions/index.tsx:184
+#: src/components/routes/event/DeliveryIssues/index.tsx:90
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:56
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:24
 msgid "Date"
@@ -2690,6 +2692,11 @@ msgstr "Eliminare questa domanda? Questa azione non può essere annullata."
 #: src/components/common/WebhookTable/index.tsx:127
 msgid "Delete webhook"
 msgstr "Elimina webhook"
+
+#: src/components/layouts/Event/index.tsx:121
+#: src/components/routes/event/DeliveryIssues/index.tsx:58
+msgid "Delivery Issues"
+msgstr "Problemi di consegna"
 
 #: src/components/forms/ProductForm/index.tsx:280
 #: src/components/forms/TaxAndFeeForm/index.tsx:81
@@ -2813,7 +2820,7 @@ msgid "Downloading Invoice"
 msgstr "Scaricamento Fattura in corso"
 
 #: src/components/common/EventCard/index.tsx:84
-#: src/components/layouts/Event/index.tsx:191
+#: src/components/layouts/Event/index.tsx:192
 #: src/components/layouts/OrganizerLayout/index.tsx:212
 msgid "Draft"
 msgstr "Bozza"
@@ -3136,6 +3143,10 @@ msgstr "Soppressioni e-mail"
 #: src/components/routes/organizer/Settings/index.tsx:65
 msgid "Email Templates"
 msgstr "Modelli Email"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:87
+msgid "Email Type"
+msgstr "Tipo di email"
 
 #: src/components/layouts/OrganizerLayout/index.tsx:288
 msgid "Email Verification Required"
@@ -3462,7 +3473,7 @@ msgstr "Evento Non Disponibile"
 msgid "Event organizer name"
 msgstr "Nome organizzatore evento"
 
-#: src/components/layouts/Event/index.tsx:246
+#: src/components/layouts/Event/index.tsx:247
 msgid "Event Page"
 msgstr "Pagina dell'evento"
 
@@ -3477,7 +3488,7 @@ msgstr "Impostazioni evento"
 
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
-#: src/components/layouts/Event/index.tsx:170
+#: src/components/layouts/Event/index.tsx:171
 #: src/components/routes/event/EventDashboard/index.tsx:88
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
@@ -3485,7 +3496,7 @@ msgstr "Aggiornamento stato evento fallito. Riprova più tardi"
 
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
-#: src/components/layouts/Event/index.tsx:166
+#: src/components/layouts/Event/index.tsx:167
 #: src/components/routes/event/EventDashboard/index.tsx:85
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
@@ -3735,6 +3746,10 @@ msgstr "Impossibile esportare il report. Riprova."
 #: src/components/modals/EditCheckInListModal/index.tsx:79
 msgid "Failed to load Check-In List"
 msgstr "Impossibile caricare la Lista di Check-In"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:69
+msgid "Failed to load delivery issues"
+msgstr "Impossibile caricare i problemi di consegna"
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:48
 msgid "Failed to load recipients"
@@ -4534,7 +4549,7 @@ msgstr "Instagram"
 msgid "Instant Payouts"
 msgstr "Pagamenti immediati"
 
-#: src/components/layouts/Event/index.tsx:125
+#: src/components/layouts/Event/index.tsx:126
 #: src/components/layouts/OrganizerLayout/index.tsx:93
 msgid "Integrations"
 msgstr "Integrazioni"
@@ -4839,7 +4854,7 @@ msgid "Links Allowed"
 msgstr "Link consentiti"
 
 #: src/components/common/EventCard/index.tsx:87
-#: src/components/layouts/Event/index.tsx:193
+#: src/components/layouts/Event/index.tsx:194
 #: src/components/layouts/OrganizerLayout/index.tsx:214
 msgid "Live"
 msgstr "Online"
@@ -5341,6 +5356,10 @@ msgstr "Nessun dato trovato per i filtri selezionati. Prova a modificare l'inter
 msgid "No data to show. Please select a date range"
 msgstr "Nessun dato da mostrare. Seleziona un intervallo di date"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:76
+msgid "No delivery issues found. All transactional emails have been delivered successfully."
+msgstr "Nessun problema di consegna trovato. Tutte le email transazionali sono state consegnate con successo."
+
 #: src/components/forms/PromoCodeForm/index.tsx:77
 msgid "No Discount"
 msgstr "Nessuno Sconto"
@@ -5822,6 +5841,7 @@ msgstr "Ordine completato"
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:94
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:200
+#: src/components/routes/event/DeliveryIssues/index.tsx:30
 msgid "Order Confirmation"
 msgstr "Conferma Ordine"
 
@@ -5852,6 +5872,10 @@ msgstr "Dettagli Ordine"
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:26
 msgid "Order Email"
 msgstr "Email Ordine"
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:32
+msgid "Order Failed"
+msgstr "Ordine fallito"
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:24
 msgid "Order First Name"
@@ -6623,8 +6647,8 @@ msgstr "Anteprima"
 msgid "Preview checkout form"
 msgstr "Anteprima modulo di checkout"
 
-#: src/components/layouts/Event/index.tsx:239
-#: src/components/layouts/Event/index.tsx:243
+#: src/components/layouts/Event/index.tsx:240
+#: src/components/layouts/Event/index.tsx:244
 msgid "Preview Event page"
 msgstr "Anteprima pagina evento"
 
@@ -6953,6 +6977,7 @@ msgid "recipient"
 msgstr "destinatario"
 
 #: src/components/modals/SendMessageModal/index.tsx:60
+#: src/components/routes/event/DeliveryIssues/index.tsx:86
 msgid "Recipient"
 msgstr "Destinatario"
 
@@ -7112,7 +7137,7 @@ msgstr "Reinvia conferma"
 msgid "Resend Confirmation Email"
 msgstr "Invia nuovamente l'email di conferma"
 
-#: src/components/layouts/Event/index.tsx:259
+#: src/components/layouts/Event/index.tsx:260
 msgid "Resend email"
 msgstr "Invia nuovamente l'email"
 
@@ -7819,8 +7844,8 @@ msgstr "Condividi"
 msgid "Share Affiliate Link"
 msgstr "Condividi link affiliato"
 
-#: src/components/layouts/Event/index.tsx:209
-#: src/components/layouts/Event/index.tsx:215
+#: src/components/layouts/Event/index.tsx:210
+#: src/components/layouts/Event/index.tsx:216
 #: src/components/modals/EventLiveCelebrationModal/index.tsx:102
 #: src/components/modals/EventLiveCelebrationModal/index.tsx:131
 msgid "Share Event"
@@ -8057,6 +8082,7 @@ msgstr "Le statistiche si basano sulla data di creazione dell'account"
 #: src/components/routes/admin/Messages/index.tsx:120
 #: src/components/routes/admin/Messages/index.tsx:167
 #: src/components/routes/admin/Messages/index.tsx:293
+#: src/components/routes/event/DeliveryIssues/index.tsx:89
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:88
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:62
 msgid "Status"
@@ -8104,6 +8130,7 @@ msgstr "La configurazione di Stripe è già completa."
 #: src/components/modals/SendMessageModal/index.tsx:347
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
+#: src/components/routes/event/DeliveryIssues/index.tsx:88
 msgid "Subject"
 msgstr "Oggetto"
 
@@ -9097,6 +9124,10 @@ msgstr "Tieni traccia delle vendite, dei ricavi e delle presenze con report dett
 msgid "Transaction Fee:"
 msgstr "Commissione di Transazione:"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:56
+msgid "Transactional emails that failed to deliver, bounced, or were suppressed."
+msgstr "Email transazionali che non sono state consegnate, sono state respinte o soppresse."
+
 #: src/components/routes/admin/EmailSuppressions/index.tsx:279
 msgid "Transient"
 msgstr "Transitorio"
@@ -9528,7 +9559,7 @@ msgstr "Verificato"
 msgid "Verify Email"
 msgstr "Verifica email"
 
-#: src/components/layouts/Event/index.tsx:256
+#: src/components/layouts/Event/index.tsx:257
 msgid "Verify your email"
 msgstr "Verifica la tua email"
 
@@ -9600,6 +9631,7 @@ msgstr "Visualizza su Google Maps"
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:57
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:69
 #: src/components/common/WaitlistTable/index.tsx:61
+#: src/components/routes/event/DeliveryIssues/index.tsx:109
 #: src/components/routes/my-tickets/index.tsx:110
 msgid "View Order"
 msgstr "Visualizza Ordine"
@@ -9663,20 +9695,32 @@ msgstr "In attesa"
 msgid "Waiting for payment"
 msgstr "In attesa di pagamento"
 
-#: src/components/layouts/Event/index.tsx:121
+#: src/components/layouts/Event/index.tsx:122
 #: src/components/routes/event/Settings/index.tsx:76
 #: src/components/routes/event/Settings/Sections/WaitlistSettings/index.tsx:51
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:49
 msgid "Waitlist"
 msgstr "Lista d'attesa"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:38
+msgid "Waitlist Confirmation"
+msgstr "Conferma lista d'attesa"
+
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:295
 msgid "Waitlist Enabled"
 msgstr "Lista d'attesa abilitata"
 
+#: src/components/routes/event/DeliveryIssues/index.tsx:36
+msgid "Waitlist Offer"
+msgstr "Offerta lista d'attesa"
+
 #: src/components/routes/product-widget/CollectInformation/index.tsx:372
 msgid "Waitlist offer expired"
 msgstr "L'offerta per la lista d'attesa è scaduta."
+
+#: src/components/routes/event/DeliveryIssues/index.tsx:40
+msgid "Waitlist Offer Expired"
+msgstr "Offerta lista d'attesa scaduta"
 
 #: src/components/routes/admin/Configurations/index.tsx:212
 msgid "Warning: This is the system default configuration. Changes will affect all accounts that don't have a specific configuration assigned."
@@ -9803,7 +9847,7 @@ msgstr "Il webhook non invierà notifiche"
 msgid "Webhook will send notifications"
 msgstr "Il webhook invierà notifiche"
 
-#: src/components/layouts/Event/index.tsx:127
+#: src/components/layouts/Event/index.tsx:128
 #: src/components/layouts/OrganizerLayout/index.tsx:94
 #: src/components/modals/DuplicateEventModal/index.tsx:32
 #: src/components/routes/event/Webhooks/index.tsx:32
@@ -9991,7 +10035,7 @@ msgstr "Chi sta organizzando questo evento?"
 msgid "Who should be asked this question?"
 msgstr "A chi dovrebbe essere posta questa domanda?"
 
-#: src/components/layouts/Event/index.tsx:126
+#: src/components/layouts/Event/index.tsx:127
 msgid "Widget Embed"
 msgstr "Incorpora Widget"
 

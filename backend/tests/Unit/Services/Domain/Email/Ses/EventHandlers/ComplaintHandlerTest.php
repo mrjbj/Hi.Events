@@ -4,6 +4,7 @@ namespace Tests\Unit\Services\Domain\Email\Ses\EventHandlers;
 
 use HiEvents\DomainObjects\EmailSuppressionDomainObject;
 use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingTransactionMessageRepositoryInterface;
 use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
 use Illuminate\Log\Logger;
@@ -14,6 +15,7 @@ class ComplaintHandlerTest extends TestCase
 {
     private EmailSuppressionService $suppressionService;
     private OutgoingMessageRepositoryInterface $outgoingMessageRepository;
+    private OutgoingTransactionMessageRepositoryInterface $outgoingTransactionMessageRepository;
     private Logger $logger;
     private ComplaintHandler $handler;
 
@@ -23,11 +25,15 @@ class ComplaintHandlerTest extends TestCase
         $this->suppressionService = m::mock(EmailSuppressionService::class);
         $this->outgoingMessageRepository = m::mock(OutgoingMessageRepositoryInterface::class);
         $this->outgoingMessageRepository->shouldReceive('markAsBounced')->andReturn(false)->byDefault();
+        $this->outgoingTransactionMessageRepository = m::mock(OutgoingTransactionMessageRepositoryInterface::class);
+        $this->outgoingTransactionMessageRepository->shouldReceive('findBySesMessageId')->andReturn(null)->byDefault();
+        $this->outgoingTransactionMessageRepository->shouldReceive('findAccountIdByRecipientEmail')->andReturn(null)->byDefault();
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
 
         $this->handler = new ComplaintHandler(
             $this->suppressionService,
             $this->outgoingMessageRepository,
+            $this->outgoingTransactionMessageRepository,
             $this->logger,
         );
     }
