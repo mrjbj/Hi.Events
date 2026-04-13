@@ -7,13 +7,15 @@
 #   SES_SUPPRESSION_ENABLED=true
 #
 # Usage:
-#   ./jbj/ses-test.sh list                              # show recent outgoing messages
-#   ./jbj/ses-test.sh list-suppressions                 # show email suppressions
-#   ./jbj/ses-test.sh bounce <email> [ses_message_id]   # permanent bounce
-#   ./jbj/ses-test.sh bounce-transient <email> [ses_msg_id]
-#   ./jbj/ses-test.sh complaint <email> [ses_message_id]
-#   ./jbj/ses-test.sh delivery <email> [ses_message_id] # unhandled type (log test)
-#   ./jbj/ses-test.sh subscribe                         # subscription confirmation
+#   ./jbj/ses-test.sh list                                  # show recent outgoing messages
+#   ./jbj/ses-test.sh list-suppressions                     # show email suppressions
+#   ./jbj/ses-test.sh bounce marketing:10                   # bounce by table:id (looks up email + ses_message_id)
+#   ./jbj/ses-test.sh bounce transaction:2                  # bounce a transaction message
+#   ./jbj/ses-test.sh bounce user@example.com [ses_msg_id]  # bounce with explicit email
+#   ./jbj/ses-test.sh bounce-transient marketing:10
+#   ./jbj/ses-test.sh complaint marketing:10
+#   ./jbj/ses-test.sh delivery marketing:10                 # unhandled type (log test)
+#   ./jbj/ses-test.sh subscribe                             # subscription confirmation
 #
 
 set -euo pipefail
@@ -32,6 +34,64 @@ generate_uuid() {
 
 timestamp() {
     date -u +"%Y-%m-%dT%H:%M:%S.000Z"
+}
+
+db_query() {
+    local sql="$1"
+    $DOCKER_COMPOSE exec -T pgsql psql -U "$DB_USER" -d "$DB_NAME" -c "$sql"
+}
+
+db_query_value() {
+    local sql="$1"
+    $DOCKER_COMPOSE exec -T pgsql psql -U "$DB_USER" -d "$DB_NAME" -t -A -c "$sql"
+}
+
+# Resolve a target argument into email + ses_message_id.
+# Accepts either:
+#   marketing:ID  or  transaction:ID  — looks up from DB
+#   email@addr [ses_message_id]       — uses as-is
+resolve_target() {
+    local arg1="$1"
+    local arg2="${2:-}"
+
+    if [[ "$arg1" == marketing:* ]]; then
+        local row_id="${arg1#marketing:}"
+        local result
+        result=$(db_query_value "SELECT recipient || '|' || COALESCE(ses_message_id, '') FROM outgoing_messages WHERE id = $row_id AND deleted_at IS NULL")
+        result=$(echo "$result" | tr -d '[:space:]')
+        if [ -z "$result" ]; then
+            echo "ERROR: No marketing message found with id=$row_id" >&2
+            exit 1
+        fi
+        TARGET_EMAIL="${result%%|*}"
+        TARGET_SES_MSG_ID="${result##*|}"
+        if [ -z "$TARGET_SES_MSG_ID" ]; then
+            TARGET_SES_MSG_ID=$(generate_uuid)
+            echo "WARNING: marketing:$row_id has no ses_message_id — using generated UUID (status won't update)" >&2
+        fi
+        echo "Resolved marketing:$row_id → email=$TARGET_EMAIL, ses_message_id=$TARGET_SES_MSG_ID" >&2
+
+    elif [[ "$arg1" == transaction:* ]]; then
+        local row_id="${arg1#transaction:}"
+        local result
+        result=$(db_query_value "SELECT recipient || '|' || COALESCE(ses_message_id, '') FROM outgoing_transaction_messages WHERE id = $row_id AND deleted_at IS NULL")
+        result=$(echo "$result" | tr -d '[:space:]')
+        if [ -z "$result" ]; then
+            echo "ERROR: No transaction message found with id=$row_id" >&2
+            exit 1
+        fi
+        TARGET_EMAIL="${result%%|*}"
+        TARGET_SES_MSG_ID="${result##*|}"
+        if [ -z "$TARGET_SES_MSG_ID" ]; then
+            TARGET_SES_MSG_ID=$(generate_uuid)
+            echo "WARNING: transaction:$row_id has no ses_message_id — using generated UUID (status won't update)" >&2
+        fi
+        echo "Resolved transaction:$row_id → email=$TARGET_EMAIL, ses_message_id=$TARGET_SES_MSG_ID" >&2
+
+    else
+        TARGET_EMAIL="$arg1"
+        TARGET_SES_MSG_ID="${arg2:-$(generate_uuid)}"
+    fi
 }
 
 send_sns_payload() {
@@ -57,7 +117,6 @@ build_sns_envelope() {
     local sns_message_id
     sns_message_id=$(generate_uuid)
 
-    # JSON-encode the inner message as a string value
     local escaped_message
     escaped_message=$(echo "$inner_message" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))")
 
@@ -72,15 +131,11 @@ build_sns_envelope() {
 EOF
 }
 
-db_query() {
-    local sql="$1"
-    $DOCKER_COMPOSE exec -T pgsql psql -U "$DB_USER" -d "$DB_NAME" -c "$sql"
-}
-
 # --- subcommands ---
 
 cmd_list() {
     echo "=== Recent Outgoing Messages ==="
+    echo "Use marketing:<id> or transaction:<id> to target a specific message"
     echo ""
     db_query "
         SELECT * FROM (
@@ -90,7 +145,7 @@ cmd_list() {
                 om.recipient,
                 LEFT(om.subject, 40) AS subject,
                 om.status,
-                om.ses_message_id,
+                CASE WHEN om.ses_message_id IS NOT NULL THEN 'yes' ELSE '-' END AS has_ses_id,
                 om.created_at
             FROM outgoing_messages om
             WHERE om.deleted_at IS NULL
@@ -100,12 +155,12 @@ cmd_list() {
         UNION ALL
         SELECT * FROM (
             SELECT
-                'transact' AS type,
+                'transaction' AS type,
                 otm.id,
                 otm.recipient,
                 LEFT(otm.subject, 40) AS subject,
                 otm.status,
-                otm.ses_message_id,
+                CASE WHEN otm.ses_message_id IS NOT NULL THEN 'yes' ELSE '-' END AS has_ses_id,
                 otm.created_at
             FROM outgoing_transaction_messages otm
             WHERE otm.deleted_at IS NULL
@@ -139,8 +194,8 @@ cmd_list_suppressions() {
 }
 
 cmd_bounce() {
-    local email="${1:?Usage: ses-test.sh bounce <email> [ses_message_id]}"
-    local ses_msg_id="${2:-$(generate_uuid)}"
+    local target="${1:?Usage: ses-test.sh bounce <marketing:ID|transaction:ID|email> [ses_message_id]}"
+    resolve_target "$target" "${2:-}"
 
     local inner
     inner=$(cat <<EOF
@@ -149,13 +204,13 @@ cmd_bounce() {
   "bounce": {
     "bounceType": "Permanent",
     "bounceSubType": "General",
-    "bouncedRecipients": [{"emailAddress": "$email"}],
+    "bouncedRecipients": [{"emailAddress": "$TARGET_EMAIL"}],
     "timestamp": "$(timestamp)"
   },
   "mail": {
-    "messageId": "$ses_msg_id",
+    "messageId": "$TARGET_SES_MSG_ID",
     "timestamp": "$(timestamp)",
-    "destination": ["$email"]
+    "destination": ["$TARGET_EMAIL"]
   }
 }
 EOF
@@ -163,12 +218,12 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Permanent bounce for $email (ses_msg_id=$ses_msg_id)"
+    send_sns_payload "$payload" "Permanent bounce for $TARGET_EMAIL (ses_msg_id=$TARGET_SES_MSG_ID)"
 }
 
 cmd_bounce_transient() {
-    local email="${1:?Usage: ses-test.sh bounce-transient <email> [ses_message_id]}"
-    local ses_msg_id="${2:-$(generate_uuid)}"
+    local target="${1:?Usage: ses-test.sh bounce-transient <marketing:ID|transaction:ID|email> [ses_message_id]}"
+    resolve_target "$target" "${2:-}"
 
     local inner
     inner=$(cat <<EOF
@@ -177,13 +232,13 @@ cmd_bounce_transient() {
   "bounce": {
     "bounceType": "Transient",
     "bounceSubType": "General",
-    "bouncedRecipients": [{"emailAddress": "$email"}],
+    "bouncedRecipients": [{"emailAddress": "$TARGET_EMAIL"}],
     "timestamp": "$(timestamp)"
   },
   "mail": {
-    "messageId": "$ses_msg_id",
+    "messageId": "$TARGET_SES_MSG_ID",
     "timestamp": "$(timestamp)",
-    "destination": ["$email"]
+    "destination": ["$TARGET_EMAIL"]
   }
 }
 EOF
@@ -191,12 +246,12 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Transient bounce for $email (ses_msg_id=$ses_msg_id)"
+    send_sns_payload "$payload" "Transient bounce for $TARGET_EMAIL (ses_msg_id=$TARGET_SES_MSG_ID)"
 }
 
 cmd_complaint() {
-    local email="${1:?Usage: ses-test.sh complaint <email> [ses_message_id]}"
-    local ses_msg_id="${2:-$(generate_uuid)}"
+    local target="${1:?Usage: ses-test.sh complaint <marketing:ID|transaction:ID|email> [ses_message_id]}"
+    resolve_target "$target" "${2:-}"
 
     local inner
     inner=$(cat <<EOF
@@ -204,13 +259,13 @@ cmd_complaint() {
   "notificationType": "Complaint",
   "complaint": {
     "complaintFeedbackType": "abuse",
-    "complainedRecipients": [{"emailAddress": "$email"}],
+    "complainedRecipients": [{"emailAddress": "$TARGET_EMAIL"}],
     "timestamp": "$(timestamp)"
   },
   "mail": {
-    "messageId": "$ses_msg_id",
+    "messageId": "$TARGET_SES_MSG_ID",
     "timestamp": "$(timestamp)",
-    "destination": ["$email"]
+    "destination": ["$TARGET_EMAIL"]
   }
 }
 EOF
@@ -218,26 +273,26 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Complaint (abuse) for $email (ses_msg_id=$ses_msg_id)"
+    send_sns_payload "$payload" "Complaint (abuse) for $TARGET_EMAIL (ses_msg_id=$TARGET_SES_MSG_ID)"
 }
 
 cmd_delivery() {
-    local email="${1:?Usage: ses-test.sh delivery <email> [ses_message_id]}"
-    local ses_msg_id="${2:-$(generate_uuid)}"
+    local target="${1:?Usage: ses-test.sh delivery <marketing:ID|transaction:ID|email> [ses_message_id]}"
+    resolve_target "$target" "${2:-}"
 
     local inner
     inner=$(cat <<EOF
 {
   "notificationType": "Delivery",
   "delivery": {
-    "recipients": ["$email"],
+    "recipients": ["$TARGET_EMAIL"],
     "timestamp": "$(timestamp)",
     "smtpResponse": "250 2.6.0 Message received"
   },
   "mail": {
-    "messageId": "$ses_msg_id",
+    "messageId": "$TARGET_SES_MSG_ID",
     "timestamp": "$(timestamp)",
-    "destination": ["$email"]
+    "destination": ["$TARGET_EMAIL"]
   }
 }
 EOF
@@ -245,7 +300,7 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Delivery notification for $email (unhandled type — check logs)"
+    send_sns_payload "$payload" "Delivery notification for $TARGET_EMAIL (unhandled type — check logs)"
 }
 
 cmd_subscribe() {
@@ -299,22 +354,29 @@ case "${1:-help}" in
 Usage: ses-test.sh <command> [args]
 
 Commands:
-  list                              Show recent outgoing messages (marketing + transaction)
-  list-suppressions                 Show email suppression records
-  bounce <email> [ses_message_id]   Simulate a permanent (hard) bounce
-  bounce-transient <email> [ses_id] Simulate a transient (soft) bounce
-  complaint <email> [ses_message_id] Simulate an abuse complaint
-  delivery <email> [ses_message_id] Simulate a delivery notification (unhandled type)
-  subscribe                         Simulate SNS subscription confirmation
+  list                                          Show recent outgoing messages (marketing + transaction)
+  list-suppressions                             Show email suppression records
+  bounce <marketing:ID|transaction:ID|email>    Simulate a permanent (hard) bounce
+  bounce-transient <target>                     Simulate a transient (soft) bounce
+  complaint <target>                            Simulate an abuse complaint
+  delivery <target>                             Simulate a delivery notification (unhandled type)
+  subscribe                                     Simulate SNS subscription confirmation
+
+Target formats:
+  marketing:10          Look up email + ses_message_id from outgoing_messages row 10
+  transaction:2         Look up from outgoing_transaction_messages row 2
+  user@example.com      Use this email with a generated ses_message_id
+  user@example.com ID   Use this email with a specific ses_message_id
 
 Environment:
   SES_TEST_URL    Webhook URL (default: https://localhost:8443/api/public/webhooks/ses)
 
 Examples:
   ./jbj/ses-test.sh list
+  ./jbj/ses-test.sh bounce marketing:10
+  ./jbj/ses-test.sh bounce transaction:1
+  ./jbj/ses-test.sh complaint marketing:10
   ./jbj/ses-test.sh bounce user@example.com
-  ./jbj/ses-test.sh bounce user@example.com 0100018e-abcd-1234-5678-abcdef123456
-  ./jbj/ses-test.sh complaint user@example.com
   ./jbj/ses-test.sh list-suppressions
 
 Requires docker/development environment running with:
