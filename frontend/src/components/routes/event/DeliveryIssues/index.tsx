@@ -1,9 +1,9 @@
 import {PageTitle} from "../../../common/PageTitle";
 import {t} from "@lingui/macro";
 import {PageBody} from "../../../common/PageBody";
-import {Alert, Badge, Table, Text} from "@mantine/core";
+import {Alert, Anchor, Badge, Table, Text} from "@mantine/core";
 import {Card} from "../../../common/Card";
-import {useParams} from "react-router";
+import {Link, useParams} from "react-router";
 import {useGetTransactionMessageFailures} from "../../../../queries/useGetTransactionMessageFailures.ts";
 import {relativeDate} from "../../../../utilites/dates.ts";
 import {Pagination} from "../../../common/Pagination";
@@ -88,6 +88,7 @@ const DeliveryIssues = () => {
                                 <Table.Th>{t`Subject`}</Table.Th>
                                 <Table.Th>{t`Status`}</Table.Th>
                                 <Table.Th>{t`Date`}</Table.Th>
+                                <Table.Th></Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -102,6 +103,13 @@ const DeliveryIssues = () => {
                                         </Badge>
                                     </Table.Td>
                                     <Table.Td>{relativeDate(failure.created_at)}</Table.Td>
+                                    <Table.Td>
+                                        {failure.order_id && (
+                                            <Anchor component={Link} to={`/manage/event/${eventId}/orders#order-${failure.order_id}`} size="sm">
+                                                {t`View Order`}
+                                            </Anchor>
+                                        )}
+                                    </Table.Td>
                                 </Table.Tr>
                             ))}
                         </Table.Tbody>
