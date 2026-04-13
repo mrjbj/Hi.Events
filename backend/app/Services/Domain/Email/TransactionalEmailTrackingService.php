@@ -45,7 +45,7 @@ class TransactionalEmailTrackingService
             if ($locale) {
                 $pendingMail->locale($locale);
             }
-            $sentMessage = $pendingMail->send($mail);
+            $sentMessage = $pendingMail->sendNow($mail);
         } catch (Throwable $e) {
             $this->recordMessage($recipient, $subject, $emailType, OutgoingTransactionMessageStatus::FAILED, $eventId, $orderId, $attendeeId);
             throw $e;

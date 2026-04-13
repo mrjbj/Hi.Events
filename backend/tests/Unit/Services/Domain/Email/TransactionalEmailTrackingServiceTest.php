@@ -48,9 +48,13 @@ class TransactionalEmailTrackingServiceTest extends TestCase
         $pendingMail->shouldReceive('locale')
             ->with('en')
             ->andReturn($pendingMail);
-        $pendingMail->shouldReceive('send')
+        $sentMessage = m::mock(\Illuminate\Mail\SentMessage::class);
+        $sentMessage->shouldReceive('getMessageId')->andReturn('ses-abc-123');
+
+        $pendingMail->shouldReceive('sendNow')
             ->with($mail)
-            ->once();
+            ->once()
+            ->andReturn($sentMessage);
 
         $this->repository->shouldReceive('create')
             ->once()
@@ -59,7 +63,8 @@ class TransactionalEmailTrackingServiceTest extends TestCase
                     && $attrs['email_type'] === TransactionalEmailType::ORDER_SUMMARY->value
                     && $attrs['recipient'] === 'test@example.com'
                     && $attrs['event_id'] === 10
-                    && $attrs['order_id'] === 20;
+                    && $attrs['order_id'] === 20
+                    && $attrs['ses_message_id'] === 'ses-abc-123';
             });
 
         $this->service->recordAndSend(
@@ -85,7 +90,7 @@ class TransactionalEmailTrackingServiceTest extends TestCase
 
         $this->mailer->shouldReceive('to')
             ->andReturn($pendingMail);
-        $pendingMail->shouldReceive('send')
+        $pendingMail->shouldReceive('sendNow')
             ->andThrow(new RuntimeException('SMTP error'));
 
         $this->repository->shouldReceive('create')
@@ -146,7 +151,7 @@ class TransactionalEmailTrackingServiceTest extends TestCase
 
         $this->mailer->shouldReceive('to')->andReturn($pendingMail);
         $pendingMail->shouldReceive('locale')->andReturn($pendingMail);
-        $pendingMail->shouldReceive('send');
+        $pendingMail->shouldReceive('sendNow');
 
         $this->repository->shouldReceive('create')
             ->once()

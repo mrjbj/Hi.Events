@@ -58,7 +58,7 @@ class SendEventEmailJob implements ShouldQueue
         try {
             $sentMessage = $mailer
                 ->to($this->email, $this->toName)
-                ->send($this->eventMessage);
+                ->sendNow($this->eventMessage);
         } catch (Throwable $exception) {
             $outgoingMessageRepository->create([
                 OutgoingMessageDomainObjectAbstract::MESSAGE_ID => $this->messageData->id,
