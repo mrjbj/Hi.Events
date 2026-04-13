@@ -83,7 +83,6 @@ use HiEvents\Http\Actions\Images\DeleteImageAction;
 use HiEvents\Http\Actions\Images\GetAccountImagesAction;
 use HiEvents\Http\Actions\Messages\CancelMessageAction;
 use HiEvents\Http\Actions\Messages\GetMessageRecipientsAction;
-use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessageFailuresAction;
 use HiEvents\Http\Actions\Messages\GetMessagesAction;
 use HiEvents\Http\Actions\Messages\SendMessageAction;
 use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessageFailuresAction;
