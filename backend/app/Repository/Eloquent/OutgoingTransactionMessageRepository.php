@@ -24,16 +24,12 @@ class OutgoingTransactionMessageRepository extends BaseRepository implements Out
         return OutgoingTransactionMessageDomainObject::class;
     }
 
-    public function findRecentByRecipient(string $email, int $minutesBack = 60): ?OutgoingTransactionMessageDomainObject
+    public function findBySesMessageId(string $sesMessageId): ?OutgoingTransactionMessageDomainObject
     {
-        $model = $this->model->newQuery()
-            ->where('recipient', strtolower($email))
-            ->where('status', OutgoingTransactionMessageStatus::SENT->value)
-            ->where('created_at', '>=', now()->subMinutes($minutesBack))
-            ->orderByDesc('created_at')
-            ->first();
-
-        return $this->handleSingleResult($model);
+        return $this->findFirstWhere([
+            'ses_message_id' => $sesMessageId,
+            'status' => OutgoingTransactionMessageStatus::SENT->value,
+        ]);
     }
 
     public function markAsBounced(int $id): void

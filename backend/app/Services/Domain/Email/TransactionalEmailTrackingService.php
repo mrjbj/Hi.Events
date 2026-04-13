@@ -45,13 +45,13 @@ class TransactionalEmailTrackingService
             if ($locale) {
                 $pendingMail->locale($locale);
             }
-            $pendingMail->send($mail);
+            $sentMessage = $pendingMail->send($mail);
         } catch (Throwable $e) {
             $this->recordMessage($recipient, $subject, $emailType, OutgoingTransactionMessageStatus::FAILED, $eventId, $orderId, $attendeeId);
             throw $e;
         }
 
-        $this->recordMessage($recipient, $subject, $emailType, OutgoingTransactionMessageStatus::SENT, $eventId, $orderId, $attendeeId);
+        $this->recordMessage($recipient, $subject, $emailType, OutgoingTransactionMessageStatus::SENT, $eventId, $orderId, $attendeeId, $sentMessage?->getMessageId());
     }
 
     private function recordMessage(
@@ -62,6 +62,7 @@ class TransactionalEmailTrackingService
         ?int                                $eventId,
         ?int                                $orderId,
         ?int                                $attendeeId,
+        ?string                             $sesMessageId = null,
     ): void
     {
         $this->repository->create([
@@ -72,6 +73,7 @@ class TransactionalEmailTrackingService
             OutgoingTransactionMessageDomainObjectAbstract::RECIPIENT => strtolower($recipient),
             OutgoingTransactionMessageDomainObjectAbstract::SUBJECT => $subject,
             OutgoingTransactionMessageDomainObjectAbstract::STATUS => $status->value,
+            OutgoingTransactionMessageDomainObjectAbstract::SES_MESSAGE_ID => $sesMessageId,
         ]);
     }
 }

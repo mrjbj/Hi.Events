@@ -35,13 +35,11 @@ class OutgoingMessageRepository extends BaseRepository implements OutgoingMessag
         return $result?->account_id;
     }
 
-    public function markRecentAsBounced(string $email): bool
+    public function markAsBounced(string $sesMessageId): bool
     {
         $affected = DB::table('outgoing_messages')
-            ->where('recipient', strtolower($email))
+            ->where('ses_message_id', $sesMessageId)
             ->where('status', OutgoingMessageStatus::SENT->name)
-            ->orderByDesc('created_at')
-            ->limit(1)
             ->update(['status' => OutgoingMessageStatus::BOUNCED->name]);
 
         return $affected > 0;

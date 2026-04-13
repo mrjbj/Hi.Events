@@ -11,5 +11,5 @@ interface OutgoingMessageRepositoryInterface extends RepositoryInterface
 {
     public function findAccountIdByRecipientEmail(string $email): ?int;
 
-    public function markRecentAsBounced(string $email): bool;
+    public function markAsBounced(string $sesMessageId): bool;
 }

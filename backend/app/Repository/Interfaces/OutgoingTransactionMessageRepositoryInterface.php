@@ -10,7 +10,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 interface OutgoingTransactionMessageRepositoryInterface extends RepositoryInterface
 {
-    public function findRecentByRecipient(string $email, int $minutesBack = 60): ?OutgoingTransactionMessageDomainObject;
+    public function findBySesMessageId(string $sesMessageId): ?OutgoingTransactionMessageDomainObject;
 
     public function markAsBounced(int $id): void;
 

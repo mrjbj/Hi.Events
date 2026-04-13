@@ -56,7 +56,7 @@ class SendEventEmailJob implements ShouldQueue
         }
 
         try {
-            $mailer
+            $sentMessage = $mailer
                 ->to($this->email, $this->toName)
                 ->send($this->eventMessage);
         } catch (Throwable $exception) {
@@ -77,6 +77,7 @@ class SendEventEmailJob implements ShouldQueue
             OutgoingMessageDomainObjectAbstract::STATUS => OutgoingMessageStatus::SENT->name,
             OutgoingMessageDomainObjectAbstract::RECIPIENT => $this->email,
             OutgoingMessageDomainObjectAbstract::SUBJECT => $this->messageData->subject,
+            OutgoingMessageDomainObjectAbstract::SES_MESSAGE_ID => $sentMessage?->getMessageId(),
         ]);
     }
 }

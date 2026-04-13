@@ -26,6 +26,7 @@ class ComplaintHandler
         $complaintType = $complaint['complaintFeedbackType'] ?? null;
         $recipients = $complaint['complainedRecipients'] ?? [];
         $snsMessageId = $snsPayload['MessageId'] ?? null;
+        $sesMessageId = $message['mail']['messageId'] ?? null;
 
         foreach ($recipients as $recipient) {
             $email = strtolower($recipient['emailAddress'] ?? '');
@@ -41,6 +42,7 @@ class ComplaintHandler
                 'email' => $email,
                 'complaint_type' => $complaintType,
                 'account_id' => $accountId,
+                'ses_message_id' => $sesMessageId,
             ]);
 
             $this->emailSuppressionService->suppressEmail(
@@ -53,23 +55,24 @@ class ComplaintHandler
                 rawPayload: $snsPayload,
             );
 
-            if ($this->outgoingMessageRepository->markRecentAsBounced($email)) {
-                $this->logger->info('Marked outgoing message as bounced', ['email' => $email]);
+            if ($sesMessageId) {
+                $this->markOutgoingMessagesAsBounced($sesMessageId);
             }
-
-            $this->markTransactionMessageAsBounced($email);
         }
     }
 
-    private function markTransactionMessageAsBounced(string $email): void
+    private function markOutgoingMessagesAsBounced(string $sesMessageId): void
     {
-        $transactionMessage = $this->outgoingTransactionMessageRepository->findRecentByRecipient($email);
+        if ($this->outgoingMessageRepository->markAsBounced($sesMessageId)) {
+            $this->logger->info('Marked outgoing message as bounced', ['ses_message_id' => $sesMessageId]);
+        }
+
+        $transactionMessage = $this->outgoingTransactionMessageRepository->findBySesMessageId($sesMessageId);
 
         if ($transactionMessage) {
             $this->outgoingTransactionMessageRepository->markAsBounced($transactionMessage->getId());
-
             $this->logger->info('Marked transaction message as bounced', [
-                'email' => $email,
+                'ses_message_id' => $sesMessageId,
                 'transaction_message_id' => $transactionMessage->getId(),
             ]);
         }
