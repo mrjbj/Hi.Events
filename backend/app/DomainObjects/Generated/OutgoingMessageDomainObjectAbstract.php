@@ -20,7 +20,6 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     final public const CREATED_AT = 'created_at';
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
-    final public const SES_MESSAGE_ID = 'ses_message_id';
 
     protected int $id;
     protected int $event_id;
@@ -32,7 +31,6 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     protected ?string $created_at = null;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
-    protected ?string $ses_message_id = null;
 
     public function toArray(): array
     {
@@ -47,7 +45,6 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
                     'created_at' => $this->created_at ?? null,
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
-                    'ses_message_id' => $this->ses_message_id ?? null,
                 ];
     }
 
@@ -159,16 +156,5 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     public function getDeletedAt(): ?string
     {
         return $this->deleted_at;
-    }
-
-    public function setSesMessageId(?string $ses_message_id): self
-    {
-        $this->ses_message_id = $ses_message_id;
-        return $this;
-    }
-
-    public function getSesMessageId(): ?string
-    {
-        return $this->ses_message_id;
     }
 }
