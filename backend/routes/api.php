@@ -86,6 +86,7 @@ use HiEvents\Http\Actions\Messages\GetMessageRecipientsAction;
 use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessageFailuresAction;
 use HiEvents\Http\Actions\Messages\GetMessagesAction;
 use HiEvents\Http\Actions\Messages\SendMessageAction;
+use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessageFailuresAction;
 use HiEvents\Http\Actions\Orders\CancelOrderAction;
 use HiEvents\Http\Actions\Orders\DownloadOrderInvoiceAction;
 use HiEvents\Http\Actions\Orders\EditOrderAction;
