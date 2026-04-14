@@ -781,7 +781,8 @@ export interface OutgoingTransactionMessage {
     email_type: string;
     recipient: string;
     subject: string;
-    status: 'SENT' | 'FAILED' | 'BOUNCED' | 'SUPPRESSED';
+    status: 'SENT' | 'DELIVERED' | 'FAILED' | 'BOUNCED' | 'SUPPRESSED';
+    resolved_at: string | null;
     created_at: string;
 }
 

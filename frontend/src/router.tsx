@@ -429,10 +429,10 @@ export const router: RouteObject[] = [
                 }
             },
             {
-                path: "delivery-issues",
+                path: "message-tracking",
                 async lazy() {
-                    const DeliveryIssues = await import("./components/routes/event/DeliveryIssues");
-                    return { Component: DeliveryIssues.default };
+                    const MessageTracking = await import("./components/routes/event/MessageTracking");
+                    return { Component: MessageTracking.default };
                 }
             },
             {

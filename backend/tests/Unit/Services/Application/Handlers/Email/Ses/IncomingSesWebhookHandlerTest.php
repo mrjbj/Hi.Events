@@ -7,6 +7,7 @@ use HiEvents\Services\Application\Handlers\Email\Ses\DTO\SesWebhookDTO;
 use HiEvents\Services\Application\Handlers\Email\Ses\IncomingSesWebhookHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\BounceHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
+use HiEvents\Services\Domain\Email\Ses\EventHandlers\DeliveryHandler;
 use HiEvents\Services\Infrastructure\Aws\SnsSignatureVerificationService;
 use Illuminate\Cache\Repository;
 use Illuminate\Log\Logger;
@@ -18,6 +19,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
 {
     private BounceHandler $bounceHandler;
     private ComplaintHandler $complaintHandler;
+    private DeliveryHandler $deliveryHandler;
     private SnsSignatureVerificationService $signatureService;
     private Logger $logger;
     private Repository $cache;
@@ -28,6 +30,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
         parent::setUp();
         $this->bounceHandler = m::mock(BounceHandler::class);
         $this->complaintHandler = m::mock(ComplaintHandler::class);
+        $this->deliveryHandler = m::mock(DeliveryHandler::class);
         $this->signatureService = m::mock(SnsSignatureVerificationService::class);
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
         $this->cache = m::mock(Repository::class);
@@ -35,6 +38,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
         $this->handler = new IncomingSesWebhookHandler(
             $this->bounceHandler,
             $this->complaintHandler,
+            $this->deliveryHandler,
             $this->signatureService,
             $this->logger,
             $this->cache,
@@ -90,6 +94,35 @@ class IncomingSesWebhookHandlerTest extends TestCase
             ->once()
             ->withArgs(function ($message) {
                 return $message['notificationType'] === 'Complaint';
+            });
+
+        config(['services.ses.sns_topic_arn' => null]);
+
+        $this->handler->handle(new SesWebhookDTO(payload: $payload));
+    }
+
+    public function testHandlesDeliveryNotificationSuccessfully(): void
+    {
+        $innerMessage = json_encode([
+            'notificationType' => 'Delivery',
+            'delivery' => ['recipients' => ['test@example.com']],
+            'mail' => ['messageId' => 'ses-msg-001'],
+        ]);
+
+        $payload = json_encode([
+            'Type' => 'Notification',
+            'MessageId' => 'msg-delivery-1',
+            'Message' => $innerMessage,
+        ]);
+
+        $this->signatureService->shouldReceive('verify')->once();
+        $this->cache->shouldReceive('has')->with('ses_sns_message_msg-delivery-1')->andReturn(false);
+        $this->cache->shouldReceive('put')->once();
+
+        $this->deliveryHandler->shouldReceive('handle')
+            ->once()
+            ->withArgs(function ($message) {
+                return $message['notificationType'] === 'Delivery';
             });
 
         config(['services.ses.sns_topic_arn' => null]);

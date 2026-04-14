@@ -23,7 +23,9 @@ class GetTransactionMessageFailuresAction extends BaseAction
 
         $params = $this->getPaginationQueryParams($request);
 
-        $failures = $this->handler->handle($eventId, $params);
+        $showResolved = $request->boolean('show_resolved', false);
+
+        $failures = $this->handler->handle($eventId, $params, $showResolved);
 
         return $this->resourceResponse(OutgoingTransactionMessageResource::class, $failures);
     }

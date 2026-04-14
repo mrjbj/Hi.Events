@@ -6,6 +6,7 @@ use HiEvents\Exceptions\SnsSignatureVerificationException;
 use HiEvents\Services\Application\Handlers\Email\Ses\DTO\SesWebhookDTO;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\BounceHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
+use HiEvents\Services\Domain\Email\Ses\EventHandlers\DeliveryHandler;
 use HiEvents\Services\Infrastructure\Aws\SnsSignatureVerificationService;
 use Illuminate\Cache\Repository;
 use Illuminate\Log\Logger;
@@ -18,6 +19,7 @@ class IncomingSesWebhookHandler
     public function __construct(
         private readonly BounceHandler                    $bounceHandler,
         private readonly ComplaintHandler                 $complaintHandler,
+        private readonly DeliveryHandler                  $deliveryHandler,
         private readonly SnsSignatureVerificationService  $signatureVerificationService,
         private readonly Logger                           $logger,
         private readonly Repository                       $cache,
@@ -81,6 +83,9 @@ class IncomingSesWebhookHandler
                     break;
                 case 'Complaint':
                     $this->complaintHandler->handle($message, $payload);
+                    break;
+                case 'Delivery':
+                    $this->deliveryHandler->handle($message, $payload);
                     break;
                 default:
                     $this->logger->debug('Unhandled SES notification type', [

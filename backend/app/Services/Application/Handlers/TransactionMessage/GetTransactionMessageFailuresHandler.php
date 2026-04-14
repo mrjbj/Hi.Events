@@ -14,8 +14,8 @@ class GetTransactionMessageFailuresHandler
     {
     }
 
-    public function handle(int $eventId, QueryParamsDTO $params): LengthAwarePaginator
+    public function handle(int $eventId, QueryParamsDTO $params, bool $showResolved = false): LengthAwarePaginator
     {
-        return $this->repository->getFailuresForEvent($eventId, $params->per_page);
+        return $this->repository->getFailuresForEvent($eventId, $params->per_page, $showResolved);
     }
 }

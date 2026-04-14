@@ -22,6 +22,7 @@ class OutgoingTransactionMessageResource extends JsonResource
             'recipient' => $this->getRecipient(),
             'subject' => $this->getSubject(),
             'status' => $this->getStatus(),
+            'resolved_at' => $this->getResolvedAt(),
             'created_at' => $this->getCreatedAt(),
         ];
     }

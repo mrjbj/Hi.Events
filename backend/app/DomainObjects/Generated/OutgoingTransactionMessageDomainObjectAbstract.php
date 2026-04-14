@@ -22,6 +22,7 @@ abstract class OutgoingTransactionMessageDomainObjectAbstract extends \HiEvents\
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
     final public const SES_MESSAGE_ID = 'ses_message_id';
+    final public const RESOLVED_AT = 'resolved_at';
 
     protected int $id;
     protected ?int $event_id = null;
@@ -35,6 +36,7 @@ abstract class OutgoingTransactionMessageDomainObjectAbstract extends \HiEvents\
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
     protected ?string $ses_message_id = null;
+    protected ?string $resolved_at = null;
 
     public function toArray(): array
     {
@@ -51,6 +53,7 @@ abstract class OutgoingTransactionMessageDomainObjectAbstract extends \HiEvents\
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
                     'ses_message_id' => $this->ses_message_id ?? null,
+                    'resolved_at' => $this->resolved_at ?? null,
                 ];
     }
 
@@ -184,5 +187,16 @@ abstract class OutgoingTransactionMessageDomainObjectAbstract extends \HiEvents\
     public function getSesMessageId(): ?string
     {
         return $this->ses_message_id;
+    }
+
+    public function setResolvedAt(?string $resolved_at): self
+    {
+        $this->resolved_at = $resolved_at;
+        return $this;
+    }
+
+    public function getResolvedAt(): ?string
+    {
+        return $this->resolved_at;
     }
 }

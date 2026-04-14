@@ -59,7 +59,7 @@ class EmailSuppressionRepository extends BaseRepository implements EmailSuppress
     {
         $model = $this->model->newQuery()
             ->whereNull('deleted_at')
-            ->firstOrCreate($uniqueAttributes, $additionalValues);
+            ->updateOrCreate($uniqueAttributes, $additionalValues);
 
         $this->resetModel();
 
