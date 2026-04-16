@@ -21,7 +21,7 @@
 #   5. Cleans up the worktree regardless of outcome
 #
 # USAGE:
-#   ./scripts/verify-branch-reproducibility.sh
+#   ./ops/dev/verify-branch-reproducibility.sh
 #
 # PREREQUISITES:
 #   - Must be run from the Hi.Events repo root
@@ -78,11 +78,7 @@ PR_BRANCHES=(
 FORK_ONLY_PATTERNS=(
     ".github/workflows/"
     "docker/development/.env"
-    "backend/VERSION"
-    "backend/temp_"
-    "git-workflow-readme.md"
-    "jbj/"
-    "sql/"
+    "ops/"
     "PR-STATUS.md"
 )
 

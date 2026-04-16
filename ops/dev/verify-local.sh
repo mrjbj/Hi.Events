@@ -8,10 +8,10 @@
 # per branch and optionally runs tests if all merges succeed.
 #
 # Usage:
-#   ./jbj/verify-local.sh              # Verify merge only
-#   ./jbj/verify-local.sh --test       # Verify merge + run tests
-#   ./jbj/verify-local.sh --keep       # Don't delete temp branch after
-#   ./jbj/verify-local.sh --test --keep
+#   ./ops/dev/verify-local.sh              # Verify merge only
+#   ./ops/dev/verify-local.sh --test       # Verify merge + run tests
+#   ./ops/dev/verify-local.sh --keep       # Don't delete temp branch after
+#   ./ops/dev/verify-local.sh --test --keep
 #
 # The branch merge order and list is defined in the BRANCHES array below.
 # Update this array when adding or removing feature branches.
@@ -190,7 +190,7 @@ if [ "$RUN_TESTS" = true ]; then
     echo ""
     echo "=== Running Tests ==="
 
-    DOCKER_COMPOSE_DIR="$(cd "$(dirname "$0")/../docker/development" && pwd)"
+    DOCKER_COMPOSE_DIR="$(cd "$(dirname "$0")/../../docker/development" && pwd)"
     DOCKER_COMPOSE="docker compose -f $DOCKER_COMPOSE_DIR/docker-compose.dev.yml"
 
     echo "Backend unit tests..."
@@ -202,7 +202,7 @@ if [ "$RUN_TESTS" = true ]; then
 
     echo ""
     echo "Frontend type check..."
-    FRONTEND_DIR="$(cd "$(dirname "$0")/../frontend" && pwd)"
+    FRONTEND_DIR="$(cd "$(dirname "$0")/../../frontend" && pwd)"
     if (cd "$FRONTEND_DIR" && npx tsc --noEmit 2>&1 | grep -c "error TS") 2>/dev/null; then
         echo "Frontend type check: HAS ERRORS (check output above)"
     else
