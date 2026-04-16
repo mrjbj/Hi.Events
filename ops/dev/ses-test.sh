@@ -7,21 +7,21 @@
 #   SES_SUPPRESSION_ENABLED=true
 #
 # Usage:
-#   ./jbj/ses-test.sh list                                  # show recent outgoing messages
-#   ./jbj/ses-test.sh list-suppressions                     # show email suppressions
-#   ./jbj/ses-test.sh bounce marketing:10                   # bounce by table:id (looks up email + ses_message_id)
-#   ./jbj/ses-test.sh bounce transaction:2                  # bounce a transaction message
-#   ./jbj/ses-test.sh bounce user@example.com [ses_msg_id]  # bounce with explicit email
-#   ./jbj/ses-test.sh bounce-transient marketing:10
-#   ./jbj/ses-test.sh complaint marketing:10
-#   ./jbj/ses-test.sh delivery marketing:10                 # unhandled type (log test)
-#   ./jbj/ses-test.sh subscribe                             # subscription confirmation
+#   ./ops/dev/ses-test.sh list                                  # show recent outgoing messages
+#   ./ops/dev/ses-test.sh list-suppressions                     # show email suppressions
+#   ./ops/dev/ses-test.sh bounce marketing:10                   # bounce by table:id (looks up email + ses_message_id)
+#   ./ops/dev/ses-test.sh bounce transaction:2                  # bounce a transaction message
+#   ./ops/dev/ses-test.sh bounce user@example.com [ses_msg_id]  # bounce with explicit email
+#   ./ops/dev/ses-test.sh bounce-transient marketing:10
+#   ./ops/dev/ses-test.sh complaint marketing:10
+#   ./ops/dev/ses-test.sh delivery marketing:10                 # unhandled type (log test)
+#   ./ops/dev/ses-test.sh subscribe                             # subscription confirmation
 #
 
 set -euo pipefail
 
 WEBHOOK_URL="${SES_TEST_URL:-https://localhost:8443/api/public/webhooks/ses}"
-DOCKER_COMPOSE_DIR="$(cd "$(dirname "$0")/../docker/development" && pwd)"
+DOCKER_COMPOSE_DIR="$(cd "$(dirname "$0")/../../docker/development" && pwd)"
 DOCKER_COMPOSE="docker compose -f $DOCKER_COMPOSE_DIR/docker-compose.dev.yml"
 DB_NAME="${DB_DATABASE:-backend}"
 DB_USER="${DB_USERNAME:-postgres}"
@@ -300,7 +300,7 @@ EOF
 
     local payload
     payload=$(build_sns_envelope "$inner")
-    send_sns_payload "$payload" "Delivery notification for $TARGET_EMAIL (unhandled type — check logs)"
+    send_sns_payload "$payload" "Delivery notification for $TARGET_EMAIL (should update to DELIVERED)"
 }
 
 cmd_subscribe() {
@@ -372,12 +372,12 @@ Environment:
   SES_TEST_URL    Webhook URL (default: https://localhost:8443/api/public/webhooks/ses)
 
 Examples:
-  ./jbj/ses-test.sh list
-  ./jbj/ses-test.sh bounce marketing:10
-  ./jbj/ses-test.sh bounce transaction:1
-  ./jbj/ses-test.sh complaint marketing:10
-  ./jbj/ses-test.sh bounce user@example.com
-  ./jbj/ses-test.sh list-suppressions
+  ./ops/dev/ses-test.sh list
+  ./ops/dev/ses-test.sh bounce marketing:10
+  ./ops/dev/ses-test.sh bounce transaction:1
+  ./ops/dev/ses-test.sh complaint marketing:10
+  ./ops/dev/ses-test.sh bounce user@example.com
+  ./ops/dev/ses-test.sh list-suppressions
 
 Requires docker/development environment running with:
   AWS_SNS_VERIFY_SIGNATURE=false

@@ -173,8 +173,8 @@ git push --force-with-lease origin feature/active-thing
 ### Access personal files from any branch
 
 ```bash
-git show jbj/local:sql/rebuild_stats.sql
-git show jbj/local:sql/rebuild_stats.sql | psql -d your_db
+git show jbj/local:ops/sql/rebuild_stats.sql
+git show jbj/local:ops/sql/rebuild_stats.sql | psql -d your_db
 ```
 
 ### Handling rebase conflicts
