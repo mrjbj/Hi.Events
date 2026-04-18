@@ -26,4 +26,13 @@ interface AttendeeRepositoryInterface extends RepositoryInterface
     public function countCheckedInAttendees(int $eventId, ?int $checkInListId = null): int;
 
     public function countNotCheckedInAttendees(int $eventId, ?int $checkInListId = null): int;
+
+    /**
+     * Bulk-set contact_link_ignored_at on attendees, scoped to the given account (verified via events JOIN).
+     *
+     * @param  int[]  $attendeeIds
+     * @param  ?string  $timestamp  ISO-8601 value to set; null to clear the flag (un-ignore).
+     * @return int Number of rows updated.
+     */
+    public function bulkUpdateContactLinkIgnoredAt(int $accountId, array $attendeeIds, ?string $timestamp): int;
 }

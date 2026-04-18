@@ -77,7 +77,7 @@ msgstr "Logo {0}"
 msgid "{0} organizers"
 msgstr "{0} organizadores"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:596
+#: src/components/routes/product-widget/CollectInformation/index.tsx:711
 msgid "{0} tickets"
 msgstr "{0} bilhetes"
 
@@ -97,10 +97,18 @@ msgstr "{availableCount} de {totalCount} disponíveis"
 msgid "{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
 msgstr "{days} dias, {hours} horas, {minutes} minutos e {seconds} segundos"
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:180
+msgid "{eventCount} event ({questionCount})"
+msgstr "{eventCount} evento ({questionCount})"
+
 #: src/components/common/OrganizerWebhookTable/index.tsx:79
 #: src/components/common/WebhookTable/index.tsx:79
 msgid "{eventCount} events"
 msgstr "{eventCount} eventos"
+
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:181
+msgid "{eventCount} events ({questionCount})"
+msgstr "{eventCount} eventos ({questionCount})"
 
 #: src/components/common/Countdown/index.tsx:70
 msgid "{hours} hours, {minutes} minutes, and {seconds} seconds"
@@ -126,9 +134,17 @@ msgstr "+1 234 567 890"
 msgid "+Tax/Fees"
 msgstr "+Taxas/Impostos"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:36
+msgid "<0>But wait... What happens if an attendee provides different answers to the same question on different events? What if you need a registration question on one event but don't care about re-using it on another?  </0>This is where the <1>Sync</1> tab comes in."
+msgstr "<0>Espere um momento... E se um participante der respostas diferentes à mesma pergunta em eventos diferentes? E se precisar de uma pergunta num evento mas não quiser reutilizá-la noutro?  </0>É para isso que serve o separador <1>Sync</1>."
+
 #: src/components/common/CheckInListList/index.tsx:49
 msgid "<0>Check-in lists help you manage event entry by day, area, or ticket type. You can link tickets to specific lists such as VIP zones or Day 1 passes and share a secure check-in link with staff. No account is required. Check-in works on mobile, desktop, or tablet, using a device camera or HID USB scanner.                                </0>"
 msgstr "<0>As listas de check-in ajudam-no a gerir a entrada no evento por dia, área ou tipo de bilhete. Pode vincular bilhetes a listas específicas, como zonas VIP ou passes do Dia 1, e partilhar uma ligação de check-in segura com a equipa. Não é necessária conta. O check-in funciona em dispositivos móveis, computador ou tablet, usando a câmara do dispositivo ou um scanner USB HID.                                </0>"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:22
+msgid "<0>Contacts</0> are <1>attendees</1> remembered across events.<2>Whenever a new attendee registers for the first time, a new contact record is created for them, saving their name and email address, along with answers to any registration questions made up to that point.</2><3>Later (whevener that email is used again in future), the contact's name is copied into the order form automatically and their previous answers will be remebered too. For example, suppose <4>Extra Large (XL)</4> was previously saved as an answer to <5>\"What is your t-shirt size?\"</5>The next time that contact registers for an event, the answer <6>Extra Large (XL)</6> will be copied into the order form automatically, (provided that <7>t-shirt</7> was saved as a <8>reusable</8> question.)</3>"
+msgstr "<0>Os contactos</0> são <1>participantes</1> lembrados entre eventos.<2>Quando um novo participante se regista pela primeira vez, é criado um contacto que guarda o seu nome, e-mail e respostas às perguntas de inscrição.</2><3>Mais tarde, quando esse e-mail voltar a ser usado, o nome do contacto é copiado automaticamente para o formulário e as respostas anteriores são lembradas. Por exemplo, se <4>Extra Large (XL)</4> tiver sido guardado como resposta a <5>\"Qual é o seu tamanho de t-shirt?\"</5>, da próxima vez <6>Extra Large (XL)</6> será preenchido automaticamente (desde que a pergunta <7>t-shirt</7> tenha sido guardada como <8>reutilizável</8>).</3>"
 
 #: src/components/common/WidgetEditor/index.tsx:334
 msgid "<0>https://</0>your-website.com"
@@ -184,23 +200,23 @@ msgstr "0 minutos e 0 segundos"
 msgid "1 Active Webhook"
 msgstr "1 webhook ativo"
 
-#: src/components/modals/SendMessageModal/index.tsx:119
+#: src/components/modals/SendMessageModal/index.tsx:120
 msgid "1 day after end date"
 msgstr "1 dia após a data de término"
 
-#: src/components/modals/SendMessageModal/index.tsx:113
+#: src/components/modals/SendMessageModal/index.tsx:114
 msgid "1 day after start date"
 msgstr "1 dia após a data de início"
 
-#: src/components/modals/SendMessageModal/index.tsx:111
+#: src/components/modals/SendMessageModal/index.tsx:112
 msgid "1 day before event"
 msgstr "1 dia antes do evento"
 
-#: src/components/modals/SendMessageModal/index.tsx:112
+#: src/components/modals/SendMessageModal/index.tsx:113
 msgid "1 hour before event"
 msgstr "1 hora antes do evento"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:595
+#: src/components/routes/product-widget/CollectInformation/index.tsx:710
 msgid "1 ticket"
 msgstr "1 bilhete"
 
@@ -208,7 +224,7 @@ msgstr "1 bilhete"
 msgid "1 ticket type"
 msgstr "1 tipo de bilhete"
 
-#: src/components/modals/SendMessageModal/index.tsx:110
+#: src/components/modals/SendMessageModal/index.tsx:111
 msgid "1 week before event"
 msgstr "1 semana antes do evento"
 
@@ -235,7 +251,7 @@ msgstr "94103"
 msgid "A cancellation notice has been sent to"
 msgstr "Um aviso de cancelamento foi enviado para"
 
-#: src/components/forms/QuestionForm/index.tsx:138
+#: src/components/forms/QuestionForm/index.tsx:272
 msgid "A date input. Perfect for asking for a date of birth etc."
 msgstr "Um campo de data. Perfeito para pedir uma data de nascimento, etc."
 
@@ -243,7 +259,7 @@ msgstr "Um campo de data. Perfeito para pedir uma data de nascimento, etc."
 msgid "A default {type} is automaticaly applied to all new products. You can override this on a per product basis."
 msgstr "Um {type} padrão é automaticamente aplicado a todos os novos produtos. Você pode substituir isso para cada produto."
 
-#: src/components/forms/QuestionForm/index.tsx:126
+#: src/components/forms/QuestionForm/index.tsx:260
 msgid "A Dropdown input allows only one selection"
 msgstr "Uma entrada suspensa permite apenas uma seleção"
 
@@ -255,7 +271,7 @@ msgstr "Uma taxa, como uma taxa de reserva ou uma taxa de serviço"
 msgid "A fixed amount per product. E.g, $0.50 per product"
 msgstr "Um valor fixo por produto. Ex: $0,50 por produto"
 
-#: src/components/forms/QuestionForm/index.tsx:108
+#: src/components/forms/QuestionForm/index.tsx:242
 msgid "A multi line text input"
 msgstr "Uma entrada de texto multilinha"
 
@@ -271,7 +287,7 @@ msgstr "Uma porcentagem do preço do produto. Ex: 3,5% do preço do produto"
 msgid "A promo code with no discount can be used to reveal hidden products."
 msgstr "Um código promocional sem desconto pode ser usado para revelar produtos ocultos."
 
-#: src/components/forms/QuestionForm/index.tsx:120
+#: src/components/forms/QuestionForm/index.tsx:254
 msgid "A Radio option has multiple options but only one can be selected."
 msgstr "Uma opção Rádio tem múltiplas opções, mas apenas uma pode ser selecionada."
 
@@ -284,15 +300,15 @@ msgstr "Uma breve descrição do evento que será exibida nos resultados dos bus
 msgid "A short description of your organizer that will be displayed to your users."
 msgstr "Uma breve descrição do seu organizador que será exibida aos seus usuários."
 
-#: src/components/forms/QuestionForm/index.tsx:102
+#: src/components/forms/QuestionForm/index.tsx:236
 msgid "A single line text input"
 msgstr "Uma entrada de texto de linha única"
 
-#: src/components/forms/QuestionForm/index.tsx:87
+#: src/components/forms/QuestionForm/index.tsx:221
 msgid "A single question per order. E.g, What is your shipping address?"
 msgstr "Uma única pergunta por pedido. Ex: Qual é o seu endereço de entrega?"
 
-#: src/components/forms/QuestionForm/index.tsx:93
+#: src/components/forms/QuestionForm/index.tsx:227
 msgid "A single question per product. E.g, What is your t-shirt size?"
 msgstr "Uma única pergunta por produto. Ex: Qual é o seu tamanho de camiseta?"
 
@@ -308,11 +324,19 @@ msgstr "Abandonado"
 msgid "About"
 msgstr "Sobre"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:20
+msgid "About Contacts"
+msgstr "Sobre contactos"
+
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:434
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:463
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:681
 msgid "About Stripe Connect"
 msgstr "Sobre o Stripe Connect"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:34
+msgid "About Sync"
+msgstr "Sobre o Sync"
 
 #: src/components/common/PlatformFeesSettings/index.tsx:192
 msgid "Absorb fee"
@@ -379,7 +403,7 @@ msgstr "Nome da conta"
 msgid "Account not found"
 msgstr "Conta não encontrada"
 
-#: src/components/common/GlobalMenu/index.tsx:45
+#: src/components/common/GlobalMenu/index.tsx:46
 #: src/components/routes/account/ManageAccount/index.tsx:19
 msgid "Account Settings"
 msgstr "Configurações de Conta"
@@ -428,7 +452,11 @@ msgstr "Data de ativação"
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:267
 #: src/components/forms/AffiliateForm/index.tsx:21
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:19
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:82
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:88
 #: src/components/modals/EditUserModal/index.tsx:110
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:63
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:190
 #: src/components/routes/event/attendees.tsx:26
 msgid "Active"
 msgstr "Ativo"
@@ -436,6 +464,14 @@ msgstr "Ativo"
 #: src/components/routes/admin/Dashboard/index.tsx:354
 msgid "Active Events"
 msgstr "Eventos ativos"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+msgid "Add"
+msgstr "Adicionar"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+msgid "Add ({0})"
+msgstr "Adicionar ({0})"
 
 #: src/components/forms/CheckInListForm/index.tsx:53
 msgid "Add a description for this check-in list"
@@ -457,17 +493,27 @@ msgstr "Adicione quaisquer notas sobre o pedido. Estas não serão visíveis par
 msgid "Add any notes about the order..."
 msgstr "Adicione quaisquer notas sobre o pedido..."
 
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:40
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:125
+msgid "Add Attribute"
+msgstr "Adicionar atributo"
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:46
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:118
+msgid "Add Contact"
+msgstr "Adicionar contacto"
+
 #: src/components/common/QuestionsTable/index.tsx:433
 msgid "Add custom questions to collect additional information during checkout"
 msgstr "Adicione perguntas personalizadas para coletar informações adicionais durante o checkout"
 
-#: src/components/forms/QuestionForm/index.tsx:202
+#: src/components/forms/QuestionForm/index.tsx:386
 msgid "Add description"
 msgstr "Adicionar descrição"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:255
 msgid "Add Email Suppression"
-msgstr "Adicionar supressão de e-mail"
+msgstr ""
 
 #: src/components/routes/event/GettingStarted/index.tsx:142
 msgid "Add event details and manage event settings."
@@ -485,7 +531,11 @@ msgstr "Adicionar mais ingressos"
 msgid "Add New"
 msgstr "Adicionar novo"
 
-#: src/components/forms/QuestionForm/index.tsx:68
+#: src/components/common/SortableOptionsInput/index.tsx:138
+msgid "Add option"
+msgstr "Adicionar opção"
+
+#: src/components/forms/QuestionForm/index.tsx:129
 msgid "Add Option"
 msgstr "Adicionar opção"
 
@@ -505,7 +555,7 @@ msgstr "Adicionar pergunta"
 #: src/components/routes/admin/EmailSuppressions/index.tsx:127
 #: src/components/routes/admin/EmailSuppressions/index.tsx:286
 msgid "Add Suppression"
-msgstr "Adicionar supressão"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/TaxSettings/index.tsx:18
 msgid "Add Tax or Fee"
@@ -540,6 +590,14 @@ msgstr "Adicionar Webhook"
 msgid "Add your social media handles and website URL. These will be displayed on your public organizer page."
 msgstr "Adicione seus perfis de redes sociais e o URL do site. Eles serão exibidos na sua página pública de organizador."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:230
+msgid "Added"
+msgstr "Adicionado"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:78
+msgid "Added {0} contact(s)."
+msgstr "{0} contacto(s) adicionado(s)."
+
 #: src/components/common/PlatformFeesSettings/index.tsx:257
 msgid "Additional Fees"
 msgstr "Taxas adicionais"
@@ -549,7 +607,7 @@ msgid "Additional Information"
 msgstr "Informações adicionais"
 
 #: src/components/common/OrderDetails/index.tsx:96
-#: src/components/forms/QuestionForm/index.tsx:130
+#: src/components/forms/QuestionForm/index.tsx:264
 #: src/components/routes/organizer/Settings/index.tsx:41
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:67
 msgid "Address"
@@ -561,8 +619,8 @@ msgstr "Endereço Linha 1"
 
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:122
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:80
-#: src/components/routes/product-widget/CollectInformation/index.tsx:519
-#: src/components/routes/product-widget/CollectInformation/index.tsx:520
+#: src/components/routes/product-widget/CollectInformation/index.tsx:642
+#: src/components/routes/product-widget/CollectInformation/index.tsx:643
 msgid "Address Line 1"
 msgstr "Endereço Linha 1"
 
@@ -572,8 +630,8 @@ msgstr "Endereço linha 2"
 
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:127
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:85
-#: src/components/routes/product-widget/CollectInformation/index.tsx:524
-#: src/components/routes/product-widget/CollectInformation/index.tsx:525
+#: src/components/routes/product-widget/CollectInformation/index.tsx:647
+#: src/components/routes/product-widget/CollectInformation/index.tsx:648
 msgid "Address Line 2"
 msgstr "endereço linha 2"
 
@@ -588,8 +646,8 @@ msgstr "Administrador"
 msgid "Admin Access Required"
 msgstr "Acesso de administrador necessário"
 
-#: src/components/common/GlobalMenu/index.tsx:61
-#: src/components/layouts/Admin/index.tsx:28
+#: src/components/common/GlobalMenu/index.tsx:67
+#: src/components/layouts/Admin/index.tsx:29
 #: src/components/routes/admin/Dashboard/index.tsx:70
 msgid "Admin Dashboard"
 msgstr "Painel de Administração"
@@ -643,18 +701,18 @@ msgstr "Os afiliados ajudam-no a rastrear vendas geradas por parceiros e influen
 
 #: src/components/routes/event/MessageTracking/shared.tsx:59
 msgid "All"
-msgstr "Todos"
+msgstr ""
 
 #: src/components/routes/events/Dashboard/index.tsx:77
 msgid "All Archived Events"
 msgstr "Todos os eventos arquivados"
 
 #: src/components/common/MessageList/index.tsx:29
-#: src/components/routes/product-widget/CollectInformation/index.tsx:501
+#: src/components/routes/product-widget/CollectInformation/index.tsx:616
 msgid "All attendees"
 msgstr "Todos os participantes"
 
-#: src/components/modals/SendMessageModal/index.tsx:290
+#: src/components/modals/SendMessageModal/index.tsx:294
 msgid "All attendees of this event"
 msgstr "Todos os participantes deste evento"
 
@@ -669,6 +727,10 @@ msgstr "Tudo pronto! Agora está a usar o nosso sistema de pagamentos melhorado.
 #: src/components/routes/events/Dashboard/index.tsx:75
 msgid "All Ended Events"
 msgstr "Todos os eventos encerrados"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:179
+msgid "All event questions with answers are linked."
+msgstr "Todas as perguntas do evento com respostas estão associadas."
 
 #: src/components/routes/organizer/Reports/PlatformFeesReport/index.tsx:33
 msgid "All Events"
@@ -791,15 +853,19 @@ msgstr "Um erro inesperado ocorreu. Por favor, tente novamente."
 #: src/components/routes/event/DeliveryIssues/index.tsx:42
 #: src/components/routes/event/MessageTracking/shared.tsx:26
 msgid "Announcement"
-msgstr "Anúncio"
+msgstr ""
 
-#: src/components/routes/event/MessageTracking/index.tsx:41
+#: src/components/routes/event/MessageTracking/index.tsx:47
 msgid "Announcements"
-msgstr "Anúncios"
+msgstr ""
 
 #: src/components/common/QuestionAndAnswerList/index.tsx:97
 msgid "Answer updated successfully."
 msgstr "Resposta atualizada com sucesso."
+
+#: src/components/forms/QuestionForm/index.tsx:290
+msgid "Answers will update the attendee's contact profile, making them reusable in future"
+msgstr "As respostas atualizarão o perfil de contacto do participante, tornando-as reutilizáveis no futuro"
 
 #: src/components/routes/event/Settings/Sections/EmailSettings/GeneralEmailSettings.tsx:62
 msgid "Any queries from product holders will be sent to this email address. This will also be used as the \"reply-to\" address for all emails sent from this event"
@@ -816,6 +882,14 @@ msgstr "Configuração de Taxas de Aplicação"
 #: src/components/routes/product-widget/SelectProducts/index.tsx:564
 msgid "applied"
 msgstr "aplicado"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:211
+msgid "Applied (timestamp not recorded for this row)"
+msgstr "Aplicado (carimbo de data/hora não registado para esta linha)"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:210
+msgid "Applied {0}"
+msgstr "Aplicado {0}"
 
 #: src/components/common/CapacityAssignmentList/index.tsx:94
 msgid "Applies to {0} products"
@@ -935,12 +1009,12 @@ msgid "Are you sure you want to leave?"
 msgstr "Tem a certeza de que quer sair?"
 
 #: src/components/layouts/Event/index.tsx:155
-#: src/components/routes/event/EventDashboard/index.tsx:73
+#: src/components/routes/event/EventDashboard/index.tsx:80
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "Tem certeza de que deseja fazer o rascunho deste evento? Isso tornará o evento invisível para o público"
 
 #: src/components/layouts/Event/index.tsx:156
-#: src/components/routes/event/EventDashboard/index.tsx:74
+#: src/components/routes/event/EventDashboard/index.tsx:81
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "Tem certeza de que deseja tornar este evento público? Isso tornará o evento visível ao público"
 
@@ -970,7 +1044,7 @@ msgstr "Tem a certeza de que deseja remover esta entrada da lista de espera?"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:49
 msgid "Are you sure you want to remove this suppression? The email address will be able to receive messages again."
-msgstr "Tem a certeza de que pretende remover esta supressão? O endereço de e-mail voltará a poder receber mensagens."
+msgstr ""
 
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:514
 msgid "Are you sure you want to resend the order confirmation to {0}?"
@@ -1029,11 +1103,11 @@ msgstr "Como a sua empresa está sediada na UE, precisamos determinar o tratamen
 msgid "Ask for name and email for each ticket purchased"
 msgstr "Solicitar nome e email para cada ingresso comprado"
 
-#: src/components/forms/QuestionForm/index.tsx:85
+#: src/components/forms/QuestionForm/index.tsx:219
 msgid "Ask once per order"
 msgstr "Pergunte uma vez por pedido"
 
-#: src/components/forms/QuestionForm/index.tsx:91
+#: src/components/forms/QuestionForm/index.tsx:225
 msgid "Ask once per product"
 msgstr "Perguntar uma vez por produto"
 
@@ -1062,7 +1136,7 @@ msgstr "Presença e taxas de registo em todos os eventos"
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:54
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:55
 #: src/components/common/QuestionsTable/index.tsx:461
-#: src/components/routes/product-widget/CollectInformation/index.tsx:627
+#: src/components/routes/product-widget/CollectInformation/index.tsx:742
 msgid "Attendee"
 msgstr "Participante"
 
@@ -1155,17 +1229,50 @@ msgstr "Participantes exportados"
 msgid "Attendees registered"
 msgstr "Participantes registados"
 
-#: src/components/routes/event/EventDashboard/index.tsx:275
+#: src/components/routes/event/EventDashboard/index.tsx:299
 msgid "Attendees Registered"
 msgstr "Participantes Registrados"
 
-#: src/components/modals/SendMessageModal/index.tsx:286
+#: src/components/modals/SendMessageModal/index.tsx:302
+msgid "Attendees who checked in"
+msgstr ""
+
+#: src/components/modals/SendMessageModal/index.tsx:306
+msgid "Attendees who did not check in"
+msgstr ""
+
+#: src/components/modals/SendMessageModal/index.tsx:290
 msgid "Attendees with a specific ticket"
 msgstr "Participantes com um ingresso específico"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:46
+msgid "Attendees with email not found in the contacts library yet. Select rows and click <0>Add</0> to create contacts for them; click <1>Ignore</1> to prevent them from re-appearing on this tab in future."
+msgstr "Participantes com e-mail ainda não presente na biblioteca de contactos. Selecione linhas e clique em <0>Adicionar</0> para criar contactos; clique em <1>Ignorar</1> para evitar que reapareçam aqui."
 
 #: src/components/common/AdminEventsTable/index.tsx:138
 msgid "Attendees:"
 msgstr "Participantes:"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:177
+msgid "Attribute"
+msgstr "Atributo"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:35
+msgid "Attribute definition created successfully"
+msgstr "Definição de atributo criada com sucesso"
+
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:30
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:61
+msgid "Attribute definition deleted successfully"
+msgstr "Definição de atributo eliminada com sucesso"
+
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:42
+msgid "Attribute definition updated successfully"
+msgstr "Definição de atributo atualizada com sucesso"
+
+#: src/components/modals/EditContactModal/index.tsx:85
+msgid "Attributes"
+msgstr "Atributos"
 
 #: src/components/routes/admin/Attribution/index.tsx:29
 msgid "Attribution Analytics"
@@ -1191,13 +1298,9 @@ msgstr "A oferta automática está ativada"
 msgid "Auto-Process Waitlist"
 msgstr "Processar lista de espera automaticamente"
 
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:149
-#~ msgid "Auto-resolve after email success"
-#~ msgstr "Resolver automaticamente após sucesso do e-mail"
-
 #: src/components/routes/event/MessageTracking/shared.tsx:171
 msgid "Auto-Resolved"
-msgstr "Resolvido automaticamente"
+msgstr ""
 
 #: src/components/common/ThemeColorControls/index.tsx:72
 msgid "Automatically detected based on background color, but can be overridden"
@@ -1205,7 +1308,7 @@ msgstr "Detetado automaticamente com base na cor de fundo, mas pode ser substitu
 
 #: src/components/routes/event/Settings/Sections/WaitlistSettings/index.tsx:61
 msgid "Automatically offer tickets to the next person when capacity becomes available. If disabled, you can manually process the waitlist from the Waitlist page."
-msgstr "Oferecer automaticamente bilhetes à próxima pessoa quando a capacidade estiver disponível. Se desativado, pode processar manualmente a lista de espera na página da Lista de espera."
+msgstr "Oferecer bilhetes automaticamente à próxima pessoa quando houver capacidade disponível. Se desativado, pode processar manualmente a lista de espera na página Lista de espera."
 
 #: src/components/common/WidgetEditor/index.tsx:238
 msgid "Automatically resize the widget height based on the content. When disabled, the widget will fill the height of the container."
@@ -1224,7 +1327,7 @@ msgid "Available Tokens"
 msgstr "Tokens disponíveis"
 
 #: src/components/common/OrderStatusBadge/index.tsx:15
-#: src/components/modals/SendMessageModal/index.tsx:334
+#: src/components/modals/SendMessageModal/index.tsx:346
 msgid "Awaiting offline payment"
 msgstr "Aguardando pagamento offline"
 
@@ -1262,9 +1365,9 @@ msgid "Back to Accounts"
 msgstr "Voltar para Contas"
 
 #: src/components/forms/StripeCheckoutForm/index.tsx:108
-#: src/components/routes/product-widget/CollectInformation/index.tsx:330
-#: src/components/routes/product-widget/CollectInformation/index.tsx:360
-#: src/components/routes/product-widget/CollectInformation/index.tsx:389
+#: src/components/routes/product-widget/CollectInformation/index.tsx:444
+#: src/components/routes/product-widget/CollectInformation/index.tsx:474
+#: src/components/routes/product-widget/CollectInformation/index.tsx:503
 msgid "Back to Event"
 msgstr "Voltar ao evento"
 
@@ -1309,7 +1412,7 @@ msgstr "Experiência de checkout elegante em qualquer dispositivo"
 msgid "Before your event can go live, there are a few things you need to do. Complete all the steps below to get started."
 msgstr "Antes que seu evento possa ser publicado, há algumas coisas que você precisa fazer. Conclua todas as etapas abaixo para começar."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:513
+#: src/components/routes/product-widget/CollectInformation/index.tsx:636
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:287
 msgid "Billing Address"
 msgstr "Endereço de cobrança"
@@ -1329,11 +1432,11 @@ msgstr "Adicione esta página aos favoritos para gerir o seu pedido a qualquer m
 #: src/components/routes/admin/EmailSuppressions/index.tsx:143
 #: src/components/routes/admin/EmailSuppressions/index.tsx:269
 msgid "Bounce"
-msgstr "Rejeição"
+msgstr ""
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:276
 msgid "Bounce Type"
-msgstr "Tipo de rejeição"
+msgstr ""
 
 #: src/components/routes/event/TicketDesigner/index.tsx:108
 msgid "Brand your tickets with a custom logo, colors, and footer message."
@@ -1342,6 +1445,10 @@ msgstr "Personalize seus ingressos com um logotipo, cores e mensagem de rodapé 
 #: src/components/common/LanguageSwitcher/index.tsx:30
 msgid "Brazilian Portuguese"
 msgstr "Português brasileiro"
+
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:113
+msgid "Browse Images"
+msgstr ""
 
 #: src/constants/eventCategories.ts:17
 msgid "Business"
@@ -1376,7 +1483,7 @@ msgstr "O comprador paga"
 msgid "Buyers see a clean price. The platform fee is deducted from your payout."
 msgstr "Os compradores veem um preço limpo. A taxa da plataforma é deduzida do seu pagamento."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:716
+#: src/components/routes/product-widget/CollectInformation/index.tsx:831
 #: src/components/routes/product-widget/Payment/index.tsx:152
 msgid "By continuing, you agree to the <0>{0} Terms of Service</0>"
 msgstr "Ao continuar, concorda com os <0>Termos de Serviço de {0}</0>"
@@ -1423,6 +1530,12 @@ msgstr "Campanha"
 #: src/components/common/QuestionAndAnswerList/index.tsx:149
 #: src/components/common/WaitlistTable/index.tsx:111
 #: src/components/common/WaitlistTable/index.tsx:132
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:89
+#: src/components/modals/CreateContactModal/index.tsx:62
+#: src/components/modals/CreateQuestionModal/index.tsx:133
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:95
+#: src/components/modals/EditContactModal/index.tsx:123
+#: src/components/modals/EditQuestionModal/index.tsx:156
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:98
 #: src/components/routes/event/messages.tsx:80
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:61
@@ -1578,6 +1691,10 @@ msgstr "Check-in criado"
 msgid "Check-in Deleted"
 msgstr "Check-in excluído"
 
+#: src/components/modals/SendMessageModal/index.tsx:355
+msgid "Check-in list"
+msgstr ""
+
 #: src/components/modals/CheckInListSuccessModal/index.tsx:20
 msgid "Check-In List Created"
 msgstr "Lista de Check-In Criada!"
@@ -1635,11 +1752,11 @@ msgstr "URL de check-in copiada para a área de transferência"
 msgid "Check-Ins"
 msgstr "Check-Ins"
 
-#: src/components/forms/QuestionForm/index.tsx:114
+#: src/components/forms/QuestionForm/index.tsx:248
 msgid "Checkbox options allow multiple selections"
 msgstr "As opções de caixa de seleção permitem seleções múltiplas"
 
-#: src/components/forms/QuestionForm/index.tsx:112
+#: src/components/forms/QuestionForm/index.tsx:246
 msgid "Checkboxes"
 msgstr "Caixas de seleção"
 
@@ -1648,6 +1765,10 @@ msgstr "Caixas de seleção"
 #: src/components/routes/organizer/Reports/CheckInSummaryReport/index.tsx:40
 msgid "Checked In"
 msgstr "Registado"
+
+#: src/components/common/MessageList/index.tsx:32
+msgid "Checked-in attendees"
+msgstr ""
 
 #: src/components/routes/event/Settings/index.tsx:52
 msgid "Checkout"
@@ -1693,8 +1814,8 @@ msgstr "Escolha quem paga a taxa da plataforma. Isso não afeta as taxas adicion
 #: src/components/common/CheckoutQuestion/index.tsx:162
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:134
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:92
-#: src/components/routes/product-widget/CollectInformation/index.tsx:533
-#: src/components/routes/product-widget/CollectInformation/index.tsx:534
+#: src/components/routes/product-widget/CollectInformation/index.tsx:656
+#: src/components/routes/product-widget/CollectInformation/index.tsx:657
 msgid "City"
 msgstr "Cidade"
 
@@ -1822,19 +1943,19 @@ msgstr "Preferências de comunicação"
 #: src/components/routes/admin/EmailSuppressions/index.tsx:144
 #: src/components/routes/admin/EmailSuppressions/index.tsx:270
 msgid "Complaint"
-msgstr "Reclamação"
+msgstr ""
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:712
+#: src/components/routes/product-widget/CollectInformation/index.tsx:827
 msgid "Complete Order"
 msgstr "Ordem completa"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:340
+#: src/components/routes/product-widget/CollectInformation/index.tsx:454
 #: src/components/routes/product-widget/Payment/index.tsx:148
 msgid "Complete Payment"
 msgstr "Concluir pagamento"
 
 #: src/components/common/StripeConnectButton/index.tsx:87
-#: src/components/routes/event/EventDashboard/index.tsx:241
+#: src/components/routes/event/EventDashboard/index.tsx:248
 msgid "Complete Stripe Setup"
 msgstr "Concluir configuração do Stripe"
 
@@ -1842,15 +1963,15 @@ msgstr "Concluir configuração do Stripe"
 msgid "Complete the setup below to continue"
 msgstr "Complete a configuração abaixo para continuar"
 
-#: src/components/routes/event/EventDashboard/index.tsx:163
+#: src/components/routes/event/EventDashboard/index.tsx:170
 msgid "Complete these steps to start selling tickets for your event."
 msgstr "Complete estas etapas para começar a vender ingressos para o seu evento."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:413
+#: src/components/routes/product-widget/CollectInformation/index.tsx:527
 msgid "Complete your order to secure your tickets. This offer is time-limited, so don't wait too long."
 msgstr "Conclua a sua encomenda para garantir os seus bilhetes. Esta oferta é limitada no tempo, por isso não espere demasiado."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:338
+#: src/components/routes/product-widget/CollectInformation/index.tsx:452
 msgid "Complete your payment to secure your tickets."
 msgstr "Conclua o pagamento para garantir os seus bilhetes."
 
@@ -1859,7 +1980,7 @@ msgid "Complete your profile to join the team."
 msgstr "Complete o seu perfil para se juntar à equipa."
 
 #: src/components/common/OrdersTable/index.tsx:412
-#: src/components/modals/SendMessageModal/index.tsx:333
+#: src/components/modals/SendMessageModal/index.tsx:345
 #: src/components/routes/event/GettingStarted/index.tsx:75
 #: src/components/routes/event/orders.tsx:23
 #: src/components/routes/my-tickets/index.tsx:34
@@ -1871,7 +1992,7 @@ msgstr "Concluído"
 msgid "Completed orders"
 msgstr "Pedidos concluídos"
 
-#: src/components/routes/event/EventDashboard/index.tsx:273
+#: src/components/routes/event/EventDashboard/index.tsx:297
 msgid "Completed Orders"
 msgstr "Pedidos concluídos"
 
@@ -1908,7 +2029,7 @@ msgstr "Os nomes de configuração são visíveis para os usuários finais. As t
 msgid "Configuration updated successfully"
 msgstr "Configuração atualizada com sucesso"
 
-#: src/components/layouts/Admin/index.tsx:22
+#: src/components/layouts/Admin/index.tsx:23
 #: src/components/routes/admin/Configurations/index.tsx:64
 msgid "Configurations"
 msgstr "Configurações"
@@ -1933,10 +2054,10 @@ msgstr "Desconto configurado"
 msgid "Confirm"
 msgstr "confirme"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:458
-#: src/components/routes/product-widget/CollectInformation/index.tsx:459
-#: src/components/routes/product-widget/CollectInformation/index.tsx:671
-#: src/components/routes/product-widget/CollectInformation/index.tsx:672
+#: src/components/routes/product-widget/CollectInformation/index.tsx:558
+#: src/components/routes/product-widget/CollectInformation/index.tsx:559
+#: src/components/routes/product-widget/CollectInformation/index.tsx:771
+#: src/components/routes/product-widget/CollectInformation/index.tsx:772
 msgid "Confirm Email Address"
 msgstr "Confirmar endereço de e-mail"
 
@@ -1996,7 +2117,7 @@ msgstr "Conectar e atualizar"
 msgid "Connect Documentation"
 msgstr "Documentação de conexão"
 
-#: src/components/routes/event/EventDashboard/index.tsx:228
+#: src/components/routes/event/EventDashboard/index.tsx:235
 msgid "Connect payment processing"
 msgstr "Conectar processamento de pagamento"
 
@@ -2009,11 +2130,11 @@ msgstr "Conectar faixa"
 msgid "Connect Stripe to enable email template editing"
 msgstr "Conecte o Stripe para ativar a edição de modelos de email"
 
-#: src/components/modals/SendMessageModal/index.tsx:240
+#: src/components/modals/SendMessageModal/index.tsx:244
 msgid "Connect Stripe to enable messaging"
 msgstr "Conecte o Stripe para ativar mensagens"
 
-#: src/components/routes/event/EventDashboard/index.tsx:241
+#: src/components/routes/event/EventDashboard/index.tsx:248
 msgid "Connect to Stripe"
 msgstr "Conectar ao Stripe"
 
@@ -2057,12 +2178,30 @@ msgstr "Detalhes da conexão"
 #: src/components/common/WaitlistTable/index.tsx:149
 #: src/components/layouts/EventHomepage/index.tsx:583
 #: src/components/layouts/OrganizerHomepage/index.tsx:245
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:176
 msgid "Contact"
 msgstr "Contato"
 
 #: src/components/common/ContactOrganizerModal/index.tsx:66
 msgid "Contact {0}"
 msgstr "Contato {0}"
+
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:38
+msgid "Contact Attributes"
+msgstr "Atributos do contacto"
+
+#: src/components/modals/CreateContactModal/index.tsx:30
+msgid "Contact created successfully"
+msgstr "Contacto criado com sucesso"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:179
+msgid "Contact Default"
+msgstr "Padrão do contacto"
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:36
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:90
+msgid "Contact deleted successfully"
+msgstr "Contacto eliminado com sucesso"
 
 #: src/components/forms/OrganizerForm/index.tsx:35
 msgid "Contact Email"
@@ -2072,6 +2211,18 @@ msgstr "Email de contacto"
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:81
 msgid "Contact email for support"
 msgstr "E-mail de contato para suporte"
+
+#: src/components/modals/EditContactModal/index.tsx:55
+msgid "Contact updated successfully"
+msgstr "Contacto atualizado com sucesso"
+
+#: src/components/common/GlobalMenu/index.tsx:51
+#: src/components/layouts/Admin/index.tsx:20
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:44
+#: src/components/routes/contacts/ContactsAdmin/index.tsx:49
+#: src/components/routes/contacts/ContactsAdmin/index.tsx:63
+msgid "Contacts"
+msgstr "Contactos"
 
 #: src/components/common/WidgetEditor/index.tsx:29
 #: src/components/common/WidgetEditor/index.tsx:222
@@ -2106,7 +2257,7 @@ msgstr "Continuar para a criação do evento"
 msgid "Continue to next step"
 msgstr "Continuar para o próximo passo"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:712
+#: src/components/routes/product-widget/CollectInformation/index.tsx:827
 msgid "Continue to Payment"
 msgstr "Continuar para pagamento"
 
@@ -2122,7 +2273,7 @@ msgstr "Controle como as taxas da plataforma são tratadas para este evento"
 msgid "Copied"
 msgstr "Copiado"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:636
+#: src/components/routes/product-widget/CollectInformation/index.tsx:751
 msgid "Copied from above"
 msgstr "Copiado de cima"
 
@@ -2162,7 +2313,7 @@ msgstr "Copiar código"
 msgid "Copy customer link"
 msgstr "Copiar link do cliente"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:477
+#: src/components/routes/product-widget/CollectInformation/index.tsx:592
 msgid "Copy details to first attendee"
 msgstr "Copiar detalhes para o primeiro participante"
 
@@ -2180,7 +2331,7 @@ msgstr "Copiar link"
 msgid "Copy Link"
 msgstr "Link de cópia"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:487
+#: src/components/routes/product-widget/CollectInformation/index.tsx:602
 msgid "Copy my details to:"
 msgstr "Copiar meus dados para:"
 
@@ -2197,10 +2348,38 @@ msgstr "Copiar para a área de transferência"
 msgid "Copy URL"
 msgstr "Copiar URL"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:81
+msgid "Could not add contacts."
+msgstr "Não foi possível adicionar os contactos."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:88
+msgid "Could not apply decisions."
+msgstr "Não foi possível aplicar as decisões."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:93
+msgid "Could not ignore attendees."
+msgstr "Não foi possível ignorar os participantes."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:95
+msgid "Could not ignore questions."
+msgstr "Não foi possível ignorar as perguntas."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:105
+msgid "Could not restore attendees."
+msgstr "Não foi possível restaurar os participantes."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:107
+msgid "Could not restore questions."
+msgstr "Não foi possível restaurar as perguntas."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:83
+msgid "Could not reuse questions."
+msgstr "Não foi possível reutilizar as perguntas."
+
 #: src/components/common/CheckoutQuestion/index.tsx:174
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:152
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:110
-#: src/components/routes/product-widget/CollectInformation/index.tsx:554
+#: src/components/routes/product-widget/CollectInformation/index.tsx:677
 msgid "Country"
 msgstr "País"
 
@@ -2277,6 +2456,14 @@ msgstr "Crie e configure ingressos e mercadorias para venda."
 msgid "Create Attendee"
 msgstr "Criar participante"
 
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:92
+msgid "Create Attribute"
+msgstr "Criar atributo"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:47
+msgid "Create Attribute Definition"
+msgstr "Criar definição de atributo"
+
 #: src/components/common/CapacityAssignmentList/index.tsx:60
 #: src/components/modals/CreateCapacityAssignmentModal/index.tsx:68
 #: src/components/modals/CreateCapacityAssignmentModal/index.tsx:79
@@ -2307,6 +2494,11 @@ msgstr "Criar Lista de Registro"
 msgid "Create Configuration"
 msgstr "Criar Configuração"
 
+#: src/components/modals/CreateContactModal/index.tsx:40
+#: src/components/modals/CreateContactModal/index.tsx:65
+msgid "Create Contact"
+msgstr "Criar contacto"
+
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:311
 msgid "Create custom email templates for this event that override the organizer defaults"
 msgstr "Criar modelos de e-mail personalizados para este evento que substituem os padrões do organizador"
@@ -2334,7 +2526,7 @@ msgstr "Crie um novo"
 msgid "Create new password"
 msgstr "Criar nova senha"
 
-#: src/components/common/GlobalMenu/index.tsx:76
+#: src/components/common/GlobalMenu/index.tsx:82
 #: src/components/modals/CreateEventModal/index.tsx:138
 #: src/components/modals/CreateOrganizerModal/index.tsx:18
 #: src/components/modals/SwitchOrganizerModal/index.tsx:96
@@ -2350,8 +2542,8 @@ msgstr "Criar Produto"
 msgid "Create Promo Code"
 msgstr "Criar código promocional"
 
-#: src/components/modals/CreateQuestionModal/index.tsx:70
-#: src/components/modals/CreateQuestionModal/index.tsx:75
+#: src/components/modals/CreateQuestionModal/index.tsx:127
+#: src/components/modals/CreateQuestionModal/index.tsx:136
 msgid "Create Question"
 msgstr "Criar pergunta"
 
@@ -2396,9 +2588,12 @@ msgstr "Crie seu primeiro evento para começar a vender ingressos e gerenciar pa
 msgid "Create your own event"
 msgstr "Crie seu próprio evento"
 
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:67
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:132
 #: src/components/routes/admin/Messages/index.tsx:169
 #: src/components/routes/admin/Messages/index.tsx:309
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:203
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:142
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:259
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:283
 msgid "Created"
@@ -2460,7 +2655,7 @@ msgstr "Atualmente disponível para compra"
 msgid "Custom Branding"
 msgstr "Marca Personalizada"
 
-#: src/components/modals/SendMessageModal/index.tsx:405
+#: src/components/modals/SendMessageModal/index.tsx:430
 msgid "Custom date and time"
 msgstr "Data e hora personalizadas"
 
@@ -2609,7 +2804,7 @@ msgstr "Propriedade dos Dados"
 
 #: src/components/common/AdminOrdersTable/index.tsx:94
 #: src/components/common/OrderDetails/index.tsx:39
-#: src/components/forms/QuestionForm/index.tsx:136
+#: src/components/forms/QuestionForm/index.tsx:270
 #: src/components/routes/admin/EmailSuppressions/index.tsx:184
 #: src/components/routes/event/DeliveryIssues/index.tsx:101
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:56
@@ -2632,7 +2827,7 @@ msgstr "Data em que o pedido foi feito"
 
 #: src/components/routes/event/MessageTracking/shared.tsx:54
 msgid "Day"
-msgstr "Dia"
+msgstr ""
 
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:38
 msgid "Day one capacity"
@@ -2654,6 +2849,10 @@ msgstr "Gestão de taxas padrão"
 msgid "Default template will be used"
 msgstr "O modelo padrão será usado"
 
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:39
+msgid "Define custom attributes that can be stored on contacts"
+msgstr "Definir atributos personalizados que podem ser armazenados nos contactos"
+
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:101
 #: src/components/routes/organizer/Settings/Sections/DangerZoneSettings/index.tsx:107
 msgid "delete"
@@ -2663,7 +2862,11 @@ msgstr "eliminar"
 #: src/components/common/PromoCodeTable/index.tsx:40
 #: src/components/common/QuestionsTable/index.tsx:150
 #: src/components/common/TaxAndFeeList/index.tsx:78
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:85
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:97
 #: src/components/routes/admin/FailedJobs/index.tsx:209
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:165
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:205
 msgid "Delete"
 msgstr "Excluir"
 
@@ -2723,13 +2926,9 @@ msgstr "Excluir esta pergunta? Isso não pode ser desfeito."
 msgid "Delete webhook"
 msgstr "Excluir webhook"
 
-#: src/components/routes/event/MessageTracking/DeliveryIssuesTab.tsx:81
-#~ msgid "Delivery"
-#~ msgstr "Entrega"
-
 #: src/components/routes/event/DeliveryIssues/index.tsx:52
 msgid "Delivery Issues"
-msgstr "Problemas de entrega"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:280
 #: src/components/forms/TaxAndFeeForm/index.tsx:81
@@ -2759,6 +2958,11 @@ msgstr "Detalhes"
 #: src/components/routes/welcome/index.tsx:193
 msgid "Didn't receive the code?"
 msgstr "Não recebeu o código?"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:58
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:45
+msgid "Different Answers"
+msgstr "Respostas diferentes"
 
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:27
 msgid "Disabling this capacity will track sales but not stop them when the limit is reached"
@@ -2858,7 +3062,11 @@ msgstr "A baixar fatura"
 msgid "Draft"
 msgstr "Rascunho"
 
-#: src/components/forms/QuestionForm/index.tsx:124
+#: src/components/common/SortableOptionsInput/index.tsx:53
+msgid "Drag to reorder"
+msgstr "Arrastar para reordenar"
+
+#: src/components/forms/QuestionForm/index.tsx:258
 msgid "Dropdown selection"
 msgstr "Seleção suspensa"
 
@@ -2866,11 +3074,13 @@ msgstr "Seleção suspensa"
 msgid "Due to the high risk of spam, you must connect a Stripe account before you can modify email templates. This is to ensure that all event organizers are verified and accountable."
 msgstr "Devido ao alto risco de spam, deve conectar uma conta Stripe antes de poder modificar modelos de email. Isto é para garantir que todos os organizadores de eventos sejam verificados e responsáveis."
 
-#: src/components/modals/SendMessageModal/index.tsx:241
+#: src/components/modals/SendMessageModal/index.tsx:245
 msgid ""
 "Due to the high risk of spam, you must connect a Stripe account before you can send messages to attendees.\n"
 "This is to ensure that all event organizers are verified and accountable."
 msgstr ""
+"Devido ao alto risco de spam, deve conectar uma conta Stripe antes de poder enviar mensagens aos participantes.\n"
+"Isto é para garantir que todos os organizadores de eventos sejam verificados e responsáveis."
 
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:488
 msgid "Duplicate"
@@ -2906,9 +3116,22 @@ msgstr "ex. 180 (3 horas)"
 msgid "e.g., Get Tickets, Register Now"
 msgstr "ex.: Comprar ingressos, Registrar-se agora"
 
-#: src/components/modals/SendMessageModal/index.tsx:348
+#: src/components/modals/SendMessageModal/index.tsx:373
 msgid "e.g., Important update about your tickets"
 msgstr "por exemplo, Atualização importante sobre os seus bilhetes"
+
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:63
+msgid "e.g., role"
+msgstr "ex.: função"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:50
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:56
+msgid "e.g., Role"
+msgstr "ex.: Função"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:57
+msgid "e.g., role (machine name)"
+msgstr "ex.: função (nome técnico)"
 
 #: src/components/routes/admin/Configurations/index.tsx:221
 msgid "e.g., Standard, Premium, Enterprise"
@@ -2926,7 +3149,11 @@ msgstr "Madrugador"
 #: src/components/common/TaxAndFeeList/index.tsx:70
 #: src/components/modals/ManageAttendeeModal/index.tsx:221
 #: src/components/modals/ManageOrderModal/index.tsx:203
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:78
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:90
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:268
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:162
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:202
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:235
 msgid "Edit"
 msgstr "Editar"
@@ -2962,6 +3189,10 @@ msgstr "Editar participante"
 msgid "Edit Attendee Details"
 msgstr "Editar detalhes do participante"
 
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:53
+msgid "Edit Attribute Definition"
+msgstr "Editar definição de atributo"
+
 #: src/components/common/CapacityAssignmentList/index.tsx:143
 msgid "Edit Capacity"
 msgstr "Editar Capacidade"
@@ -2990,6 +3221,10 @@ msgstr "Editar código"
 msgid "Edit Configuration"
 msgstr "Editar Configuração"
 
+#: src/components/modals/EditContactModal/index.tsx:64
+msgid "Edit Contact"
+msgstr "Editar contacto"
+
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditOrderModal/index.tsx:45
 msgid "Edit Order Details"
 msgstr "Editar detalhes do pedido"
@@ -3013,8 +3248,7 @@ msgstr "Editar Categoria de Produto"
 msgid "Edit Promo Code"
 msgstr "Editar código promocional"
 
-#: src/components/modals/EditQuestionModal/index.tsx:95
-#: src/components/modals/EditQuestionModal/index.tsx:101
+#: src/components/modals/EditQuestionModal/index.tsx:145
 msgid "Edit Question"
 msgstr "Editar pergunta"
 
@@ -3071,9 +3305,12 @@ msgstr "Listas de Check-In Elegíveis"
 #: src/components/common/OrderDetails/index.tsx:31
 #: src/components/common/QuestionsTable/index.tsx:253
 #: src/components/forms/AffiliateForm/index.tsx:89
+#: src/components/modals/CreateContactModal/index.tsx:42
+#: src/components/modals/EditContactModal/index.tsx:66
 #: src/components/modals/EditUserModal/index.tsx:80
 #: src/components/modals/InviteUserModal/index.tsx:61
 #: src/components/modals/JoinWaitlistModal/index.tsx:171
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:64
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:128
 #: src/components/routes/admin/Dashboard/index.tsx:401
 #: src/components/routes/admin/EmailSuppressions/index.tsx:179
@@ -3081,6 +3318,8 @@ msgstr "Listas de Check-In Elegíveis"
 #: src/components/routes/auth/ForgotPassword/index.tsx:65
 #: src/components/routes/auth/Login/index.tsx:93
 #: src/components/routes/auth/Register/index.tsx:104
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:199
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:139
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:78
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:68
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditOrderModal/index.tsx:68
@@ -3104,10 +3343,10 @@ msgid "Email address"
 msgstr "Endereço de email"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:260
-#: src/components/routes/product-widget/CollectInformation/index.tsx:450
-#: src/components/routes/product-widget/CollectInformation/index.tsx:451
-#: src/components/routes/product-widget/CollectInformation/index.tsx:662
-#: src/components/routes/product-widget/CollectInformation/index.tsx:663
+#: src/components/routes/product-widget/CollectInformation/index.tsx:550
+#: src/components/routes/product-widget/CollectInformation/index.tsx:551
+#: src/components/routes/product-widget/CollectInformation/index.tsx:762
+#: src/components/routes/product-widget/CollectInformation/index.tsx:763
 msgid "Email Address"
 msgstr "Endereço de email"
 
@@ -3116,8 +3355,8 @@ msgstr "Endereço de email"
 msgid "Email address copied to clipboard"
 msgstr "Endereço de email copiado para a área de transferência"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:111
-#: src/components/routes/product-widget/CollectInformation/index.tsx:118
+#: src/components/routes/product-widget/CollectInformation/index.tsx:112
+#: src/components/routes/product-widget/CollectInformation/index.tsx:119
 msgid "Email addresses do not match"
 msgstr "Os endereços de e-mail não coincidem"
 
@@ -3147,23 +3386,12 @@ msgstr "Confirmação de e-mail reenviada com sucesso"
 msgid "Email footer message"
 msgstr "Mensagem de rodapé do e-mail"
 
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:65
-#~ msgid "Email has been resent and issue marked as resolved."
-#~ msgstr "O e-mail foi reenviado e o problema marcado como resolvido."
-
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:69
-#~ msgid "Email has been resent but failed to mark as resolved."
-#~ msgstr "O e-mail foi reenviado mas não foi possível marcar como resolvido."
-
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:74
-#~ msgid "Email has been resent. It will auto-resolve when delivery is confirmed."
-#~ msgstr "O e-mail foi reenviado. Será resolvido automaticamente quando a entrega for confirmada."
-
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:57
 msgid "Email has been resent. The issue will be auto-resolved."
-msgstr "O e-mail foi reenviado. O problema será resolvido automaticamente."
+msgstr ""
 
 #: src/components/common/ContactOrganizerModal/index.tsx:34
+#: src/components/modals/CreateContactModal/index.tsx:21
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:32
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditOrderModal/index.tsx:32
 msgid "Email is required"
@@ -3179,12 +3407,12 @@ msgstr "Visualização do e-mail"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:66
 msgid "Email suppression added successfully"
-msgstr "Supressão de e-mail adicionada com sucesso"
+msgstr ""
 
 #: src/components/layouts/Admin/index.tsx:19
 #: src/components/routes/admin/EmailSuppressions/index.tsx:123
 msgid "Email Suppressions"
-msgstr "Supressões de e-mail"
+msgstr ""
 
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:336
 #: src/components/routes/organizer/Settings/index.tsx:65
@@ -3194,7 +3422,7 @@ msgstr "Modelos de e-mail"
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:209
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:279
 msgid "Email Type"
-msgstr "Tipo de e-mail"
+msgstr ""
 
 #: src/components/layouts/OrganizerLayout/index.tsx:288
 msgid "Email Verification Required"
@@ -3206,7 +3434,7 @@ msgstr "Email verificado com sucesso!"
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:50
 msgid "Emails that failed to deliver, bounced, or were suppressed."
-msgstr "E-mails que falharam na entrega, foram devolvidos ou suprimidos."
+msgstr ""
 
 #: src/components/common/WidgetEditor/index.tsx:246
 #: src/components/common/WidgetEditor/index.tsx:275
@@ -3408,6 +3636,11 @@ msgstr "EUR"
 #: src/components/routes/admin/Dashboard/index.tsx:305
 #: src/components/routes/admin/Messages/index.tsx:163
 #: src/components/routes/admin/Messages/index.tsx:277
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:180
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:202
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
+#: src/components/routes/event/EventDashboard/index.tsx:269
 #: src/components/routes/events/Dashboard/index.tsx:184
 #: src/components/routes/organizer/Reports/CheckInSummaryReport/index.tsx:19
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:41
@@ -3415,6 +3648,14 @@ msgstr "EUR"
 #: src/components/routes/organizer/Reports/TaxSummaryReport/index.tsx:23
 msgid "Event"
 msgstr "Evento"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:178
+msgid "Event Answer"
+msgstr "Resposta do Evento"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:142
+msgid "Event answers that don't match the contact's current value — either the attribute was empty, or the stored value differs. Select rows and click Update to write the event answer onto the contact, or click Ignore to keep the existing value. Both outcomes mark the rows as processed so they won't reappear."
+msgstr "Respostas do evento que não correspondem ao valor atual do contacto — o atributo estava vazio ou o valor armazenado difere. Selecione linhas e clique em Atualizar para escrever a resposta no contacto, ou em Ignorar para manter o valor existente. Ambos marcam as linhas como processadas."
 
 #: src/components/forms/WebhookForm/index.tsx:55
 msgid "Event Archived"
@@ -3541,7 +3782,7 @@ msgstr "Configurações do evento"
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
 #: src/components/layouts/Event/index.tsx:171
-#: src/components/routes/event/EventDashboard/index.tsx:88
+#: src/components/routes/event/EventDashboard/index.tsx:95
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
 msgstr "Falha na atualização do status do evento. Por favor, tente novamente mais tarde"
@@ -3549,7 +3790,7 @@ msgstr "Falha na atualização do status do evento. Por favor, tente novamente m
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
 #: src/components/layouts/Event/index.tsx:167
-#: src/components/routes/event/EventDashboard/index.tsx:85
+#: src/components/routes/event/EventDashboard/index.tsx:92
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
 msgstr "Status do evento atualizado"
@@ -3648,6 +3889,10 @@ msgstr "Expira"
 msgid "Expiry Date"
 msgstr "Data de validade"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:15
+msgid "Explain"
+msgstr "Explicar"
+
 #: src/components/routes/event/Affiliates/index.tsx:81
 #: src/components/routes/event/attendees.tsx:205
 #: src/components/routes/event/orders.tsx:142
@@ -3690,6 +3935,10 @@ msgstr "Exportação concluída. Baixando arquivo..."
 msgid "Exporting Orders"
 msgstr "Exportando pedidos"
 
+#: src/components/routes/contacts/ContactsAdmin/index.tsx:66
+msgid "Extended Attributes"
+msgstr "Atributos estendidos"
+
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:46
 msgid "Facebook"
 msgstr "Facebook"
@@ -3703,7 +3952,7 @@ msgstr "Falhado"
 msgid "Failed At"
 msgstr "Falhou em"
 
-#: src/components/layouts/Admin/index.tsx:21
+#: src/components/layouts/Admin/index.tsx:22
 #: src/components/routes/admin/FailedJobs/index.tsx:114
 msgid "Failed Jobs"
 msgstr "Trabalhos falhados"
@@ -3714,7 +3963,7 @@ msgstr "Falha ao abandonar o pedido. Por favor, tente novamente."
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:70
 msgid "Failed to add suppression"
-msgstr "Falha ao adicionar supressão"
+msgstr ""
 
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:43
 msgid "Failed to assign configuration"
@@ -3799,18 +4048,38 @@ msgstr "Falha ao exportar relatório. Por favor, tente novamente."
 msgid "Failed to load Check-In List"
 msgstr "Falha ao carregar a Lista de Registro"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:148
+msgid "Failed to load conflicts"
+msgstr "Falha ao carregar conflitos"
+
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:133
+msgid "Failed to load contact attributes"
+msgstr "Falha ao carregar atributos de contacto"
+
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:126
+msgid "Failed to load contacts"
+msgstr "Falha ao carregar contactos"
+
 #: src/components/routes/event/DeliveryIssues/index.tsx:63
 msgid "Failed to load delivery issues"
-msgstr "Falha ao carregar problemas de entrega"
+msgstr ""
 
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:235
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:258
 msgid "Failed to load messages"
-msgstr "Falha ao carregar mensagens"
+msgstr ""
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:54
 msgid "Failed to load recipients"
 msgstr "Falha ao carregar destinatários"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:177
+msgid "Failed to load unlinked attendees"
+msgstr "Falha ao carregar participantes não associados"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:174
+msgid "Failed to load unmapped questions"
+msgstr "Falha ao carregar perguntas não mapeadas"
 
 #: src/components/modals/EditOrganizerWebhookModal/index.tsx:74
 #: src/components/modals/EditWebhookModal/index.tsx:75
@@ -3831,7 +4100,7 @@ msgstr "Falha ao remover da lista de espera"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:53
 msgid "Failed to remove suppression"
-msgstr "Falha ao remover supressão"
+msgstr ""
 
 #: src/components/common/QuestionsTable/index.tsx:184
 msgid "Failed to reorder questions"
@@ -3839,7 +4108,7 @@ msgstr "Falha ao reordenar perguntas"
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:62
 msgid "Failed to resend email. Please try again."
-msgstr "Falha ao reenviar e-mail. Por favor, tente novamente."
+msgstr ""
 
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:530
 msgid "Failed to resend order confirmation"
@@ -3856,10 +4125,6 @@ msgstr "Falha ao reenviar e-mail do ticket"
 #: src/components/routes/welcome/index.tsx:125
 msgid "Failed to resend verification code"
 msgstr "Falha ao reenviar código de verificação"
-
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:92
-#~ msgid "Failed to resolve issue. Please try again."
-#~ msgstr "Falha ao resolver o problema. Por favor, tente novamente."
 
 #: src/components/routes/admin/FailedJobs/index.tsx:56
 msgid "Failed to retry job"
@@ -3942,7 +4207,7 @@ msgstr "Falha ao atualizar o estado do organizador"
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:116
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:120
 msgid "Failed to update resolved status."
-msgstr "Falha ao atualizar o estado de resolução."
+msgstr ""
 
 #: src/components/common/QuestionsTable/index.tsx:374
 msgid "Failed to update setting"
@@ -3952,7 +4217,7 @@ msgstr "Falha ao atualizar configuração"
 msgid "Failed to update VAT settings"
 msgstr "Falha ao atualizar configurações de IVA"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:66
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:72
 msgid "Failed to upload image."
 msgstr "Falha ao carregar imagem."
 
@@ -4005,14 +4270,22 @@ msgstr "Festival"
 msgid "File is too large. Maximum size is 5MB."
 msgstr "O ficheiro é demasiado grande. O tamanho máximo é 5MB."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:469
-#: src/components/routes/product-widget/CollectInformation/index.tsx:489
+#: src/components/routes/product-widget/CollectInformation/index.tsx:584
+#: src/components/routes/product-widget/CollectInformation/index.tsx:604
 msgid "Fill in your details above first"
 msgstr "Preencha primeiro os seus dados acima"
 
 #: src/components/routes/event/attendees.tsx:183
 msgid "Filter Attendees"
 msgstr "Filtrar Participantes"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:104
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:126
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:123
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:108
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:115
+msgid "Filter by event"
+msgstr "Filtrar por evento"
 
 #: src/components/routes/organizer/Reports/PlatformFeesReport/index.tsx:123
 msgid "Filter by Event"
@@ -4040,7 +4313,7 @@ msgstr "Terminar configuração"
 msgid "Finish Stripe Setup"
 msgstr "Terminar configuração do Stripe"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:500
+#: src/components/routes/product-widget/CollectInformation/index.tsx:615
 msgid "First attendee"
 msgstr "Primeiro participante"
 
@@ -4051,19 +4324,26 @@ msgstr "Primeiro número da fatura"
 #: src/components/modals/CreateAttendeeModal/index.tsx:129
 #: src/components/modals/ManageAttendeeModal/index.tsx:110
 #: src/components/modals/ManageOrderModal/index.tsx:144
-#: src/components/routes/product-widget/CollectInformation/index.tsx:435
-#: src/components/routes/product-widget/CollectInformation/index.tsx:647
+#: src/components/routes/product-widget/CollectInformation/index.tsx:569
+#: src/components/routes/product-widget/CollectInformation/index.tsx:783
 msgid "First name"
 msgstr "Primeiro nome"
 
 #: src/components/common/QuestionsTable/index.tsx:251
+#: src/components/modals/CreateContactModal/index.tsx:49
+#: src/components/modals/CreateContactModal/index.tsx:50
+#: src/components/modals/EditContactModal/index.tsx:72
+#: src/components/modals/EditContactModal/index.tsx:73
 #: src/components/modals/EditUserModal/index.tsx:71
 #: src/components/modals/InviteUserModal/index.tsx:57
 #: src/components/modals/JoinWaitlistModal/index.tsx:161
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:65
 #: src/components/routes/auth/AcceptInvitation/index.tsx:97
 #: src/components/routes/auth/Register/index.tsx:90
-#: src/components/routes/product-widget/CollectInformation/index.tsx:434
-#: src/components/routes/product-widget/CollectInformation/index.tsx:646
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:200
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:140
+#: src/components/routes/product-widget/CollectInformation/index.tsx:568
+#: src/components/routes/product-widget/CollectInformation/index.tsx:782
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:53
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditOrderModal/index.tsx:53
 #: src/components/routes/profile/ManageProfile/index.tsx:152
@@ -4208,7 +4488,7 @@ msgstr "Começar"
 msgid "Get Tickets"
 msgstr "Obter Bilhetes"
 
-#: src/components/routes/event/EventDashboard/index.tsx:161
+#: src/components/routes/event/EventDashboard/index.tsx:168
 msgid "Get your event ready"
 msgstr "Prepare seu evento"
 
@@ -4225,7 +4505,7 @@ msgstr "GitHub"
 msgid "Go back to profile"
 msgstr "Voltar ao perfil"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:377
+#: src/components/routes/product-widget/CollectInformation/index.tsx:491
 msgid "Go to Event Page"
 msgstr "Ir para a página do evento"
 
@@ -4254,7 +4534,7 @@ msgid "Gross sales"
 msgstr "Vendas brutas"
 
 #: src/components/routes/admin/Dashboard/index.tsx:259
-#: src/components/routes/event/EventDashboard/index.tsx:312
+#: src/components/routes/event/EventDashboard/index.tsx:336
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:119
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:30
 msgid "Gross Sales"
@@ -4301,7 +4581,7 @@ msgstr "Aqui está o seu link de afiliado"
 msgid "Here's what to expect:"
 msgstr "Aqui está o que esperar:"
 
-#: src/components/routes/event/EventDashboard/index.tsx:113
+#: src/components/routes/event/EventDashboard/index.tsx:120
 msgid "Hi {0} 👋"
 msgstr "Oi {0} 👋"
 
@@ -4315,6 +4595,7 @@ msgstr "Taxas da plataforma Hi.Events e discriminação do IVA por transação"
 
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:90
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:321
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:82
 msgid "Hidden"
 msgstr "Oculto"
 
@@ -4327,7 +4608,7 @@ msgstr "Oculto para participantes - visível apenas para organizadores"
 msgid "Hidden from public view"
 msgstr "Escondido da vista do público"
 
-#: src/components/forms/QuestionForm/index.tsx:218
+#: src/components/forms/QuestionForm/index.tsx:404
 msgid "Hidden questions are only visible to the event organizer and not to the customer."
 msgstr "As perguntas ocultas são visíveis apenas para o organizador do evento e não para o cliente."
 
@@ -4372,7 +4653,7 @@ msgstr "Oculte a página de primeiros passos da barra lateral"
 msgid "Hide this product from customers"
 msgstr "Ocultar este produto dos clientes"
 
-#: src/components/forms/QuestionForm/index.tsx:219
+#: src/components/forms/QuestionForm/index.tsx:405
 msgid "Hide this question"
 msgstr "Ocultar esta pergunta"
 
@@ -4442,7 +4723,7 @@ msgstr "Quantas vezes esse código pode ser usado?"
 msgid "How to pay offline"
 msgstr "Como pagar offline"
 
-#: src/components/common/Editor/index.tsx:94
+#: src/components/common/Editor/index.tsx:92
 msgid "HTML character limit exceeded: {htmlLength}/{maxLength}"
 msgstr "Limite de caracteres HTML excedido: {htmlLength}/{maxLength}"
 
@@ -4470,7 +4751,7 @@ msgstr "Concordo em receber notificações por email relacionadas com este event
 msgid "I agree to the <0>terms and conditions</0>"
 msgstr "Concordo com os <0>termos e condições</0>"
 
-#: src/components/modals/SendMessageModal/index.tsx:439
+#: src/components/modals/SendMessageModal/index.tsx:464
 msgid "I confirm this is a transactional message related to this event"
 msgstr "Confirmo que esta é uma mensagem transacional relacionada com este evento"
 
@@ -4502,6 +4783,29 @@ msgstr "Se você não solicitou essa alteração, altere imediatamente sua senha
 msgid "If you have an account with us, you will receive an email with instructions on how to reset your password."
 msgstr "Se tem uma conta connosco, receberá um email com instruções sobre como redefinir a sua senha."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:137
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:159
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:156
+msgid "Ignore"
+msgstr "Ignorar"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:233
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:237
+msgid "Ignored"
+msgstr "Ignorado"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:84
+msgid "Ignored {0} answer(s)."
+msgstr "{0} resposta(s) ignorada(s)."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:90
+msgid "Ignored {0} attendee(s)."
+msgstr "{0} participante(s) ignorado(s)."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:92
+msgid "Ignored {0} question(s)."
+msgstr "{0} pergunta(s) ignorada(s)."
+
 #: src/components/common/ImageUploadDropzone/index.tsx:124
 msgid "Image deleted successfully"
 msgstr "Imagem excluída com sucesso"
@@ -4510,7 +4814,7 @@ msgstr "Imagem excluída com sucesso"
 msgid "Image uploaded successfully"
 msgstr "Imagem enviada com sucesso"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:110
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:119
 msgid "Image URL"
 msgstr "URL da imagem"
 
@@ -4547,7 +4851,7 @@ msgstr "Aviso importante"
 msgid "Important: Changing your email address will update the link to access this order. You will be redirected to the new order link after saving."
 msgstr "Importante: Alterar o seu endereço de e-mail atualizará o link de acesso a este pedido. Será redirecionado para o novo link do pedido após guardar."
 
-#: src/components/routes/event/EventDashboard/index.tsx:129
+#: src/components/routes/event/EventDashboard/index.tsx:136
 msgid "Important: Stripe reconnection required"
 msgstr "Importante: Reconexão Stripe necessária"
 
@@ -4565,6 +4869,8 @@ msgstr "Em {diffMinutes} minutos"
 #: src/components/forms/AffiliateForm/index.tsx:27
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:25
 #: src/components/modals/EditUserModal/index.tsx:111
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:63
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:190
 msgid "Inactive"
 msgstr "Inativo"
 
@@ -4596,9 +4902,10 @@ msgstr "Indique se está registado para IVA na UE"
 msgid "Individual attendees"
 msgstr "Participantes individuais"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:99
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:120
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:143
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:106
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:129
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:152
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:189
 msgid "Insert Image"
 msgstr "Inserir imagem"
 
@@ -4714,20 +5021,16 @@ msgstr "O IVA irlandês de 23% será aplicado às taxas da plataforma (fornecime
 msgid "Is this account VAT registered in the EU?"
 msgstr "Esta conta está registada para IVA na UE?"
 
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:89
-#~ msgid "Issue marked as resolved."
-#~ msgstr "Problema marcado como resolvido."
-
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:221
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:244
 msgid "Issues"
-msgstr "Problemas"
+msgstr ""
 
 #: src/components/common/LanguageSwitcher/index.tsx:24
 msgid "Italian"
 msgstr "Italiano"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:627
+#: src/components/routes/product-widget/CollectInformation/index.tsx:742
 msgid "Item"
 msgstr "Item"
 
@@ -4779,7 +5082,7 @@ msgstr "Juntar-se à lista de espera"
 
 #: src/components/modals/JoinWaitlistModal/index.tsx:143
 msgid "Join Waitlist for {productDisplayName}"
-msgstr "Juntar-se à lista de espera de {productDisplayName}"
+msgstr "Entrar na lista de espera de {productDisplayName}"
 
 #: src/components/common/JoinWaitlistButton/index.tsx:30
 #: src/components/common/WaitlistTable/index.tsx:197
@@ -4794,13 +5097,22 @@ msgstr "Basta clicar no botão abaixo para reconectar sua conta Stripe."
 msgid "Just looking for your tickets?"
 msgstr "Apenas procurando seus ingressos?"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:567
+#: src/components/routes/product-widget/CollectInformation/index.tsx:628
 msgid "Keep me updated on news and events from {0}"
 msgstr "Mantenha-me atualizado sobre notícias e eventos de {0}"
 
 #: src/components/forms/ProductForm/index.tsx:85
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:49
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:55
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:48
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:149
 msgid "Label"
 msgstr "Rótulo"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:26
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:30
+msgid "Label is required"
+msgstr "O rótulo é obrigatório"
 
 #: src/components/common/AttendeeDetails/index.tsx:38
 #: src/components/modals/CreateAttendeeModal/index.tsx:155
@@ -4863,15 +5175,22 @@ msgid "Last name"
 msgstr "Sobrenome"
 
 #: src/components/common/QuestionsTable/index.tsx:252
+#: src/components/modals/CreateContactModal/index.tsx:55
+#: src/components/modals/CreateContactModal/index.tsx:56
+#: src/components/modals/EditContactModal/index.tsx:78
+#: src/components/modals/EditContactModal/index.tsx:79
 #: src/components/modals/EditUserModal/index.tsx:72
 #: src/components/modals/InviteUserModal/index.tsx:58
 #: src/components/modals/JoinWaitlistModal/index.tsx:166
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:66
 #: src/components/routes/auth/AcceptInvitation/index.tsx:102
 #: src/components/routes/auth/Register/index.tsx:96
-#: src/components/routes/product-widget/CollectInformation/index.tsx:440
-#: src/components/routes/product-widget/CollectInformation/index.tsx:441
-#: src/components/routes/product-widget/CollectInformation/index.tsx:652
-#: src/components/routes/product-widget/CollectInformation/index.tsx:653
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:201
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:141
+#: src/components/routes/product-widget/CollectInformation/index.tsx:574
+#: src/components/routes/product-widget/CollectInformation/index.tsx:575
+#: src/components/routes/product-widget/CollectInformation/index.tsx:788
+#: src/components/routes/product-widget/CollectInformation/index.tsx:789
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:60
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditOrderModal/index.tsx:60
 #: src/components/routes/profile/ManageProfile/index.tsx:154
@@ -4921,9 +5240,13 @@ msgstr "Link para detalhes do pedido"
 msgid "Link to ticket"
 msgstr "Link para o ingresso"
 
-#: src/components/routes/event/EventDashboard/index.tsx:230
+#: src/components/routes/event/EventDashboard/index.tsx:237
 msgid "Link your Stripe account to receive funds from ticket sales."
 msgstr "Conecte sua conta Stripe para receber fundos das vendas de ingressos."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:80
+msgid "Linked {0} question(s) to new attribute(s)."
+msgstr "{0} pergunta(s) associada(s) a novos atributos."
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:61
 msgid "LinkedIn"
@@ -4959,7 +5282,7 @@ msgstr "Carregando tokens..."
 
 #: src/components/modals/OrganizerWebhookLogsModal/index.tsx:144
 msgid "Loading webhook logs..."
-msgstr "A carregar registos de webhook..."
+msgstr "A carregar registos do webhook..."
 
 #: src/components/routes/event/Webhooks/index.tsx:21
 #: src/components/routes/organizer/Webhooks/index.tsx:22
@@ -5013,7 +5336,7 @@ msgstr "O logo será exibido no cabeçalho"
 msgid "Logo will be displayed on the ticket"
 msgstr "O logotipo será exibido no bilhete"
 
-#: src/components/common/GlobalMenu/index.tsx:85
+#: src/components/common/GlobalMenu/index.tsx:91
 msgid "Logout"
 msgstr "Sair"
 
@@ -5029,11 +5352,15 @@ msgstr "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam placerat el
 msgid "Make billing address mandatory during checkout"
 msgstr "Tornar o endereço de cobrança obrigatório durante o checkout"
 
-#: src/components/forms/QuestionForm/index.tsx:212
+#: src/components/forms/QuestionForm/index.tsx:398
 msgid "Make this question mandatory"
 msgstr "Torne esta pergunta obrigatória"
 
-#: src/components/routes/event/EventDashboard/index.tsx:184
+#: src/components/forms/QuestionForm/index.tsx:306
+msgid "Make this question reusable for future events"
+msgstr "Tornar esta pergunta reutilizável para eventos futuros"
+
+#: src/components/routes/event/EventDashboard/index.tsx:191
 msgid "Make your event live"
 msgstr "Torne seu evento ao vivo"
 
@@ -5053,7 +5380,11 @@ msgstr "Gerenciar participante"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:124
 msgid "Manage bounced and suppressed email addresses"
-msgstr "Gerir endereços de e-mail rejeitados e suprimidos"
+msgstr ""
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:45
+msgid "Manage contacts linked to attendees across your events"
+msgstr "Gerir contactos associados a participantes em todos os seus eventos"
 
 #: src/components/common/EventCard/index.tsx:136
 msgid "Manage event"
@@ -5085,7 +5416,7 @@ msgstr "Gerencie os detalhes da sua conta e configurações padrão"
 
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:48
 msgid "Manage your event's waitlist, view stats, and offer tickets to attendees."
-msgstr "Gerir a lista de espera do seu evento, ver estatísticas e oferecer bilhetes aos participantes."
+msgstr "Gira a lista de espera do seu evento, veja estatísticas e ofereça bilhetes aos participantes."
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:817
 msgid "Manage your payment processing and view platform fees"
@@ -5095,14 +5426,14 @@ msgstr "Gerencie seu processamento de pagamentos e visualize as taxas da platafo
 msgid "Manage your users and their permissions"
 msgstr "Gerencie seus usuários e suas permissões"
 
-#: src/components/forms/QuestionForm/index.tsx:211
+#: src/components/forms/QuestionForm/index.tsx:397
 msgid "Mandatory questions must be answered before the customer can checkout."
 msgstr "Perguntas obrigatórias devem ser respondidas antes que o cliente possa finalizar a compra."
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:110
 #: src/components/routes/admin/EmailSuppressions/index.tsx:155
 msgid "Manual"
-msgstr "Manual"
+msgstr ""
 
 #: src/components/modals/OfferWaitlistModal/index.tsx:104
 msgid "Manual offer"
@@ -5125,15 +5456,11 @@ msgstr "Marcar como pago"
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:129
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:143
 msgid "Mark as resolved"
-msgstr "Marcar como resolvido"
+msgstr ""
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:109
 msgid "Mark as unresolved"
-msgstr "Marcar como não resolvido"
-
-#: src/components/routes/event/MessageTracking/index.tsx:26
-#~ msgid "Marketing"
-#~ msgstr "Marketing"
+msgstr ""
 
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:236
 msgid "Max Messages / 24h"
@@ -5154,7 +5481,7 @@ msgstr "Meio"
 #: src/components/common/AttendeeTable/index.tsx:188
 #: src/components/common/ContactOrganizerModal/index.tsx:88
 #: src/components/common/OrdersTable/index.tsx:254
-#: src/components/modals/SendMessageModal/index.tsx:353
+#: src/components/modals/SendMessageModal/index.tsx:378
 msgid "Message"
 msgstr "Mensagem"
 
@@ -5170,7 +5497,7 @@ msgstr "Participante da mensagem"
 msgid "Message Attendees"
 msgstr "Participantes da mensagem"
 
-#: src/components/modals/SendMessageModal/index.tsx:310
+#: src/components/modals/SendMessageModal/index.tsx:322
 msgid "Message attendees with specific tickets"
 msgstr "Enviar mensagens aos participantes com tickets específicos"
 
@@ -5194,7 +5521,7 @@ msgstr "Conteúdo da mensagem"
 msgid "Message Details"
 msgstr "Detalhes da mensagem"
 
-#: src/components/modals/SendMessageModal/index.tsx:94
+#: src/components/modals/SendMessageModal/index.tsx:95
 msgid "Message individual attendees"
 msgstr "Mensagem para participantes individuais"
 
@@ -5202,22 +5529,22 @@ msgstr "Mensagem para participantes individuais"
 msgid "Message is required"
 msgstr "A mensagem é obrigatória"
 
-#: src/components/modals/SendMessageModal/index.tsx:322
+#: src/components/modals/SendMessageModal/index.tsx:334
 msgid "Message order owners with specific products"
 msgstr "Enviar mensagem para proprietários de pedidos com produtos específicos"
 
-#: src/components/modals/SendMessageModal/index.tsx:194
+#: src/components/modals/SendMessageModal/index.tsx:197
 msgid "Message Scheduled"
 msgstr "Mensagem agendada"
 
-#: src/components/modals/SendMessageModal/index.tsx:194
+#: src/components/modals/SendMessageModal/index.tsx:197
 msgid "Message Sent"
 msgstr "Mensagem enviada"
 
 #: src/components/layouts/Event/index.tsx:121
-#: src/components/routes/event/MessageTracking/index.tsx:26
+#: src/components/routes/event/MessageTracking/index.tsx:30
 msgid "Message Tracking"
-msgstr "Rastreio de mensagens"
+msgstr ""
 
 #: src/components/layouts/Admin/index.tsx:18
 #: src/components/layouts/Event/index.tsx:120
@@ -5270,17 +5597,23 @@ msgstr "Os valores monetários são totais aproximados em todas as moedas"
 msgid "Monitor and manage failed background jobs"
 msgstr "Monitorar e gerir trabalhos de fundo falhados"
 
+#: src/components/routes/event/EventDashboard/index.tsx:267
 #: src/components/routes/event/MessageTracking/shared.tsx:56
 msgid "Month"
-msgstr "Mês"
+msgstr ""
 
 #: src/components/routes/admin/Dashboard/index.tsx:294
 msgid "Most Viewed Events (Last 14 Days)"
 msgstr "Eventos mais vistos (Últimos 14 dias)"
 
-#: src/components/forms/QuestionForm/index.tsx:106
+#: src/components/forms/QuestionForm/index.tsx:240
 msgid "Multi line text box"
 msgstr "Caixa de texto com várias linhas"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:67
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:73
+msgid "Multi Select"
+msgstr "Seleção múltipla"
 
 #: src/components/forms/ProductForm/index.tsx:174
 msgid "Multiple price options. Perfect for early bird products etc."
@@ -5300,7 +5633,7 @@ msgstr "Minha incrível descrição do evento..."
 msgid "My amazing event title..."
 msgstr "Meu incrível título de evento..."
 
-#: src/components/common/GlobalMenu/index.tsx:40
+#: src/components/common/GlobalMenu/index.tsx:41
 msgid "My Profile"
 msgstr "Meu perfil"
 
@@ -5323,9 +5656,13 @@ msgstr "Nam placerat elementum..."
 #: src/components/forms/CheckInListForm/index.tsx:37
 #: src/components/forms/ProductForm/index.tsx:274
 #: src/components/forms/TaxAndFeeForm/index.tsx:61
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:56
 #: src/components/modals/DuplicateEventModal/index.tsx:109
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:62
 #: src/components/routes/account/ManageAccount/sections/AccountSettings/index.tsx:63
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:49
 #: src/components/routes/admin/Configurations/index.tsx:219
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:150
 #: src/components/routes/event/Settings/Sections/EventDetailsForm/index.tsx:75
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:230
 msgid "Name"
@@ -5333,7 +5670,9 @@ msgstr "Nome"
 
 #: src/components/common/ContactOrganizerModal/index.tsx:32
 #: src/components/modals/CreateAffiliateModal/index.tsx:28
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:25
 #: src/components/modals/EditAffiliateModal/index.tsx:33
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:29
 #: src/components/routes/admin/Configurations/index.tsx:168
 msgid "Name is required"
 msgstr "O nome é obrigatório"
@@ -5364,10 +5703,28 @@ msgstr "Receita Líquida"
 msgid "Never"
 msgstr "Nunca"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:44
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:31
+msgid "New Contacts"
+msgstr "Novos Contactos"
+
 #: src/components/routes/auth/ResetPassword/index.tsx:64
 #: src/components/routes/profile/ManageProfile/index.tsx:232
 msgid "New Password"
 msgstr "Nova Senha"
+
+#: src/components/forms/QuestionForm/index.tsx:209
+msgid "New Question (reusable on future events)"
+msgstr "Nova pergunta (reutilizável em eventos futuros)"
+
+#: src/components/forms/QuestionForm/index.tsx:210
+msgid "New Question (this event only)"
+msgstr "Nova pergunta (apenas para este evento)"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:51
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:38
+msgid "New Questions"
+msgstr "Novas Perguntas"
 
 #: src/components/routes/admin/Dashboard/index.tsx:225
 msgid "New Signups"
@@ -5405,7 +5762,7 @@ msgstr "Sem afiliados para mostrar"
 
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:245
 msgid "No announcement messages found."
-msgstr "Nenhuma mensagem de anúncio encontrada."
+msgstr ""
 
 #: src/components/common/NoEventsBlankSlate/index.tsx:21
 msgid "No archived events to show."
@@ -5439,10 +5796,6 @@ msgstr "Sem capacidade"
 msgid "No Capacity Assignments"
 msgstr "Sem Atribuições de Capacidade"
 
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:147
-#~ msgid "No change"
-#~ msgstr "Sem alteração"
-
 #: src/components/common/CheckInListList/index.tsx:44
 msgid "No Check-In Lists"
 msgstr "Nenhuma Lista de Registro"
@@ -5454,6 +5807,20 @@ msgstr "Nenhuma lista de check-in disponível para este evento."
 #: src/components/routes/admin/Configurations/index.tsx:126
 msgid "No configurations found"
 msgstr "Nenhuma configuração encontrada"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:154
+msgid "No conflicts."
+msgstr "Sem conflitos."
+
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:97
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:141
+msgid "No contact attribute definitions have been added."
+msgstr "Não foram adicionadas definições de atributos de contacto."
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:109
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:131
+msgid "No contacts found."
+msgstr "Nenhum contacto encontrado."
 
 #: src/components/common/ReportTable/index.tsx:218
 msgid "No data available"
@@ -5471,7 +5838,7 @@ msgstr "Nenhum dado para mostrar. Por favor, selecione um intervalo de datas"
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:244
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:267
 msgid "No delivery issues found."
-msgstr "Nenhum problema de entrega encontrado."
+msgstr ""
 
 #: src/components/forms/PromoCodeForm/index.tsx:77
 msgid "No Discount"
@@ -5509,6 +5876,14 @@ msgstr "Sem trabalhos falhados"
 msgid "No filters available"
 msgstr "Nenhum filtro disponível"
 
+#: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:82
+msgid "No images matching \"{debouncedQuery}\""
+msgstr ""
+
+#: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:83
+msgid "No images yet. Upload an image using the Upload tab."
+msgstr ""
+
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:86
 msgid "No impact on your current or past transactions"
 msgstr "Sem impacto nas suas transações atuais ou passadas"
@@ -5522,9 +5897,18 @@ msgstr "Sem fatura"
 msgid "No logs found"
 msgstr "Nenhum registro encontrado"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:87
-#~ msgid "No marketing messages found."
-#~ msgstr "Nenhuma mensagem de marketing encontrada."
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+msgid "No matching attendees."
+msgstr "Nenhum participante correspondente."
+
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:140
+msgid "No matching attributes."
+msgstr "Nenhum atributo correspondente."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:179
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:57
+msgid "No matching questions."
+msgstr "Nenhuma pergunta correspondente."
 
 #: src/components/routes/admin/Messages/index.tsx:154
 msgid "No messages found"
@@ -5606,6 +5990,10 @@ msgstr "Nenhum código promocional para mostrar"
 msgid "No questions answered by this attendee."
 msgstr "Nenhuma pergunta foi respondida por este participante."
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:57
+msgid "No questions are linked to this attribute."
+msgstr "Nenhuma pergunta está associada a este atributo."
+
 #: src/components/modals/ManageOrderModal/index.tsx:119
 msgid "No questions have been asked for this order."
 msgstr "Nenhuma pergunta foi feita para este pedido."
@@ -5646,7 +6034,7 @@ msgstr "Nenhum resultado de pesquisa."
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:171
 msgid "No suppressed emails found"
-msgstr "Nenhum e-mail suprimido encontrado"
+msgstr ""
 
 #: src/components/common/TaxAndFeeList/index.tsx:105
 msgid "No Taxes or Fees have been added."
@@ -5658,19 +6046,27 @@ msgstr "Nenhum ingresso encontrado"
 
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:268
 msgid "No transaction messages found."
-msgstr "Nenhuma mensagem de transação encontrada."
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+msgid "No unlinked attendees. All attendees already have a contact."
+msgstr "Sem participantes não associados. Todos os participantes já têm um contacto."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:155
+msgid "No unresolved conflicts. Toggle \"Show processed\" to see previously evaluated entries."
+msgstr "Sem conflitos por resolver. Ative \"Mostrar processados\" para ver entradas avaliadas anteriormente."
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:85
 msgid "No unresolved delivery issues."
-msgstr "Nenhum problema de entrega não resolvido."
-
-#: src/components/routes/event/DeliveryIssues/index.tsx:110
-#~ msgid "No unresolved delivery issues. All transactional emails have been delivered successfully."
-#~ msgstr "Nenhum problema de entrega não resolvido. Todos os e-mails transacionais foram entregues com sucesso."
+msgstr ""
 
 #: src/components/layouts/OrganizerHomepage/index.tsx:286
 msgid "No upcoming events"
 msgstr "Nenhum evento futuro"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:219
+msgid "No Update"
+msgstr "Sem atualização"
 
 #: src/components/common/AdminUsersTable/index.tsx:18
 msgid "No users found"
@@ -5708,7 +6104,7 @@ msgid "Non-VAT registered businesses or individuals: Irish VAT at 23% applies"
 msgstr "Empresas ou particulares não registados para IVA: Aplica-se IVA irlandês de 23%"
 
 #: src/components/common/PromoCodeTable/index.tsx:82
-#: src/components/routes/product-widget/CollectInformation/index.tsx:499
+#: src/components/routes/product-widget/CollectInformation/index.tsx:614
 msgid "None"
 msgstr "Nenhum"
 
@@ -5722,9 +6118,17 @@ msgstr "Não disponível"
 msgid "Not Checked In"
 msgstr "Não Registado"
 
+#: src/components/common/MessageList/index.tsx:33
+msgid "Not checked-in attendees"
+msgstr ""
+
 #: src/components/common/CheckInStatusModal/index.tsx:118
 msgid "Not Eligible"
 msgstr "Não Elegível"
+
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:185
+msgid "Not linked"
+msgstr "Não associado"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:130
 #: src/components/modals/ManageOrderModal/index.tsx:164
@@ -5879,13 +6283,17 @@ msgstr "Apenas os administradores da conta podem eliminar ou arquivar eventos. C
 msgid "Only account administrators can delete or archive organizers. Contact your account admin for assistance."
 msgstr "Apenas os administradores da conta podem eliminar ou arquivar organizadores. Contacte o administrador da sua conta para obter ajuda."
 
-#: src/components/modals/SendMessageModal/index.tsx:330
+#: src/components/modals/SendMessageModal/index.tsx:342
 msgid "Only send to orders with these statuses"
 msgstr "Enviar apenas para pedidos com esses status"
 
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:311
 msgid "Only visible with promo code"
 msgstr "Apenas visível com código promocional"
+
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:105
+msgid "Open"
+msgstr "Abrir"
 
 #: src/components/common/CheckInListList/index.tsx:165
 #: src/components/modals/CheckInListSuccessModal/index.tsx:56
@@ -5902,7 +6310,7 @@ msgstr "Abrir barra lateral"
 msgid "Open Stripe Dashboard"
 msgstr "Abrir painel do Stripe"
 
-#: src/components/forms/QuestionForm/index.tsx:45
+#: src/components/forms/QuestionForm/index.tsx:103
 msgid "Option {i}"
 msgstr "Opção {i}"
 
@@ -5922,7 +6330,9 @@ msgstr "Texto opcional para avisos legais, informações de contacto ou notas de
 msgid "options"
 msgstr "opções"
 
-#: src/components/forms/QuestionForm/index.tsx:28
+#: src/components/forms/QuestionForm/index.tsx:79
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:75
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:81
 msgid "Options"
 msgstr "Opções"
 
@@ -5954,7 +6364,7 @@ msgstr "Ordem"
 msgid "Order & Ticket"
 msgstr "Pedido e Bilhete"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:357
+#: src/components/routes/product-widget/CollectInformation/index.tsx:471
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:353
 msgid "Order cancelled"
 msgstr "Pedido cancelado"
@@ -5963,7 +6373,7 @@ msgstr "Pedido cancelado"
 msgid "Order Cancelled"
 msgstr "Pedido cancelado"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:347
+#: src/components/routes/product-widget/CollectInformation/index.tsx:461
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:363
 msgid "Order complete"
 msgstr "Pedido concluído"
@@ -6006,7 +6416,7 @@ msgstr "E-mail do pedido"
 #: src/components/routes/event/MessageTracking/shared.tsx:30
 #: src/components/routes/event/MessageTracking/shared.tsx:64
 msgid "Order Failed"
-msgstr "Encomenda falhada"
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:24
 msgid "Order First Name"
@@ -6057,7 +6467,7 @@ msgstr "Pedido marcado como pago"
 msgid "Order Marked as Paid"
 msgstr "Pedido marcado como pago"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:372
+#: src/components/routes/product-widget/CollectInformation/index.tsx:486
 msgid "Order not found"
 msgstr "Pedido não encontrado"
 
@@ -6077,7 +6487,7 @@ msgstr "Número do pedido"
 msgid "Order owner"
 msgstr "Proprietário do pedido"
 
-#: src/components/modals/SendMessageModal/index.tsx:294
+#: src/components/modals/SendMessageModal/index.tsx:298
 msgid "Order owners with a specific product"
 msgstr "Proprietários de pedidos com um produto específico"
 
@@ -6107,7 +6517,7 @@ msgstr "Pedido reembolsado"
 msgid "Order Status"
 msgstr "Status do pedido"
 
-#: src/components/modals/SendMessageModal/index.tsx:331
+#: src/components/modals/SendMessageModal/index.tsx:343
 msgid "Order statuses"
 msgstr "Status dos pedidos"
 
@@ -6137,7 +6547,7 @@ msgstr "Pedido atualizado com sucesso"
 msgid "Order URL"
 msgstr "URL do pedido"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:327
+#: src/components/routes/product-widget/CollectInformation/index.tsx:441
 msgid "Order was cancelled"
 msgstr "O pedido foi cancelado"
 
@@ -6278,7 +6688,7 @@ msgstr "Os organizadores só podem gerenciar eventos e produtos. Eles não podem
 #: src/components/routes/event/MessageTracking/shared.tsx:115
 #: src/components/routes/event/MessageTracking/shared.tsx:183
 msgid "Original"
-msgstr "Original"
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
 #: src/components/common/OrdersTable/index.tsx:394
@@ -6400,7 +6810,7 @@ msgstr "Eventos passados"
 msgid "Paste this where you want the widget to appear."
 msgstr "Cole isto onde você deseja que o widget apareça."
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:103
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:111
 msgid "Paste URL"
 msgstr "Cole a URL"
 
@@ -6571,7 +6981,7 @@ msgstr "Desempenho"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:278
 msgid "Permanent"
-msgstr "Permanente"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:85
 msgid "Permanently delete this event and all its associated data."
@@ -6627,7 +7037,7 @@ msgstr "Relatório de taxas da plataforma"
 msgid "Platform Revenue"
 msgstr "Receitas da plataforma"
 
-#: src/components/forms/QuestionForm/index.tsx:31
+#: src/components/forms/QuestionForm/index.tsx:90
 msgid "Please add at least one option"
 msgstr "Adicione pelo menos uma opção"
 
@@ -6665,7 +7075,7 @@ msgstr "Por favor, crie um ingresso"
 msgid "Please enter a valid email address"
 msgstr "Por favor, introduza um endereço de e-mail válido"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:46
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:51
 msgid "Please enter a valid image URL that points to an image."
 msgstr "Por favor, insira um URL de imagem válido que aponte para uma imagem."
 
@@ -6686,7 +7096,7 @@ msgstr "Por favor, insira o seu número de IVA"
 msgid "Please Note"
 msgstr "Observe"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:35
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:40
 msgid "Please provide an image."
 msgstr "Por favor, forneça uma imagem."
 
@@ -6702,7 +7112,7 @@ msgstr "Por favor, volte para a página do evento para recomeçar."
 msgid "Please select a date range"
 msgstr "Por favor, selecione um intervalo de datas"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:54
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:59
 msgid "Please select an image."
 msgstr "Por favor, selecione uma imagem."
 
@@ -6852,6 +7262,10 @@ msgstr "Política de Privacidade"
 msgid "Process Refund"
 msgstr "Processar reembolso"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:222
+msgid "Processed"
+msgstr "Processado"
+
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:372
 msgid "Processing order"
 msgstr "A processar pedido"
@@ -6889,7 +7303,7 @@ msgstr "Produto excluído com sucesso"
 msgid "Product Price Type"
 msgstr "Tipo de Preço do Produto"
 
-#: src/components/routes/event/EventDashboard/index.tsx:253
+#: src/components/routes/event/EventDashboard/index.tsx:277
 #: src/components/routes/event/Reports/index.tsx:17
 msgid "Product Sales"
 msgstr "Vendas de Produtos"
@@ -6926,7 +7340,7 @@ msgstr "Produtos vendidos"
 
 #: src/components/routes/admin/Dashboard/index.tsx:258
 #: src/components/routes/admin/Dashboard/index.tsx:355
-#: src/components/routes/event/EventDashboard/index.tsx:274
+#: src/components/routes/event/EventDashboard/index.tsx:298
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:125
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:68
 msgid "Products Sold"
@@ -6983,21 +7397,23 @@ msgstr "Relatório de códigos promocionais"
 msgid "Promo Only"
 msgstr "Apenas Promoção"
 
-#: src/components/modals/SendMessageModal/index.tsx:483
+#: src/components/modals/SendMessageModal/index.tsx:508
 msgid "Promotional emails may result in account suspension"
 msgstr "Emails promocionais podem resultar na suspensão da conta"
 
-#: src/components/forms/QuestionForm/index.tsx:189
+#: src/components/forms/QuestionForm/index.tsx:373
 msgid ""
 "Provide additional context or instructions for this question. Use this field to add terms\n"
 "and conditions, guidelines, or any important information that attendees need to know before answering."
 msgstr ""
+"Forneça contexto adicional ou instruções para esta pergunta. Use este campo para adicionar termos\n"
+"e condições, diretrizes ou qualquer informação importante que os participantes precisam saber antes de responder."
 
 #: src/components/common/StatusToggle/index.tsx:97
 msgid "Publish"
 msgstr "Publicar"
 
-#: src/components/routes/event/EventDashboard/index.tsx:195
+#: src/components/routes/event/EventDashboard/index.tsx:202
 msgid "Publish Event"
 msgstr "Publicar Evento"
 
@@ -7018,7 +7434,7 @@ msgstr "Check-in com Código QR"
 
 #: src/components/routes/event/MessageTracking/shared.tsx:57
 msgid "Qtr"
-msgstr "Trim"
+msgstr ""
 
 #: src/components/modals/OfferWaitlistModal/index.tsx:164
 msgid "Qty"
@@ -7029,17 +7445,30 @@ msgstr "Qtd."
 msgid "Quantity Available"
 msgstr "Quantidade Disponível"
 
+#: src/components/routes/event/EventDashboard/index.tsx:268
+msgid "Quarter"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:199
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:66
+msgid "Question"
+msgstr "Pergunta"
+
 #: src/components/common/QuestionsTable/index.tsx:201
 msgid "Question deleted"
 msgstr "Pergunta excluída"
 
-#: src/components/forms/QuestionForm/index.tsx:188
+#: src/components/forms/QuestionForm/index.tsx:372
 msgid "Question Description"
 msgstr "Descrição da pergunta"
 
-#: src/components/forms/QuestionForm/index.tsx:178
+#: src/components/forms/QuestionForm/index.tsx:354
 msgid "Question Title"
 msgstr "título da questão"
+
+#: src/components/forms/QuestionForm/index.tsx:307
+msgid "Question will be added to the account library for use on future events"
+msgstr "A pergunta será adicionada à biblioteca da conta para uso em eventos futuros"
 
 #: src/components/modals/DuplicateEventModal/index.tsx:25
 msgid "Questions"
@@ -7050,6 +7479,10 @@ msgstr "Questões"
 msgid "Questions & Answers"
 msgstr "Perguntas e Respostas"
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:42
+msgid "Questions linked to \"{0}\""
+msgstr "Perguntas associadas a \"{0}\""
+
 #: src/components/common/QuestionsTable/index.tsx:183
 msgid "Questions reordered"
 msgstr "Perguntas reordenadas"
@@ -7059,7 +7492,7 @@ msgstr "Perguntas reordenadas"
 msgid "Queue"
 msgstr "Fila"
 
-#: src/components/forms/QuestionForm/index.tsx:118
+#: src/components/forms/QuestionForm/index.tsx:252
 msgid "Radio Option"
 msgstr "Opção de rádio"
 
@@ -7074,9 +7507,17 @@ msgstr "Taxa"
 msgid "Rate limit exceeded. Please try again later."
 msgstr "Limite de taxa excedido. Por favor, tente novamente mais tarde."
 
+#: src/components/forms/QuestionForm/index.tsx:145
+msgid "Re-lock field"
+msgstr "Voltar a bloquear campo"
+
 #: src/components/common/WaitlistTable/index.tsx:69
 msgid "Re-offer Spot"
 msgstr "Reoferecer lugar"
+
+#: src/components/forms/QuestionForm/index.tsx:289
+msgid "Re-use Existing Question"
+msgstr "Reutilizar pergunta existente"
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:224
 msgid "Ready to upgrade? This takes only a few minutes."
@@ -7090,11 +7531,11 @@ msgstr "Análises em Tempo Real"
 #: src/components/routes/admin/EmailSuppressions/index.tsx:180
 #: src/components/routes/admin/EmailSuppressions/index.tsx:266
 msgid "Reason"
-msgstr "Motivo"
+msgstr ""
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:43
 msgid "Reason is required"
-msgstr "O motivo é obrigatório"
+msgstr ""
 
 #: src/components/routes/auth/AcceptInvitation/index.tsx:157
 #: src/components/routes/auth/Register/index.tsx:133
@@ -7114,7 +7555,7 @@ msgstr "Pedidos recentes"
 msgid "recipient"
 msgstr "destinatário"
 
-#: src/components/modals/SendMessageModal/index.tsx:60
+#: src/components/modals/SendMessageModal/index.tsx:61
 #: src/components/routes/event/DeliveryIssues/index.tsx:100
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:258
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:282
@@ -7123,14 +7564,14 @@ msgstr "Destinatário"
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:74
 msgid "Recipient Email"
-msgstr "E-mail do destinatário"
+msgstr ""
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:68
 msgid "recipients"
 msgstr "destinatários"
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:44
-#: src/components/modals/SendMessageModal/index.tsx:297
+#: src/components/modals/SendMessageModal/index.tsx:309
 #: src/components/routes/admin/Messages/index.tsx:166
 #: src/components/routes/admin/Messages/index.tsx:299
 msgid "Recipients"
@@ -7140,7 +7581,7 @@ msgstr "Destinatários"
 msgid "Recipients are available after the message is sent"
 msgstr "Os destinatários ficam disponíveis após o envio da mensagem"
 
-#: src/components/routes/event/EventDashboard/index.tsx:135
+#: src/components/routes/event/EventDashboard/index.tsx:142
 msgid "Reconnect Stripe →"
 msgstr "Reconectar Stripe →"
 
@@ -7161,7 +7602,8 @@ msgstr "Redirecionando para o Stripe..."
 msgid "Referral Accounts"
 msgstr "Contas de referência"
 
-#: src/components/routes/event/MessageTracking/index.tsx:28
+#: src/components/routes/contacts/ContactsAdmin/index.tsx:51
+#: src/components/routes/event/MessageTracking/index.tsx:32
 msgid "Refresh"
 msgstr "Atualizar"
 
@@ -7231,6 +7673,10 @@ msgstr "Registro"
 msgid "Registration Questions"
 msgstr "Perguntas de registro"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:53
+msgid "Registration questions used on past events not marked as reusable. Select and click <0>Reuse</0> to create a new extended attribute (relevant to all contacts); click <1>Ignore</1> to keep it as an answer relevant only on that event."
+msgstr "Perguntas de inscrição usadas em eventos passados não marcadas como reutilizáveis. Selecione e clique em <0>Reutilizar</0> para criar um novo atributo estendido (aplicável a todos os contactos); clique em <1>Ignorar</1> para manter a resposta apenas nesse evento."
+
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:82
 msgid "Remaining Uses"
 msgstr "Usos restantes"
@@ -7239,16 +7685,20 @@ msgstr "Usos restantes"
 msgid "remove"
 msgstr "remover"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:146
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:155
 #: src/components/common/WaitlistTable/index.tsx:78
 #: src/components/common/WaitlistTable/index.tsx:111
 #: src/components/routes/product-widget/SelectProducts/index.tsx:569
 msgid "Remove"
 msgstr "Remover"
 
+#: src/components/common/SortableOptionsInput/index.tsx:63
+msgid "Remove option"
+msgstr "Remover opção"
+
 #: src/components/routes/admin/EmailSuppressions/index.tsx:223
 msgid "Remove Suppression"
-msgstr "Remover supressão"
+msgstr ""
 
 #: src/components/routes/organizer/Reports/ReportLayout/index.tsx:26
 msgid "Report not found"
@@ -7270,12 +7720,13 @@ msgid "Require Billing Address"
 msgstr "Exigir endereço de cobrança"
 
 #: src/components/common/QuestionsTable/index.tsx:118
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:79
 msgid "Required"
 msgstr "Obrigatório"
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:104
 msgid "Resend"
-msgstr "Reenviar"
+msgstr ""
 
 #: src/components/routes/welcome/index.tsx:205
 msgid "Resend code"
@@ -7311,7 +7762,7 @@ msgstr "Reenviar e-mail do pedido"
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:87
 msgid "Resend this email"
-msgstr "Reenviar este e-mail"
+msgstr ""
 
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:131
 msgid "Resend Ticket"
@@ -7327,7 +7778,7 @@ msgstr "Reenviando..."
 
 #: src/components/routes/event/MessageTracking/shared.tsx:204
 msgid "Resent to"
-msgstr "Reenviado para"
+msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:418
 msgid "Reserved"
@@ -7350,40 +7801,28 @@ msgstr "Redefinir senha"
 msgid "Resetting..."
 msgstr "A redefinir..."
 
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:143
-#~ msgid "Resolution"
-#~ msgstr "Resolução"
-
 #: src/components/routes/event/DeliveryIssues/index.tsx:140
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:181
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:195
 msgid "Resolve"
-msgstr "Resolver"
-
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:47
-#~ msgid "Resolve & Resend"
-#~ msgstr "Resolver e reenviar"
+msgstr ""
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:68
 msgid "Resolve Delivery Issue"
-msgstr "Resolver problema de entrega"
-
-#: src/components/modals/ResolveDeliveryIssueModal/index.tsx:151
-#~ msgid "Resolve now"
-#~ msgstr "Resolver agora"
+msgstr ""
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:96
 msgid "Resolved"
-msgstr "Resolvido"
+msgstr ""
 
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:160
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:174
 msgid "RESOLVED"
-msgstr "RESOLVIDO"
+msgstr ""
 
 #: src/components/routes/event/MessageTracking/shared.tsx:171
 msgid "Resolved Manually"
-msgstr "Resolvido manualmente"
+msgstr ""
 
 #: src/components/modals/OrganizerWebhookLogsModal/index.tsx:116
 msgid "Response"
@@ -7420,9 +7859,17 @@ msgstr "Restaure este evento para o tornar visível novamente."
 msgid "Restore this organizer and make it active again."
 msgstr "Restaure este organizador e torne-o ativo novamente."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:102
+msgid "Restored {0} attendee(s)."
+msgstr "{0} participante(s) restaurado(s)."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:104
+msgid "Restored {0} question(s)."
+msgstr "{0} pergunta(s) restaurada(s)."
+
 #: src/components/routes/event/MessageTracking/shared.tsx:137
 msgid "Retried as"
-msgstr "Tentado novamente como"
+msgstr ""
 
 #: src/components/routes/admin/FailedJobs/index.tsx:199
 #: src/components/routes/event/DeliveryIssues/index.tsx:44
@@ -7439,7 +7886,7 @@ msgstr "Tentar tudo novamente"
 
 #: src/components/routes/event/MessageTracking/shared.tsx:105
 msgid "Retry Attempt"
-msgstr "Tentativa de reenvio"
+msgstr ""
 
 #: src/components/routes/admin/FailedJobs/index.tsx:290
 msgid "Retry Job"
@@ -7454,10 +7901,22 @@ msgstr "Voltar ao evento"
 msgid "Return to Event Page"
 msgstr "Voltar para a página do evento"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:146
+msgid "Reuse"
+msgstr "Reutilizar"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:146
+msgid "Reuse ({0})"
+msgstr "Reutilizar ({0})"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:234
+msgid "Reused"
+msgstr "Reutilizado"
+
 #: src/components/common/AffiliateTable/index.tsx:157
 #: src/components/common/EventCard/index.tsx:235
 #: src/components/routes/admin/Attribution/index.tsx:137
-#: src/components/routes/event/EventDashboard/index.tsx:285
+#: src/components/routes/event/EventDashboard/index.tsx:309
 msgid "Revenue"
 msgstr "Receita"
 
@@ -7541,6 +8000,10 @@ msgstr "Vendas, pedidos e métricas de desempenho para todos os eventos"
 msgid "Sales:"
 msgstr "Vendas:"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:201
+msgid "Sample answers"
+msgstr "Respostas de exemplo"
+
 #: src/components/common/PlatformFeesSettings/index.tsx:175
 msgid "Sample ticket price"
 msgstr "Preço do bilhete de exemplo"
@@ -7557,6 +8020,7 @@ msgstr "São Francisco"
 
 #: src/components/common/PlatformFeesSettings/index.tsx:249
 #: src/components/common/QuestionAndAnswerList/index.tsx:142
+#: src/components/modals/EditQuestionModal/index.tsx:159
 #: src/components/routes/event/Settings/Sections/EmailSettings/GeneralEmailSettings.tsx:81
 #: src/components/routes/event/Settings/Sections/EventDetailsForm/index.tsx:129
 #: src/components/routes/event/Settings/Sections/HomepageAndCheckoutSettings/index.tsx:132
@@ -7616,11 +8080,11 @@ msgstr "Guardar Definições de IVA"
 msgid "Scan"
 msgstr "Digitalizar"
 
-#: src/components/modals/SendMessageModal/index.tsx:381
+#: src/components/modals/SendMessageModal/index.tsx:406
 msgid "Schedule for later"
 msgstr "Agendar para mais tarde"
 
-#: src/components/modals/SendMessageModal/index.tsx:450
+#: src/components/modals/SendMessageModal/index.tsx:475
 msgid "Schedule Message"
 msgstr "Agendar mensagem"
 
@@ -7630,7 +8094,7 @@ msgstr "Agendar mensagem"
 msgid "Scheduled"
 msgstr "Agendado"
 
-#: src/components/modals/SendMessageModal/index.tsx:411
+#: src/components/modals/SendMessageModal/index.tsx:436
 msgid "Scheduled time"
 msgstr "Hora agendada"
 
@@ -7648,7 +8112,11 @@ msgstr "Pesquise por nome do participante, e-mail ou número do pedido..."
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:133
 msgid "Search by email address..."
-msgstr "Pesquisar por endereço de e-mail..."
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:96
+msgid "Search by email or attribute..."
+msgstr "Pesquisar por e-mail ou atributo..."
 
 #: src/components/routes/events/Dashboard/index.tsx:150
 #: src/components/routes/organizer/Events/index.tsx:47
@@ -7659,10 +8127,21 @@ msgstr "Pesquisar por nome do evento..."
 msgid "Search by event title or organizer..."
 msgstr "Pesquisar por título do evento ou organizador..."
 
+#: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:37
+msgid "Search by filename..."
+msgstr ""
+
 #: src/components/routes/admin/FailedJobs/index.tsx:142
 msgid "Search by job name or exception..."
 msgstr "Pesquisar por nome do trabalho ou exceção..."
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:107
+msgid "Search by label, name, or type..."
+msgstr "Pesquisar por etiqueta, nome ou tipo..."
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:51
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:118
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:100
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:56
 msgid "Search by name or email..."
 msgstr "Pesquisar por nome ou e-mail..."
@@ -7687,10 +8166,18 @@ msgstr "Procura por nome..."
 msgid "Search by order ID, customer name, or email..."
 msgstr "Pesquisar por ID do pedido, nome do cliente ou email..."
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:46
+msgid "Search by question or event title..."
+msgstr "Pesquisar por título de pergunta ou evento..."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:115
+msgid "Search by question title..."
+msgstr "Pesquisar por título da pergunta..."
+
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:205
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:228
 msgid "Search by recipient or subject..."
-msgstr "Pesquisar por destinatário ou assunto..."
+msgstr ""
 
 #: src/components/routes/admin/Messages/index.tsx:113
 msgid "Search by subject, event, or account..."
@@ -7754,6 +8241,12 @@ msgstr "Selecionar um nível"
 msgid "Select Account"
 msgstr "Selecionar Conta"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:166
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:193
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:190
+msgid "Select all"
+msgstr "Selecionar tudo"
+
 #: src/components/modals/DuplicateEventModal/index.tsx:138
 msgid "Select All"
 msgstr "Selecionar tudo"
@@ -7762,7 +8255,7 @@ msgstr "Selecionar tudo"
 msgid "Select an event"
 msgstr "Selecionar um evento"
 
-#: src/components/modals/SendMessageModal/index.tsx:299
+#: src/components/modals/SendMessageModal/index.tsx:311
 msgid "Select attendee group"
 msgstr "Selecione o grupo de participantes"
 
@@ -7773,6 +8266,10 @@ msgstr "Selecione Câmera"
 #: src/components/forms/ProductForm/index.tsx:291
 msgid "Select category..."
 msgstr "Selecione a categoria..."
+
+#: src/components/modals/SendMessageModal/index.tsx:357
+msgid "Select check-in list"
+msgstr ""
 
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:133
 msgid "Select country"
@@ -7811,9 +8308,15 @@ msgid "Select Product Tier"
 msgstr "Selecione o Nível do Produto"
 
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:49
-#: src/components/modals/SendMessageModal/index.tsx:323
+#: src/components/modals/SendMessageModal/index.tsx:335
 msgid "Select products"
 msgstr "Selecione os produtos"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:192
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:215
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:213
+msgid "Select row"
+msgstr "Selecionar linha"
 
 #: src/components/common/CheckIn/ScannerSelectionModal.tsx:25
 msgid "Select Scanner Type"
@@ -7844,7 +8347,7 @@ msgid "Select Ticket"
 msgstr "Selecione o ingresso"
 
 #: src/components/forms/CheckInListForm/index.tsx:43
-#: src/components/modals/SendMessageModal/index.tsx:311
+#: src/components/modals/SendMessageModal/index.tsx:323
 msgid "Select tickets"
 msgstr "Selecionar ingressos"
 
@@ -7858,9 +8361,13 @@ msgstr "Selecione o período de tempo"
 msgid "Select timezone"
 msgstr "Selecionar fuso horário"
 
-#: src/components/modals/SendMessageModal/index.tsx:298
+#: src/components/modals/SendMessageModal/index.tsx:310
 msgid "Select which attendees should receive this message"
 msgstr "Selecione quais participantes devem receber esta mensagem"
+
+#: src/components/modals/SendMessageModal/index.tsx:356
+msgid "Select which check-in list to use"
+msgstr ""
 
 #: src/components/forms/WebhookForm/index.tsx:144
 msgid "Select which events will trigger this webhook"
@@ -7888,11 +8395,11 @@ msgstr "Vendendo rápido 🔥"
 msgid "Send"
 msgstr "Enviar"
 
-#: src/components/modals/SendMessageModal/index.tsx:222
+#: src/components/modals/SendMessageModal/index.tsx:226
 msgid "Send a message"
 msgstr "Envie uma mensagem"
 
-#: src/components/modals/SendMessageModal/index.tsx:468
+#: src/components/modals/SendMessageModal/index.tsx:493
 msgid "Send as test"
 msgstr "Enviar como teste"
 
@@ -7900,16 +8407,16 @@ msgstr "Enviar como teste"
 msgid "Send emails to attendees, ticket holders, or order owners. Messages can be sent immediately or scheduled for later."
 msgstr "Enviar e-mails para participantes, titulares de bilhetes ou proprietários de encomendas. As mensagens podem ser enviadas imediatamente ou agendadas para mais tarde."
 
-#: src/components/modals/SendMessageModal/index.tsx:476
+#: src/components/modals/SendMessageModal/index.tsx:501
 msgid "Send me a copy"
 msgstr "Envie-me uma cópia"
 
 #: src/components/common/ContactOrganizerModal/index.tsx:112
-#: src/components/modals/SendMessageModal/index.tsx:450
+#: src/components/modals/SendMessageModal/index.tsx:475
 msgid "Send Message"
 msgstr "Enviar Mensagem"
 
-#: src/components/modals/SendMessageModal/index.tsx:373
+#: src/components/modals/SendMessageModal/index.tsx:398
 msgid "Send now"
 msgstr "Enviar agora"
 
@@ -7929,7 +8436,7 @@ msgstr "Enviar email de notificação de reembolso"
 msgid "Send reset link"
 msgstr "Enviar link de redefinição"
 
-#: src/components/modals/SendMessageModal/index.tsx:450
+#: src/components/modals/SendMessageModal/index.tsx:475
 msgid "Send Test"
 msgstr "Enviar teste"
 
@@ -7990,7 +8497,7 @@ msgstr "Taxa de serviço"
 #: src/components/routes/admin/EmailSuppressions/index.tsx:108
 #: src/components/routes/admin/EmailSuppressions/index.tsx:154
 msgid "SES"
-msgstr "SES"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:168
 msgid "Set a minimum price and let users pay more if they choose"
@@ -8102,9 +8609,15 @@ msgstr "Mostre mais"
 msgid "Show more platforms"
 msgstr "Mostrar mais plataformas"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:114
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:136
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:133
+msgid "Show processed"
+msgstr "Mostrar processados"
+
 #: src/components/routes/event/DeliveryIssues/index.tsx:71
 msgid "Show resolved"
-msgstr "Mostrar resolvidos"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/MiscSettings/index.tsx:63
 msgid "Show tax and fees separately"
@@ -8122,7 +8635,7 @@ msgstr "Mostrado ao cliente após o checkout, na página de resumo do pedido."
 msgid "Shown to the customer before they checkout"
 msgstr "Mostrado ao cliente antes de finalizar a compra"
 
-#: src/components/forms/QuestionForm/index.tsx:132
+#: src/components/forms/QuestionForm/index.tsx:266
 msgid "Shows common address fields, including country"
 msgstr "Mostra campos de endereço comuns, incluindo país"
 
@@ -8135,9 +8648,14 @@ msgstr "Registado"
 msgid "Simpson"
 msgstr "Simpson"
 
-#: src/components/forms/QuestionForm/index.tsx:100
+#: src/components/forms/QuestionForm/index.tsx:234
 msgid "Single line text box"
 msgstr "Caixa de texto de linha única"
+
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:66
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:72
+msgid "Single Select"
+msgstr "Seleção única"
 
 #: src/components/routes/welcome/index.tsx:497
 msgid "Skip this step"
@@ -8181,10 +8699,20 @@ msgstr "Vendido"
 
 #: src/components/common/ErrorDisplay/index.tsx:15
 #: src/components/routes/auth/AcceptInvitation/index.tsx:48
-#: src/components/routes/product-widget/CollectInformation/index.tsx:386
+#: src/components/routes/product-widget/CollectInformation/index.tsx:500
 #: src/components/routes/product-widget/Payment/PaymentMethods/Stripe/index.tsx:64
 msgid "Something went wrong"
 msgstr "Algo correu mal"
+
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:31
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:64
+msgid "Something went wrong while deleting the attribute definition"
+msgstr "Ocorreu um erro ao eliminar a definição de atributo"
+
+#: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:37
+#: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:91
+msgid "Something went wrong while deleting the contact"
+msgstr "Ocorreu um erro ao eliminar o contacto"
 
 #: src/components/common/TaxAndFeeList/index.tsx:39
 msgid "Something went wrong while deleting the Tax or Fee"
@@ -8216,7 +8744,7 @@ msgstr "Algo correu mal. Por favor, tente novamente mais tarde."
 msgid "Something went wrong. Please try again."
 msgstr "Algo deu errado. Por favor, tente novamente."
 
-#: src/components/routes/event/EventDashboard/index.tsx:131
+#: src/components/routes/event/EventDashboard/index.tsx:138
 msgid "Sorry for the inconvenience."
 msgstr "Desculpe o inconveniente."
 
@@ -8268,8 +8796,8 @@ msgstr "Hora de início do evento"
 #: src/components/common/CheckoutQuestion/index.tsx:165
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:139
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:97
-#: src/components/routes/product-widget/CollectInformation/index.tsx:539
-#: src/components/routes/product-widget/CollectInformation/index.tsx:540
+#: src/components/routes/product-widget/CollectInformation/index.tsx:662
+#: src/components/routes/product-widget/CollectInformation/index.tsx:663
 msgid "State or Region"
 msgstr "Estado ou Região"
 
@@ -8294,11 +8822,17 @@ msgstr "As estatísticas são baseadas na data de criação da conta"
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:56
 #: src/components/forms/WebhookForm/index.tsx:157
 #: src/components/modals/EditUserModal/index.tsx:103
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:51
 #: src/components/routes/account/ManageAccount/sections/Users/index.tsx:157
 #: src/components/routes/admin/Dashboard/index.tsx:405
 #: src/components/routes/admin/Messages/index.tsx:120
 #: src/components/routes/admin/Messages/index.tsx:167
 #: src/components/routes/admin/Messages/index.tsx:293
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:181
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:204
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:202
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:153
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:68
 #: src/components/routes/event/DeliveryIssues/index.tsx:98
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:195
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:256
@@ -8348,7 +8882,7 @@ msgid "Stripe setup is already complete."
 msgstr "A configuração do Stripe já está completa."
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:127
-#: src/components/modals/SendMessageModal/index.tsx:347
+#: src/components/modals/SendMessageModal/index.tsx:372
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
 #: src/components/routes/event/DeliveryIssues/index.tsx:99
@@ -8409,8 +8943,7 @@ msgstr "Produto Criado com Sucesso"
 msgid "Successfully Created Promo Code"
 msgstr "Código promocional criado com sucesso"
 
-#: src/components/modals/CreateQuestionModal/index.tsx:46
-#: src/components/modals/EditQuestionModal/index.tsx:66
+#: src/components/modals/CreateQuestionModal/index.tsx:103
 msgid "Successfully Created Question"
 msgstr "Pergunta criada com sucesso"
 
@@ -8507,6 +9040,10 @@ msgstr "Produto atualizado com sucesso"
 msgid "Successfully Updated Promo Code"
 msgstr "Código promocional atualizado com sucesso"
 
+#: src/components/modals/EditQuestionModal/index.tsx:116
+msgid "Successfully Updated Question"
+msgstr "Pergunta atualizada com sucesso"
+
 #: src/components/routes/event/Settings/Sections/SeoSettings/index.tsx:45
 msgid "Successfully Updated Seo Settings"
 msgstr "Configurações de SEO atualizadas com sucesso"
@@ -8556,7 +9093,7 @@ msgstr "E-mail de suporte"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:52
 msgid "Suppression removed successfully"
-msgstr "Supressão removida com sucesso"
+msgstr ""
 
 #: src/components/common/LanguageSwitcher/index.tsx:42
 msgid "Swedish"
@@ -8566,6 +9103,10 @@ msgstr "Sueco"
 #: src/components/modals/SwitchOrganizerModal/index.tsx:46
 msgid "Switch Organizer"
 msgstr "Trocar organizador"
+
+#: src/components/routes/contacts/ContactsAdmin/index.tsx:69
+msgid "Sync"
+msgstr "Sincronizar"
 
 #: src/components/routes/admin/Configurations/index.tsx:85
 msgid "System Default"
@@ -8689,6 +9230,11 @@ msgstr "Modelo salvo com sucesso"
 msgid "Terms of Service"
 msgstr "Termos de serviço"
 
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:65
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:71
+msgid "Text"
+msgstr "Texto"
+
 #: src/components/common/ThemeColorControls/index.tsx:107
 msgid "Text may be hard to read"
 msgstr "O texto pode ser difícil de ler"
@@ -8804,11 +9350,11 @@ msgstr "O preço apresentado ao cliente não incluirá impostos e taxas. Eles se
 msgid "The primary brand color used for buttons and highlights"
 msgstr "A cor principal da marca usada para botões e destaques"
 
-#: src/components/modals/SendMessageModal/index.tsx:172
+#: src/components/modals/SendMessageModal/index.tsx:175
 msgid "The scheduled time is required"
 msgstr "A hora agendada é obrigatória"
 
-#: src/components/modals/SendMessageModal/index.tsx:173
+#: src/components/modals/SendMessageModal/index.tsx:176
 msgid "The scheduled time must be in the future"
 msgstr "A hora agendada deve ser no futuro"
 
@@ -8923,6 +9469,10 @@ msgstr "Este evento terminou"
 msgid "This event is not published yet"
 msgstr "Este evento ainda não foi publicado"
 
+#: src/components/forms/QuestionForm/index.tsx:144
+msgid "This field is linked to a reusable attribute"
+msgstr "Este campo está associado a um atributo reutilizável"
+
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:152
 msgid "This information will be shown on the payment page, order summary page, and order confirmation email."
 msgstr "Essas informações serão exibidas na página de pagamento, no resumo do pedido e no e-mail de confirmação do pedido."
@@ -8976,7 +9526,7 @@ msgstr "Este pedido já foi reembolsado."
 msgid "This order has been cancelled."
 msgstr "Esse pedido foi cancelado."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:315
+#: src/components/routes/product-widget/CollectInformation/index.tsx:429
 msgid "This order has expired. Please start again."
 msgstr "Este pedido expirou. Por favor, recomece."
 
@@ -8992,11 +9542,11 @@ msgstr "Este pedido está completo."
 msgid "This order page is no longer available."
 msgstr "Esta página de pedido não está mais disponível."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:328
+#: src/components/routes/product-widget/CollectInformation/index.tsx:442
 msgid "This order was abandoned. You can start a new order anytime."
 msgstr "Este pedido foi abandonado. Pode iniciar um novo pedido a qualquer momento."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:358
+#: src/components/routes/product-widget/CollectInformation/index.tsx:472
 msgid "This order was cancelled. You can start a new order anytime."
 msgstr "Este pedido foi cancelado. Pode iniciar um novo pedido a qualquer momento."
 
@@ -9237,7 +9787,7 @@ msgstr "Para"
 msgid "To edit configurations, go to the Configurations section in the admin menu."
 msgstr "Para editar configurações, aceda à secção Configurações no menu de administração."
 
-#: src/components/modals/SendMessageModal/index.tsx:259
+#: src/components/modals/SendMessageModal/index.tsx:263
 msgid "To increase your limits, contact us at"
 msgstr "Para aumentar os seus limites, contacte-nos em"
 
@@ -9295,7 +9845,7 @@ msgstr "Total de entradas"
 msgid "Total Fee"
 msgstr "Taxa total"
 
-#: src/components/routes/event/EventDashboard/index.tsx:311
+#: src/components/routes/event/EventDashboard/index.tsx:335
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:149
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:97
 msgid "Total Fees"
@@ -9317,11 +9867,11 @@ msgstr "Total de pedidos"
 msgid "Total refunded"
 msgstr "Total reembolsado"
 
-#: src/components/routes/event/EventDashboard/index.tsx:314
+#: src/components/routes/event/EventDashboard/index.tsx:338
 msgid "Total Refunded"
 msgstr "Total Reembolsado"
 
-#: src/components/routes/event/EventDashboard/index.tsx:313
+#: src/components/routes/event/EventDashboard/index.tsx:337
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:143
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:91
 msgid "Total Tax"
@@ -9347,17 +9897,13 @@ msgstr "Acompanhe vendas, receitas e participação com relatórios detalhados"
 msgid "Transaction Fee:"
 msgstr "Taxa de transação:"
 
-#: src/components/routes/event/DeliveryIssues/index.tsx:75
-#~ msgid "Transactional emails that failed to deliver, bounced, or were suppressed."
-#~ msgstr "E-mails transacionais que falharam na entrega, foram devolvidos ou suprimidos."
-
-#: src/components/routes/event/MessageTracking/index.tsx:38
+#: src/components/routes/event/MessageTracking/index.tsx:44
 msgid "Transactions"
-msgstr "Transações"
+msgstr ""
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:279
 msgid "Transient"
-msgstr "Transitório"
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:31
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:65
@@ -9395,11 +9941,15 @@ msgid "Twitch"
 msgstr "Twitch"
 
 #: src/components/forms/TaxAndFeeForm/index.tsx:44
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:63
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:69
+#: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:50
 #: src/components/routes/admin/Attribution/index.tsx:109
 #: src/components/routes/admin/EmailSuppressions/index.tsx:181
 #: src/components/routes/admin/Messages/index.tsx:134
 #: src/components/routes/admin/Messages/index.tsx:165
 #: src/components/routes/admin/Messages/index.tsx:287
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:151
 #: src/components/routes/event/DeliveryIssues/index.tsx:97
 msgid "Type"
 msgstr "Tipo"
@@ -9408,6 +9958,10 @@ msgstr "Tipo"
 #: src/components/routes/organizer/Settings/Sections/DangerZoneSettings/index.tsx:104
 msgid "Type \"delete\" to confirm"
 msgstr "Escreva \"eliminar\" para confirmar"
+
+#: src/components/common/SortableOptionsInput/index.tsx:126
+msgid "Type an option and press Enter"
+msgstr "Escreva uma opção e prima Enter"
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:58
 msgid "Type of ticket"
@@ -9430,7 +9984,7 @@ msgstr "Não foi possível criar o produto. Por favor, verifique seus detalhes"
 msgid "Unable to create product. Please check your details"
 msgstr "Não foi possível criar o produto. Por favor, verifique seus detalhes"
 
-#: src/components/modals/CreateQuestionModal/index.tsx:61
+#: src/components/modals/CreateQuestionModal/index.tsx:118
 msgid "Unable to create question. Please check the your details"
 msgstr "Não foi possível criar a pergunta. Por favor verifique os seus dados"
 
@@ -9446,7 +10000,7 @@ msgstr "Não foi possível buscar participante"
 msgid "Unable to join waitlist"
 msgstr "Não foi possível entrar na lista de espera"
 
-#: src/components/modals/EditQuestionModal/index.tsx:84
+#: src/components/modals/EditQuestionModal/index.tsx:134
 msgid "Unable to update question. Please check the your details"
 msgstr "Não foi possível atualizar a pergunta. Por favor verifique os seus dados"
 
@@ -9456,7 +10010,12 @@ msgstr "Contas não atribuídas"
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:280
 msgid "Undetermined"
-msgstr "Indeterminado"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:169
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:166
+msgid "Unignore ({0})"
+msgstr "Deixar de ignorar ({0})"
 
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:30
 msgid "Unique Customers"
@@ -9471,8 +10030,8 @@ msgstr "Referência única do pedido"
 msgid "United States"
 msgstr "Estados Unidos"
 
-#: src/components/common/MessageList/index.tsx:44
-#: src/components/common/MessageList/index.tsx:49
+#: src/components/common/MessageList/index.tsx:46
+#: src/components/common/MessageList/index.tsx:51
 #: src/components/routes/event/messages.tsx:27
 #: src/components/routes/event/messages.tsx:66
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:362
@@ -9502,11 +10061,31 @@ msgstr "Ilimitado disponível"
 msgid "Unlimited usages allowed"
 msgstr "Usos ilimitados permitidos"
 
+#: src/components/forms/QuestionForm/index.tsx:145
+msgid "Unlock field"
+msgstr "Desbloquear campo"
+
+#: src/components/forms/QuestionForm/index.tsx:82
+msgid "Unlock options"
+msgstr "Desbloquear opções"
+
+#: src/components/forms/QuestionForm/index.tsx:203
+msgid "Unlock this field and override the reusable attribute for this event only?"
+msgstr "Desbloquear este campo e substituir o atributo reutilizável apenas para este evento?"
+
+#: src/components/forms/QuestionForm/index.tsx:144
+msgid "Unlock to edit (this will change the field for this event only)"
+msgstr "Desbloquear para editar (isto irá alterar o campo apenas para este evento)"
+
+#: src/components/forms/QuestionForm/index.tsx:81
+msgid "Unlock to edit options for this event only"
+msgstr "Desbloquear para editar opções apenas para este evento"
+
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:34
 msgid "Unpaid Order"
 msgstr "Pedido não pago"
 
-#: src/components/routes/event/EventDashboard/index.tsx:206
+#: src/components/routes/event/EventDashboard/index.tsx:213
 msgid "Unpublish Event"
 msgstr "Despublicar Evento"
 
@@ -9526,6 +10105,14 @@ msgstr "Por vir"
 msgid "Upcoming Events"
 msgstr "Próximos eventos"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:127
+msgid "Update"
+msgstr "Atualizar"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:127
+msgid "Update ({0})"
+msgstr "Atualizar ({0})"
+
 #: src/components/modals/EditTaxOrFeeModal/index.tsx:59
 msgid "Update {0}"
 msgstr "Atualizar {0}"
@@ -9533,6 +10120,14 @@ msgstr "Atualizar {0}"
 #: src/components/modals/EditAffiliateModal/index.tsx:108
 msgid "Update Affiliate"
 msgstr "Atualizar afiliado"
+
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:98
+msgid "Update Attribute"
+msgstr "Atualizar atributo"
+
+#: src/components/modals/EditContactModal/index.tsx:126
+msgid "Update Contact"
+msgstr "Atualizar contacto"
 
 #: src/components/routes/event/Settings/Sections/EventDetailsForm/index.tsx:69
 msgid "Update event name, description and dates"
@@ -9542,18 +10137,23 @@ msgstr "Atualizar nome, descrição e datas do evento"
 msgid "Update profile"
 msgstr "Atualizar perfil"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:214
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:260
 #: src/components/routes/event/MessageTracking/TransactionsTab.tsx:284
 msgid "Updated"
 msgstr "Atualizado"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:82
+msgid "Updated {0} answer(s)."
+msgstr "{0} resposta(s) atualizada(s)."
+
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:76
 msgid "Updating the email will also update the associated order or attendee record."
-msgstr "Atualizar o e-mail também atualizará o pedido ou registo de participante associado."
+msgstr ""
 
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:77
 msgid "Updating the email will resend the announcement to the new address."
-msgstr "Atualizar o e-mail reenviará o anúncio para o novo endereço."
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:170
 msgid "Upgrade Available"
@@ -9567,12 +10167,12 @@ msgstr "Envie uma imagem de capa para seu organizador"
 msgid "Upload a logo for your organizer"
 msgstr "Envie um logo para seu organizador"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:104
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:158
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:112
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:167
 msgid "Upload Image"
 msgstr "Carregar imagem"
 
-#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:131
+#: src/components/common/Editor/Controls/InsertImageControl/index.tsx:140
 msgid "Uploading image..."
 msgstr "Enviando imagem..."
 
@@ -9641,11 +10241,15 @@ msgstr "Usar os dados do comprador para todos os participantes"
 msgid "Used for borders, highlights, and QR code styling"
 msgstr "Usado para bordas, destaques e estilo do código QR"
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:152
+msgid "Used in"
+msgstr "Usado em"
+
 #: src/components/routes/account/ManageAccount/sections/Users/index.tsx:154
 msgid "User"
 msgstr "Do utilizador"
 
-#: src/components/common/GlobalMenu/index.tsx:53
+#: src/components/common/GlobalMenu/index.tsx:59
 #: src/components/routes/account/ManageAccount/sections/Users/index.tsx:142
 msgid "User Management"
 msgstr "Gerenciamento de usuários"
@@ -9672,7 +10276,7 @@ msgstr "Os usuários podem alterar o e-mail em <0>Configurações do perfil</0>"
 msgid "UTC"
 msgstr "UTC"
 
-#: src/components/layouts/Admin/index.tsx:20
+#: src/components/layouts/Admin/index.tsx:21
 msgid "UTM Analytics"
 msgstr "Análise UTM"
 
@@ -9851,6 +10455,10 @@ msgstr "Ver página do evento"
 msgid "View Event Page"
 msgstr "Ver página do evento"
 
+#: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:170
+msgid "View linked questions"
+msgstr "Ver perguntas associadas"
+
 #: src/components/common/OrganizerWebhookTable/index.tsx:113
 #: src/components/common/WebhookTable/index.tsx:113
 msgid "View logs"
@@ -9877,7 +10485,7 @@ msgid "View Order"
 msgstr "Ver pedido"
 
 #: src/components/forms/StripeCheckoutForm/index.tsx:96
-#: src/components/routes/product-widget/CollectInformation/index.tsx:350
+#: src/components/routes/product-widget/CollectInformation/index.tsx:464
 msgid "View Order Details"
 msgstr "Ver detalhes do pedido"
 
@@ -9931,7 +10539,7 @@ msgstr "VK"
 msgid "Waiting"
 msgstr "Em espera"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:337
+#: src/components/routes/product-widget/CollectInformation/index.tsx:451
 msgid "Waiting for payment"
 msgstr "A aguardar pagamento"
 
@@ -9945,7 +10553,7 @@ msgstr "Lista de espera"
 #: src/components/routes/event/MessageTracking/shared.tsx:36
 #: src/components/routes/event/MessageTracking/shared.tsx:67
 msgid "Waitlist Confirmation"
-msgstr "Confirmação da lista de espera"
+msgstr ""
 
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:295
 msgid "Waitlist Enabled"
@@ -9954,16 +10562,16 @@ msgstr "Lista de espera ativada"
 #: src/components/routes/event/MessageTracking/shared.tsx:34
 #: src/components/routes/event/MessageTracking/shared.tsx:66
 msgid "Waitlist Offer"
-msgstr "Oferta da lista de espera"
+msgstr ""
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:372
+#: src/components/routes/product-widget/CollectInformation/index.tsx:486
 msgid "Waitlist offer expired"
-msgstr "Oferta da lista de espera expirada"
+msgstr "Oferta da lista de espera expirou"
 
 #: src/components/routes/event/MessageTracking/shared.tsx:38
 #: src/components/routes/event/MessageTracking/shared.tsx:68
 msgid "Waitlist Offer Expired"
-msgstr "Oferta da lista de espera expirada"
+msgstr ""
 
 #: src/components/routes/admin/Configurations/index.tsx:212
 msgid "Warning: This is the system default configuration. Changes will affect all accounts that don't have a specific configuration assigned."
@@ -9993,7 +10601,7 @@ msgstr "Não conseguimos encontrar o pedido que procura. O link pode ter expirad
 msgid "We couldn't find the ticket you're looking for. The link may have expired or the ticket details may have changed."
 msgstr "Não conseguimos encontrar o bilhete que procura. O link pode ter expirado ou os detalhes do bilhete podem ter sido alterados."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:375
+#: src/components/routes/product-widget/CollectInformation/index.tsx:489
 msgid "We couldn't find this order. It may have been removed."
 msgstr "Não foi possível encontrar este pedido. Pode ter sido removido."
 
@@ -10005,7 +10613,7 @@ msgstr "Não foi possível carregar os dados. Por favor, tente novamente."
 msgid "We couldn't reorder the categories. Please try again."
 msgstr "Não conseguimos reordenar as categorias. Por favor, tente novamente."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:387
+#: src/components/routes/product-widget/CollectInformation/index.tsx:501
 msgid "We hit a snag loading this page. Please try again."
 msgstr "Ocorreu um problema ao carregar esta página. Por favor, tente novamente."
 
@@ -10032,9 +10640,9 @@ msgstr "Não conseguimos validar o seu número de IVA após várias tentativas. 
 
 #: src/components/modals/JoinWaitlistModal/index.tsx:100
 msgid "We'll notify you by email if a spot becomes available for {productDisplayName}."
-msgstr "Notificá-lo-emos por e-mail se um lugar ficar disponível para {productDisplayName}."
+msgstr "Iremos notificá-lo por e-mail se houver uma vaga disponível para {productDisplayName}."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:427
+#: src/components/routes/product-widget/CollectInformation/index.tsx:541
 msgid "We'll send your tickets to this email"
 msgstr "Enviaremos os seus bilhetes para este e-mail"
 
@@ -10050,7 +10658,7 @@ msgstr "Estamos processando seu pedido. Por favor, aguarde..."
 msgid "We've officially moved our headquarters to Ireland 🇮🇪. As part of this transition, we're now using Stripe Ireland instead of Stripe Canada. To keep your payouts running smoothly, you'll need to reconnect your Stripe account."
 msgstr "Mudámos oficialmente a nossa sede para a Irlanda 🇮🇪. Como parte desta transição, agora usamos o Stripe Irlanda em vez do Stripe Canadá. Para manter os seus pagamentos funcionando sem problemas, precisará reconectar sua conta Stripe."
 
-#: src/components/routes/event/EventDashboard/index.tsx:130
+#: src/components/routes/event/EventDashboard/index.tsx:137
 msgid "We've relocated our headquarters to Ireland. As a result, we need you to reconnect your Stripe account. This quick process takes just a few minutes. Your sales and existing data remain completely unaffected."
 msgstr "Mudámos a nossa sede para a Irlanda. Como resultado, precisamos que reconecte a sua conta Stripe. Este processo rápido demora apenas alguns minutos. As suas vendas e dados existentes permanecem completamente inalterados."
 
@@ -10102,9 +10710,10 @@ msgstr "Webhooks"
 msgid "Website"
 msgstr "Site"
 
+#: src/components/routes/event/EventDashboard/index.tsx:266
 #: src/components/routes/event/MessageTracking/shared.tsx:55
 msgid "Week"
-msgstr "Semana"
+msgstr ""
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:105
 msgid "Weibo"
@@ -10118,7 +10727,7 @@ msgstr "Bem vindo a bordo! Por favor faça o login para continuar."
 msgid "Welcome back"
 msgstr "Bem-vindo de volta"
 
-#: src/components/routes/event/EventDashboard/index.tsx:107
+#: src/components/routes/event/EventDashboard/index.tsx:114
 msgid "Welcome back{0} 👋"
 msgstr "Bem vindo de volta{0} 👋"
 
@@ -10138,7 +10747,7 @@ msgstr "O que são Produtos em Camadas?"
 msgid "What is a Category?"
 msgstr "O que é uma Categoria?"
 
-#: src/components/forms/QuestionForm/index.tsx:159
+#: src/components/forms/QuestionForm/index.tsx:326
 msgid "What products does this code apply to?"
 msgstr "A quais produtos este código se aplica?"
 
@@ -10150,7 +10759,7 @@ msgstr "A quais produtos este código se aplica? (Aplica-se a todos por padrão)
 msgid "What products should this capacity apply to?"
 msgstr "A quais produtos essa capacidade deve se aplicar?"
 
-#: src/components/forms/QuestionForm/index.tsx:179
+#: src/components/forms/QuestionForm/index.tsx:361
 msgid "What time will you be arriving?"
 msgstr "A que horas você chegará?"
 
@@ -10158,7 +10767,7 @@ msgstr "A que horas você chegará?"
 msgid "What type of event?"
 msgstr "Que tipo de evento?"
 
-#: src/components/forms/QuestionForm/index.tsx:170
+#: src/components/forms/QuestionForm/index.tsx:337
 msgid "What type of question is this?"
 msgstr "Que tipo de pergunta é essa?"
 
@@ -10200,7 +10809,7 @@ msgstr "Quando um produto é atualizado"
 
 #: src/components/routes/event/Settings/Sections/WaitlistSettings/index.tsx:52
 msgid "When a product sells out, customers can join a waitlist to be notified when spots become available."
-msgstr "Quando um produto esgota, os clientes podem juntar-se a uma lista de espera para serem notificados quando houver lugares disponíveis."
+msgstr "Quando um produto esgota, os clientes podem entrar numa lista de espera para serem notificados quando houver vagas disponíveis."
 
 #: src/components/forms/WebhookForm/index.tsx:117
 msgid "When an attendee is cancelled"
@@ -10270,6 +10879,10 @@ msgstr "Quando ativado, não serão cobradas taxas de aplicação nas transaçõ
 msgid "When offline payments are enabled, users will be able to complete their orders and receive their tickets. Their tickets will clearly indicate the order is not paid, and the check-in tool will notify the check-in staff if an order requires payment."
 msgstr "Quando os pagamentos offline estão ativados, os usuários poderão concluir seus pedidos e receber seus ingressos. Seus ingressos indicarão claramente que o pedido não foi pago, e a ferramenta de check-in notificará a equipe se um pedido exigir pagamento."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:60
+msgid "Whenver an attendee's answer to a reusable question differs from the value stored on their contact, that discrepancy will appear here. Select <0>Update</0> to change the contact default; click <1>Ignore</1> to keep it the same."
+msgstr "Quando a resposta de um participante a uma pergunta reutilizável difere do valor guardado no seu contacto, essa diferença aparece aqui. Selecione <0>Atualizar</0> para alterar o valor padrão do contacto; clique em <1>Ignorar</1> para o manter igual."
+
 #: src/components/forms/CheckInListForm/index.tsx:42
 msgid "Which tickets should be associated with this check-in list?"
 msgstr "Quais ingressos devem ser associados a esta lista de registro?"
@@ -10278,7 +10891,7 @@ msgstr "Quais ingressos devem ser associados a esta lista de registro?"
 msgid "Who is organizing this event?"
 msgstr "Quem está organizando este evento?"
 
-#: src/components/forms/QuestionForm/index.tsx:151
+#: src/components/forms/QuestionForm/index.tsx:318
 msgid "Who should be asked this question?"
 msgstr "A quem deve ser feita esta pergunta?"
 
@@ -10298,16 +10911,20 @@ msgstr "Configurações do widget"
 msgid "Working"
 msgstr "Trabalhando"
 
+#: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:92
+#: src/components/modals/CreateContactModal/index.tsx:65
 #: src/components/modals/CreateProductCategoryModal/index.tsx:60
 #: src/components/modals/CreateProductModal/index.tsx:89
 #: src/components/modals/CreatePromoCodeModal/index.tsx:56
-#: src/components/modals/CreateQuestionModal/index.tsx:75
+#: src/components/modals/CreateQuestionModal/index.tsx:136
 #: src/components/modals/DuplicateEventModal/index.tsx:177
 #: src/components/modals/DuplicateProductModal/index.tsx:117
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:98
+#: src/components/modals/EditContactModal/index.tsx:126
 #: src/components/modals/EditProductCategoryModal/index.tsx:70
 #: src/components/modals/EditProductModal/index.tsx:114
 #: src/components/modals/EditPromoCodeModal/index.tsx:84
-#: src/components/modals/EditQuestionModal/index.tsx:101
+#: src/components/modals/EditQuestionModal/index.tsx:159
 #: src/components/modals/JoinWaitlistModal/index.tsx:188
 #: src/components/modals/ManageAttendeeModal/index.tsx:231
 #: src/components/modals/ManageOrderModal/index.tsx:175
@@ -10329,7 +10946,7 @@ msgstr "X (Twitter)"
 
 #: src/components/routes/event/MessageTracking/shared.tsx:58
 msgid "Year"
-msgstr "Ano"
+msgstr ""
 
 #: src/components/common/OrganizerReportTable/index.tsx:59
 #: src/components/common/ReportTable/index.tsx:51
@@ -10427,7 +11044,7 @@ msgstr "Você já aceitou este convite. Por favor faça o login para continuar."
 msgid "You have no pending email change."
 msgstr "Você não tem nenhuma alteração de e-mail pendente."
 
-#: src/components/modals/SendMessageModal/index.tsx:200
+#: src/components/modals/SendMessageModal/index.tsx:203
 msgid "You have reached your messaging limit."
 msgstr "Atingiu o seu limite de mensagens."
 
@@ -10439,7 +11056,7 @@ msgstr "O tempo para concluir seu pedido acabou."
 msgid "You have taxes and fees added to a Free Product. Would you like to remove them?"
 msgstr "Você adicionou taxas e impostos a um produto gratuito. Deseja removê-los?"
 
-#: src/components/modals/SendMessageModal/index.tsx:168
+#: src/components/modals/SendMessageModal/index.tsx:171
 msgid "You must acknowledge that this email is not promotional"
 msgstr "Você deve reconhecer que este e-mail não é promocional"
 
@@ -10467,7 +11084,7 @@ msgstr "Você precisa verificar seu e-mail antes de atualizar o status do organi
 msgid "You need to verify your account email before you can modify email templates."
 msgstr "Precisa de verificar o email da sua conta antes de poder modificar modelos de email."
 
-#: src/components/modals/SendMessageModal/index.tsx:234
+#: src/components/modals/SendMessageModal/index.tsx:238
 msgid "You need to verify your account email before you can send messages."
 msgstr "Você precisa verificar o e-mail da sua conta antes de poder enviar mensagens."
 
@@ -10507,11 +11124,11 @@ msgstr "Vai participar em {0}!"
 msgid "You're on the waitlist!"
 msgstr "Está na lista de espera!"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:410
+#: src/components/routes/product-widget/CollectInformation/index.tsx:524
 msgid "You've been offered a spot!"
 msgstr "Foi-lhe oferecido um lugar!"
 
-#: src/components/modals/SendMessageModal/index.tsx:273
+#: src/components/modals/SendMessageModal/index.tsx:277
 msgid "Your account has messaging limits. To increase your limits, contact us at"
 msgstr "A sua conta tem limites de mensagens. Para aumentar os seus limites, contacte-nos em"
 
@@ -10543,7 +11160,7 @@ msgstr "A sua lista de check-in foi criada com sucesso. Partilhe a ligação aba
 msgid "Your current order will be lost."
 msgstr "O seu pedido atual será perdido."
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:424
+#: src/components/routes/product-widget/CollectInformation/index.tsx:538
 msgid "Your Details"
 msgstr "Seus detalhes"
 
@@ -10559,7 +11176,7 @@ msgstr "Sua solicitação de e-mail para <0>{0}</0> está pendente. Por favor, v
 msgid "Your event is live!"
 msgstr "O seu evento está online!"
 
-#: src/components/routes/event/EventDashboard/index.tsx:186
+#: src/components/routes/event/EventDashboard/index.tsx:193
 msgid "Your event must be live before you can sell tickets to attendees."
 msgstr "Seu evento deve estar ativo antes que você possa vender ingressos para os participantes."
 
@@ -10661,7 +11278,7 @@ msgstr "Sua conta Stripe está conectada e pronta para processar pagamentos."
 msgid "Your ticket for"
 msgstr "Seu ingresso para"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:348
+#: src/components/routes/product-widget/CollectInformation/index.tsx:462
 msgid "Your tickets have been confirmed."
 msgstr "Os seus bilhetes foram confirmados."
 
@@ -10673,15 +11290,15 @@ msgstr "O seu número de IVA está na fila para validação"
 msgid "Your VAT number will be validated when you save"
 msgstr "O seu número de IVA será validado quando guardar"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:374
+#: src/components/routes/product-widget/CollectInformation/index.tsx:488
 msgid "Your waitlist offer has expired and we were unable to complete your order. Please rejoin the waitlist to be notified when more spots become available."
-msgstr "A sua oferta da lista de espera expirou e não conseguimos concluir o seu pedido. Por favor, volte a juntar-se à lista de espera para ser notificado quando mais lugares estiverem disponíveis."
+msgstr "A sua oferta da lista de espera expirou e não foi possível concluir o seu pedido. Reinscreva-se na lista de espera para ser notificado quando houver mais vagas disponíveis."
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:67
 msgid "YouTube"
 msgstr "YouTube"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:548
+#: src/components/routes/product-widget/CollectInformation/index.tsx:671
 msgid "ZIP / Postal Code"
 msgstr "CEP / Código Postal"
 
@@ -10691,6 +11308,6 @@ msgstr "CEP / Código Postal"
 msgid "Zip or Postal Code"
 msgstr "CEP ou Código postal"
 
-#: src/components/routes/product-widget/CollectInformation/index.tsx:549
+#: src/components/routes/product-widget/CollectInformation/index.tsx:672
 msgid "ZIP or Postal Code"
 msgstr "CEP ou Código Postal"

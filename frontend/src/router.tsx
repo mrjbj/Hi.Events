@@ -220,6 +220,13 @@ export const router: RouteObject[] = [
                     const EmailSuppressions = await import("./components/routes/admin/EmailSuppressions");
                     return { Component: EmailSuppressions.default };
                 }
+            },
+            {
+                path: "contacts",
+                async lazy() {
+                    const ContactsAdmin = await import("./components/routes/contacts/ContactsAdmin");
+                    return { Component: ContactsAdmin.default };
+                }
             }
         ]
     },
@@ -231,6 +238,13 @@ export const router: RouteObject[] = [
             return { Component: DefaultLayout.default };
         },
         children: [
+            {
+                path: "contacts",
+                async lazy() {
+                    const ContactsAdmin = await import("./components/routes/contacts/ContactsAdmin");
+                    return { Component: ContactsAdmin.default };
+                }
+            },
             {
                 path: "",
                 async lazy() {

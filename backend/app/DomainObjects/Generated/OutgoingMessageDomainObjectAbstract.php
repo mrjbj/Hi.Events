@@ -16,10 +16,10 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     final public const SUBJECT = 'subject';
     final public const RECIPIENT = 'recipient';
     final public const STATUS = 'status';
-    final public const SES_MESSAGE_ID = 'ses_message_id';
     final public const CREATED_AT = 'created_at';
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
+    final public const SES_MESSAGE_ID = 'ses_message_id';
     final public const RESOLVED_AT = 'resolved_at';
     final public const RETRY_FOR_ID = 'retry_for_id';
     final public const RESOLUTION_TYPE = 'resolution_type';
@@ -30,10 +30,10 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     protected string $subject;
     protected string $recipient;
     protected string $status;
-    protected ?string $ses_message_id = null;
     protected ?string $created_at = null;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
+    protected ?string $ses_message_id = null;
     protected ?string $resolved_at = null;
     protected ?int $retry_for_id = null;
     protected ?string $resolution_type = null;
@@ -47,10 +47,10 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
                     'subject' => $this->subject ?? null,
                     'recipient' => $this->recipient ?? null,
                     'status' => $this->status ?? null,
-                    'ses_message_id' => $this->ses_message_id ?? null,
                     'created_at' => $this->created_at ?? null,
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
+                    'ses_message_id' => $this->ses_message_id ?? null,
                     'resolved_at' => $this->resolved_at ?? null,
                     'retry_for_id' => $this->retry_for_id ?? null,
                     'resolution_type' => $this->resolution_type ?? null,
@@ -123,17 +123,6 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
         return $this->status;
     }
 
-    public function setSesMessageId(?string $ses_message_id): self
-    {
-        $this->ses_message_id = $ses_message_id;
-        return $this;
-    }
-
-    public function getSesMessageId(): ?string
-    {
-        return $this->ses_message_id;
-    }
-
     public function setCreatedAt(?string $created_at): self
     {
         $this->created_at = $created_at;
@@ -165,6 +154,17 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     public function getDeletedAt(): ?string
     {
         return $this->deleted_at;
+    }
+
+    public function setSesMessageId(?string $ses_message_id): self
+    {
+        $this->ses_message_id = $ses_message_id;
+        return $this;
+    }
+
+    public function getSesMessageId(): ?string
+    {
+        return $this->ses_message_id;
     }
 
     public function setResolvedAt(?string $resolved_at): self
