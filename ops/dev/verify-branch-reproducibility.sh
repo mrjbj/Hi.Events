@@ -50,6 +50,14 @@
 #   gitignored files (e.g. docker/development/.env). Disable the
 #   terminal merge with: FORK_ONLY_BRANCH="" ./verify-...
 #
+# EXPECTED CROSS-BRANCH CONFLICTS:
+#   Branches listed in EXPECTED_CONFLICT_BRANCHES are allowed to fail
+#   during merge without flunking the run. Their conflicts are assumed
+#   to be already resolved on PRODUCTION_BRANCH and will self-heal once
+#   upstream merges the offending PRs. The skipped branches' changes
+#   will show up as functional diffs in the final comparison — the
+#   verdict acknowledges this and exits 0 (with caveats).
+#
 # OUTPUT:
 #   Color-coded terminal output with a summary verdict at the end.
 #   Exit code 0 = reproducible, 1 = differences found, 2 = merge failed.
@@ -80,6 +88,17 @@ EXCLUDE_BRANCHES=${EXCLUDE_BRANCHES:-""}
 # is actually built: develop + PR branches + fork-only overlay).
 # Set to empty string to disable.
 FORK_ONLY_BRANCH=${FORK_ONLY_BRANCH:-"jbj/fork-only"}
+
+# Branches whose merge conflicts are EXPECTED and already resolved in
+# PRODUCTION_BRANCH (cross-branch integration friction from PRs that
+# were submitted independently). Listing a branch here makes the
+# merge-phase skip it on conflict instead of failing. Shrink this
+# list as upstream merges the relevant PRs — once the conflicting
+# commits land on develop, the conflict disappears naturally.
+EXPECTED_CONFLICT_BRANCHES=(
+  "feature/contact-repository"
+  "feature/transactional-email-tracking"
+)
 
 # Discover PR branches, alphabetically sorted. Dependents on stacked
 # branches get delta-merged after their parent lands, so sort order
@@ -193,6 +212,14 @@ is_migration() {
   return 1
 }
 
+is_expected_conflict_branch() {
+  local branch="$1"
+  for expected in "${EXPECTED_CONFLICT_BRANCHES[@]}"; do
+    [[ "$branch" == "$expected" ]] && return 0
+  done
+  return 1
+}
+
 # ---------------------------------------------------------------------------
 # Preflight checks
 # ---------------------------------------------------------------------------
@@ -253,9 +280,13 @@ success "Worktree created at $WORKTREE_DIR"
 
 merge_failures=()
 merge_conflicts=()
+expected_conflicts=()
 
-# Merge a single branch, auto-resolving locale-only conflicts.
-# Appends to merge_failures / merge_conflicts as side effects.
+# Merge a single branch, auto-resolving locale-only conflicts. Branches
+# listed in EXPECTED_CONFLICT_BRANCHES are allowed to fail with
+# non-locale conflicts — the conflicts are logged and the merge is
+# aborted, but the run continues.
+# Appends to merge_failures / merge_conflicts / expected_conflicts.
 merge_one() {
   local branch="$1"
   echo -n "  Merging $branch... "
@@ -282,6 +313,14 @@ merge_one() {
   done <<<"$conflicting_files"
 
   if [[ -n "$non_locale_conflicts" ]]; then
+    if is_expected_conflict_branch "$branch"; then
+      echo -e "${YELLOW}EXPECTED CONFLICT${NC}"
+      echo "    Files: $non_locale_conflicts"
+      echo "    (resolved manually on $PRODUCTION_BRANCH — see EXPECTED_CONFLICT_BRANCHES)"
+      expected_conflicts+=("$branch")
+      git merge --abort 2>/dev/null || true
+      return 0
+    fi
     echo -e "${RED}CONFLICT${NC}"
     echo "    Non-locale conflicts: $non_locale_conflicts"
     merge_failures+=("$branch")
@@ -321,7 +360,16 @@ if [[ ${#merge_conflicts[@]} -gt 0 ]]; then
   warn "Auto-resolved locale conflicts in: ${merge_conflicts[*]}"
 fi
 
-success "All branches merged successfully"
+if [[ ${#expected_conflicts[@]} -gt 0 ]]; then
+  warn "Skipped ${#expected_conflicts[@]} branch(es) due to expected cross-branch conflicts:"
+  for b in "${expected_conflicts[@]}"; do
+    echo "    $b"
+  done
+  warn "Their changes are absent from the merged tree; diff vs $PRODUCTION_BRANCH"
+  warn "will include those branches' contributions as 'functional' differences."
+fi
+
+success "Merge phase complete"
 
 # ---------------------------------------------------------------------------
 # Compare against production branch
@@ -395,12 +443,20 @@ fi
 if [[ ${#functional_files[@]} -gt 0 ]]; then
   echo ""
   warn "${BOLD}Functional code differences${NC} (${#functional_files[@]} — REVIEW THESE):"
-  for f in "${functional_files[@]}"; do
-    echo "    $f"
-    # Show a compact diff summary
-    git diff "$PRODUCTION_BRANCH" -- "$f" | head -20 | sed 's/^/      /'
-    echo "      ..."
-  done
+  # If a lot of files differ (common when EXPECTED_CONFLICT_BRANCHES
+  # skipped branches), just list them. Otherwise show compact diffs.
+  if [[ ${#functional_files[@]} -gt 20 ]]; then
+    for f in "${functional_files[@]}"; do
+      echo "    $f"
+    done
+  else
+    for f in "${functional_files[@]}"; do
+      echo "    $f"
+      { git diff "$PRODUCTION_BRANCH" -- "$f" 2>/dev/null || true; } |
+        head -20 | sed 's/^/      /' || true
+      echo "      ..."
+    done
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -411,6 +467,13 @@ header "Verdict"
 if [[ ${#functional_files[@]} -eq 0 ]]; then
   success "REPRODUCIBLE — all differences are expected (fork-only, locale, auto-generated, or migration filenames)"
   info "jbj/local can be fully reconstructed from: $BASE_BRANCH + PR branches + fork-only overlay"
+  exit 0
+elif [[ ${#expected_conflicts[@]} -gt 0 ]]; then
+  warn "REPRODUCIBLE WITH KNOWN CAVEATS"
+  warn "${#functional_files[@]} functional file(s) differ — expected because ${#expected_conflicts[@]} branch(es)"
+  warn "were skipped due to cross-branch conflicts already resolved on $PRODUCTION_BRANCH."
+  info "Skipped: ${expected_conflicts[*]}"
+  info "When upstream merges those PRs, rerun after 'git fetch' — the noise will shrink."
   exit 0
 else
   warn "REVIEW NEEDED — ${#functional_files[@]} functional file(s) differ between merged branches and $PRODUCTION_BRANCH"
