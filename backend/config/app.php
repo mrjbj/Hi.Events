@@ -49,6 +49,14 @@ return [
     'contact_lookup_log_channel' => env('CONTACT_LOOKUP_LOG_CHANNEL', 'stack'),
 
     /**
+     * TTL for contact signed tokens embedded in outbound emails as ?c=<token>.
+     * Tokens proving email ownership let the recipient prefill checkout forms
+     * and edit their self-service profile. 30 days balances convenience with
+     * blast radius from a forwarded/leaked email.
+     */
+    'contact_token_ttl_days' => (int) env('CONTACT_TOKEN_TTL_DAYS', 30),
+
+    /**
      * The number of page views to batch before updating the database
      *
      * For high traffic sites, this can be set to a higher number to reduce the number of database writes
