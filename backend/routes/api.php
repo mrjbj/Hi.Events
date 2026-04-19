@@ -567,6 +567,12 @@ $router->prefix('/public')->group(
         $router->post('/events/{event_id}/contact-prefill', \HiEvents\Http\Actions\Contacts\Public\PrefillFromTokenPublicAction::class)
             ->middleware('throttle:contact-prefill');
 
+        // Self-service contact profile portal. Token is the capability; no login.
+        $router->get('/contacts/me', \HiEvents\Http\Actions\Contacts\Public\GetMyContactPublicAction::class)
+            ->middleware('throttle:contact-portal');
+        $router->patch('/contacts/me', \HiEvents\Http\Actions\Contacts\Public\UpdateMyContactPublicAction::class)
+            ->middleware('throttle:contact-portal');
+
         // Webhooks
         $router->post('/webhooks/stripe', StripeIncomingWebhookAction::class);
 
