@@ -10,6 +10,5 @@ class ContactLookupResultDTO extends BaseDataObject
         public readonly bool $found,
         public readonly ?string $first_name = null,
         public readonly ?string $last_name = null,
-        public readonly array $question_answers = [],
     ) {}
 }

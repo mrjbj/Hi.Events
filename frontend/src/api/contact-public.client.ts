@@ -4,7 +4,6 @@ export interface ContactLookupResult {
     found: boolean;
     first_name: string | null;
     last_name: string | null;
-    question_answers: Record<string, unknown>;
 }
 
 export const contactClientPublic = {

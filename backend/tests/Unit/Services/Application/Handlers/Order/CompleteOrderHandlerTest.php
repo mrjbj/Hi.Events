@@ -22,6 +22,7 @@ use HiEvents\Services\Application\Handlers\Order\CompleteOrderHandler;
 use HiEvents\Services\Application\Handlers\Order\DTO\CompleteOrderDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\CompleteOrderOrderDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\CompleteOrderProductDataDTO;
+use HiEvents\Services\Domain\Contact\ContactAutofillService;
 use HiEvents\Services\Domain\Contact\ContactBackfillService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
 use HiEvents\Services\Domain\Product\ProductQuantityUpdateService;
@@ -67,6 +68,8 @@ class CompleteOrderHandlerTest extends TestCase
 
     private ContactBackfillService|MockInterface $contactBackfillService;
 
+    private ContactAutofillService|MockInterface $contactAutofillService;
+
     private EventRepositoryInterface|MockInterface $eventRepository;
 
     protected function setUp(): void
@@ -89,6 +92,7 @@ class CompleteOrderHandlerTest extends TestCase
         $this->sessionManagementService->shouldReceive('verifySession')->andReturn(true)->byDefault();
         $this->contactUpsertService = Mockery::mock(ContactUpsertService::class)->shouldIgnoreMissing();
         $this->contactBackfillService = Mockery::mock(ContactBackfillService::class)->shouldIgnoreMissing();
+        $this->contactAutofillService = Mockery::mock(ContactAutofillService::class)->shouldIgnoreMissing();
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class)->shouldIgnoreMissing();
 
         $this->completeOrderHandler = new CompleteOrderHandler(
@@ -103,6 +107,7 @@ class CompleteOrderHandlerTest extends TestCase
             $this->sessionManagementService,
             $this->contactUpsertService,
             $this->contactBackfillService,
+            $this->contactAutofillService,
             $this->eventRepository,
         );
     }

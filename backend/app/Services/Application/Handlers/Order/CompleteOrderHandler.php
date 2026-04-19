@@ -37,6 +37,7 @@ use HiEvents\Services\Application\Handlers\Order\DTO\CompleteOrderOrderDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\CompleteOrderProductDataDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\CreatedProductDataDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\OrderQuestionsDTO;
+use HiEvents\Services\Domain\Contact\ContactAutofillService;
 use HiEvents\Services\Domain\Contact\ContactBackfillService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
 use HiEvents\Services\Domain\Payment\Stripe\EventHandlers\PaymentIntentSucceededHandler;
@@ -68,6 +69,7 @@ class CompleteOrderHandler
         private readonly CheckoutSessionManagementService $sessionManagementService,
         private readonly ContactUpsertService $contactUpsertService,
         private readonly ContactBackfillService $contactBackfillService,
+        private readonly ContactAutofillService $contactAutofillService,
         private readonly EventRepositoryInterface $eventRepository,
     ) {}
 
@@ -199,8 +201,26 @@ class CompleteOrderHandler
             productPrices: $productsPrices,
         );
 
+        $this->autofillBlankAnswersFromContacts($order);
         $this->linkAttendeesToContacts($order);
         $this->syncOrderAnswersToContactAttributes($order);
+    }
+
+    private function autofillBlankAnswersFromContacts(OrderDomainObject $order): void
+    {
+        try {
+            $event = $this->eventRepository->findById($order->getEventId());
+            $this->contactAutofillService->fillOrderBlanksFromContact(
+                orderId: $order->getId(),
+                eventId: $order->getEventId(),
+                accountId: $event->getAccountId(),
+            );
+        } catch (\Throwable $e) {
+            Log::error('Failed to autofill blank question answers from contact', [
+                'order_id' => $order->getId(),
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function syncOrderAnswersToContactAttributes(OrderDomainObject $order): void

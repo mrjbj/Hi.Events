@@ -18,6 +18,10 @@ class LookupContactByEmailPublicAction extends BaseAction
 
     public function __invoke(LookupContactByEmailRequest $request, int $eventId): JsonResponse
     {
+        if (!config('app.contact_lookup_enabled')) {
+            abort(404);
+        }
+
         $result = $this->handler->handle(new LookupContactByEmailPublicDTO(
             eventId: $eventId,
             email: (string) $request->input('email'),
