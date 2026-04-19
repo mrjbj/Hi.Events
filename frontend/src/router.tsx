@@ -636,6 +636,16 @@ export const router: RouteObject[] = [
             return { Component: MyTickets.default };
         },
         errorElement: <ErrorPage />,
+    },
+    {
+        // Self-service contact profile. Token passed as ?c=<token> (not in path)
+        // so the same token format works for both checkout prefill and portal edit.
+        path: "/contacts/me",
+        async lazy() {
+            const ContactProfile = await import("./components/routes/contact-profile");
+            return { Component: ContactProfile.default };
+        },
+        errorElement: <ErrorPage />,
     }
 ];
 
