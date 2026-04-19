@@ -25,6 +25,15 @@ return [
     'allowed_internal_webhook_hosts' => env('APP_ALLOWED_INTERNAL_WEBHOOK_HOSTS', ''),
 
     /**
+     * Public checkout email-based contact lookup (name-only).
+     *
+     * Disabled by default: it's an unauthenticated surface that reveals whether
+     * a given email is a contact in this account. Only enable once tight
+     * throttling and server-side question-answer prefill are in place.
+     */
+    'contact_lookup_enabled' => env('CONTACT_LOOKUP_ENABLED', false),
+
+    /**
      * The number of page views to batch before updating the database
      *
      * For high traffic sites, this can be set to a higher number to reduce the number of database writes

@@ -555,9 +555,10 @@ $router->prefix('/public')->group(
         // Questions
         $router->get('/events/{event_id}/questions', GetQuestionsPublicAction::class);
 
-        // Contact lookup (autofill on checkout)
+        // Contact lookup (autofill on checkout). Gated by app.contact_lookup_enabled.
+        // Throttle: 5/min per IP AND 3/hour per email (whichever trips first).
         $router->post('/events/{event_id}/contact-lookup', \HiEvents\Http\Actions\Contacts\Public\LookupContactByEmailPublicAction::class)
-            ->middleware('throttle:30,1');
+            ->middleware('throttle:contact-lookup');
 
         // Webhooks
         $router->post('/webhooks/stripe', StripeIncomingWebhookAction::class);
