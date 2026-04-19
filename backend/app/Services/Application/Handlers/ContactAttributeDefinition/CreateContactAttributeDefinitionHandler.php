@@ -38,6 +38,9 @@ readonly class CreateContactAttributeDefinitionHandler
             ContactAttributeDefinitionDomainObject::OPTIONS => $dto->wasProvided('options') ? $dto->options : null,
             ContactAttributeDefinitionDomainObject::SORT_ORDER => $dto->wasProvided('sort_order') ? $dto->sort_order : 0,
             ContactAttributeDefinitionDomainObject::IS_ACTIVE => $dto->wasProvided('is_active') ? $dto->is_active : true,
+            ContactAttributeDefinitionDomainObject::IS_GLOBALLY_RECOMMENDED => $dto->wasProvided('is_globally_recommended')
+                ? $dto->is_globally_recommended
+                : false,
         ]);
     }
 }

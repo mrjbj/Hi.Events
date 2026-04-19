@@ -50,6 +50,9 @@ readonly class UpdateContactAttributeDefinitionHandler
         if ($dto->wasProvided('is_active')) {
             $updates[ContactAttributeDefinitionDomainObject::IS_ACTIVE] = $dto->is_active;
         }
+        if ($dto->wasProvided('is_globally_recommended')) {
+            $updates[ContactAttributeDefinitionDomainObject::IS_GLOBALLY_RECOMMENDED] = $dto->is_globally_recommended;
+        }
 
         $this->repository->updateFromArray($definitionId, $updates);
 
