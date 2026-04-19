@@ -9,6 +9,7 @@ use HiEvents\Http\Request\Contact\LookupContactByEmailRequest;
 use HiEvents\Services\Application\Handlers\Contact\DTO\LookupContactByEmailPublicDTO;
 use HiEvents\Services\Application\Handlers\Contact\LookupContactByEmailPublicHandler;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class LookupContactByEmailPublicAction extends BaseAction
 {
@@ -22,10 +23,28 @@ class LookupContactByEmailPublicAction extends BaseAction
             abort(404);
         }
 
+        $email = (string) $request->input('email');
+
         $result = $this->handler->handle(new LookupContactByEmailPublicDTO(
             eventId: $eventId,
-            email: (string) $request->input('email'),
+            email: $email,
         ));
+
+        // Flat artificial delay: makes the response time identical for hits and
+        // misses (defeats timing-based enumeration) and slows scripted
+        // harvesters regardless of throttle bucketing.
+        $delayMs = (int) config('app.contact_lookup_response_delay_ms', 500);
+        if ($delayMs > 0) {
+            usleep($delayMs * 1000);
+        }
+
+        Log::channel(config('app.contact_lookup_log_channel', 'stack'))->info('contact-lookup', [
+            'event_id' => $eventId,
+            'ip' => $request->ip(),
+            'email_hash' => hash('sha256', strtolower(trim($email))),
+            'found' => $result->found,
+            'user_agent' => substr((string) $request->userAgent(), 0, 200),
+        ]);
 
         return $this->jsonResponse($result->toArray());
     }

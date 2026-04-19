@@ -557,8 +557,9 @@ $router->prefix('/public')->group(
 
         // Contact lookup (autofill on checkout). Gated by app.contact_lookup_enabled.
         // Throttle: 5/min per IP AND 3/hour per email (whichever trips first).
+        // Turnstile middleware is a no-op unless TURNSTILE_ENABLED=true.
         $router->post('/events/{event_id}/contact-lookup', \HiEvents\Http\Actions\Contacts\Public\LookupContactByEmailPublicAction::class)
-            ->middleware('throttle:contact-lookup');
+            ->middleware(['throttle:contact-lookup', 'turnstile']);
 
         // Webhooks
         $router->post('/webhooks/stripe', StripeIncomingWebhookAction::class);

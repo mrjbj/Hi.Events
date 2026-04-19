@@ -21,6 +21,7 @@ import {useGetEventQuestionsPublic} from "../../../../queries/useGetEventQuestio
 import {CheckoutOrderQuestions, CheckoutProductQuestions} from "../../../common/CheckoutQuestion";
 import {Event, IdParam, Question} from "../../../../types.ts";
 import {contactClientPublic} from "../../../../api/contact-public.client.ts";
+import {useTurnstile} from "../../../../hooks/useTurnstile.ts";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "../../../common/InputGroup";
 import {Card} from "../../../common/Card";
@@ -248,6 +249,7 @@ export const CollectInformation = () => {
         });
     };
 
+    const {getToken: getTurnstileToken} = useTurnstile();
     const lookupCacheRef = useRef<Map<string, any | null>>(new Map());
     const runLookup = async (email: string, apply: (r: any) => void) => {
         const key = email.trim().toLowerCase();
@@ -258,7 +260,8 @@ export const CollectInformation = () => {
             return;
         }
         try {
-            const result = await contactClientPublic.lookupByEmail(Number(eventId), key);
+            const turnstileToken = await getTurnstileToken();
+            const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
             lookupCacheRef.current.set(key, result.found ? result : null);
             if (result.found) apply(result);
         } catch {

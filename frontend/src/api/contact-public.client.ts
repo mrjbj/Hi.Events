@@ -7,10 +7,19 @@ export interface ContactLookupResult {
 }
 
 export const contactClientPublic = {
-    lookupByEmail: async (eventId: number, email: string): Promise<ContactLookupResult> => {
+    lookupByEmail: async (
+        eventId: number,
+        email: string,
+        turnstileToken?: string | null,
+    ): Promise<ContactLookupResult> => {
+        const headers: Record<string, string> = {};
+        if (turnstileToken) {
+            headers["cf-turnstile-response"] = turnstileToken;
+        }
         const response = await publicApi.post<ContactLookupResult>(
             `events/${eventId}/contact-lookup`,
             {email},
+            {headers},
         );
         return response.data;
     },
