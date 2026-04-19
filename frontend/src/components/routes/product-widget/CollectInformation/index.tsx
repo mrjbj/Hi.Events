@@ -19,7 +19,7 @@ import {useGetOrderPublic} from "../../../../queries/useGetOrderPublic.ts";
 import {useGetEventPublic} from "../../../../queries/useGetEventPublic.ts";
 import {useGetEventQuestionsPublic} from "../../../../queries/useGetEventQuestionsPublic.ts";
 import {CheckoutOrderQuestions, CheckoutProductQuestions} from "../../../common/CheckoutQuestion";
-import {Event, IdParam, Question, QuestionType} from "../../../../types.ts";
+import {Event, IdParam, Question} from "../../../../types.ts";
 import {contactClientPublic} from "../../../../api/contact-public.client.ts";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "../../../common/InputGroup";
@@ -210,57 +210,25 @@ export const CollectInformation = () => {
         }
     }, [form.values.order.first_name, form.values.order.last_name, form.values.order.email]);
 
-    const isResponseEmpty = (response: any): boolean => {
-        if (response === null || response === undefined) return true;
-        if (typeof response !== 'object') return response === '';
-        if ('answer' in response) {
-            const a = response.answer;
-            if (Array.isArray(a)) return a.length === 0;
-            return a === null || a === undefined || a === '';
-        }
-        const addressKeys = ['address_line_1', 'address_line_2', 'city', 'state_or_region', 'zip_or_postal_code', 'country'];
-        return !addressKeys.some(k => response[k]);
-    };
-
-    const toResponseObject = (questionType: string | undefined, value: unknown): Record<string, any> => {
-        if (questionType === QuestionType.ADDRESS && value && typeof value === 'object') {
-            return value as Record<string, any>;
-        }
-        if (questionType === QuestionType.CHECKBOX) {
-            if (Array.isArray(value)) return {answer: value};
-            if (typeof value === 'string' && value) return {answer: [value]};
-            return {answer: []};
-        }
-        if (Array.isArray(value)) return {answer: value.join(', ')};
-        return {answer: value == null ? '' : String(value)};
-    };
-
-    const applyContactToOrder = (result: {first_name: string | null; last_name: string | null; question_answers: Record<string, unknown>}) => {
+    const applyContactToOrder = (result: {first_name: string | null; last_name: string | null}) => {
         const current = form.values.order;
         const updates: any = {};
         if (!current.first_name?.trim() && result.first_name) updates.first_name = result.first_name;
         if (!current.last_name?.trim() && result.last_name) updates.last_name = result.last_name;
         if (!current.email_confirmation?.trim() && current.email) updates.email_confirmation = current.email;
 
-        const updatedQuestions = (current.questions as any[] || []).map((q: any) => {
-            const value = result.question_answers?.[String(q.question_id)];
-            if (value === undefined) return q;
-            if (!isResponseEmpty(q.response)) return q;
-            const question = orderQuestions?.find(oq => oq.id === q.question_id);
-            return {...q, response: toResponseObject(question?.type, value)};
-        });
+        if (Object.keys(updates).length === 0) return;
 
         form.setValues({
             ...form.values,
             order: {
                 ...current,
                 ...updates,
-                questions: updatedQuestions,
             },
         });
     };
 
-    const applyContactToProduct = (productIndex: number, result: {first_name: string | null; last_name: string | null; question_answers: Record<string, unknown>}) => {
+    const applyContactToProduct = (productIndex: number, result: {first_name: string | null; last_name: string | null}) => {
         const current = form.values.products[productIndex];
         if (!current) return;
         const updates: any = {};
@@ -268,16 +236,10 @@ export const CollectInformation = () => {
         if (!current.last_name?.trim() && result.last_name) updates.last_name = result.last_name;
         if (!current.email_confirmation?.trim() && current.email) updates.email_confirmation = current.email;
 
-        const updatedQuestions = (current.questions as any[] || []).map((q: any) => {
-            const value = result.question_answers?.[String(q.question_id)];
-            if (value === undefined) return q;
-            if (!isResponseEmpty(q.response)) return q;
-            const question = productQuestions?.find(pq => pq.id === q.question_id);
-            return {...q, response: toResponseObject(question?.type, value)};
-        });
+        if (Object.keys(updates).length === 0) return;
 
         const updatedProducts = form.values.products.map((p, i) =>
-            i === productIndex ? {...p, ...updates, questions: updatedQuestions} : p
+            i === productIndex ? {...p, ...updates} : p
         );
 
         form.setValues({
