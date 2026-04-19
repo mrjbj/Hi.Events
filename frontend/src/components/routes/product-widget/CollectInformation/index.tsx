@@ -250,20 +250,31 @@ export const CollectInformation = () => {
     };
 
     const {getToken: getTurnstileToken} = useTurnstile();
+    // Questions the returning contact has already answered — rendered hidden
+    // on the form; the backend fills them from the contact's stored attributes.
+    const [hiddenQuestionIds, setHiddenQuestionIds] = useState<number[]>([]);
     const lookupCacheRef = useRef<Map<string, any | null>>(new Map());
     const runLookup = async (email: string, apply: (r: any) => void) => {
         const key = email.trim().toLowerCase();
         if (!key || !isEmailValid(key) || !eventId) return;
         if (lookupCacheRef.current.has(key)) {
             const cached = lookupCacheRef.current.get(key);
-            if (cached) apply(cached);
+            if (cached) {
+                apply(cached);
+                if (Array.isArray(cached.answered_question_ids)) {
+                    setHiddenQuestionIds(cached.answered_question_ids);
+                }
+            }
             return;
         }
         try {
             const turnstileToken = await getTurnstileToken();
             const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
             lookupCacheRef.current.set(key, result.found ? result : null);
-            if (result.found) apply(result);
+            if (result.found) {
+                apply(result);
+                setHiddenQuestionIds(result.answered_question_ids ?? []);
+            }
         } catch {
             // swallow — autofill failures should not block checkout
         }
@@ -287,6 +298,58 @@ export const CollectInformation = () => {
         });
         return () => handles.forEach(h => h && clearTimeout(h));
     }, [form.values.products.map(p => p.email).join('|')]);
+
+    // Signed-token prefill: if ?c=<token> is in the URL (from an email link),
+    // fetch the full contact profile including question answers and fill the
+    // form. Token proves email ownership so returning values is safe.
+    useEffect(() => {
+        const token = searchParams.get('c');
+        if (!token || !eventId) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const result = await contactClientPublic.prefillFromToken(Number(eventId), token);
+                if (cancelled || !result.found) return;
+
+                // Fill name fields on the order and first attendee.
+                applyContactToOrder({first_name: result.first_name, last_name: result.last_name});
+                if (form.values.products.length > 0) {
+                    applyContactToProduct(0, {first_name: result.first_name, last_name: result.last_name});
+                }
+
+                // Fill question_answers into form state (only where blank).
+                if (result.question_answers && Object.keys(result.question_answers).length > 0) {
+                    const currentOrder = form.values.order;
+                    const updatedOrderQuestions = (currentOrder.questions as any[] || []).map((q: any) => {
+                        const value = result.question_answers?.[String(q.question_id)];
+                        if (value === undefined) return q;
+                        // keep whatever the user already typed
+                        if (q.response && Object.keys(q.response).length > 0) return q;
+                        return {...q, response: {answer: value}};
+                    });
+                    const updatedProducts = (form.values.products as any[]).map((p: any) => ({
+                        ...p,
+                        questions: (p.questions as any[] || []).map((q: any) => {
+                            const value = result.question_answers?.[String(q.question_id)];
+                            if (value === undefined) return q;
+                            if (q.response && Object.keys(q.response).length > 0) return q;
+                            return {...q, response: {answer: value}};
+                        }),
+                    }));
+                    form.setValues({
+                        ...form.values,
+                        order: {...currentOrder, questions: updatedOrderQuestions},
+                        products: updatedProducts,
+                    });
+                }
+                setHiddenQuestionIds(result.answered_question_ids ?? []);
+            } catch {
+                // ignore — token invalid, expired, or network failure. User
+                // falls back to the normal email-entry flow silently.
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [eventId]);
 
     const mutation = useMutation({
         mutationFn: (orderData: FinaliseOrderPayload) => orderClientPublic.finaliseOrder(Number(eventId), String(orderShortId), orderData),
@@ -647,7 +710,7 @@ export const CollectInformation = () => {
                         </>
                     )}
 
-                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions}/>}
+                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions} hiddenQuestionIds={hiddenQuestionIds}/>}
                 </Card>
 
                 {orderItems?.map(orderItem => {
@@ -763,7 +826,8 @@ export const CollectInformation = () => {
                                                 index={currentProductIndex}
                                                 product={product}
                                                 form={form}
-                                                questions={productQuestions}/>}
+                                                questions={productQuestions}
+                                                hiddenQuestionIds={hiddenQuestionIds}/>}
                                     </Card>
                                 );
 

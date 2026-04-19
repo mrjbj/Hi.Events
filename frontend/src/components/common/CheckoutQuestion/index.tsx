@@ -10,6 +10,7 @@ import {UserGeneratedContent} from "../UserGeneratedContent";
 interface CheckoutQuestionProps {
     questions: Question[],
     form: UseFormReturnType<any, any>;
+    hiddenQuestionIds?: number[];
 }
 
 interface QuestionInputProps {
@@ -23,6 +24,7 @@ interface CheckoutProductQuestionProps {
     form: UseFormReturnType<any, any>;
     product: Product,
     index: number,
+    hiddenQuestionIds?: number[];
 }
 
 const DropDownInput = ({question, name, form}: QuestionInputProps) => {
@@ -210,12 +212,19 @@ export const QuestionInput = ({question, name, form}: QuestionInputProps) => {
     )
 };
 
-export const CheckoutOrderQuestions = ({questions, form}: CheckoutQuestionProps) => {
+export const CheckoutOrderQuestions = ({questions, form, hiddenQuestionIds}: CheckoutQuestionProps) => {
+    const hidden = new Set(hiddenQuestionIds ?? []);
     let questionIndex = 0;
     return (
         <>
             {questions.map((question, index) => {
-                const name = `order.questions.${questionIndex++}.response`;
+                // Increment index for every question so form path stays aligned
+                // with form.values.order.questions[n], regardless of visibility.
+                const formIndex = questionIndex++;
+                if (hidden.has(Number(question.id))) {
+                    return null;
+                }
+                const name = `order.questions.${formIndex}.response`;
                 return <QuestionInput key={`${index}-question`} question={question} name={name} form={form}/>
             })}
         </>
@@ -226,8 +235,10 @@ export const CheckoutProductQuestions = ({
                                              questions,
                                              form,
                                              product,
-                                             index: productIndex
+                                             index: productIndex,
+                                             hiddenQuestionIds,
                                          }: CheckoutProductQuestionProps) => {
+    const hidden = new Set(hiddenQuestionIds ?? []);
     let questionIndex = 0;
     return (
         <>
@@ -236,7 +247,11 @@ export const CheckoutProductQuestions = ({
                     return;
                 }
 
-                const name = `products.${productIndex}.questions.${questionIndex++}.response`;
+                const formIndex = questionIndex++;
+                if (hidden.has(Number(question.id))) {
+                    return null;
+                }
+                const name = `products.${productIndex}.questions.${formIndex}.response`;
                 return <QuestionInput key={`${index}-product`} question={question} name={name} form={form}/>
             })}
         </>
