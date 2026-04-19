@@ -561,6 +561,12 @@ $router->prefix('/public')->group(
         $router->post('/events/{event_id}/contact-lookup', \HiEvents\Http\Actions\Contacts\Public\LookupContactByEmailPublicAction::class)
             ->middleware(['throttle:contact-lookup', 'turnstile']);
 
+        // Signed-token prefill (email click-through). Returns full
+        // {first_name, last_name, question_answers, answered_question_ids}
+        // when token is valid and scoped to the event's account.
+        $router->post('/events/{event_id}/contact-prefill', \HiEvents\Http\Actions\Contacts\Public\PrefillFromTokenPublicAction::class)
+            ->middleware('throttle:contact-prefill');
+
         // Webhooks
         $router->post('/webhooks/stripe', StripeIncomingWebhookAction::class);
 

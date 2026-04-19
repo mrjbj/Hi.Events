@@ -46,6 +46,19 @@ class RouteServiceProvider extends ServiceProvider
             ];
         });
 
+        // Token-backed prefill: tighter per-IP, since only legitimate returning
+        // contacts ever hit this via email click-through.
+        RateLimiter::for('contact-prefill', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        // Self-service profile portal (GET/PATCH /public/contacts/me). Same
+        // bucket as the prefill — per-IP is enough because the token itself
+        // is the primary access control.
+        RateLimiter::for('contact-portal', function (Request $request) {
+            return Limit::perMinute(20)->by($request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->group(base_path('routes/api.php'));
