@@ -34,14 +34,6 @@ return [
     'contact_lookup_enabled' => env('CONTACT_LOOKUP_ENABLED', false),
 
     /**
-     * Artificial response delay (milliseconds) applied to every public
-     * contact-lookup response. Makes hit/miss timings indistinguishable
-     * (defeats timing-oracle enumeration) and slows scripted harvesters.
-     * Set to 0 to disable.
-     */
-    'contact_lookup_response_delay_ms' => (int) env('CONTACT_LOOKUP_RESPONSE_DELAY_MS', 500),
-
-    /**
      * Log channel for contact-lookup calls. Default 'stack' uses the app's
      * main logger. Set to a dedicated channel to isolate lookup traffic
      * for easier monitoring/alerting.

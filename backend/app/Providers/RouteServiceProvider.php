@@ -38,8 +38,11 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('contact-lookup', function (Request $request) {
+            // Per-IP cap sized for group orders (one lookup per attendee email
+            // as the buyer fills the checkout form). Per-email cap is the
+            // tighter abuse gate since scripted harvesters iterate addresses.
             return [
-                Limit::perMinute(5)->by($request->ip()),
+                Limit::perMinute(30)->by($request->ip()),
                 Limit::perHour(3)->by(
                     strtolower((string) $request->input('email')) ?: $request->ip()
                 ),

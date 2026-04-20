@@ -252,29 +252,25 @@ export const CollectInformation = () => {
     const {getToken: getTurnstileToken} = useTurnstile();
     // Questions the returning contact has already answered — rendered hidden
     // on the form; the backend fills them from the contact's stored attributes.
-    const [hiddenQuestionIds, setHiddenQuestionIds] = useState<number[]>([]);
+    // Scoped separately for the order and each attendee so one lookup can't
+    // clobber another's hidden set (different contacts may have answered
+    // different questions).
+    const [orderHiddenQuestionIds, setOrderHiddenQuestionIds] = useState<number[]>([]);
+    const [productHiddenQuestionIds, setProductHiddenQuestionIds] = useState<Record<number, number[]>>({});
     const lookupCacheRef = useRef<Map<string, any | null>>(new Map());
     const runLookup = async (email: string, apply: (r: any) => void) => {
         const key = email.trim().toLowerCase();
         if (!key || !isEmailValid(key) || !eventId) return;
         if (lookupCacheRef.current.has(key)) {
             const cached = lookupCacheRef.current.get(key);
-            if (cached) {
-                apply(cached);
-                if (Array.isArray(cached.answered_question_ids)) {
-                    setHiddenQuestionIds(cached.answered_question_ids);
-                }
-            }
+            if (cached) apply(cached);
             return;
         }
         try {
             const turnstileToken = await getTurnstileToken();
             const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
             lookupCacheRef.current.set(key, result.found ? result : null);
-            if (result.found) {
-                apply(result);
-                setHiddenQuestionIds(result.answered_question_ids ?? []);
-            }
+            if (result.found) apply(result);
         } catch {
             // swallow — autofill failures should not block checkout
         }
@@ -284,7 +280,12 @@ export const CollectInformation = () => {
     useEffect(() => {
         const email = form.values.order.email;
         if (!isEmailValid(email)) return;
-        const handle = setTimeout(() => { void runLookup(email, applyContactToOrder); }, 400);
+        const handle = setTimeout(() => {
+            void runLookup(email, (r) => {
+                applyContactToOrder(r);
+                setOrderHiddenQuestionIds(r.answered_question_ids ?? []);
+            });
+        }, 400);
         return () => clearTimeout(handle);
     }, [form.values.order.email]);
 
@@ -293,7 +294,10 @@ export const CollectInformation = () => {
         const handles = form.values.products.map((p, idx) => {
             if (!isEmailValid(p.email ?? '')) return null;
             return setTimeout(() => {
-                void runLookup(p.email, (r) => applyContactToProduct(idx, r));
+                void runLookup(p.email, (r) => {
+                    applyContactToProduct(idx, r);
+                    setProductHiddenQuestionIds(prev => ({...prev, [idx]: r.answered_question_ids ?? []}));
+                });
             }, 400);
         });
         return () => handles.forEach(h => h && clearTimeout(h));
@@ -342,7 +346,11 @@ export const CollectInformation = () => {
                         products: updatedProducts,
                     });
                 }
-                setHiddenQuestionIds(result.answered_question_ids ?? []);
+                const answered = result.answered_question_ids ?? [];
+                setOrderHiddenQuestionIds(answered);
+                if (form.values.products.length > 0) {
+                    setProductHiddenQuestionIds(prev => ({...prev, 0: answered}));
+                }
             } catch {
                 // ignore — token invalid, expired, or network failure. User
                 // falls back to the normal email-entry flow silently.
@@ -710,7 +718,7 @@ export const CollectInformation = () => {
                         </>
                     )}
 
-                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions} hiddenQuestionIds={hiddenQuestionIds}/>}
+                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions} hiddenQuestionIds={orderHiddenQuestionIds}/>}
                 </Card>
 
                 {orderItems?.map(orderItem => {
@@ -827,7 +835,7 @@ export const CollectInformation = () => {
                                                 product={product}
                                                 form={form}
                                                 questions={productQuestions}
-                                                hiddenQuestionIds={hiddenQuestionIds}/>}
+                                                hiddenQuestionIds={productHiddenQuestionIds[currentProductIndex] ?? []}/>}
                                     </Card>
                                 );
 

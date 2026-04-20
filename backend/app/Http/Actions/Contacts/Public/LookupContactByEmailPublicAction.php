@@ -30,14 +30,6 @@ class LookupContactByEmailPublicAction extends BaseAction
             email: $email,
         ));
 
-        // Flat artificial delay: makes the response time identical for hits and
-        // misses (defeats timing-based enumeration) and slows scripted
-        // harvesters regardless of throttle bucketing.
-        $delayMs = (int) config('app.contact_lookup_response_delay_ms', 500);
-        if ($delayMs > 0) {
-            usleep($delayMs * 1000);
-        }
-
         Log::channel(config('app.contact_lookup_log_channel', 'stack'))->info('contact-lookup', [
             'event_id' => $eventId,
             'ip' => $request->ip(),
