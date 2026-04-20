@@ -38,12 +38,28 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('contact-lookup', function (Request $request) {
+            // Per-IP cap sized for group orders (one lookup per attendee email
+            // as the buyer fills the checkout form). Per-email cap is the
+            // tighter abuse gate since scripted harvesters iterate addresses.
             return [
-                Limit::perMinute(5)->by($request->ip()),
+                Limit::perMinute(30)->by($request->ip()),
                 Limit::perHour(3)->by(
                     strtolower((string) $request->input('email')) ?: $request->ip()
                 ),
             ];
+        });
+
+        // Token-backed prefill: tighter per-IP, since only legitimate returning
+        // contacts ever hit this via email click-through.
+        RateLimiter::for('contact-prefill', function (Request $request) {
+            return Limit::perMinute(10)->by($request->ip());
+        });
+
+        // Self-service profile portal (GET/PATCH /public/contacts/me). Same
+        // bucket as the prefill — per-IP is enough because the token itself
+        // is the primary access control.
+        RateLimiter::for('contact-portal', function (Request $request) {
+            return Limit::perMinute(20)->by($request->ip());
         });
 
         $this->routes(function () {

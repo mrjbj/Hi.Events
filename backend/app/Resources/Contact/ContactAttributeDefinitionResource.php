@@ -21,6 +21,7 @@ class ContactAttributeDefinitionResource extends BaseResource
             'options' => $this->getOptions(),
             'sort_order' => $this->getSortOrder(),
             'is_active' => $this->getIsActive(),
+            'is_globally_recommended' => $this->getIsGloballyRecommended(),
             'linked_question_count' => $this->getLinkedQuestionCount() ?? 0,
             'linked_event_count' => $this->getLinkedEventCount() ?? 0,
         ];

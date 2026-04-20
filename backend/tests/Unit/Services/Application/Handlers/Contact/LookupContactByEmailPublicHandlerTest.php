@@ -8,6 +8,7 @@ use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Contact\DTO\LookupContactByEmailPublicDTO;
 use HiEvents\Services\Application\Handlers\Contact\LookupContactByEmailPublicHandler;
+use HiEvents\Services\Domain\Contact\ContactPrefillService;
 use Mockery as m;
 use Tests\TestCase;
 
@@ -15,6 +16,7 @@ class LookupContactByEmailPublicHandlerTest extends TestCase
 {
     private EventRepositoryInterface $eventRepository;
     private ContactRepositoryInterface $contactRepository;
+    private ContactPrefillService $prefillService;
     private LookupContactByEmailPublicHandler $handler;
 
     protected function setUp(): void
@@ -22,9 +24,13 @@ class LookupContactByEmailPublicHandlerTest extends TestCase
         parent::setUp();
         $this->eventRepository = m::mock(EventRepositoryInterface::class);
         $this->contactRepository = m::mock(ContactRepositoryInterface::class);
+        $this->prefillService = m::mock(ContactPrefillService::class);
+        $this->prefillService->shouldReceive('resolveForContact')
+            ->andReturn(['answers' => [], 'answered_ids' => []])->byDefault();
         $this->handler = new LookupContactByEmailPublicHandler(
             $this->eventRepository,
             $this->contactRepository,
+            $this->prefillService,
         );
     }
 
@@ -124,6 +130,36 @@ class LookupContactByEmailPublicHandlerTest extends TestCase
         $this->assertArrayHasKey('found', $array);
         $this->assertArrayHasKey('first_name', $array);
         $this->assertArrayHasKey('last_name', $array);
+        $this->assertArrayHasKey('answered_question_ids', $array);
+    }
+
+    public function testReturnsAnsweredQuestionIdsWhenContactHasLinkedAttributes(): void
+    {
+        $event = m::mock(EventDomainObject::class);
+        $event->shouldReceive('getAccountId')->andReturn(42);
+
+        $contact = m::mock(ContactDomainObject::class);
+        $contact->shouldReceive('getFirstName')->andReturn('Alice');
+        $contact->shouldReceive('getLastName')->andReturn('Smith');
+
+        $this->eventRepository->shouldReceive('findFirst')->andReturn($event);
+        $this->contactRepository->shouldReceive('findByEmailAndAccountId')->andReturn($contact);
+
+        $this->prefillService
+            ->shouldReceive('resolveForContact')
+            ->once()
+            ->with($contact, 10)
+            ->andReturn(['answers' => ['3' => 'Clayton', '7' => '5'], 'answered_ids' => [3, 7]]);
+
+        $result = $this->handler->handle(new LookupContactByEmailPublicDTO(
+            eventId: 10,
+            email: 'alice@example.com',
+        ));
+
+        $this->assertSame([3, 7], $result->answered_question_ids);
+        // answer VALUES must never leak on the public lookup response
+        $array = $result->toArray();
+        $this->assertArrayNotHasKey('question_answers', $array);
     }
 
     public function testContactLookupIsScopedToEventAccount(): void

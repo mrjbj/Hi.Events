@@ -17,6 +17,7 @@ class UpdateContactAttributeDefinitionRequest extends BaseRequest
             'options.*' => 'string|max:255',
             'sort_order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
+            'is_globally_recommended' => 'nullable|boolean',
         ];
     }
 }

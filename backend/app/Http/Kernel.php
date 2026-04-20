@@ -93,6 +93,7 @@ class Kernel extends HttpKernel
         'password.confirm' => RequirePassword::class,
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,
+        'turnstile' => \HiEvents\Http\Middleware\VerifyTurnstileToken::class,
         'verified' => EnsureEmailIsVerified::class,
     ];
 }

@@ -582,8 +582,21 @@ $router->prefix('/public')->group(
 
         // Contact lookup (autofill on checkout). Gated by app.contact_lookup_enabled.
         // Throttle: 5/min per IP AND 3/hour per email (whichever trips first).
+        // Turnstile middleware is a no-op unless TURNSTILE_ENABLED=true.
         $router->post('/events/{event_id}/contact-lookup', \HiEvents\Http\Actions\Contacts\Public\LookupContactByEmailPublicAction::class)
-            ->middleware('throttle:contact-lookup');
+            ->middleware(['throttle:contact-lookup', 'turnstile']);
+
+        // Signed-token prefill (email click-through). Returns full
+        // {first_name, last_name, question_answers, answered_question_ids}
+        // when token is valid and scoped to the event's account.
+        $router->post('/events/{event_id}/contact-prefill', \HiEvents\Http\Actions\Contacts\Public\PrefillFromTokenPublicAction::class)
+            ->middleware('throttle:contact-prefill');
+
+        // Self-service contact profile portal. Token is the capability; no login.
+        $router->get('/contacts/me', \HiEvents\Http\Actions\Contacts\Public\GetMyContactPublicAction::class)
+            ->middleware('throttle:contact-portal');
+        $router->patch('/contacts/me', \HiEvents\Http\Actions\Contacts\Public\UpdateMyContactPublicAction::class)
+            ->middleware('throttle:contact-portal');
 
         // Webhooks
         $router->post('/webhooks/stripe', StripeIncomingWebhookAction::class);

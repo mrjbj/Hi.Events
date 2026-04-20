@@ -21,6 +21,7 @@ import {useGetEventQuestionsPublic} from "../../../../queries/useGetEventQuestio
 import {CheckoutOrderQuestions, CheckoutProductQuestions} from "../../../common/CheckoutQuestion";
 import {Event, IdParam, Question} from "../../../../types.ts";
 import {contactClientPublic} from "../../../../api/contact-public.client.ts";
+import {useTurnstile} from "../../../../hooks/useTurnstile.ts";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "../../../common/InputGroup";
 import {Card} from "../../../common/Card";
@@ -248,6 +249,14 @@ export const CollectInformation = () => {
         });
     };
 
+    const {getToken: getTurnstileToken} = useTurnstile();
+    // Questions the returning contact has already answered — rendered hidden
+    // on the form; the backend fills them from the contact's stored attributes.
+    // Scoped separately for the order and each attendee so one lookup can't
+    // clobber another's hidden set (different contacts may have answered
+    // different questions).
+    const [orderHiddenQuestionIds, setOrderHiddenQuestionIds] = useState<number[]>([]);
+    const [productHiddenQuestionIds, setProductHiddenQuestionIds] = useState<Record<number, number[]>>({});
     const lookupCacheRef = useRef<Map<string, any | null>>(new Map());
     const runLookup = async (email: string, apply: (r: any) => void) => {
         const key = email.trim().toLowerCase();
@@ -258,7 +267,8 @@ export const CollectInformation = () => {
             return;
         }
         try {
-            const result = await contactClientPublic.lookupByEmail(Number(eventId), key);
+            const turnstileToken = await getTurnstileToken();
+            const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
             lookupCacheRef.current.set(key, result.found ? result : null);
             if (result.found) apply(result);
         } catch {
@@ -270,7 +280,12 @@ export const CollectInformation = () => {
     useEffect(() => {
         const email = form.values.order.email;
         if (!isEmailValid(email)) return;
-        const handle = setTimeout(() => { void runLookup(email, applyContactToOrder); }, 400);
+        const handle = setTimeout(() => {
+            void runLookup(email, (r) => {
+                applyContactToOrder(r);
+                setOrderHiddenQuestionIds(r.answered_question_ids ?? []);
+            });
+        }, 400);
         return () => clearTimeout(handle);
     }, [form.values.order.email]);
 
@@ -279,11 +294,70 @@ export const CollectInformation = () => {
         const handles = form.values.products.map((p, idx) => {
             if (!isEmailValid(p.email ?? '')) return null;
             return setTimeout(() => {
-                void runLookup(p.email, (r) => applyContactToProduct(idx, r));
+                void runLookup(p.email, (r) => {
+                    applyContactToProduct(idx, r);
+                    setProductHiddenQuestionIds(prev => ({...prev, [idx]: r.answered_question_ids ?? []}));
+                });
             }, 400);
         });
         return () => handles.forEach(h => h && clearTimeout(h));
     }, [form.values.products.map(p => p.email).join('|')]);
+
+    // Signed-token prefill: if ?c=<token> is in the URL (from an email link),
+    // fetch the full contact profile including question answers and fill the
+    // form. Token proves email ownership so returning values is safe.
+    useEffect(() => {
+        const token = searchParams.get('c');
+        if (!token || !eventId) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const result = await contactClientPublic.prefillFromToken(Number(eventId), token);
+                if (cancelled || !result.found) return;
+
+                // Fill name fields on the order and first attendee.
+                applyContactToOrder({first_name: result.first_name, last_name: result.last_name});
+                if (form.values.products.length > 0) {
+                    applyContactToProduct(0, {first_name: result.first_name, last_name: result.last_name});
+                }
+
+                // Fill question_answers into form state (only where blank).
+                if (result.question_answers && Object.keys(result.question_answers).length > 0) {
+                    const currentOrder = form.values.order;
+                    const updatedOrderQuestions = (currentOrder.questions as any[] || []).map((q: any) => {
+                        const value = result.question_answers?.[String(q.question_id)];
+                        if (value === undefined) return q;
+                        // keep whatever the user already typed
+                        if (q.response && Object.keys(q.response).length > 0) return q;
+                        return {...q, response: {answer: value}};
+                    });
+                    const updatedProducts = (form.values.products as any[]).map((p: any) => ({
+                        ...p,
+                        questions: (p.questions as any[] || []).map((q: any) => {
+                            const value = result.question_answers?.[String(q.question_id)];
+                            if (value === undefined) return q;
+                            if (q.response && Object.keys(q.response).length > 0) return q;
+                            return {...q, response: {answer: value}};
+                        }),
+                    }));
+                    form.setValues({
+                        ...form.values,
+                        order: {...currentOrder, questions: updatedOrderQuestions},
+                        products: updatedProducts,
+                    });
+                }
+                const answered = result.answered_question_ids ?? [];
+                setOrderHiddenQuestionIds(answered);
+                if (form.values.products.length > 0) {
+                    setProductHiddenQuestionIds(prev => ({...prev, 0: answered}));
+                }
+            } catch {
+                // ignore — token invalid, expired, or network failure. User
+                // falls back to the normal email-entry flow silently.
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [eventId]);
 
     const mutation = useMutation({
         mutationFn: (orderData: FinaliseOrderPayload) => orderClientPublic.finaliseOrder(Number(eventId), String(orderShortId), orderData),
@@ -644,7 +718,7 @@ export const CollectInformation = () => {
                         </>
                     )}
 
-                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions}/>}
+                    {orderQuestions && <CheckoutOrderQuestions form={form} questions={orderQuestions} hiddenQuestionIds={orderHiddenQuestionIds}/>}
                 </Card>
 
                 {orderItems?.map(orderItem => {
@@ -760,7 +834,8 @@ export const CollectInformation = () => {
                                                 index={currentProductIndex}
                                                 product={product}
                                                 form={form}
-                                                questions={productQuestions}/>}
+                                                questions={productQuestions}
+                                                hiddenQuestionIds={productHiddenQuestionIds[currentProductIndex] ?? []}/>}
                                     </Card>
                                 );
 

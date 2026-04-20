@@ -8,12 +8,14 @@ use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Contact\DTO\ContactLookupResultDTO;
 use HiEvents\Services\Application\Handlers\Contact\DTO\LookupContactByEmailPublicDTO;
+use HiEvents\Services\Domain\Contact\ContactPrefillService;
 
 readonly class LookupContactByEmailPublicHandler
 {
     public function __construct(
         private EventRepositoryInterface $eventRepository,
         private ContactRepositoryInterface $contactRepository,
+        private ContactPrefillService $prefillService,
     ) {}
 
     public function handle(LookupContactByEmailPublicDTO $dto): ContactLookupResultDTO
@@ -31,10 +33,13 @@ readonly class LookupContactByEmailPublicHandler
             return new ContactLookupResultDTO(found: false);
         }
 
+        $resolved = $this->prefillService->resolveForContact($contact, $dto->eventId);
+
         return new ContactLookupResultDTO(
             found: true,
             first_name: $contact->getFirstName(),
             last_name: $contact->getLastName(),
+            answered_question_ids: $resolved['answered_ids'],
         );
     }
 }

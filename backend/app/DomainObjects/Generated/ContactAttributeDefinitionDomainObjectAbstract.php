@@ -21,6 +21,7 @@ abstract class ContactAttributeDefinitionDomainObjectAbstract extends \HiEvents\
     final public const CREATED_AT = 'created_at';
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
+    final public const IS_GLOBALLY_RECOMMENDED = 'is_globally_recommended';
 
     protected int $id;
     protected int $account_id;
@@ -33,6 +34,7 @@ abstract class ContactAttributeDefinitionDomainObjectAbstract extends \HiEvents\
     protected ?string $created_at = null;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
+    protected bool $is_globally_recommended = false;
 
     public function toArray(): array
     {
@@ -48,6 +50,7 @@ abstract class ContactAttributeDefinitionDomainObjectAbstract extends \HiEvents\
                     'created_at' => $this->created_at ?? null,
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
+                    'is_globally_recommended' => $this->is_globally_recommended ?? null,
                 ];
     }
 
@@ -170,5 +173,16 @@ abstract class ContactAttributeDefinitionDomainObjectAbstract extends \HiEvents\
     public function getDeletedAt(): ?string
     {
         return $this->deleted_at;
+    }
+
+    public function setIsGloballyRecommended(bool $is_globally_recommended): self
+    {
+        $this->is_globally_recommended = $is_globally_recommended;
+        return $this;
+    }
+
+    public function getIsGloballyRecommended(): bool
+    {
+        return $this->is_globally_recommended;
     }
 }
