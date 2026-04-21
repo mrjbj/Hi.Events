@@ -20,6 +20,7 @@ export const CreateContactAttributeDefinitionModal = ({onClose}: GenericModalPro
             options: [],
             sort_order: 0,
             is_active: true,
+            is_globally_recommended: false,
         },
         validate: {
             name: (value) => (!value ? t`Name is required` : null),
@@ -82,6 +83,13 @@ export const CreateContactAttributeDefinitionModal = ({onClose}: GenericModalPro
                 label={t`Active`}
                 checked={form.values.is_active}
                 onChange={(event) => form.setFieldValue('is_active', event.currentTarget.checked)}
+                mb="sm"
+            />
+            <Switch
+                label={t`Globally recommended`}
+                description={t`When enabled, this attribute is auto-attached as an order-level question on newly created events.`}
+                checked={form.values.is_globally_recommended ?? false}
+                onChange={(event) => form.setFieldValue('is_globally_recommended', event.currentTarget.checked)}
                 mb="md"
             />
             <Group justify="flex-end" mt="xl" mb="md">

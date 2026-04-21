@@ -1,5 +1,5 @@
 import {t, Trans} from "@lingui/macro";
-import {Button, Group, Stack, Text, TextInput} from "@mantine/core";
+import {Button, Group, SimpleGrid, Stack, Text, TextInput} from "@mantine/core";
 import {IconCheck} from "@tabler/icons-react";
 import {useMutation, useQueries, UseQueryResult} from "@tanstack/react-query";
 import {useEffect, useState} from "react";
@@ -88,7 +88,7 @@ export const AttendeeProfileCard = ({token, data}: AttendeeProfileCardProps) => 
     return (
         <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}>
             <Stack gap="sm">
-                <Group grow>
+                <SimpleGrid cols={{base: 1, sm: 2, md: 3}} spacing="sm">
                     <TextInput
                         label={t`First name`}
                         value={firstName}
@@ -99,16 +99,15 @@ export const AttendeeProfileCard = ({token, data}: AttendeeProfileCardProps) => 
                         value={lastName}
                         onChange={(e) => setLastName(e.currentTarget.value)}
                     />
-                </Group>
-
-                {data.attribute_definitions?.map((def) => (
-                    <TextInput
-                        key={def.id}
-                        label={def.name}
-                        value={attrs[def.name] ?? ''}
-                        onChange={(e) => setAttrs({...attrs, [def.name]: e.currentTarget.value})}
-                    />
-                ))}
+                    {data.attribute_definitions?.map((def) => (
+                        <TextInput
+                            key={def.id}
+                            label={def.name}
+                            value={attrs[def.name] ?? ''}
+                            onChange={(e) => setAttrs({...attrs, [def.name]: e.currentTarget.value})}
+                        />
+                    ))}
+                </SimpleGrid>
 
                 <Group justify="flex-end" mt="xs">
                     <Button
