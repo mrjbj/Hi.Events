@@ -110,13 +110,15 @@ export const CollectInformation = () => {
         validate: {
             order: {
                 email_confirmation: (value, values) =>
-                    value !== values.order.email ? t`Email addresses do not match` : null,
+                    (value ?? '').trim().toLowerCase() !== (values.order.email ?? '').trim().toLowerCase()
+                        ? t`Email addresses do not match`
+                        : null,
             },
             products: {
                 email_confirmation: (value, values, path) => {
                     const index = parseInt(path.split('.')[1]);
                     const product = values.products[index];
-                    if (product && product.email !== value) {
+                    if (product && (product.email ?? '').trim().toLowerCase() !== (value ?? '').trim().toLowerCase()) {
                         return t`Email addresses do not match`;
                     }
                     return null;

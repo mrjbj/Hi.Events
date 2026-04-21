@@ -6,7 +6,9 @@ use Exception;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\Helper\DateHelper;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
+use HiEvents\DomainObjects\Enums\ProductType;
 use HiEvents\Repository\Interfaces\ProductRepositoryInterface;
+use HiEvents\Services\Domain\Contact\GloballyRecommendedAttributesService;
 use HiEvents\Services\Domain\Tax\DTO\TaxAndProductAssociateParams;
 use HiEvents\Services\Domain\Tax\TaxAndProductAssociationService;
 use HiEvents\Services\Infrastructure\DomainEvents\DomainEventDispatcherService;
@@ -15,19 +17,21 @@ use HiEvents\Services\Infrastructure\DomainEvents\Events\ProductEvent;
 use HiEvents\Services\Infrastructure\HtmlPurifier\HtmlPurifierService;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class CreateProductService
 {
     public function __construct(
-        private readonly ProductRepositoryInterface      $productRepository,
-        private readonly DatabaseManager                 $databaseManager,
-        private readonly TaxAndProductAssociationService $taxAndProductAssociationService,
-        private readonly ProductPriceCreateService       $priceCreateService,
-        private readonly HtmlPurifierService             $purifier,
-        private readonly EventRepositoryInterface        $eventRepository,
-        private readonly ProductOrderingService          $productOrderingService,
-        private readonly DomainEventDispatcherService    $domainEventDispatcherService,
+        private readonly ProductRepositoryInterface            $productRepository,
+        private readonly DatabaseManager                       $databaseManager,
+        private readonly TaxAndProductAssociationService       $taxAndProductAssociationService,
+        private readonly ProductPriceCreateService             $priceCreateService,
+        private readonly HtmlPurifierService                   $purifier,
+        private readonly EventRepositoryInterface              $eventRepository,
+        private readonly ProductOrderingService                $productOrderingService,
+        private readonly DomainEventDispatcherService          $domainEventDispatcherService,
+        private readonly GloballyRecommendedAttributesService  $globallyRecommendedAttributes,
     )
     {
     }
@@ -50,6 +54,8 @@ class CreateProductService
 
             $product = $this->createProductPrices($persistedProduct, $product);
 
+            $this->attachGloballyRecommendedQuestions($product, $accountId);
+
             $this->domainEventDispatcherService->dispatch(
                 new ProductEvent(
                     type: DomainEventType::PRODUCT_CREATED,
@@ -59,6 +65,32 @@ class CreateProductService
 
             return $product;
         });
+    }
+
+    /**
+     * Attaches globally-recommended contact-attribute questions to this
+     * product (as PRODUCT-level questions, per-attendee scope). Only runs
+     * for TICKET products — donations/fees/etc. don't have attendees.
+     */
+    private function attachGloballyRecommendedQuestions(ProductDomainObject $product, int $accountId): void
+    {
+        if ($product->getProductType() !== ProductType::TICKET->name) {
+            return;
+        }
+
+        try {
+            $this->globallyRecommendedAttributes->attachToProduct(
+                productId: $product->getId(),
+                eventId: $product->getEventId(),
+                accountId: $accountId,
+            );
+        } catch (Throwable $e) {
+            Log::warning('CreateProductService: globally-recommended attach failed', [
+                'product_id' => $product->getId(),
+                'event_id' => $product->getEventId(),
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function persistProduct(ProductDomainObject $productsData): ProductDomainObject
