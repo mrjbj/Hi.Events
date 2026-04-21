@@ -8,7 +8,6 @@ use HiEvents\DomainObjects\Enums\EventCategory;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\Exceptions\OrganizerNotFoundException;
 use HiEvents\Services\Application\Handlers\Event\DTO\CreateEventDTO;
-use HiEvents\Services\Domain\Contact\GloballyRecommendedAttributesService;
 use HiEvents\Services\Domain\Event\CreateEventService;
 use HiEvents\Services\Domain\ProductCategory\CreateProductCategoryService;
 use HiEvents\Services\Domain\Organizer\OrganizerFetchService;
@@ -20,11 +19,10 @@ use Throwable;
 class CreateEventHandler
 {
     public function __construct(
-        private readonly CreateEventService                   $createEventService,
-        private readonly OrganizerFetchService                $organizerFetchService,
-        private readonly CreateProductCategoryService         $createProductCategoryService,
-        private readonly GloballyRecommendedAttributesService $globallyRecommendedAttributesService,
-        private readonly DatabaseManager                      $databaseManager,
+        private readonly CreateEventService            $createEventService,
+        private readonly OrganizerFetchService         $organizerFetchService,
+        private readonly CreateProductCategoryService  $createProductCategoryService,
+        private readonly DatabaseManager               $databaseManager,
     )
     {
     }
@@ -69,14 +67,9 @@ class CreateEventHandler
 
         $this->createProductCategoryService->createDefaultProductCategory($newEvent);
 
-        // Attach every contact_attribute_definition marked is_globally_recommended
-        // as an ORDER-level question on this event, so returning contacts get them
-        // pre-filled and hidden while new contacts see them and their answers
-        // sync back into the contact record.
-        $this->globallyRecommendedAttributesService->attachToEvent(
-            eventId: $newEvent->getId(),
-            accountId: $newEvent->getAccountId(),
-        );
+        // Globally-recommended attributes attach at product creation time,
+        // not here — they need a product_id to become per-attendee
+        // (PRODUCT-level) questions. See CreateProductService::createProduct.
 
         DispatchEventWebhookJob::dispatch(
             $newEvent->getId(),

@@ -22,14 +22,41 @@ class CompleteOrderRequest extends BaseRequest
 
     protected function prepareForValidation(): void
     {
+        $input = $this->normalizeEmails($this->all());
+
         $eventId = (int) $this->route('event_id');
-        if ($eventId <= 0) {
-            return;
+        if ($eventId > 0) {
+            $input = app(ContactRequestAutofillService::class)
+                ->fillRequestInput($input, $eventId);
         }
 
-        $filled = app(ContactRequestAutofillService::class)
-            ->fillRequestInput($this->all(), $eventId);
+        $this->replace($input);
+    }
 
-        $this->replace($filled);
+    /**
+     * Lowercase + trim email fields so the `same:` validator on
+     * email_confirmation passes regardless of what case the user typed.
+     * Emails are case-insensitive in practice (per RFC 5321 the local part
+     * is technically case-sensitive, but all real providers treat it as
+     * insensitive). Storing lowercase also keeps contact lookup consistent
+     * with the `lower(email)` partial index on the contacts table.
+     */
+    private function normalizeEmails(array $input): array
+    {
+        foreach (['email', 'email_confirmation'] as $field) {
+            if (isset($input['order'][$field]) && is_string($input['order'][$field])) {
+                $input['order'][$field] = strtolower(trim($input['order'][$field]));
+            }
+        }
+        if (isset($input['products']) && is_array($input['products'])) {
+            foreach ($input['products'] as $idx => $product) {
+                foreach (['email', 'email_confirmation'] as $field) {
+                    if (isset($product[$field]) && is_string($product[$field])) {
+                        $input['products'][$idx][$field] = strtolower(trim($product[$field]));
+                    }
+                }
+            }
+        }
+        return $input;
     }
 }
