@@ -578,6 +578,7 @@ export interface Attendee {
     checked_in_by?: number;
     question_answers?: QuestionAnswer[];
     locale?: SupportedLocales;
+    contact_id?: number | null;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
 }
@@ -652,6 +653,12 @@ export interface Order {
     event?: Event;
     latest_invoice?: Invoice;
     session_identifier?: string;
+    attendee_contact_tokens?: AttendeeContactToken[];
+}
+
+export interface AttendeeContactToken {
+    contact_id: number;
+    token: string;
 }
 
 export interface Invoice {

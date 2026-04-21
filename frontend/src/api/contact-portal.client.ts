@@ -23,10 +23,10 @@ export interface UpdateMyContactPayload {
 }
 
 export const contactPortalClientPublic = {
-    getMyContact: async (token: string): Promise<MyContactResult> => {
-        const response = await publicApi.get<MyContactResult>('contacts/me', {
-            params: {c: token},
-        });
+    getMyContact: async (token: string, eventId?: number): Promise<MyContactResult> => {
+        const params: Record<string, string | number> = {c: token};
+        if (typeof eventId === "number") params.event_id = eventId;
+        const response = await publicApi.get<MyContactResult>('contacts/me', {params});
         return response.data;
     },
 

@@ -8,5 +8,6 @@ final readonly class GetMyContactPublicDTO
 {
     public function __construct(
         public string $token,
+        public ?int $eventId = null,
     ) {}
 }

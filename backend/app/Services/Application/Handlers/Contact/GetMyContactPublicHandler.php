@@ -30,9 +30,30 @@ readonly class GetMyContactPublicHandler
             return new MyContactResultDTO(found: false);
         }
 
-        $definitions = DB::table('contact_attribute_definitions')
+        $query = DB::table('contact_attribute_definitions')
             ->where('account_id', $payload->accountId)
-            ->whereNull('deleted_at')
+            ->whereNull('deleted_at');
+
+        if ($dto->eventId !== null) {
+            $eventLinkedIds = DB::table('questions')
+                ->where('event_id', $dto->eventId)
+                ->whereNotNull('contact_attribute_definition_id')
+                ->whereNull('deleted_at')
+                ->pluck('contact_attribute_definition_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $query->where(function ($q) use ($eventLinkedIds) {
+                $q->where('is_globally_recommended', true);
+                if (!empty($eventLinkedIds)) {
+                    $q->orWhereIn('id', $eventLinkedIds);
+                }
+            });
+        }
+
+        $definitions = $query
             ->orderBy('name')
             ->get(['id', 'name', 'type', 'options'])
             ->map(fn ($row) => [

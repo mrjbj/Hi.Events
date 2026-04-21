@@ -18,8 +18,12 @@ class GetMyContactPublicAction extends BaseAction
 
     public function __invoke(Request $request): JsonResponse
     {
+        $eventIdRaw = $request->query('event_id', $request->input('event_id'));
+        $eventId = is_numeric($eventIdRaw) ? (int) $eventIdRaw : null;
+
         $result = $this->handler->handle(new GetMyContactPublicDTO(
             token: (string) $request->query('c', (string) $request->input('token', '')),
+            eventId: $eventId,
         ));
 
         if (!$result->found) {

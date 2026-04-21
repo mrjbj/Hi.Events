@@ -66,6 +66,7 @@ class OrderResourcePublic extends BaseResource
             $this->mergeWhen($this->getSessionIdentifier() !== null, fn() => [
                 'session_identifier' => $this->getSessionIdentifier(),
             ]),
+            'attendee_contact_tokens' => $this->getAttendeeContactTokens() ?? [],
         ];
     }
 }

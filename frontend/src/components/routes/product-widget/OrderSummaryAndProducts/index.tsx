@@ -40,6 +40,7 @@ import {InlineOrderSummary} from "../../../common/InlineOrderSummary";
 import {CheckoutContent} from "../../../layouts/Checkout/CheckoutContent";
 import {EditAttendeeModal} from "./EditAttendeeModal";
 import {EditOrderModal} from "./EditOrderModal";
+import {AttendeeProfiles} from "./AttendeeProfiles";
 
 import {useEditAttendeePublic} from "../../../../mutations/useEditAttendeePublic";
 import {useEditOrderPublic} from "../../../../mutations/useEditOrderPublic";
@@ -640,6 +641,15 @@ export const OrderSummaryAndProducts = () => {
                                 ))}
                             </div>
                         </Card>
+
+                        {order.status === 'COMPLETED' && order.attendee_contact_tokens && order.attendee_contact_tokens.length > 0 && (
+                            <AttendeeProfiles
+                                eventId={Number(eventId)}
+                                attendees={order.attendees}
+                                attendeeContactTokens={order.attendee_contact_tokens}
+                                buyerEmail={order.email}
+                            />
+                        )}
                     </>
                 )}
 
