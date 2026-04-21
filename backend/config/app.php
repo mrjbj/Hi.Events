@@ -41,15 +41,24 @@ return [
     'contact_lookup_log_channel' => env('CONTACT_LOOKUP_LOG_CHANNEL', 'stack'),
 
     /**
-     * Rate limits for the contact-lookup public endpoint. Defaults sized for
-     * prod: 30/min per IP (fits a 10-attendee group order plus retries) and
-     * 3/hour per normalized email (the tighter anti-harvester gate). Raise
-     * both in dev/staging if repeated testing with the same emails trips
-     * the limiter. Flushing cache (`php artisan cache:clear`) resets the
-     * counters immediately.
+     * Rate limits for the contact-lookup public endpoint.
+     *
+     * Per-IP cap protects against harvester IPs iterating through email
+     * wordlists — this is the load-bearing defense, since a real harvester
+     * probes different emails each call and never trips a per-email counter.
+     * 60/min comfortably covers a shared-office buyer filling 3 group
+     * orders of 15 attendees each.
+     *
+     * Per-email cap is the narrower case: someone repeatedly probing one
+     * known email to extract its answered_question_ids. 20/hour blocks
+     * that abuse pattern while letting real users retry, share family
+     * emails, or fill out multiple events in a sitting.
+     *
+     * Raise both in dev/staging for repeated testing with the same emails.
+     * Flushing cache (`php artisan cache:clear`) resets the counters.
      */
-    'contact_lookup_ip_cap_per_minute' => (int) env('CONTACT_LOOKUP_IP_CAP_PER_MINUTE', 30),
-    'contact_lookup_email_cap_per_hour' => (int) env('CONTACT_LOOKUP_EMAIL_CAP_PER_HOUR', 3),
+    'contact_lookup_ip_cap_per_minute' => (int) env('CONTACT_LOOKUP_IP_CAP_PER_MINUTE', 60),
+    'contact_lookup_email_cap_per_hour' => (int) env('CONTACT_LOOKUP_EMAIL_CAP_PER_HOUR', 20),
 
     /**
      * TTL for contact signed tokens embedded in outbound emails as ?c=<token>.
