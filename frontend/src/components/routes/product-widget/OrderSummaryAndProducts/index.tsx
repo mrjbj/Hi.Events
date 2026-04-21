@@ -656,14 +656,14 @@ export const OrderSummaryAndProducts = () => {
 
                 {order.status === 'COMPLETED' && buyerProfileEntry && (
                     <Collapse in={buyerProfileOpen}>
-                        <Card>
+                        <div className={classes.buyerProfilePanel}>
                             <AttendeeProfileCard
                                 token={buyerProfileEntry.token}
                                 data={buyerProfileEntry.query.data}
                                 contactId={order.buyer_contact_token?.contact_id}
                                 eventId={Number(eventId)}
                             />
-                        </Card>
+                        </div>
                     </Collapse>
                 )}
 
