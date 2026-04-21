@@ -4,6 +4,9 @@ import {isSsr} from "../utilites/helpers.ts";
 
 const SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
+const SESSION_FRESH_KEY = "ct_verified_until";
+const SESSION_FRESH_MS = 14 * 60_000;
+
 declare global {
     interface Window {
         turnstile?: {
@@ -20,6 +23,31 @@ declare global {
         };
     }
 }
+
+/**
+ * Returns true when the browser has completed a successful Turnstile challenge
+ * recently enough that the server cookie is still valid. Backed by
+ * sessionStorage; cleared on tab close. Server cookie is the actual security
+ * boundary — this is only a latency hint so we can skip the client challenge.
+ */
+export const isLocalTurnstileFresh = (): boolean => {
+    if (isSsr()) return false;
+    try {
+        const until = Number(sessionStorage.getItem(SESSION_FRESH_KEY) || 0);
+        return until > Date.now();
+    } catch {
+        return false;
+    }
+};
+
+export const markLocalTurnstileFresh = (): void => {
+    if (isSsr()) return;
+    try {
+        sessionStorage.setItem(SESSION_FRESH_KEY, String(Date.now() + SESSION_FRESH_MS));
+    } catch {
+        /* storage unavailable — we just re-challenge next time */
+    }
+};
 
 let scriptLoading: Promise<void> | null = null;
 
@@ -50,16 +78,20 @@ const loadScript = (): Promise<void> => {
 
 /**
  * Renders an invisible Turnstile widget and returns getToken() that resolves
- * to a fresh challenge token. Returns null token when VITE_TURNSTILE_SITE_KEY
- * is unset (dev default), letting the caller send no token — the backend
- * middleware is a no-op in that case.
+ * to a fresh challenge token. Concurrent getToken() calls share a single
+ * in-flight promise so callers can pre-warm the token on focus and await it
+ * later on submit/blur without clobbering each other.
+ *
+ * Returns null token when VITE_TURNSTILE_SITE_KEY is unset (dev default),
+ * letting the caller send no token — the backend middleware is a no-op in
+ * that case.
  */
 export const useTurnstile = (): {getToken: () => Promise<string | null>} => {
     const siteKey = getConfig("VITE_TURNSTILE_SITE_KEY");
     const widgetIdRef = useRef<string | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const resolverRef = useRef<((token: string) => void) | null>(null);
-    const rejecterRef = useRef<(() => void) | null>(null);
+    const resolverRef = useRef<((token: string | null) => void) | null>(null);
+    const pendingRef = useRef<Promise<string | null> | null>(null);
 
     useEffect(() => {
         if (!siteKey || isSsr()) return;
@@ -80,14 +112,16 @@ export const useTurnstile = (): {getToken: () => Promise<string | null>} => {
                     sitekey: siteKey,
                     size: "invisible",
                     callback: (token) => {
-                        resolverRef.current?.(token);
+                        const resolve = resolverRef.current;
                         resolverRef.current = null;
-                        rejecterRef.current = null;
+                        pendingRef.current = null;
+                        resolve?.(token);
                     },
                     "error-callback": () => {
-                        rejecterRef.current?.();
+                        const resolve = resolverRef.current;
                         resolverRef.current = null;
-                        rejecterRef.current = null;
+                        pendingRef.current = null;
+                        resolve?.(null);
                     },
                 });
             })
@@ -111,6 +145,8 @@ export const useTurnstile = (): {getToken: () => Promise<string | null>} => {
             }
             widgetIdRef.current = null;
             containerRef.current = null;
+            resolverRef.current = null;
+            pendingRef.current = null;
         };
     }, [siteKey]);
 
@@ -118,16 +154,21 @@ export const useTurnstile = (): {getToken: () => Promise<string | null>} => {
         if (!siteKey || isSsr() || !widgetIdRef.current || !window.turnstile) {
             return Promise.resolve(null);
         }
-        return new Promise<string | null>((resolve) => {
-            resolverRef.current = (token) => resolve(token);
-            rejecterRef.current = () => resolve(null);
+        if (pendingRef.current) return pendingRef.current;
+
+        const promise = new Promise<string | null>((resolve) => {
+            resolverRef.current = resolve;
             try {
                 window.turnstile!.reset(widgetIdRef.current!);
                 window.turnstile!.execute(widgetIdRef.current!);
             } catch {
+                resolverRef.current = null;
+                pendingRef.current = null;
                 resolve(null);
             }
         });
+        pendingRef.current = promise;
+        return promise;
     }, [siteKey]);
 
     return {getToken};

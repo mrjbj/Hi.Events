@@ -37,6 +37,7 @@ import {IconChevronRight, IconX} from "@tabler/icons-react"
 import {getSessionIdentifier} from "../../../../utilites/sessionIdentifier.ts";
 import {Constants} from "../../../../constants.ts";
 import {clearWaitlistJoinedForEvent} from "../../../../hooks/useWaitlistJoined.ts";
+import {useTurnstile, isLocalTurnstileFresh, markLocalTurnstileFresh} from "../../../../hooks/useTurnstile.ts";
 
 const AFFILIATE_EXPIRY_DAYS = 30;
 
@@ -144,8 +145,15 @@ const SelectProducts = (props: SelectProductsProps) => {
         },
     });
 
+    const {getToken: getTurnstileToken} = useTurnstile();
+
     const productMutation = useMutation({
-        mutationFn: (orderData: ProductFormPayload) => orderClientPublic.create(Number(eventId), orderData),
+        mutationFn: async (orderData: ProductFormPayload) => {
+            const token = isLocalTurnstileFresh() ? null : await getTurnstileToken();
+            const result = await orderClientPublic.create(Number(eventId), orderData, token);
+            markLocalTurnstileFresh();
+            return result;
+        },
 
         onSuccess: (data) => queryClient.invalidateQueries()
             .then(() => {

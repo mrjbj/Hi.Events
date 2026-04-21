@@ -114,8 +114,14 @@ export const orderClient = {
 }
 
 export const orderClientPublic = {
-    create: async (eventId: number, createOrderPayload: ProductFormPayload) => {
-        const response = await publicApi.post<GenericDataResponse<Order>>('events/' + eventId + '/order', createOrderPayload);
+    create: async (eventId: number, createOrderPayload: ProductFormPayload, turnstileToken?: string | null) => {
+        const headers: Record<string, string> = {};
+        if (turnstileToken) headers["cf-turnstile-response"] = turnstileToken;
+        const response = await publicApi.post<GenericDataResponse<Order>>(
+            'events/' + eventId + '/order',
+            createOrderPayload,
+            {headers},
+        );
         return response.data;
     },
 
