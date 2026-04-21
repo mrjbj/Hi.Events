@@ -1,20 +1,12 @@
 import {t, Trans} from "@lingui/macro";
-import {Accordion, Button, Group, Stack, Text, TextInput} from "@mantine/core";
-import {IconCheck, IconUser} from "@tabler/icons-react";
-import {useMutation, useQueries} from "@tanstack/react-query";
+import {Button, Group, Stack, Text, TextInput} from "@mantine/core";
+import {IconCheck} from "@tabler/icons-react";
+import {useMutation, useQueries, UseQueryResult} from "@tanstack/react-query";
 import {useEffect, useState} from "react";
 
-import {Card} from "../../../../common/Card";
 import {contactPortalClientPublic, MyContactResult} from "../../../../../api/contact-portal.client.ts";
-import {Attendee, AttendeeContactToken} from "../../../../../types.ts";
+import {AttendeeContactToken} from "../../../../../types.ts";
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
-
-interface AttendeeProfilesProps {
-    eventId: number;
-    attendees: Attendee[];
-    attendeeContactTokens: AttendeeContactToken[];
-    buyerEmail?: string;
-}
 
 const toAttributeStrings = (attrs: Record<string, unknown> | undefined): Record<string, string> => {
     const out: Record<string, string> = {};
@@ -27,12 +19,42 @@ const toAttributeStrings = (attrs: Record<string, unknown> | undefined): Record<
     return out;
 };
 
+export interface AttendeeProfileEntry {
+    token: string;
+    query: UseQueryResult<MyContactResult, unknown>;
+}
+
+/**
+ * Fetches per-contact profile data for each attendee_contact_token on the
+ * order and exposes a Map keyed by contact_id. Callers render the edit form
+ * via <AttendeeProfileCard> where they choose (e.g. inline on the guest row).
+ */
+export const useAttendeeProfiles = (
+    eventId: number,
+    tokens: AttendeeContactToken[] | undefined,
+): Map<number, AttendeeProfileEntry> => {
+    const queries = useQueries({
+        queries: (tokens ?? []).map((entry) => ({
+            queryKey: ['attendee-profile', entry.contact_id, eventId],
+            queryFn: () => contactPortalClientPublic.getMyContact(entry.token, eventId),
+            staleTime: 60_000,
+            retry: false,
+        })),
+    });
+
+    const map = new Map<number, AttendeeProfileEntry>();
+    (tokens ?? []).forEach((entry, idx) => {
+        map.set(entry.contact_id, {token: entry.token, query: queries[idx]});
+    });
+    return map;
+};
+
 interface AttendeeProfileCardProps {
     token: string;
     data: MyContactResult | undefined;
 }
 
-const AttendeeProfileCard = ({token, data}: AttendeeProfileCardProps) => {
+export const AttendeeProfileCard = ({token, data}: AttendeeProfileCardProps) => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [attrs, setAttrs] = useState<Record<string, string>>({});
@@ -100,65 +122,5 @@ const AttendeeProfileCard = ({token, data}: AttendeeProfileCardProps) => {
                 </Group>
             </Stack>
         </form>
-    );
-};
-
-export const AttendeeProfiles = ({eventId, attendees, attendeeContactTokens, buyerEmail}: AttendeeProfilesProps) => {
-    if (!attendeeContactTokens || attendeeContactTokens.length === 0) return null;
-
-    const queries = useQueries({
-        queries: attendeeContactTokens.map((entry) => ({
-            queryKey: ['attendee-profile', entry.contact_id, eventId],
-            queryFn: () => contactPortalClientPublic.getMyContact(entry.token, eventId),
-            staleTime: 60_000,
-            retry: false,
-        })),
-    });
-
-    const attendeeByContactId = new Map<number, Attendee>();
-    for (const a of attendees) {
-        if (typeof a.contact_id === 'number' && !attendeeByContactId.has(a.contact_id)) {
-            attendeeByContactId.set(a.contact_id, a);
-        }
-    }
-
-    return (
-        <Card>
-            <Stack gap="sm">
-                <div>
-                    <Text size="lg" fw={600}>{t`Update your profile`}</Text>
-                    <Text c="dimmed" size="sm">
-                        <Trans>
-                            Keep your details current so they pre-fill on your next order.
-                        </Trans>
-                    </Text>
-                </div>
-
-                <Accordion multiple variant="separated" radius="md">
-                    {attendeeContactTokens.map((entry, idx) => {
-                        const attendee = attendeeByContactId.get(entry.contact_id);
-                        const isBuyer = buyerEmail && attendee?.email && attendee.email === buyerEmail;
-                        const name = attendee
-                            ? `${attendee.first_name} ${attendee.last_name}`.trim()
-                            : t`Attendee`;
-                        const header = isBuyer ? t`Your profile` : name || t`Attendee`;
-                        const query = queries[idx];
-                        return (
-                            <Accordion.Item key={entry.contact_id} value={String(entry.contact_id)}>
-                                <Accordion.Control icon={<IconUser size={16}/>}>
-                                    {header}
-                                </Accordion.Control>
-                                <Accordion.Panel>
-                                    <AttendeeProfileCard
-                                        token={entry.token}
-                                        data={query.data}
-                                    />
-                                </Accordion.Panel>
-                            </Accordion.Item>
-                        );
-                    })}
-                </Accordion>
-            </Stack>
-        </Card>
     );
 };
