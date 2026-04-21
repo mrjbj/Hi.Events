@@ -1,6 +1,6 @@
 import {Product, Question, QuestionType} from "../../../types.ts";
 import {UseFormReturnType} from "@mantine/form";
-import {Box, Checkbox, ComboboxItem, Group, NativeSelect, Radio, Select, Textarea, TextInput} from "@mantine/core";
+import {Box, Checkbox, ComboboxItem, Group, NativeSelect, Radio, Select, SimpleGrid, Textarea, TextInput} from "@mantine/core";
 import {t} from "@lingui/macro";
 import countries from "../../../../data/countries.json";
 import {InputGroup} from "../InputGroup";
@@ -231,6 +231,19 @@ export const CheckoutOrderQuestions = ({questions, form, hiddenQuestionIds}: Che
     )
 }
 
+/**
+ * Types that need the full row width — they either have multiple inputs
+ * (ADDRESS) or a horizontal list of options (CHECKBOX, RADIO) or expect
+ * vertical height (MULTI_LINE_TEXT). Everything else (single-line text,
+ * date, dropdown) is narrow enough to pair up in a 2-column grid.
+ */
+const needsFullRow = (type?: string): boolean => (
+    type === QuestionType.ADDRESS
+    || type === QuestionType.CHECKBOX
+    || type === QuestionType.RADIO
+    || type === QuestionType.MULTI_LINE_TEXT
+);
+
 export const CheckoutProductQuestions = ({
                                              questions,
                                              form,
@@ -240,21 +253,30 @@ export const CheckoutProductQuestions = ({
                                          }: CheckoutProductQuestionProps) => {
     const hidden = new Set(hiddenQuestionIds ?? []);
     let questionIndex = 0;
-    return (
-        <>
-            {questions.map((question, index) => {
-                if (!question.product_ids?.includes(Number(product.id))) {
-                    return;
-                }
+    const items: JSX.Element[] = [];
 
-                const formIndex = questionIndex++;
-                if (hidden.has(Number(question.id))) {
-                    return null;
-                }
-                const name = `products.${productIndex}.questions.${formIndex}.response`;
-                return <QuestionInput key={`${index}-product`} question={question} name={name} form={form}/>
-            })}
-        </>
-    )
+    questions.forEach((question, index) => {
+        if (!question.product_ids?.includes(Number(product.id))) return;
+        const formIndex = questionIndex++;
+        if (hidden.has(Number(question.id))) return;
+        const name = `products.${productIndex}.questions.${formIndex}.response`;
+        const fullRow = needsFullRow(question.type);
+        items.push(
+            <div
+                key={`${index}-product`}
+                style={fullRow ? {gridColumn: '1 / -1'} : undefined}
+            >
+                <QuestionInput question={question} name={name} form={form}/>
+            </div>
+        );
+    });
+
+    if (items.length === 0) return null;
+
+    return (
+        <SimpleGrid cols={{base: 1, sm: 2}} spacing="md" verticalSpacing={0}>
+            {items}
+        </SimpleGrid>
+    );
 }
 
