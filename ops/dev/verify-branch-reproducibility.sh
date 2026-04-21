@@ -79,7 +79,10 @@ BASE_BRANCH="develop"
 PRODUCTION_BRANCH="jbj/local"
 
 # Ref patterns to discover PR branches (space-separated, env-overridable).
-BRANCH_PATTERNS=${BRANCH_PATTERNS:-"refs/heads/feature/ refs/heads/fix/"}
+# refs/heads/jbj/contacts is a fork-only personal branch (rejected upstream
+# PR) merged alongside the feature/* and fix/* branches so jbj/local stays
+# reproducible from its originators.
+BRANCH_PATTERNS=${BRANCH_PATTERNS:-"refs/heads/feature/ refs/heads/fix/ refs/heads/jbj/contacts"}
 
 # Branches to skip even if they match BRANCH_PATTERNS (space-separated).
 EXCLUDE_BRANCHES=${EXCLUDE_BRANCHES:-""}
@@ -96,7 +99,7 @@ FORK_ONLY_BRANCH=${FORK_ONLY_BRANCH:-"jbj/fork-only"}
 # list as upstream merges the relevant PRs — once the conflicting
 # commits land on develop, the conflict disappears naturally.
 EXPECTED_CONFLICT_BRANCHES=(
-  "feature/contact-repository"
+  "jbj/contacts"
   "feature/transactional-email-tracking"
 )
 
