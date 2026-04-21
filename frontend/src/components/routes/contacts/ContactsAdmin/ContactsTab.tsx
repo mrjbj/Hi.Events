@@ -1,7 +1,7 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
-import {ActionIcon, Alert, Button, Group, Menu, Select, Table, Text, TextInput, UnstyledButton} from "@mantine/core";
-import {IconDotsVertical, IconPencil, IconSearch, IconSortAscending, IconSortDescending, IconTrash} from "@tabler/icons-react";
+import {ActionIcon, Alert, Button, Group, Select, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
+import {IconPencil, IconSearch, IconSortAscending, IconSortDescending, IconTrash} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
 import {Card} from "../../../common/Card";
 import {Pagination} from "../../../common/Pagination";
@@ -11,6 +11,7 @@ import {useGetContacts} from "../../../../queries/useGetContacts.ts";
 import {useGetEvents} from "../../../../queries/useGetEvents.ts";
 import {useDeleteContact} from "../../../../mutations/useDeleteContact.ts";
 import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
+import {confirmationDialog} from "../../../../utilites/confirmationDialog.tsx";
 import {CreateContactModal} from "../../../modals/CreateContactModal";
 import {EditContactModal} from "../../../modals/EditContactModal";
 
@@ -86,10 +87,17 @@ export const ContactsTab = () => {
     };
 
     const handleDelete = (contact: Contact) => {
-        deleteMutation.mutate({contactId: contact.id}, {
-            onSuccess: () => showSuccess(t`Contact deleted successfully`),
-            onError: () => showError(t`Something went wrong while deleting the contact`),
-        });
+        const displayName = [contact.first_name, contact.last_name].filter(Boolean).join(' ').trim() || contact.email;
+        confirmationDialog(
+            t`Delete contact "${displayName}"? This cannot be undone.`,
+            () => {
+                deleteMutation.mutate({contactId: contact.id}, {
+                    onSuccess: () => showSuccess(t`Contact deleted successfully`),
+                    onError: () => showError(t`Something went wrong while deleting the contact`),
+                });
+            },
+            {confirm: t`Delete`, cancel: t`Cancel`},
+        );
     };
 
     return (
@@ -151,21 +159,27 @@ export const ContactsTab = () => {
                                         <Table.Td>{contact.last_name || '-'}</Table.Td>
                                         <Table.Td>{contact.created_at ? new Date(contact.created_at).toLocaleDateString() : '-'}</Table.Td>
                                         <Table.Td>
-                                            <Menu shadow="md" width={200}>
-                                                <Menu.Target>
-                                                    <ActionIcon variant="subtle">
-                                                        <IconDotsVertical size={14}/>
+                                            <Group gap={4} wrap="nowrap">
+                                                <Tooltip label={t`Edit`}>
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        onClick={() => handleEdit(contact)}
+                                                        aria-label={t`Edit contact`}
+                                                    >
+                                                        <IconPencil size={16}/>
                                                     </ActionIcon>
-                                                </Menu.Target>
-                                                <Menu.Dropdown>
-                                                    <Menu.Item leftSection={<IconPencil size={14}/>} onClick={() => handleEdit(contact)}>
-                                                        {t`Edit`}
-                                                    </Menu.Item>
-                                                    <Menu.Item color="red" leftSection={<IconTrash size={14}/>} onClick={() => handleDelete(contact)}>
-                                                        {t`Delete`}
-                                                    </Menu.Item>
-                                                </Menu.Dropdown>
-                                            </Menu>
+                                                </Tooltip>
+                                                <Tooltip label={t`Delete`}>
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        color="red"
+                                                        onClick={() => handleDelete(contact)}
+                                                        aria-label={t`Delete contact`}
+                                                    >
+                                                        <IconTrash size={16}/>
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                            </Group>
                                         </Table.Td>
                                     </Table.Tr>
                                 ))}

@@ -1,7 +1,7 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
-import {ActionIcon, Alert, Badge, Button, Group, Menu, Select, Table, Text, TextInput, UnstyledButton} from "@mantine/core";
-import {IconDotsVertical, IconLink, IconPencil, IconSearch, IconTrash} from "@tabler/icons-react";
+import {ActionIcon, Alert, Badge, Button, Group, Select, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
+import {IconLink, IconPencil, IconSearch, IconTrash} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
 import {Card} from "../../../../common/Card";
 import {SortableTh} from "../../../../common/SortableTh";
@@ -10,6 +10,7 @@ import {ContactAttributeDefinition} from "../../../../../types.ts";
 import {useGetContactAttributeDefinitions} from "../../../../../queries/useGetContactAttributeDefinitions.ts";
 import {useDeleteContactAttributeDefinition} from "../../../../../mutations/useDeleteContactAttributeDefinition.ts";
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
+import {confirmationDialog} from "../../../../../utilites/confirmationDialog.tsx";
 import {CreateContactAttributeDefinitionModal} from "../../../../modals/CreateContactAttributeDefinitionModal";
 import {EditContactAttributeDefinitionModal} from "../../../../modals/EditContactAttributeDefinitionModal";
 import {LinkedQuestionsDrawer} from "./LinkedQuestionsDrawer";
@@ -57,13 +58,19 @@ export const ExtendedAttributesTab = () => {
     };
 
     const handleDelete = (definition: ContactAttributeDefinition) => {
-        deleteMutation.mutate({definitionId: definition.id}, {
-            onSuccess: () => showSuccess(t`Attribute definition deleted successfully`),
-            onError: (err: any) => {
-                const message = err?.response?.data?.message;
-                showError(message || t`Something went wrong while deleting the attribute definition`);
+        confirmationDialog(
+            t`Delete attribute "${definition.label}"? This cannot be undone.`,
+            () => {
+                deleteMutation.mutate({definitionId: definition.id}, {
+                    onSuccess: () => showSuccess(t`Attribute definition deleted successfully`),
+                    onError: (err: any) => {
+                        const message = err?.response?.data?.message;
+                        showError(message || t`Something went wrong while deleting the attribute definition`);
+                    },
+                });
             },
-        });
+            {confirm: t`Delete`, cancel: t`Cancel`},
+        );
     };
 
     const handleOpenLinkedQuestions = (definition: ContactAttributeDefinition) => {
@@ -198,21 +205,27 @@ export const ExtendedAttributesTab = () => {
                                             </Group>
                                         </Table.Td>
                                         <Table.Td>
-                                            <Menu shadow="md" width={200}>
-                                                <Menu.Target>
-                                                    <ActionIcon variant="subtle">
-                                                        <IconDotsVertical size={14}/>
+                                            <Group gap={4} wrap="nowrap">
+                                                <Tooltip label={t`Edit`}>
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        onClick={() => handleEdit(definition)}
+                                                        aria-label={t`Edit attribute`}
+                                                    >
+                                                        <IconPencil size={16}/>
                                                     </ActionIcon>
-                                                </Menu.Target>
-                                                <Menu.Dropdown>
-                                                    <Menu.Item leftSection={<IconPencil size={14}/>} onClick={() => handleEdit(definition)}>
-                                                        {t`Edit`}
-                                                    </Menu.Item>
-                                                    <Menu.Item color="red" leftSection={<IconTrash size={14}/>} onClick={() => handleDelete(definition)}>
-                                                        {t`Delete`}
-                                                    </Menu.Item>
-                                                </Menu.Dropdown>
-                                            </Menu>
+                                                </Tooltip>
+                                                <Tooltip label={t`Delete`}>
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        color="red"
+                                                        onClick={() => handleDelete(definition)}
+                                                        aria-label={t`Delete attribute`}
+                                                    >
+                                                        <IconTrash size={16}/>
+                                                    </ActionIcon>
+                                                </Tooltip>
+                                            </Group>
                                         </Table.Td>
                                     </Table.Tr>
                                 );
