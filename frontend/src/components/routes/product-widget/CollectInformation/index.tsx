@@ -21,7 +21,7 @@ import {useGetEventQuestionsPublic} from "../../../../queries/useGetEventQuestio
 import {CheckoutOrderQuestions, CheckoutProductQuestions} from "../../../common/CheckoutQuestion";
 import {Event, IdParam, Question} from "../../../../types.ts";
 import {contactClientPublic} from "../../../../api/contact-public.client.ts";
-import {useTurnstile} from "../../../../hooks/useTurnstile.ts";
+import {useTurnstile, isLocalTurnstileFresh, markLocalTurnstileFresh} from "../../../../hooks/useTurnstile.ts";
 import {useEffect, useRef, useState} from "react";
 import {InputGroup} from "../../../common/InputGroup";
 import {Card} from "../../../common/Card";
@@ -258,6 +258,12 @@ export const CollectInformation = () => {
     const [orderHiddenQuestionIds, setOrderHiddenQuestionIds] = useState<number[]>([]);
     const [productHiddenQuestionIds, setProductHiddenQuestionIds] = useState<Record<number, number[]>>({});
     const lookupCacheRef = useRef<Map<string, any | null>>(new Map());
+
+    const prewarmTurnstile = () => {
+        if (isLocalTurnstileFresh()) return;
+        void getTurnstileToken();
+    };
+
     const runLookup = async (email: string, apply: (r: any) => void) => {
         const key = email.trim().toLowerCase();
         if (!key || !isEmailValid(key) || !eventId) return;
@@ -267,8 +273,9 @@ export const CollectInformation = () => {
             return;
         }
         try {
-            const turnstileToken = await getTurnstileToken();
+            const turnstileToken = isLocalTurnstileFresh() ? null : await getTurnstileToken();
             const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
+            markLocalTurnstileFresh();
             lookupCacheRef.current.set(key, result.found ? result : null);
             if (result.found) apply(result);
         } catch {
@@ -276,32 +283,20 @@ export const CollectInformation = () => {
         }
     };
 
-    // Debounced order email lookup
-    useEffect(() => {
-        const email = form.values.order.email;
-        if (!isEmailValid(email)) return;
-        const handle = setTimeout(() => {
-            void runLookup(email, (r) => {
-                applyContactToOrder(r);
-                setOrderHiddenQuestionIds(r.answered_question_ids ?? []);
-            });
-        }, 400);
-        return () => clearTimeout(handle);
-    }, [form.values.order.email]);
-
-    // Debounced per-attendee email lookup
-    useEffect(() => {
-        const handles = form.values.products.map((p, idx) => {
-            if (!isEmailValid(p.email ?? '')) return null;
-            return setTimeout(() => {
-                void runLookup(p.email, (r) => {
-                    applyContactToProduct(idx, r);
-                    setProductHiddenQuestionIds(prev => ({...prev, [idx]: r.answered_question_ids ?? []}));
-                });
-            }, 400);
+    const handleOrderEmailBlur = () => {
+        void runLookup(form.values.order.email ?? '', (r) => {
+            applyContactToOrder(r);
+            setOrderHiddenQuestionIds(r.answered_question_ids ?? []);
         });
-        return () => handles.forEach(h => h && clearTimeout(h));
-    }, [form.values.products.map(p => p.email).join('|')]);
+    };
+
+    const handleProductEmailBlur = (idx: number) => {
+        const email = form.values.products[idx]?.email ?? '';
+        void runLookup(email, (r) => {
+            applyContactToProduct(idx, r);
+            setProductHiddenQuestionIds(prev => ({...prev, [idx]: r.answered_question_ids ?? []}));
+        });
+    };
 
     // Signed-token prefill: if ?c=<token> is in the URL (from an email link),
     // fetch the full contact profile including question answers and fill the
@@ -579,15 +574,28 @@ export const CollectInformation = () => {
 
                 <Card>
                     <InputGroup>
-                        <TextInput
-                            withAsterisk
-                            autoFocus
-                            type={"email"}
-                            label={t`Email Address`}
-                            placeholder={t`Email Address`}
-                            rightSection={isEmailValid(form.values.order.email) ? <EmailCheckIcon/> : null}
-                            {...form.getInputProps("order.email")}
-                        />
+                        {(() => {
+                            const emailProps = form.getInputProps("order.email");
+                            return (
+                                <TextInput
+                                    withAsterisk
+                                    autoFocus
+                                    type={"email"}
+                                    label={t`Email Address`}
+                                    placeholder={t`Email Address`}
+                                    rightSection={isEmailValid(form.values.order.email) ? <EmailCheckIcon/> : null}
+                                    {...emailProps}
+                                    onFocus={(e) => {
+                                        emailProps.onFocus?.(e);
+                                        prewarmTurnstile();
+                                    }}
+                                    onBlur={(e) => {
+                                        emailProps.onBlur?.(e);
+                                        handleOrderEmailBlur();
+                                    }}
+                                />
+                            );
+                        })()}
                         <TextInput
                             withAsterisk
                             type={"email"}
@@ -792,15 +800,28 @@ export const CollectInformation = () => {
                                         {productRequiresDetails && (
                                             <>
                                                 <InputGroup>
-                                                    <TextInput
-                                                        withAsterisk
-                                                        type={"email"}
-                                                        label={t`Email Address`}
-                                                        placeholder={t`Email Address`}
-                                                        rightSection={isEmailValid(form.values.products[currentProductIndex]?.email || '') ?
-                                                            <EmailCheckIcon/> : null}
-                                                        {...form.getInputProps(`products.${currentProductIndex}.email`)}
-                                                    />
+                                                    {(() => {
+                                                        const emailProps = form.getInputProps(`products.${currentProductIndex}.email`);
+                                                        return (
+                                                            <TextInput
+                                                                withAsterisk
+                                                                type={"email"}
+                                                                label={t`Email Address`}
+                                                                placeholder={t`Email Address`}
+                                                                rightSection={isEmailValid(form.values.products[currentProductIndex]?.email || '') ?
+                                                                    <EmailCheckIcon/> : null}
+                                                                {...emailProps}
+                                                                onFocus={(e) => {
+                                                                    emailProps.onFocus?.(e);
+                                                                    prewarmTurnstile();
+                                                                }}
+                                                                onBlur={(e) => {
+                                                                    emailProps.onBlur?.(e);
+                                                                    handleProductEmailBlur(currentProductIndex);
+                                                                }}
+                                                            />
+                                                        );
+                                                    })()}
                                                     <TextInput
                                                         withAsterisk
                                                         type={"email"}

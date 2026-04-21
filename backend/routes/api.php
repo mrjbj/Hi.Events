@@ -554,7 +554,8 @@ $router->prefix('/public')->group(
         $router->get('/events/{event_id}/products', GetEventPublicAction::class);
 
         // Orders
-        $router->post('/events/{event_id}/order', CreateOrderActionPublic::class);
+        $router->post('/events/{event_id}/order', CreateOrderActionPublic::class)
+            ->middleware('turnstile');
         $router->put('/events/{event_id}/order/{order_short_id}', CompleteOrderActionPublic::class);
         $router->get('/events/{event_id}/order/{order_short_id}', GetOrderActionPublic::class);
         $router->post('/events/{event_id}/order/{order_short_id}/abandon', AbandonOrderActionPublic::class);
