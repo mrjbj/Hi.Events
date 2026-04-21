@@ -18,6 +18,7 @@ use HiEvents\DomainObjects\ProductPriceDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Exceptions\UnauthorizedException;
 use HiEvents\Repository\Eloquent\Value\Relationship;
+use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\GetOrderPublicDTO;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
@@ -31,6 +32,7 @@ class GetOrderPublicHandler
         private readonly OrderRepositoryInterface         $orderRepository,
         private readonly CheckoutSessionManagementService $sessionIdentifierService,
         private readonly ContactSignedTokenService        $contactTokenService,
+        private readonly ContactRepositoryInterface       $contactRepository,
     )
     {
     }
@@ -53,8 +55,44 @@ class GetOrderPublicHandler
         }
 
         $this->attachAttendeeContactTokens($order);
+        $this->attachBuyerContactToken($order);
 
         return $order;
+    }
+
+    /**
+     * Mint a signed contact token for the buyer (order.email's contact) if
+     * one exists on this account. Surfaces as buyer_contact_token on the
+     * order response so the confirmation page can offer a "My Profile"
+     * button next to Order Details — handy when the buyer isn't also an
+     * attendee, or for single-attendee orders where they don't need to
+     * scroll to the guest list.
+     */
+    private function attachBuyerContactToken(OrderDomainObject $order): void
+    {
+        $accountId = $this->resolveAccountId($order);
+        $email = $order->getEmail();
+        if ($accountId === null || !is_string($email) || $email === '') {
+            $order->setBuyerContactToken(null);
+            return;
+        }
+
+        try {
+            $contact = $this->contactRepository->findByEmailAndAccountId($email, $accountId);
+        } catch (\Throwable) {
+            $order->setBuyerContactToken(null);
+            return;
+        }
+
+        if ($contact === null) {
+            $order->setBuyerContactToken(null);
+            return;
+        }
+
+        $order->setBuyerContactToken([
+            'contact_id' => (int) $contact->getId(),
+            'token' => $this->contactTokenService->generate((int) $contact->getId(), $accountId),
+        ]);
     }
 
     /**

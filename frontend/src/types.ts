@@ -654,6 +654,7 @@ export interface Order {
     latest_invoice?: Invoice;
     session_identifier?: string;
     attendee_contact_tokens?: AttendeeContactToken[];
+    buyer_contact_token?: AttendeeContactToken | null;
 }
 
 export interface AttendeeContactToken {

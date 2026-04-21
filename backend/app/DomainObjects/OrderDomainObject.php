@@ -39,6 +39,9 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
     /** @var array<int, array{contact_id: int, token: string}>|null */
     public ?array $attendeeContactTokens = null;
 
+    /** @var array{contact_id: int, token: string}|null */
+    public ?array $buyerContactToken = null;
+
     public static function getAllowedFilterFields(): array
     {
         return [
@@ -315,5 +318,17 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
     public function getAttendeeContactTokens(): ?array
     {
         return $this->attendeeContactTokens;
+    }
+
+    public function setBuyerContactToken(?array $token): OrderDomainObject
+    {
+        $this->buyerContactToken = $token;
+        return $this;
+    }
+
+    /** @return array{contact_id: int, token: string}|null */
+    public function getBuyerContactToken(): ?array
+    {
+        return $this->buyerContactToken;
     }
 }
