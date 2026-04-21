@@ -166,6 +166,8 @@ const GuestListItem = ({
                         <AttendeeProfileCard
                             token={profileEntry!.token}
                             data={profileEntry!.query.data}
+                            contactId={attendee.contact_id ?? undefined}
+                            eventId={Number(event.id)}
                         />
                     </div>
                 </Collapse>
@@ -440,7 +442,15 @@ export const OrderSummaryAndProducts = () => {
     const [editingAttendee, setEditingAttendee] = useState<Attendee | null>(null);
     const [editOrderModalOpened, setEditOrderModalOpened] = useState(false);
 
-    const attendeeProfileMap = useAttendeeProfiles(Number(eventId), order?.attendee_contact_tokens);
+    const attendeeProfileMap = useAttendeeProfiles(
+        Number(eventId),
+        order?.attendee_contact_tokens,
+        order?.buyer_contact_token,
+    );
+    const buyerProfileEntry = order?.buyer_contact_token
+        ? attendeeProfileMap.get(order.buyer_contact_token.contact_id)
+        : undefined;
+    const [buyerProfileOpen, setBuyerProfileOpen] = useState(false);
 
     useEffect(() => {
         if (eventId && order && (order.status === 'COMPLETED' || order.status === 'AWAITING_OFFLINE_PAYMENT')) {
@@ -621,7 +631,20 @@ export const OrderSummaryAndProducts = () => {
 
                 {order?.status === 'AWAITING_OFFLINE_PAYMENT' && <OfflinePaymentInstructions event={event}/>}
 
-                <h1 className={classes.heading}>{t`Order Details`}</h1>
+                <Group justify="space-between" align="center" wrap="nowrap">
+                    <h1 className={classes.heading} style={{margin: 0}}>{t`Order Details`}</h1>
+                    {order.status === 'COMPLETED' && buyerProfileEntry && (
+                        <UnstyledButton
+                            className={classes.profileToggle}
+                            onClick={() => setBuyerProfileOpen((v) => !v)}
+                            aria-expanded={buyerProfileOpen}
+                        >
+                            <IconUser size={14}/>
+                            <span>{t`My Profile`}</span>
+                            {buyerProfileOpen ? <IconChevronUp size={14}/> : <IconChevronDown size={14}/>}
+                        </UnstyledButton>
+                    )}
+                </Group>
 
                 <OrderDetails
                     order={order}
@@ -630,6 +653,19 @@ export const OrderSummaryAndProducts = () => {
                     onEditClick={() => setEditOrderModalOpened(true)}
                     onResendClick={handleResendOrderConfirmation}
                 />
+
+                {order.status === 'COMPLETED' && buyerProfileEntry && (
+                    <Collapse in={buyerProfileOpen}>
+                        <Card>
+                            <AttendeeProfileCard
+                                token={buyerProfileEntry.token}
+                                data={buyerProfileEntry.query.data}
+                                contactId={order.buyer_contact_token?.contact_id}
+                                eventId={Number(eventId)}
+                            />
+                        </Card>
+                    </Collapse>
+                )}
 
                 {event?.settings?.is_online_event && <OnlineEventDetails eventSettings={event.settings}/>}
 

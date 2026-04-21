@@ -6,6 +6,7 @@ use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
+use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\GetOrderPublicDTO;
 use HiEvents\Services\Application\Handlers\Order\GetOrderPublicHandler;
@@ -21,6 +22,7 @@ class GetOrderPublicHandlerTest extends TestCase
     private OrderRepositoryInterface $orderRepository;
     private CheckoutSessionManagementService $sessionService;
     private ContactSignedTokenService $tokenService;
+    private ContactRepositoryInterface $contactRepository;
     private GetOrderPublicHandler $handler;
 
     protected function setUp(): void
@@ -29,10 +31,13 @@ class GetOrderPublicHandlerTest extends TestCase
         $this->orderRepository = m::mock(OrderRepositoryInterface::class);
         $this->sessionService = m::mock(CheckoutSessionManagementService::class);
         $this->tokenService = new ContactSignedTokenService();
+        $this->contactRepository = m::mock(ContactRepositoryInterface::class);
+        $this->contactRepository->shouldReceive('findByEmailAndAccountId')->andReturn(null)->byDefault();
         $this->handler = new GetOrderPublicHandler(
             $this->orderRepository,
             $this->sessionService,
             $this->tokenService,
+            $this->contactRepository,
         );
     }
 

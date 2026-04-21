@@ -67,6 +67,7 @@ class OrderResourcePublic extends BaseResource
                 'session_identifier' => $this->getSessionIdentifier(),
             ]),
             'attendee_contact_tokens' => $this->getAttendeeContactTokens() ?? [],
+            'buyer_contact_token' => $this->getBuyerContactToken(),
         ];
     }
 }
