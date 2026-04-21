@@ -41,6 +41,17 @@ return [
     'contact_lookup_log_channel' => env('CONTACT_LOOKUP_LOG_CHANNEL', 'stack'),
 
     /**
+     * Rate limits for the contact-lookup public endpoint. Defaults sized for
+     * prod: 30/min per IP (fits a 10-attendee group order plus retries) and
+     * 3/hour per normalized email (the tighter anti-harvester gate). Raise
+     * both in dev/staging if repeated testing with the same emails trips
+     * the limiter. Flushing cache (`php artisan cache:clear`) resets the
+     * counters immediately.
+     */
+    'contact_lookup_ip_cap_per_minute' => (int) env('CONTACT_LOOKUP_IP_CAP_PER_MINUTE', 30),
+    'contact_lookup_email_cap_per_hour' => (int) env('CONTACT_LOOKUP_EMAIL_CAP_PER_HOUR', 3),
+
+    /**
      * TTL for contact signed tokens embedded in outbound emails as ?c=<token>.
      * Tokens proving email ownership let the recipient prefill checkout forms
      * and edit their self-service profile. 30 days balances convenience with
