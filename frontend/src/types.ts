@@ -1165,6 +1165,7 @@ export interface ContactAttributeDefinition {
     options?: string[] | null;
     sort_order: number;
     is_active: boolean;
+    is_globally_recommended?: boolean;
     linked_question_count?: number;
     linked_event_count?: number;
 }

@@ -186,9 +186,16 @@ export const ExtendedAttributesTab = () => {
                                             )}
                                         </Table.Td>
                                         <Table.Td>
-                                            <Badge color={definition.is_active ? 'green' : 'gray'} variant="light">
-                                                {definition.is_active ? t`Active` : t`Inactive`}
-                                            </Badge>
+                                            <Group gap={6} wrap="nowrap">
+                                                <Badge color={definition.is_active ? 'green' : 'gray'} variant="light">
+                                                    {definition.is_active ? t`Active` : t`Inactive`}
+                                                </Badge>
+                                                {definition.is_globally_recommended && (
+                                                    <Badge color="indigo" variant="light" title={t`Auto-attached to new events`}>
+                                                        {t`Recommended`}
+                                                    </Badge>
+                                                )}
+                                            </Group>
                                         </Table.Td>
                                         <Table.Td>
                                             <Menu shadow="md" width={200}>
