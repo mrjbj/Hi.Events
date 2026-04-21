@@ -14,6 +14,7 @@ class ContactAttributeDefinition extends BaseModel
         return [
             ContactAttributeDefinitionDomainObjectAbstract::OPTIONS => 'array',
             ContactAttributeDefinitionDomainObjectAbstract::IS_ACTIVE => 'boolean',
+            ContactAttributeDefinitionDomainObjectAbstract::IS_GLOBALLY_RECOMMENDED => 'boolean',
         ];
     }
 
@@ -27,6 +28,7 @@ class ContactAttributeDefinition extends BaseModel
             ContactAttributeDefinitionDomainObjectAbstract::OPTIONS,
             ContactAttributeDefinitionDomainObjectAbstract::SORT_ORDER,
             ContactAttributeDefinitionDomainObjectAbstract::IS_ACTIVE,
+            ContactAttributeDefinitionDomainObjectAbstract::IS_GLOBALLY_RECOMMENDED,
         ];
     }
 }
