@@ -36,6 +36,9 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
 
     public ?string $sessionIdentifier = null;
 
+    /** @var array<int, array{contact_id: int, token: string}>|null */
+    public ?array $attendeeContactTokens = null;
+
     public static function getAllowedFilterFields(): array
     {
         return [
@@ -300,5 +303,17 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
         } catch (Exception) {
             return null;
         }
+    }
+
+    public function setAttendeeContactTokens(?array $tokens): OrderDomainObject
+    {
+        $this->attendeeContactTokens = $tokens;
+        return $this;
+    }
+
+    /** @return array<int, array{contact_id: int, token: string}>|null */
+    public function getAttendeeContactTokens(): ?array
+    {
+        return $this->attendeeContactTokens;
     }
 }

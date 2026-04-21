@@ -20,14 +20,17 @@ use HiEvents\Exceptions\UnauthorizedException;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\GetOrderPublicDTO;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Infrastructure\Session\CheckoutSessionManagementService;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class GetOrderPublicHandler
 {
     public function __construct(
         private readonly OrderRepositoryInterface         $orderRepository,
-        private readonly CheckoutSessionManagementService $sessionIdentifierService
+        private readonly CheckoutSessionManagementService $sessionIdentifierService,
+        private readonly ContactSignedTokenService        $contactTokenService,
     )
     {
     }
@@ -49,7 +52,60 @@ class GetOrderPublicHandler
             $this->verifySessionId($order->getSessionId());
         }
 
+        $this->attachAttendeeContactTokens($order);
+
         return $order;
+    }
+
+    /**
+     * For each unique contact_id linked to an attendee on this order, mint a
+     * signed contact token the confirmation page can pass to /contacts/me
+     * for profile review + update. De-duplicates so two attendees on the same
+     * contact get one entry (first attendee wins).
+     */
+    private function attachAttendeeContactTokens(OrderDomainObject $order): void
+    {
+        $attendees = $order->getAttendees();
+        if ($attendees === null || $attendees->isEmpty()) {
+            $order->setAttendeeContactTokens([]);
+            return;
+        }
+
+        $accountId = $this->resolveAccountId($order);
+        if ($accountId === null) {
+            $order->setAttendeeContactTokens([]);
+            return;
+        }
+
+        $seen = [];
+        $tokens = [];
+        foreach ($attendees as $attendee) {
+            $contactId = $attendee->getContactId();
+            if ($contactId === null || isset($seen[$contactId])) {
+                continue;
+            }
+            $seen[$contactId] = true;
+            $tokens[] = [
+                'contact_id' => (int) $contactId,
+                'token' => $this->contactTokenService->generate((int) $contactId, $accountId),
+            ];
+        }
+
+        $order->setAttendeeContactTokens($tokens);
+    }
+
+    private function resolveAccountId(OrderDomainObject $order): ?int
+    {
+        $event = $order->getEvent();
+        if ($event !== null) {
+            return $event->getAccountId();
+        }
+
+        $accountId = DB::table('events')
+            ->where('id', $order->getEventId())
+            ->value('account_id');
+
+        return $accountId !== null ? (int) $accountId : null;
     }
 
     private function verifySessionId(string $orderSessionId): void
