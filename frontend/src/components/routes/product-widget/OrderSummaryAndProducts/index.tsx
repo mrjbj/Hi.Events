@@ -1,12 +1,14 @@
 import {t} from "@lingui/macro";
 import {NavLink, useNavigate, useParams, useLocation} from "react-router";
-import {ActionIcon, Alert, Button, Group, SimpleGrid, Text, Tooltip} from "@mantine/core";
+import {ActionIcon, Alert, Button, Collapse, Group, SimpleGrid, Text, Tooltip, UnstyledButton} from "@mantine/core";
 import {
     IconBuilding,
     IconCalendar,
     IconCalendarEvent,
     IconCash,
     IconCheck,
+    IconChevronDown,
+    IconChevronUp,
     IconClock,
     IconEdit,
     IconExternalLink,
@@ -40,7 +42,7 @@ import {InlineOrderSummary} from "../../../common/InlineOrderSummary";
 import {CheckoutContent} from "../../../layouts/Checkout/CheckoutContent";
 import {EditAttendeeModal} from "./EditAttendeeModal";
 import {EditOrderModal} from "./EditOrderModal";
-import {AttendeeProfiles} from "./AttendeeProfiles";
+import {AttendeeProfileCard, AttendeeProfileEntry, useAttendeeProfiles} from "./AttendeeProfiles";
 
 import {useEditAttendeePublic} from "../../../../mutations/useEditAttendeePublic";
 import {useEditOrderPublic} from "../../../../mutations/useEditOrderPublic";
@@ -80,66 +82,94 @@ const GuestListItem = ({
     allowSelfEdit,
     onEditClick,
     onResendClick,
+    profileEntry,
 }: {
     attendee: Attendee;
     event: Event;
     allowSelfEdit: boolean;
     onEditClick: () => void;
     onResendClick: () => void;
+    profileEntry?: AttendeeProfileEntry;
 }) => {
     const productTitle = getAttendeeProductTitle(attendee, attendee.product as Product);
     const isCancelled = attendee.status === 'CANCELLED';
+    const [profileOpen, setProfileOpen] = useState(false);
+
+    const hasProfile = !!profileEntry && !isCancelled;
 
     return (
         <div className={`${classes.guestItem} ${isCancelled ? classes.guestItemCancelled : ''}`}>
-            <div className={classes.guestInfo}>
-                <div className={classes.guestName}>
-                    {attendee.first_name} {attendee.last_name}
-                    {isCancelled && <span className={classes.cancelledBadge}>{t`Cancelled`}</span>}
+            <div className={classes.guestItemHeader}>
+                <div className={classes.guestInfo}>
+                    <div className={classes.guestName}>
+                        {attendee.first_name} {attendee.last_name}
+                        {isCancelled && <span className={classes.cancelledBadge}>{t`Cancelled`}</span>}
+                    </div>
+                    <div className={classes.guestDetails}>
+                        <span className={classes.guestEmail}>{attendee.email}</span>
+                        <span className={classes.guestProduct}>{productTitle}</span>
+                    </div>
                 </div>
-                <div className={classes.guestDetails}>
-                    <span className={classes.guestEmail}>{attendee.email}</span>
-                    <span className={classes.guestProduct}>{productTitle}</span>
+                <div className={classes.guestActions}>
+                    {hasProfile && (
+                        <UnstyledButton
+                            className={classes.profileToggle}
+                            onClick={() => setProfileOpen((v) => !v)}
+                            aria-expanded={profileOpen}
+                        >
+                            <IconUser size={14}/>
+                            <span>{t`My Profile`}</span>
+                            {profileOpen ? <IconChevronUp size={14}/> : <IconChevronDown size={14}/>}
+                        </UnstyledButton>
+                    )}
+                    <Tooltip label={t`View Ticket`}>
+                        <ActionIcon
+                            variant="subtle"
+                            onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}`, '_blank')}
+                        >
+                            <IconExternalLink size={18}/>
+                        </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label={t`Print Ticket`}>
+                        <ActionIcon
+                            variant="subtle"
+                            onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}/print`, '_blank')}
+                        >
+                            <IconPrinter size={18}/>
+                        </ActionIcon>
+                    </Tooltip>
+                    {allowSelfEdit && !isCancelled && (
+                        <>
+                            <Tooltip label={t`Edit Attendee`}>
+                                <ActionIcon
+                                    variant="subtle"
+                                    onClick={onEditClick}
+                                >
+                                    <IconEdit size={18}/>
+                                </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label={t`Resend Ticket`}>
+                                <ActionIcon
+                                    variant="subtle"
+                                    onClick={onResendClick}
+                                >
+                                    <IconSend size={18}/>
+                                </ActionIcon>
+                            </Tooltip>
+                        </>
+                    )}
                 </div>
             </div>
-            <div className={classes.guestActions}>
-                <Tooltip label={t`View Ticket`}>
-                    <ActionIcon
-                        variant="subtle"
-                        onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}`, '_blank')}
-                    >
-                        <IconExternalLink size={18}/>
-                    </ActionIcon>
-                </Tooltip>
-                <Tooltip label={t`Print Ticket`}>
-                    <ActionIcon
-                        variant="subtle"
-                        onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}/print`, '_blank')}
-                    >
-                        <IconPrinter size={18}/>
-                    </ActionIcon>
-                </Tooltip>
-                {allowSelfEdit && !isCancelled && (
-                    <>
-                        <Tooltip label={t`Edit Attendee`}>
-                            <ActionIcon
-                                variant="subtle"
-                                onClick={onEditClick}
-                            >
-                                <IconEdit size={18}/>
-                            </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label={t`Resend Ticket`}>
-                            <ActionIcon
-                                variant="subtle"
-                                onClick={onResendClick}
-                            >
-                                <IconSend size={18}/>
-                            </ActionIcon>
-                        </Tooltip>
-                    </>
-                )}
-            </div>
+            {hasProfile && (
+                <Collapse in={profileOpen}>
+                    <div className={classes.profilePanel}>
+                        <AttendeeProfileCard
+                            token={profileEntry!.token}
+                            data={profileEntry!.query.data}
+                        />
+                    </div>
+                </Collapse>
+            )}
         </div>
     );
 };
@@ -410,6 +440,8 @@ export const OrderSummaryAndProducts = () => {
     const [editingAttendee, setEditingAttendee] = useState<Attendee | null>(null);
     const [editOrderModalOpened, setEditOrderModalOpened] = useState(false);
 
+    const attendeeProfileMap = useAttendeeProfiles(Number(eventId), order?.attendee_contact_tokens);
+
     useEffect(() => {
         if (eventId && order && (order.status === 'COMPLETED' || order.status === 'AWAITING_OFFLINE_PAYMENT')) {
             clearWaitlistJoinedForEvent(eventId);
@@ -637,19 +669,15 @@ export const OrderSummaryAndProducts = () => {
                                         allowSelfEdit={allowSelfEdit}
                                         onEditClick={() => setEditingAttendee(attendee)}
                                         onResendClick={() => handleResendAttendeeTicket(attendee)}
+                                        profileEntry={
+                                            order.status === 'COMPLETED' && typeof attendee.contact_id === 'number'
+                                                ? attendeeProfileMap.get(attendee.contact_id)
+                                                : undefined
+                                        }
                                     />
                                 ))}
                             </div>
                         </Card>
-
-                        {order.status === 'COMPLETED' && order.attendee_contact_tokens && order.attendee_contact_tokens.length > 0 && (
-                            <AttendeeProfiles
-                                eventId={Number(eventId)}
-                                attendees={order.attendees}
-                                attendeeContactTokens={order.attendee_contact_tokens}
-                                buyerEmail={order.email}
-                            />
-                        )}
                     </>
                 )}
 

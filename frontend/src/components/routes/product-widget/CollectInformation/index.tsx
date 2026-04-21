@@ -158,6 +158,8 @@ export const CollectInformation = () => {
         const ticketIndices = getTicketAttendeeIndices();
         if (ticketIndices.length === 0) return;
 
+        const copiedEmail = form.values.order.email;
+
         const updatedProducts = form.values.products.map((product, index) => {
             const isTicketAttendee = ticketIndices.includes(index);
             const isFirst = index === ticketIndices[0];
@@ -189,6 +191,38 @@ export const CollectInformation = () => {
             ...form.values,
             products: updatedProducts,
         });
+
+        // Programmatic setValues doesn't fire onBlur. We trigger the contact
+        // lookup for the copied email to compute answered_question_ids, but
+        // only apply the *hidden question IDs* — the name/email values are
+        // already in place from the copy above. Calling applyContactToProduct
+        // here would race with the setValues state commit above and clobber
+        // the copied email back to blank.
+        const copiedIndices =
+            option === 'all' ? ticketIndices :
+            option === 'first' && ticketIndices.length > 0 ? [ticketIndices[0]] :
+            [];
+
+        if (option !== 'none' && isEmailValid(copiedEmail)) {
+            void fetchLookup(copiedEmail).then((result) => {
+                if (!result) return;
+                setProductHiddenQuestionIds(prev => {
+                    const next = {...prev};
+                    copiedIndices.forEach((idx) => {
+                        next[idx] = result.answered_question_ids ?? [];
+                    });
+                    return next;
+                });
+            });
+        } else if (option === 'none') {
+            // Uncopying: clear hidden-question state so questions re-render if
+            // the attendee types a different email.
+            setProductHiddenQuestionIds(prev => {
+                const next = {...prev};
+                ticketIndices.forEach((idx) => { delete next[idx]; });
+                return next;
+            });
+        }
     };
 
     const handleCopyOptionChange = (value: string) => {
@@ -264,23 +298,29 @@ export const CollectInformation = () => {
         void getTurnstileToken();
     };
 
-    const runLookup = async (email: string, apply: (r: any) => void) => {
+    // Fetch-only helper: returns the lookup result (or null) and populates
+    // the cache. Does NOT mutate form state — caller decides what to apply.
+    const fetchLookup = async (email: string): Promise<any | null> => {
         const key = email.trim().toLowerCase();
-        if (!key || !isEmailValid(key) || !eventId) return;
+        if (!key || !isEmailValid(key) || !eventId) return null;
         if (lookupCacheRef.current.has(key)) {
-            const cached = lookupCacheRef.current.get(key);
-            if (cached) apply(cached);
-            return;
+            return lookupCacheRef.current.get(key) ?? null;
         }
         try {
             const turnstileToken = isLocalTurnstileFresh() ? null : await getTurnstileToken();
             const result = await contactClientPublic.lookupByEmail(Number(eventId), key, turnstileToken);
             markLocalTurnstileFresh();
             lookupCacheRef.current.set(key, result.found ? result : null);
-            if (result.found) apply(result);
+            return result.found ? result : null;
         } catch {
             // swallow — autofill failures should not block checkout
+            return null;
         }
+    };
+
+    const runLookup = async (email: string, apply: (r: any) => void) => {
+        const result = await fetchLookup(email);
+        if (result) apply(result);
     };
 
     const handleOrderEmailBlur = () => {
