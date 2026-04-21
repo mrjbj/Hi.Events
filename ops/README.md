@@ -170,6 +170,17 @@ git push --force-with-lease origin feature/active-thing
 
 ## Quick Reference
 
+### Branch status at a glance
+
+```bash
+./ops/dev/git-branch-status.sh            # worktree state + per-branch table
+./ops/dev/git-branch-status.sh --fetch    # refresh remote refs first
+```
+
+Separates the three axes: worktree (shared across checkouts), local-vs-remote
+(ahead/behind per branch), and PR/merge status. Read-only; doesn't change any
+branches or the working tree.
+
 ### Access personal files from any branch
 
 ```bash
