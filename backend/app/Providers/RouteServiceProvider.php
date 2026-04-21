@@ -41,11 +41,15 @@ class RouteServiceProvider extends ServiceProvider
             // Per-IP cap sized for group orders (one lookup per attendee email
             // as the buyer fills the checkout form). Per-email cap is the
             // tighter abuse gate since scripted harvesters iterate addresses.
+            // Both env-configurable so dev/staging can raise them during
+            // repeated testing without tripping the limiter.
             return [
-                Limit::perMinute(30)->by($request->ip()),
-                Limit::perHour(3)->by(
-                    strtolower((string) $request->input('email')) ?: $request->ip()
-                ),
+                Limit::perMinute((int) config('app.contact_lookup_ip_cap_per_minute', 30))
+                    ->by($request->ip()),
+                Limit::perHour((int) config('app.contact_lookup_email_cap_per_hour', 3))
+                    ->by(
+                        strtolower((string) $request->input('email')) ?: $request->ip()
+                    ),
             ];
         });
 
