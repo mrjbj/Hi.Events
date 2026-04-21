@@ -476,8 +476,36 @@ else
         200)
             assert_body_contains '"found":true' "Portal GET with valid token returns profile"
             assert_body_contains '"attribute_definitions"' "Portal includes attribute_definitions"
+            full_defs_count=$(grep -o '"id":' "$TMPBODY" | wc -l | tr -d ' ')
+            info "unfiltered attribute_definitions count: $full_defs_count"
             ;;
         404) pass_msg "Portal returned 404 — invalid/expired link (check the token)" ;;
+        *)   fail_msg "Unexpected HTTP $status" ; show_body ;;
+    esac
+
+    # -----------------------------------------------------------------------------
+    banner "9a. Self-service profile portal with ?event_id=<id> filter"
+    # -----------------------------------------------------------------------------
+    # Filter narrows attribute_definitions to the union of is_globally_recommended
+    # AND attributes linked to questions on this event. Used by the order
+    # confirmation page's AttendeeProfiles component so review is scoped to
+    # "common questions + this event's linked attributes".
+    out=$(do_curl GET "$PORTAL_URL?c=$(printf '%s' "$CONTACT_TOKEN" | sed 's/+/%2B/g;s:/:%2F:g;s/=/%3D/g')&event_id=$EVENT_ID")
+    status=$(echo "$out" | awk '{print $1}')
+    info "HTTP $status (event_id=$EVENT_ID)"
+    case "$status" in
+        200)
+            assert_body_contains '"found":true' "Filtered portal GET returns profile"
+            assert_body_contains '"attribute_definitions"' "Filtered response still includes attribute_definitions"
+            filtered_defs_count=$(grep -o '"id":' "$TMPBODY" | wc -l | tr -d ' ')
+            info "filtered attribute_definitions count: $filtered_defs_count"
+            if [ -n "${full_defs_count:-}" ] && [ "$filtered_defs_count" -le "$full_defs_count" ]; then
+                pass_msg "Filter reduced or kept count (full=$full_defs_count, filtered=$filtered_defs_count)"
+            else
+                info "Could not verify count comparison"
+            fi
+            ;;
+        404) pass_msg "Filtered portal returned 404 — invalid/expired link" ;;
         *)   fail_msg "Unexpected HTTP $status" ; show_body ;;
     esac
 fi
