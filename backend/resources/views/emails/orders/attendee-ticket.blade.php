@@ -7,7 +7,6 @@
 @php /** @var \HiEvents\DomainObjects\OrderDomainObject $order */ @endphp
 
 @php /** @var string $ticketUrl */ @endphp
-@php /** @var ?string $profileUrl */ @endphp
 @php /** @see \HiEvents\Mail\Attendee\AttendeeTicketMail */ @endphp
 
 <x-mail::message>
@@ -28,11 +27,6 @@
 {{ __('View Ticket') }}
 </x-mail::button>
 
-@isset($profileUrl)
-{{ __('Want to keep your details current so future sign-ups pre-fill?') }}
-<a href="{{ $profileUrl }}">{{ __('Update your profile') }}</a>.
-
-@endisset
 {{ __('If you have any questions or need assistance, please reply to this email or contact the event organizer') }}
 {{ __('at') }} <a href="mailto:{{$eventSettings->getSupportEmail()}}">{{$eventSettings->getSupportEmail()}}</a>.
 

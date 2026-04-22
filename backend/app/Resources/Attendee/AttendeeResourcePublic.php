@@ -27,6 +27,7 @@ class AttendeeResourcePublic extends JsonResource
             'product' => $this->when((bool)$this->getProduct(), fn() => new ProductMinimalResourcePublic($this->getProduct())),
             'locale' => $this->getLocale(),
             'contact_id' => $this->getContactId(),
+            'contact_token' => $this->getContactToken(),
         ];
     }
 }

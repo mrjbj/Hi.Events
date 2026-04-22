@@ -23,6 +23,10 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
     /** @var Collection<AttendeeCheckInDomainObject>|null */
     private ?Collection $checkIns = null;
 
+    /** Transient signed contact token for self-service profile edit on the
+     *  ticket page. Non-null only when attendee.contact_id is set. */
+    public ?string $contactToken = null;
+
     public static function getDefaultSort(): string
     {
         return self::CREATED_AT;
@@ -137,5 +141,16 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
     public function getCheckIns(): ?Collection
     {
         return $this->checkIns;
+    }
+
+    public function setContactToken(?string $token): AttendeeDomainObject
+    {
+        $this->contactToken = $token;
+        return $this;
+    }
+
+    public function getContactToken(): ?string
+    {
+        return $this->contactToken;
     }
 }

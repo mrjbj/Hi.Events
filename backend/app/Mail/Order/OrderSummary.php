@@ -10,7 +10,6 @@ use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
-use HiEvents\Services\Domain\Contact\ContactLinkBuilder;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -73,25 +72,8 @@ class OrderSummary extends BaseMail
                     $this->event->getId(),
                     $this->order->getShortId(),
                 ),
-                'profileUrl' => $this->buildProfileUrl(),
             ]
         );
-    }
-
-    /**
-     * Signed ?c=<token> URL to /contacts/me for the buyer. Null when the
-     * buyer's email doesn't match a known contact on this account.
-     */
-    private function buildProfileUrl(): ?string
-    {
-        $linkBuilder = app(ContactLinkBuilder::class);
-        $baseUrl = Url::getFrontEndUrlFromConfig(Url::CONTACT_PROFILE);
-        $signed = $linkBuilder->forRecipient(
-            email: (string) $this->order->getEmail(),
-            accountId: $this->event->getAccountId(),
-            url: $baseUrl,
-        );
-        return $signed === $baseUrl ? null : $signed;
     }
 
     public function attachments(): array

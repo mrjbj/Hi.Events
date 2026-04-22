@@ -3,17 +3,33 @@ import {useParams} from "react-router";
 import {useGetAttendeePublic} from "../../../../queries/useGetAttendeePublic.ts";
 import {AttendeeTicket} from "../../../common/AttendeeTicket";
 import {Attendee, Product} from "../../../../types.ts";
-import {Container} from "@mantine/core";
+import {Collapse, Container, Group, UnstyledButton} from "@mantine/core";
+import {IconChevronDown, IconChevronUp, IconUser} from "@tabler/icons-react";
+import {useQuery} from "@tanstack/react-query";
+import {useState} from "react";
 import {t} from "@lingui/macro";
 import {PoweredByFooter} from "../../../common/PoweredByFooter";
 import {OnlineEventDetails} from "../../../common/OnlineEventDetails";
 import {HomepageInfoMessage} from "../../../common/HomepageInfoMessage";
+import {AttendeeProfileCard} from "../OrderSummaryAndProducts/AttendeeProfiles";
+import {contactPortalClientPublic, MyContactResult} from "../../../../api/contact-portal.client.ts";
 import classes from './AttendeeProductAndInformation.module.scss';
 
 export const AttendeeProductAndInformation = () => {
     const {eventId, attendeeShortId} = useParams();
     const {data: event, isError: eventError} = useGetEventPublic(eventId);
     const {data: attendee, isError: attendeeError} = useGetAttendeePublic(eventId, String(attendeeShortId));
+    const [profileOpen, setProfileOpen] = useState(false);
+
+    const contactToken = attendee?.contact_token ?? null;
+    const contactId = attendee?.contact_id ?? null;
+    const profileQuery = useQuery<MyContactResult>({
+        queryKey: ['attendee-profile', contactId, Number(eventId)],
+        queryFn: () => contactPortalClientPublic.getMyContact(contactToken!, Number(eventId)),
+        enabled: !!contactToken && typeof contactId === 'number' && !!eventId,
+        staleTime: 60_000,
+        retry: false,
+    });
 
     if (eventError || attendeeError) {
         return (
@@ -54,6 +70,32 @@ export const AttendeeProductAndInformation = () => {
             />
 
             {(event?.settings?.is_online_event && <OnlineEventDetails eventSettings={event.settings}/>)}
+
+            {contactToken && typeof contactId === 'number' && (
+                <div className={classes.profileSection}>
+                    <Group justify="flex-end" mb="xs">
+                        <UnstyledButton
+                            className={classes.profileToggle}
+                            onClick={() => setProfileOpen((v) => !v)}
+                            aria-expanded={profileOpen}
+                        >
+                            <IconUser size={14}/>
+                            <span>{t`My Profile`}</span>
+                            {profileOpen ? <IconChevronUp size={14}/> : <IconChevronDown size={14}/>}
+                        </UnstyledButton>
+                    </Group>
+                    <Collapse in={profileOpen}>
+                        <div className={classes.profilePanel}>
+                            <AttendeeProfileCard
+                                token={contactToken}
+                                data={profileQuery.data}
+                                contactId={contactId}
+                                eventId={Number(eventId)}
+                            />
+                        </div>
+                    </Collapse>
+                </div>
+            )}
 
             <PoweredByFooter/>
         </Container>

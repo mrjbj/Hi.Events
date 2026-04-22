@@ -11,7 +11,6 @@ use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Helper\StringHelper;
 use HiEvents\Helper\Url;
 use HiEvents\Mail\BaseMail;
-use HiEvents\Services\Domain\Contact\ContactLinkBuilder;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -79,27 +78,8 @@ class AttendeeTicketMail extends BaseMail
                     $this->event->getId(),
                     $this->attendee->getShortId(),
                 ),
-                'profileUrl' => $this->buildProfileUrl(),
             ]
         );
-    }
-
-    /**
-     * Builds a signed ?c=<token> URL to /contacts/me for the attendee.
-     * Returns null (not the bare URL) when the attendee's email isn't a
-     * known contact — we don't want to show "Update your profile" to
-     * someone who doesn't have a profile yet.
-     */
-    private function buildProfileUrl(): ?string
-    {
-        $linkBuilder = app(ContactLinkBuilder::class);
-        $baseUrl = Url::getFrontEndUrlFromConfig(Url::CONTACT_PROFILE);
-        $signed = $linkBuilder->forRecipient(
-            email: $this->attendee->getEmail(),
-            accountId: $this->event->getAccountId(),
-            url: $baseUrl,
-        );
-        return $signed === $baseUrl ? null : $signed;
     }
 
     public function attachments(): array
