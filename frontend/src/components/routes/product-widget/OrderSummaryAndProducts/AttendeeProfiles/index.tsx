@@ -1,20 +1,40 @@
 import {t, Trans} from "@lingui/macro";
-import {Button, Group, SimpleGrid, Stack, Text, TextInput} from "@mantine/core";
+import {Button, Group, MultiSelect, Select, SimpleGrid, Stack, Text, TextInput} from "@mantine/core";
 import {IconCheck} from "@tabler/icons-react";
 import {useMutation, useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
 import {useEffect, useState} from "react";
 
-import {contactPortalClientPublic, MyContactResult} from "../../../../../api/contact-portal.client.ts";
+import {ContactAttributeDefinition, contactPortalClientPublic, MyContactResult} from "../../../../../api/contact-portal.client.ts";
 import {AttendeeContactToken} from "../../../../../types.ts";
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
 
-const toAttributeStrings = (attrs: Record<string, unknown> | undefined): Record<string, string> => {
-    const out: Record<string, string> = {};
+type AttrValue = string | string[];
+
+const isMultiType = (type: string | null | undefined): boolean => type === 'multi_select';
+
+/**
+ * Normalize the raw attributes map into the shape the form expects:
+ * - multi_select definitions become string[] (even if DB had a single value)
+ * - everything else becomes a string
+ */
+const toAttributeValues = (
+    attrs: Record<string, unknown> | undefined,
+    definitions: ContactAttributeDefinition[] | undefined,
+): Record<string, AttrValue> => {
+    const typeByName = new Map<string, string | null>();
+    (definitions ?? []).forEach((d) => typeByName.set(d.name, d.type));
+    const out: Record<string, AttrValue> = {};
     for (const [name, value] of Object.entries(attrs ?? {})) {
-        if (value === null || value === undefined) out[name] = '';
-        else if (Array.isArray(value)) out[name] = value.join(', ');
-        else if (typeof value === 'object') out[name] = JSON.stringify(value);
-        else out[name] = String(value);
+        const isMulti = isMultiType(typeByName.get(name));
+        if (value === null || value === undefined) {
+            out[name] = isMulti ? [] : '';
+        } else if (Array.isArray(value)) {
+            out[name] = isMulti ? value.map(String) : value.join(', ');
+        } else if (typeof value === 'object') {
+            out[name] = isMulti ? [] : JSON.stringify(value);
+        } else {
+            out[name] = isMulti ? [String(value)] : String(value);
+        }
     }
     return out;
 };
@@ -78,14 +98,14 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId}: AttendeeP
     const queryClient = useQueryClient();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [attrs, setAttrs] = useState<Record<string, string>>({});
+    const [attrs, setAttrs] = useState<Record<string, AttrValue>>({});
 
     useEffect(() => {
         if (!data?.found) return;
         setFirstName(data.first_name ?? '');
         setLastName(data.last_name ?? '');
-        setAttrs(toAttributeStrings(data.attributes));
-    }, [data?.found, data?.first_name, data?.last_name]);
+        setAttrs(toAttributeValues(data.attributes, data.attribute_definitions));
+    }, [data?.found, data?.first_name, data?.last_name, data?.attribute_definitions]);
 
     const mutation = useMutation({
         mutationFn: () => contactPortalClientPublic.updateMyContact({
@@ -125,14 +145,52 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId}: AttendeeP
                         value={lastName}
                         onChange={(e) => setLastName(e.currentTarget.value)}
                     />
-                    {data.attribute_definitions?.map((def) => (
-                        <TextInput
-                            key={def.id}
-                            label={def.name}
-                            value={attrs[def.name] ?? ''}
-                            onChange={(e) => setAttrs({...attrs, [def.name]: e.currentTarget.value})}
-                        />
-                    ))}
+                    {data.attribute_definitions?.map((def) => {
+                        const current = attrs[def.name];
+                        const options = (def.options ?? []).map((o) => ({value: o, label: o}));
+
+                        if (def.type === 'select') {
+                            return (
+                                <Select
+                                    key={def.id}
+                                    label={def.name}
+                                    data={options}
+                                    value={typeof current === 'string' ? current : ''}
+                                    onChange={(v) => setAttrs({...attrs, [def.name]: v ?? ''})}
+                                    clearable
+                                    searchable
+                                />
+                            );
+                        }
+
+                        if (def.type === 'multi_select') {
+                            const arr = Array.isArray(current)
+                                ? current
+                                : current
+                                    ? String(current).split(',').map((s) => s.trim()).filter(Boolean)
+                                    : [];
+                            return (
+                                <MultiSelect
+                                    key={def.id}
+                                    label={def.name}
+                                    data={options}
+                                    value={arr}
+                                    onChange={(v) => setAttrs({...attrs, [def.name]: v})}
+                                    clearable
+                                    searchable
+                                />
+                            );
+                        }
+
+                        return (
+                            <TextInput
+                                key={def.id}
+                                label={def.name}
+                                value={typeof current === 'string' ? current : ''}
+                                onChange={(e) => setAttrs({...attrs, [def.name]: e.currentTarget.value})}
+                            />
+                        );
+                    })}
                 </SimpleGrid>
 
                 <Group justify="flex-end" mt="xs">
