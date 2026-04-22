@@ -19,7 +19,7 @@ export const AttendeeProductAndInformation = () => {
     const {eventId, attendeeShortId} = useParams();
     const {data: event, isError: eventError} = useGetEventPublic(eventId);
     const {data: attendee, isError: attendeeError} = useGetAttendeePublic(eventId, String(attendeeShortId));
-    const [profileOpen, setProfileOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(true);
 
     const contactToken = attendee?.contact_token ?? null;
     const contactId = attendee?.contact_id ?? null;
@@ -80,7 +80,7 @@ export const AttendeeProductAndInformation = () => {
                             aria-expanded={profileOpen}
                         >
                             <IconUser size={14}/>
-                            <span>{t`My Profile`}</span>
+                            <span>{t`Do we have this right?`}</span>
                             {profileOpen ? <IconChevronUp size={14}/> : <IconChevronDown size={14}/>}
                         </UnstyledButton>
                     </Group>
