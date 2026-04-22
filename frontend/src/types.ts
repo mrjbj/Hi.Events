@@ -579,6 +579,7 @@ export interface Attendee {
     question_answers?: QuestionAnswer[];
     locale?: SupportedLocales;
     contact_id?: number | null;
+    contact_token?: string | null;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
 }

@@ -10,3 +10,37 @@
     display: none;
   }
 }
+
+.profileSection {
+  margin-top: 24px;
+
+  @media print {
+    display: none;
+  }
+}
+
+.profileToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--checkout-accent-soft, rgba(99, 102, 241, 0.12));
+  color: var(--checkout-accent, #4F46E5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease;
+
+  &:hover {
+    background: var(--checkout-accent-soft-hover, rgba(99, 102, 241, 0.2));
+  }
+}
+
+.profilePanel {
+  border: 1px solid var(--checkout-accent, rgba(99, 102, 241, 0.45));
+  border-radius: 12px;
+  background: var(--checkout-accent-soft, rgba(99, 102, 241, 0.06));
+  padding: 16px;
+  margin-top: 12px;
+}

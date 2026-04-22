@@ -4,7 +4,6 @@
 @php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var string $orderUrl */ @endphp
-@php /** @var ?string $profileUrl */ @endphp
 
 @php /** @see \HiEvents\Mail\Order\OrderSummary */ @endphp
 
@@ -60,11 +59,6 @@
     {{ __('View Order Summary & Tickets') }}
 </x-mail::button>
 
-@isset($profileUrl)
-{{ __('Want to keep your details current so future sign-ups pre-fill?') }}
-<a href="{{ $profileUrl }}">{{ __('Update your profile') }}</a>.
-
-@endisset
 {{ __('If you have any questions or need assistance, please contact') }} <a href="mailto:{{ $organizer->getEmail() }}">{{ $organizer->getEmail() }}</a>.
 
 {{ __('Best regards,') }}<br>
