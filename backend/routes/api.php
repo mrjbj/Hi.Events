@@ -213,6 +213,7 @@ use HiEvents\Http\Actions\Users\UpdateUserAction;
 use HiEvents\Http\Actions\Admin\EmailSuppressions\CreateEmailSuppressionAction;
 use HiEvents\Http\Actions\Admin\EmailSuppressions\DeleteEmailSuppressionAction;
 use HiEvents\Http\Actions\Admin\EmailSuppressions\GetAllEmailSuppressionsAction;
+use HiEvents\Http\Actions\Admin\Organizers\GetAllOrganizersAction as GetAllAdminOrganizersAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\CancelWaitlistEntryAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\GetWaitlistEntriesAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\GetWaitlistStatsAction;
@@ -506,6 +507,7 @@ $router->prefix('/admin')->middleware(['auth:api'])->group(
         $router->put('/configurations/{configuration_id}', UpdateConfigurationAction::class);
         $router->delete('/configurations/{configuration_id}', DeleteConfigurationAction::class);
         $router->get('/users', GetAllUsersAction::class);
+        $router->get('/organizers', GetAllAdminOrganizersAction::class);
         $router->get('/events', GetAllAdminEventsAction::class);
         $router->get('/events/upcoming', GetUpcomingEventsAction::class);
         $router->get('/orders', GetAllOrdersAction::class);
