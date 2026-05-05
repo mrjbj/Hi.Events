@@ -4,18 +4,13 @@ import {t} from "@lingui/macro";
 import {IconPhotoPlus} from "@tabler/icons-react";
 import {Button, FileButton, Group, Image, Loader, Modal, Portal, Stack, Tabs, Text, TextInput} from "@mantine/core";
 import {useUploadImage} from "../../../../../mutations/useUploadImage.ts";
-import {useQueryClient} from "@tanstack/react-query";
-import {GET_ACCOUNT_IMAGES_QUERY_KEY} from "../../../../../queries/useGetAccountImages.ts";
-import {BrowseImagesPanel} from "./BrowseImagesPanel";
 
 export const InsertImageControl = () => {
     const editor = useRichTextEditorContext();
-    const queryClient = useQueryClient();
     const [isModalOpen, setModalOpen] = useState(false);
     const [tab, setTab] = useState<string>('url');
     const [imageUrl, setImageUrl] = useState('');
     const [uploadedImageUrl, setUploadedImageUrl] = useState('');
-    const [browseSelectedUrl, setBrowseSelectedUrl] = useState('');
     const [urlError, setUrlError] = useState<string | null>(null);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -35,7 +30,7 @@ export const InsertImageControl = () => {
     const handleImageInsert = async () => {
         setLoading(true);
         try {
-            const finalUrl = uploadedImageUrl || imageUrl || browseSelectedUrl;
+            const finalUrl = uploadedImageUrl || imageUrl;
             if (!finalUrl) {
                 setUrlError(t`Please provide an image.`);
                 return;
@@ -66,7 +61,6 @@ export const InsertImageControl = () => {
                 setUploadedImageUrl(data.url);
                 setUploadError(null);
                 setIsUploading(false);
-                queryClient.invalidateQueries({queryKey: [GET_ACCOUNT_IMAGES_QUERY_KEY]});
             },
             onError: (error: any) => {
                 const message = error?.response?.data?.message ?? t`Failed to upload image.`;
@@ -80,7 +74,6 @@ export const InsertImageControl = () => {
         setTab('url');
         setImageUrl('');
         setUploadedImageUrl('');
-        setBrowseSelectedUrl('');
         setUrlError(null);
         setUploadError(null);
         setIsUploading(false);
@@ -104,13 +97,11 @@ export const InsertImageControl = () => {
                         resetState();
                     }}
                     title={t`Insert Image`}
-                    size="lg"
                 >
-                    <Tabs value={tab} onChange={(value) => value && setTab(value)} variant="outline">
+                    <Tabs value={tab} onChange={setTab} variant="outline">
                         <Tabs.List grow>
                             <Tabs.Tab value="url">{t`Paste URL`}</Tabs.Tab>
                             <Tabs.Tab value="upload">{t`Upload Image`}</Tabs.Tab>
-                            <Tabs.Tab value="browse">{t`Browse Images`}</Tabs.Tab>
                         </Tabs.List>
 
                         <Tabs.Panel value="url" pt="md">
@@ -174,20 +165,6 @@ export const InsertImageControl = () => {
                                             </Text>
                                         )}
                                     </>
-                                )}
-                            </Stack>
-                        </Tabs.Panel>
-
-                        <Tabs.Panel value="browse" pt="md">
-                            <Stack>
-                                <BrowseImagesPanel
-                                    onImageSelected={setBrowseSelectedUrl}
-                                    selectedUrl={browseSelectedUrl}
-                                />
-                                {browseSelectedUrl && (
-                                    <Button onClick={handleImageInsert} loading={loading}>
-                                        {t`Insert Image`}
-                                    </Button>
                                 )}
                             </Stack>
                         </Tabs.Panel>
