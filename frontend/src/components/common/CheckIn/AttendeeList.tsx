@@ -1,5 +1,5 @@
-import {Button, Loader} from "@mantine/core";
-import {IconTicket} from "@tabler/icons-react";
+import {ActionIcon, Button, Loader, Tooltip} from "@mantine/core";
+import {IconTicket, IconUserEdit} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -12,6 +12,7 @@ interface AttendeeListProps {
     isDeletePending: boolean;
     allowOrdersAwaitingOfflinePaymentToCheckIn: boolean;
     onCheckInToggle: (attendee: Attendee) => void;
+    onEditAttendee?: (attendee: Attendee) => void;
     onClickSound?: () => void;
 }
 
@@ -23,6 +24,7 @@ export const AttendeeList = ({
                                  isDeletePending,
                                  allowOrdersAwaitingOfflinePaymentToCheckIn,
                                  onCheckInToggle,
+                                 onEditAttendee,
                                  onClickSound
                              }: AttendeeListProps) => {
     const checkInButtonText = (attendee: Attendee) => {
@@ -100,6 +102,18 @@ export const AttendeeList = ({
                             </div>
                         </div>
                         <div className={classes.actions}>
+                            {onEditAttendee && attendee.contact_token && (
+                                <Tooltip label={t`Edit attendee details`}>
+                                    <ActionIcon
+                                        variant="subtle"
+                                        color="gray"
+                                        onClick={() => onEditAttendee(attendee)}
+                                        aria-label={t`Edit attendee`}
+                                    >
+                                        <IconUserEdit size={18}/>
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
                             <Button
                                 onClick={() => {
                                     onClickSound?.();

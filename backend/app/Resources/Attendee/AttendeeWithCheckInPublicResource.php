@@ -25,6 +25,8 @@ class AttendeeWithCheckInPublicResource extends JsonResource
             'status' => $this->getStatus(),
             'locale' => $this->getLocale(),
             'order_id' => $this->getOrderId(),
+            'contact_id' => $this->getContactId(),
+            'contact_token' => $this->getContactToken(),
             $this->mergeWhen($this->getCheckIn() !== null, [
                 'check_in' => new AttendeeCheckInPublicResource($this->getCheckIn()),
             ]),

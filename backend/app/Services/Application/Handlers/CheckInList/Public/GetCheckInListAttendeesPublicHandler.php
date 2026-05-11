@@ -13,17 +13,25 @@ use HiEvents\Http\DTO\QueryParamsDTO;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use Illuminate\Contracts\Pagination\Paginator;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
+/**
+ * Trust note: each attendee returned to the check-in app carries a freshly minted
+ * contact_token (see {@see ContactSignedTokenService}). Anyone with the check-in
+ * list short_id therefore inherits the same edit-profile capability as the
+ * attendee themselves — name and registration-attribute changes via the contact
+ * portal. This matches the existing trust scope (the same actor can already mark
+ * any attendee on this list as checked in).
+ */
 class GetCheckInListAttendeesPublicHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface    $attendeeRepository,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-    )
-    {
-    }
+        private readonly ContactSignedTokenService $contactTokenService,
+    ) {}
 
     /**
      * @throws CannotCheckInException
@@ -37,7 +45,7 @@ class GetCheckInListAttendeesPublicHandler
                 CheckInListDomainObjectAbstract::SHORT_ID => $shortId,
             ]);
 
-        if (!$checkInList) {
+        if (! $checkInList) {
             throw new ResourceNotFoundException(__('Check-in list not found'));
         }
 
@@ -45,9 +53,19 @@ class GetCheckInListAttendeesPublicHandler
 
         $attendees = $this->attendeeRepository->getAttendeesByCheckInShortId($shortId, $queryParams);
 
-        // Set the check-in for each attendee
-        $attendees->getCollection()->transform(function (AttendeeDomainObject $attendee) use ($checkInList) {
+        $accountId = $checkInList->getEvent()?->getAccountId();
+
+        // Set the check-in + freshly-minted contact token for each attendee.
+        $attendees->getCollection()->transform(function (AttendeeDomainObject $attendee) use ($checkInList, $accountId) {
             $attendee->setCheckIn($attendee->getCheckIns()?->first(fn ($checkIn) => $checkIn->getCheckInListId() === $checkInList->getId()));
+
+            $contactId = $attendee->getContactId();
+            if ($contactId !== null && $accountId !== null) {
+                $attendee->setContactToken(
+                    $this->contactTokenService->generate((int) $contactId, (int) $accountId),
+                );
+            }
+
             return $attendee;
         });
 

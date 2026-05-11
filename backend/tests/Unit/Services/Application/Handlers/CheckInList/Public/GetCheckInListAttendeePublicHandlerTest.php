@@ -8,6 +8,7 @@ use HiEvents\Exceptions\CannotCheckInException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use HiEvents\Services\Application\Handlers\CheckInList\Public\GetCheckInListAttendeePublicHandler;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use Mockery as m;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Tests\TestCase;
@@ -16,6 +17,7 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
 {
     private CheckInListRepositoryInterface $checkInListRepository;
     private AttendeeRepositoryInterface $attendeeRepository;
+    private ContactSignedTokenService $contactTokenService;
     private GetCheckInListAttendeePublicHandler $handler;
 
     protected function setUp(): void
@@ -24,10 +26,12 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
 
         $this->checkInListRepository = m::mock(CheckInListRepositoryInterface::class);
         $this->attendeeRepository = m::mock(AttendeeRepositoryInterface::class);
+        $this->contactTokenService = m::mock(ContactSignedTokenService::class);
 
         $this->handler = new GetCheckInListAttendeePublicHandler(
             $this->attendeeRepository,
-            $this->checkInListRepository
+            $this->checkInListRepository,
+            $this->contactTokenService,
         );
     }
 
@@ -95,8 +99,10 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
         $checkInList->shouldReceive('getExpiresAt')->once()->andReturn(null);
         $checkInList->shouldReceive('getActivatesAt')->once()->andReturn(null);
         $checkInList->shouldReceive('getEventId')->once()->andReturn(123);
+        $checkInList->shouldReceive('getEvent')->andReturn(null);
 
         $attendee = m::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getContactId')->andReturn(null);
 
         $this->checkInListRepository
             ->shouldReceive('loadRelation')
@@ -120,5 +126,42 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
         $result = $this->handler->handle('short-id', 'attendee-public-id');
 
         $this->assertSame($attendee, $result);
+    }
+
+    public function testHandleAttachesContactTokenWhenAttendeeIsLinkedToContact(): void
+    {
+        $event = m::mock(\HiEvents\DomainObjects\EventDomainObject::class);
+        $event->shouldReceive('getAccountId')->andReturn(7);
+
+        $checkInList = m::mock(CheckInListDomainObject::class);
+        $checkInList->shouldReceive('getExpiresAt')->once()->andReturn(null);
+        $checkInList->shouldReceive('getActivatesAt')->once()->andReturn(null);
+        $checkInList->shouldReceive('getEventId')->once()->andReturn(123);
+        $checkInList->shouldReceive('getEvent')->andReturn($event);
+
+        $attendee = m::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getContactId')->andReturn(42);
+        $attendee->shouldReceive('setContactToken')
+            ->once()
+            ->with('minted-token')
+            ->andReturnSelf();
+
+        $this->contactTokenService
+            ->shouldReceive('generate')
+            ->once()
+            ->with(42, 7)
+            ->andReturn('minted-token');
+
+        $this->checkInListRepository->shouldReceive('loadRelation')->andReturnSelf()->times(2);
+        $this->checkInListRepository->shouldReceive('findFirstWhere')->once()->andReturn($checkInList);
+
+        $this->attendeeRepository
+            ->shouldReceive('findFirstWhere')
+            ->once()
+            ->andReturn($attendee);
+
+        $this->handler->handle('short-id', 'attendee-public-id');
+
+        $this->assertTrue(true);
     }
 }
