@@ -3,8 +3,8 @@ import {useParams} from "react-router";
 import {useGetAttendeePublic} from "../../../../queries/useGetAttendeePublic.ts";
 import {AttendeeTicket} from "../../../common/AttendeeTicket";
 import {Attendee, Product} from "../../../../types.ts";
-import {Collapse, Container, Group, UnstyledButton} from "@mantine/core";
-import {IconChevronDown, IconChevronUp, IconUser} from "@tabler/icons-react";
+import {Alert, Collapse, Container, Group, UnstyledButton} from "@mantine/core";
+import {IconChevronDown, IconChevronUp, IconInfoCircle, IconUser} from "@tabler/icons-react";
 import {useQuery} from "@tanstack/react-query";
 import {useState} from "react";
 import {t} from "@lingui/macro";
@@ -58,9 +58,21 @@ export const AttendeeProductAndInformation = () => {
      *
      * If you wish to remove this notice, a commercial license is available at: https://hi.events/licensing
      */
+    const showWelcomeBanner = Boolean(attendee.profile_completion_recommended) && Boolean(contactToken);
+
     return (
         <Container>
             <h2 className={classes.title}>{t`Your ticket for`} {event.title}</h2>
+
+            {showWelcomeBanner && (
+                <Alert
+                    color="blue"
+                    icon={<IconInfoCircle size={18}/>}
+                    mb="md"
+                >
+                    {t`Welcome! Please confirm your details below before the event so we know who's attending.`}
+                </Alert>
+            )}
 
             <AttendeeTicket
                 attendee={attendee as Attendee}

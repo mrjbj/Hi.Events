@@ -22,7 +22,7 @@ import {publicCheckInClient} from "../../../api/check-in.client.ts";
 import {isSsr} from "../../../utilites/helpers.ts";
 import {AttendeeList} from "../../common/CheckIn/AttendeeList";
 import {CheckInOptionsModal} from "../../common/CheckIn/CheckInOptionsModal";
-import {EditAttendeeCheckInModal} from "../../common/CheckIn/EditAttendeeCheckInModal";
+import {AttendeeProfileModal} from "../../common/CheckIn/AttendeeProfileModal";
 import {ScannerSelectionModal} from "../../common/CheckIn/ScannerSelectionModal";
 import {CheckInInfoModal} from "../../common/CheckIn/CheckInInfoModal";
 import {HidScannerStatus} from "../../common/CheckIn/HidScannerStatus";
@@ -57,7 +57,7 @@ const CheckIn = () => {
     const [selectedAttendee, setSelectedAttendee] = useState<Attendee | null>(null);
     const [checkInModalOpen, checkInModalHandlers] = useDisclosure(false);
     const [editingAttendee, setEditingAttendee] = useState<Attendee | null>(null);
-    const [editModalOpen, editModalHandlers] = useDisclosure(false);
+    const [profileModalOpen, profileModalHandlers] = useDisclosure(false);
     const [infoModalOpen, infoModalHandlers] = useDisclosure(false, {
             onOpen: () => {
                 CheckInListQuery.refetch();
@@ -471,7 +471,7 @@ const CheckIn = () => {
                 onCheckInToggle={handleCheckInToggle}
                 onEditAttendee={(attendee) => {
                     setEditingAttendee(attendee);
-                    editModalHandlers.open();
+                    profileModalHandlers.open();
                 }}
                 onClickSound={playClickSound}
             />
@@ -485,17 +485,15 @@ const CheckIn = () => {
                 }}
                 onCheckIn={(action) => selectedAttendee && handleCheckInAction(selectedAttendee, action)}
             />
-            {checkInListShortId && (
-                <EditAttendeeCheckInModal
-                    opened={editModalOpen}
-                    attendee={editingAttendee}
-                    checkInListShortId={checkInListShortId}
-                    onClose={() => {
-                        editModalHandlers.close();
-                        setEditingAttendee(null);
-                    }}
-                />
-            )}
+            <AttendeeProfileModal
+                opened={profileModalOpen}
+                attendee={editingAttendee}
+                eventId={typeof event?.id === 'string' ? Number(event.id) : event?.id}
+                onClose={() => {
+                    profileModalHandlers.close();
+                    setEditingAttendee(null);
+                }}
+            />
             <ScannerSelectionModal
                 isOpen={scannerSelectionOpen}
                 isHidScannerActive={hidScannerMode}

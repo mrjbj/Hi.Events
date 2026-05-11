@@ -580,6 +580,7 @@ export interface Attendee {
     locale?: SupportedLocales;
     contact_id?: number | null;
     contact_token?: string | null;
+    profile_completion_recommended?: boolean;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
     from_group_purchase?: boolean;

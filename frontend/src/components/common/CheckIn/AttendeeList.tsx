@@ -1,5 +1,5 @@
 import {ActionIcon, Badge, Button, Loader, Tooltip} from "@mantine/core";
-import {IconPencil, IconTicket, IconUsersGroup} from "@tabler/icons-react";
+import {IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -114,15 +114,15 @@ export const AttendeeList = ({
                             </div>
                         </div>
                         <div className={classes.actions}>
-                            {onEditAttendee && (
-                                <Tooltip label={t`Edit name or email`}>
+                            {onEditAttendee && attendee.contact_token && (
+                                <Tooltip label={t`Edit attendee details`}>
                                     <ActionIcon
                                         variant="subtle"
                                         color="gray"
                                         onClick={() => onEditAttendee(attendee)}
                                         aria-label={t`Edit attendee`}
                                     >
-                                        <IconPencil size={18}/>
+                                        <IconUserEdit size={18}/>
                                     </ActionIcon>
                                 </Tooltip>
                             )}

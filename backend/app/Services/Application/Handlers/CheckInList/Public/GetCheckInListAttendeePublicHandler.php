@@ -12,16 +12,16 @@ use HiEvents\Helper\DateHelper;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class GetCheckInListAttendeePublicHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface    $attendeeRepository,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-    )
-    {
-    }
+        private readonly ContactSignedTokenService $contactTokenService,
+    ) {}
 
     /**
      * @throws CannotCheckInException
@@ -35,20 +35,33 @@ class GetCheckInListAttendeePublicHandler
                 CheckInListDomainObjectAbstract::SHORT_ID => $shortId,
             ]);
 
-        if (!$checkInList) {
+        if (! $checkInList) {
             throw new ResourceNotFoundException(__('Check-in list not found'));
         }
 
         $this->validateCheckInListIsActive($checkInList);
 
-        return $this->attendeeRepository->findFirstWhere([
+        $attendee = $this->attendeeRepository->findFirstWhere([
             'public_id' => $attendeePublicId,
             'event_id' => $checkInList->getEventId(),
         ]);
+
+        if ($attendee !== null) {
+            $contactId = $attendee->getContactId();
+            $accountId = $checkInList->getEvent()?->getAccountId();
+            if ($contactId !== null && $accountId !== null) {
+                $attendee->setContactToken(
+                    $this->contactTokenService->generate((int) $contactId, (int) $accountId),
+                );
+            }
+        }
+
+        return $attendee;
     }
 
     /**
      * @todo - Move this to its own service. It's used 3 times
+     *
      * @throws CannotCheckInException
      */
     private function validateCheckInListIsActive(CheckInListDomainObject $checkInList): void
