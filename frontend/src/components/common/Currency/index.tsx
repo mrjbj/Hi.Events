@@ -44,6 +44,7 @@ interface ProductPriceProps {
     className?: string;
     freeLabel?: string | null;
     taxAndServiceFeeDisplayType?: 'INCLUSIVE' | 'EXCLUSIVE';
+    quantityMultiplier?: number;
 }
 
 export const ProductPriceDisplay: React.FC<ProductPriceProps> = ({
@@ -53,9 +54,11 @@ export const ProductPriceDisplay: React.FC<ProductPriceProps> = ({
                                                                    className,
                                                                    freeLabel,
                                                                    taxAndServiceFeeDisplayType = 'exclusive',
+                                                                   quantityMultiplier = 1,
                                                                }) => {
-    let displayPrice = price.price;
-    const totalTaxAndFees = (price.tax_total || 0) + (price.fee_total || 0);
+    const multiplier = quantityMultiplier && quantityMultiplier > 1 ? quantityMultiplier : 1;
+    let displayPrice = price.price * multiplier;
+    const totalTaxAndFees = ((price.tax_total || 0) + (price.fee_total || 0)) * multiplier;
 
     // Order taxes and service fees for display
     const orderedFees = [...(product.taxes || [])].sort((a, b) => a.type.localeCompare(b.type));
@@ -92,7 +95,14 @@ export const ProductPriceDisplay: React.FC<ProductPriceProps> = ({
 
     return (
         <div className={className}>
-            <div>{formattedPrice}</div>
+            <div>
+                {formattedPrice}
+                {multiplier > 1 && (
+                    <span style={{marginLeft: '0.4em', fontSize: '0.8em', opacity: 0.75}}>
+                        {t`(pack of ${multiplier})`}
+                    </span>
+                )}
+            </div>
             <div>{appendedText}</div>
         </div>
     );

@@ -257,4 +257,41 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
 
         return $count;
     }
+
+    public function findAttendeeOnCheckInList(string $checkInListShortId, string $attendeePublicId): ?AttendeeDomainObject
+    {
+        $row = DB::table('attendees')
+            ->select('attendees.id')
+            ->join('product_check_in_lists', 'product_check_in_lists.product_id', '=', 'attendees.product_id')
+            ->join('check_in_lists', 'check_in_lists.id', '=', 'product_check_in_lists.check_in_list_id')
+            ->where('check_in_lists.short_id', $checkInListShortId)
+            ->where('attendees.public_id', $attendeePublicId)
+            ->whereNull('attendees.deleted_at')
+            ->whereNull('product_check_in_lists.deleted_at')
+            ->first();
+
+        if (!$row) {
+            return null;
+        }
+
+        return $this->findFirstWhere(['id' => $row->id]);
+    }
+
+    public function getGroupPurchaseKeysByCheckInShortId(string $shortId): array
+    {
+        $rows = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->join('product_check_in_lists', 'product_check_in_lists.product_id', '=', 'order_items.product_id')
+            ->join('check_in_lists', 'check_in_lists.id', '=', 'product_check_in_lists.check_in_list_id')
+            ->where('check_in_lists.short_id', $shortId)
+            ->where('order_items.quantity', '>', 1)
+            ->whereNull('order_items.deleted_at')
+            ->whereNull('orders.deleted_at')
+            ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name])
+            ->select('order_items.order_id', 'order_items.product_price_id')
+            ->distinct()
+            ->get();
+
+        return $rows->map(fn ($r) => $r->order_id . ':' . $r->product_price_id)->all();
+    }
 }

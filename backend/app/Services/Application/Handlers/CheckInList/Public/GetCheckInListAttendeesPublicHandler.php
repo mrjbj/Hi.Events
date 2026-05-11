@@ -45,9 +45,12 @@ class GetCheckInListAttendeesPublicHandler
 
         $attendees = $this->attendeeRepository->getAttendeesByCheckInShortId($shortId, $queryParams);
 
-        // Set the check-in for each attendee
-        $attendees->getCollection()->transform(function (AttendeeDomainObject $attendee) use ($checkInList) {
+        $groupPurchaseKeys = array_flip($this->attendeeRepository->getGroupPurchaseKeysByCheckInShortId($shortId));
+
+        // Set the check-in and group-purchase flag for each attendee
+        $attendees->getCollection()->transform(function (AttendeeDomainObject $attendee) use ($checkInList, $groupPurchaseKeys) {
             $attendee->setCheckIn($attendee->getCheckIns()?->first(fn ($checkIn) => $checkIn->getCheckInListId() === $checkInList->getId()));
+            $attendee->setFromGroupPurchase(isset($groupPurchaseKeys[$attendee->getOrderId() . ':' . $attendee->getProductPriceId()]));
             return $attendee;
         });
 

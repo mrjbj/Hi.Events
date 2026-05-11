@@ -72,8 +72,47 @@ class OrderSummary extends BaseMail
                     $this->event->getId(),
                     $this->order->getShortId(),
                 ),
+                'buyerTickets' => $this->buildBuyerTicketEntries(),
             ]
         );
+    }
+
+    /**
+     * Per-ticket entries to embed in the buyer's order-summary email: every attendee
+     * whose email matches the buyer's. Each entry includes the per-attendee ticket URL
+     * so the buyer can forward individual tickets to guests.
+     *
+     * @return array<int, array{name: string, ticketUrl: string}>
+     */
+    private function buildBuyerTicketEntries(): array
+    {
+        $attendees = $this->order->getAttendees();
+        if ($attendees === null) {
+            return [];
+        }
+
+        $buyerEmail = strtolower(trim((string)$this->order->getEmail()));
+
+        $entries = [];
+        foreach ($attendees as $attendee) {
+            $attendeeEmail = strtolower(trim((string)$attendee->getEmail()));
+            if ($attendeeEmail !== $buyerEmail) {
+                continue;
+            }
+
+            $name = trim(($attendee->getFirstName() ?? '') . ' ' . ($attendee->getLastName() ?? ''));
+
+            $entries[] = [
+                'name' => $name,
+                'ticketUrl' => sprintf(
+                    Url::getFrontEndUrlFromConfig(Url::ATTENDEE_TICKET),
+                    $this->event->getId(),
+                    $attendee->getShortId(),
+                ),
+            ];
+        }
+
+        return $entries;
     }
 
     public function attachments(): array

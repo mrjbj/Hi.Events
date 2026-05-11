@@ -28,6 +28,19 @@ class AttendeeResourcePublic extends JsonResource
             'locale' => $this->getLocale(),
             'contact_id' => $this->getContactId(),
             'contact_token' => $this->getContactToken(),
+            'profile_completion_recommended' => $this->profileCompletionRecommended(),
         ];
+    }
+
+    /**
+     * True when this attendee's name fields look like a placeholder — usually
+     * because the buyer purchased multiple seats and left the guest details
+     * blank. Frontends can use this to surface a "please confirm your details"
+     * prompt on the public ticket page.
+     */
+    private function profileCompletionRecommended(): bool
+    {
+        return trim((string)$this->getFirstName()) === ''
+            || trim((string)$this->getLastName()) === '';
     }
 }

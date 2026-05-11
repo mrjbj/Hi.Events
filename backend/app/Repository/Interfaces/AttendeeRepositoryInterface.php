@@ -35,4 +35,19 @@ interface AttendeeRepositoryInterface extends RepositoryInterface
      * @return int Number of rows updated.
      */
     public function bulkUpdateContactLinkIgnoredAt(int $accountId, array $attendeeIds, ?string $timestamp): int;
+
+    /**
+     * Returns a list of "{order_id}:{product_price_id}" keys for order_items on this
+     * check-in list whose quantity > 1. Used to flag attendees that arrived via a
+     * group/bundle purchase so the check-in UI can prompt staff to verify names.
+     *
+     * @return string[]
+     */
+    public function getGroupPurchaseKeysByCheckInShortId(string $shortId): array;
+
+    /**
+     * Finds an attendee by public_id, scoped to a check-in list (the attendee's
+     * product must be on this list). Returns null if not found or not on the list.
+     */
+    public function findAttendeeOnCheckInList(string $checkInListShortId, string $attendeePublicId): ?AttendeeDomainObject;
 }

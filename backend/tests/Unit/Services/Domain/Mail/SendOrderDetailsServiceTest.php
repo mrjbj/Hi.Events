@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services\Domain\Mail;
 
+use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\Enums\TransactionalEmailType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
@@ -18,6 +19,7 @@ use HiEvents\Services\Domain\Email\TransactionalEmailTrackingService;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailer;
+use Illuminate\Support\Collection;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -141,6 +143,120 @@ class SendOrderDetailsServiceTest extends TestCase
         );
     }
 
+    public function testNoAttendeeEmailsSentWhenAllAttendeesShareBuyerEmail(): void
+    {
+        $buyerEmail = 'buyer@example.com';
+        $order = $this->makeOrder($buyerEmail, [
+            ['email' => $buyerEmail],
+            ['email' => $buyerEmail],
+            ['email' => $buyerEmail],
+        ]);
+        $event = $this->makeEvent();
+
+        $this->wireGroupingTest($order, $event);
+
+        $this->sendAttendeeTicketService->shouldNotReceive('send');
+        $this->sendAttendeeTicketService->shouldNotReceive('sendCombined');
+
+        $this->service->sendOrderSummaryAndTicketEmails($order);
+
+        $this->assertTrue(true);
+    }
+
+    public function testOnePerRecipientWhenAttendeesHaveUniqueEmails(): void
+    {
+        $buyerEmail = 'buyer@example.com';
+        $order = $this->makeOrder($buyerEmail, [
+            ['email' => 'alice@example.com'],
+            ['email' => 'bob@example.com'],
+            ['email' => 'cara@example.com'],
+        ]);
+        $event = $this->makeEvent();
+
+        $this->wireGroupingTest($order, $event);
+
+        $this->sendAttendeeTicketService
+            ->shouldReceive('send')
+            ->times(3);
+
+        $this->sendAttendeeTicketService->shouldNotReceive('sendCombined');
+
+        $this->service->sendOrderSummaryAndTicketEmails($order);
+
+        $this->assertTrue(true);
+    }
+
+    public function testGroupedRecipientUsesSendCombined(): void
+    {
+        $buyerEmail = 'buyer@example.com';
+        $order = $this->makeOrder($buyerEmail, [
+            ['email' => 'group@example.com'],
+            ['email' => 'group@example.com'],
+            ['email' => 'solo@example.com'],
+        ]);
+        $event = $this->makeEvent();
+
+        $this->wireGroupingTest($order, $event);
+
+        $this->sendAttendeeTicketService
+            ->shouldReceive('sendCombined')
+            ->once()
+            ->withArgs(function (...$args) {
+                $attendees = $args[1] ?? null;
+                if (!$attendees instanceof Collection) {
+                    return false;
+                }
+                return $attendees->count() === 2
+                    && strtolower($attendees->first()->getEmail()) === 'group@example.com';
+            });
+
+        $this->sendAttendeeTicketService
+            ->shouldReceive('send')
+            ->once()
+            ->withArgs(function (...$args) {
+                $attendee = $args[1] ?? null;
+                return $attendee instanceof AttendeeDomainObject
+                    && strtolower($attendee->getEmail()) === 'solo@example.com';
+            });
+
+        $this->service->sendOrderSummaryAndTicketEmails($order);
+
+        $this->assertTrue(true);
+    }
+
+    public function testBuyerEmailGroupIsSkippedEvenWhenOtherRecipientsExist(): void
+    {
+        $buyerEmail = 'buyer@example.com';
+        $order = $this->makeOrder($buyerEmail, [
+            ['email' => $buyerEmail],
+            ['email' => $buyerEmail],
+            ['email' => $buyerEmail],
+            ['email' => 'other@example.com'],
+            ['email' => 'other@example.com'],
+        ]);
+        $event = $this->makeEvent();
+
+        $this->wireGroupingTest($order, $event);
+
+        $this->sendAttendeeTicketService
+            ->shouldReceive('sendCombined')
+            ->once()
+            ->withArgs(function (...$args) {
+                $attendees = $args[1] ?? null;
+                if (!$attendees instanceof Collection) {
+                    return false;
+                }
+                return $attendees->count() === 2
+                    && strtolower($attendees->first()->getEmail()) === 'other@example.com';
+            });
+
+        $this->sendAttendeeTicketService->shouldNotReceive('send');
+
+        $this->service->sendOrderSummaryAndTicketEmails($order);
+
+        $this->assertTrue(true);
+    }
+
     /**
      * @return array{0: OrderDomainObject} Returns the hydrated order mock.
      */
@@ -191,5 +307,78 @@ class SendOrderDetailsServiceTest extends TestCase
         $this->mailBuilderService->shouldReceive('buildOrderSummaryMail')->andReturn($customerMail);
 
         return [$order];
+    }
+
+    /**
+     * Common wiring for the group-by-email tests: hydrates repositories, builds the
+     * order summary mail, and accepts (without asserting) any recordAndSend calls
+     * the customer-summary path triggers via TransactionalEmailTrackingService.
+     */
+    private function wireGroupingTest(OrderDomainObject $order, EventDomainObject $event): void
+    {
+        $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->orderRepository->shouldReceive('findById')->andReturn($order);
+
+        $this->eventRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->eventRepository->shouldReceive('findById')->andReturn($event);
+
+        $summary = Mockery::mock(OrderSummary::class);
+        $summary->shouldReceive('envelope')->andReturn(new Envelope(subject: 'Your Order'));
+        $this->mailBuilderService
+            ->shouldReceive('buildOrderSummaryMail')
+            ->once()
+            ->andReturn($summary);
+
+        $this->trackingService
+            ->shouldReceive('recordAndSend')
+            ->andReturnNull();
+    }
+
+    private function makeOrder(string $buyerEmail, array $attendeeSpecs): OrderDomainObject
+    {
+        $order = Mockery::mock(OrderDomainObject::class);
+        $order->shouldReceive('getId')->andReturn(1);
+        $order->shouldReceive('getEventId')->andReturn(10);
+        $order->shouldReceive('getEmail')->andReturn($buyerEmail);
+        $order->shouldReceive('getLocale')->andReturn('en');
+        $order->shouldReceive('isOrderCompleted')->andReturn(true);
+        $order->shouldReceive('isOrderAwaitingOfflinePayment')->andReturn(false);
+        $order->shouldReceive('isOrderFailed')->andReturn(false);
+        $order->shouldReceive('getIsManuallyCreated')->andReturn(true);
+        $order->shouldReceive('getLatestInvoice')->andReturn(null);
+        $order->shouldReceive('getTotalGross')->andReturn(0);
+
+        $attendees = new Collection(array_map(function ($spec, $i) {
+            $a = Mockery::mock(AttendeeDomainObject::class);
+            $a->shouldReceive('getEmail')->andReturn($spec['email']);
+            $a->shouldReceive('getLocale')->andReturn('en');
+            $a->shouldReceive('getId')->andReturn($i + 1);
+            return $a;
+        }, $attendeeSpecs, array_keys($attendeeSpecs)));
+
+        $order->shouldReceive('getAttendees')->andReturn($attendees);
+
+        return $order;
+    }
+
+    private function makeEvent(): EventDomainObject
+    {
+        $event = Mockery::mock(EventDomainObject::class);
+        $event->shouldReceive('getId')->andReturn(10);
+        $event->shouldReceive('getAccountId')->andReturn(1);
+        $event->shouldReceive('getTitle')->andReturn('Test Event');
+
+        $organizer = Mockery::mock(OrganizerDomainObject::class);
+        $organizer->shouldReceive('getId')->andReturn(1);
+        $organizer->shouldReceive('getEmail')->andReturn('organizer@example.com');
+        $organizer->shouldReceive('getName')->andReturn('Organizer');
+
+        $settings = Mockery::mock(EventSettingDomainObject::class);
+        $settings->shouldReceive('getNotifyOrganizerOfNewOrders')->andReturn(false);
+
+        $event->shouldReceive('getOrganizer')->andReturn($organizer);
+        $event->shouldReceive('getEventSettings')->andReturn($settings);
+
+        return $event;
     }
 }

@@ -68,9 +68,26 @@ export const attendeesClient = {
     },
 }
 
+export interface PatchCheckInListAttendeePayload {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+}
+
 export const attendeeClientPublic = {
     findByShortId: async (eventId: IdParam, attendeeShortId: string) => {
         const response = await publicApi.get<GenericDataResponse<Partial<Attendee>>>(`events/${eventId}/attendees/${attendeeShortId}`);
+        return response.data;
+    },
+    patchOnCheckInList: async (
+        checkInListShortId: string,
+        attendeePublicId: string,
+        payload: PatchCheckInListAttendeePayload,
+    ) => {
+        const response = await publicApi.patch<GenericDataResponse<Attendee>>(
+            `check-in-lists/${checkInListShortId}/attendees/${attendeePublicId}`,
+            payload,
+        );
         return response.data;
     },
 }

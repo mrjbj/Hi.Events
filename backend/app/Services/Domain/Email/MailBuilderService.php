@@ -10,7 +10,9 @@ use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\Attendee\AttendeeTicketMail;
+use HiEvents\Mail\Attendee\AttendeeTicketsMail;
 use HiEvents\Mail\Order\OrderSummary;
+use Illuminate\Support\Collection;
 use HiEvents\Services\Domain\Email\DTO\RenderedEmailTemplateDTO;
 
 class MailBuilderService
@@ -43,6 +45,25 @@ class MailBuilderService
             eventSettings: $eventSettings,
             organizer: $organizer,
             renderedTemplate: $renderedTemplate,
+        );
+    }
+
+    /**
+     * @param Collection<int, AttendeeDomainObject> $attendees
+     */
+    public function buildAttendeeTicketsMail(
+        Collection               $attendees,
+        OrderDomainObject        $order,
+        EventDomainObject        $event,
+        EventSettingDomainObject $eventSettings,
+        OrganizerDomainObject    $organizer,
+    ): AttendeeTicketsMail {
+        return new AttendeeTicketsMail(
+            order: $order,
+            attendees: $attendees,
+            event: $event,
+            eventSettings: $eventSettings,
+            organizer: $organizer,
         );
     }
 

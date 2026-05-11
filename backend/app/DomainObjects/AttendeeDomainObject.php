@@ -153,4 +153,17 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
     {
         return $this->contactToken;
     }
+
+    private bool $fromGroupPurchase = false;
+
+    public function getFromGroupPurchase(): bool
+    {
+        return $this->fromGroupPurchase;
+    }
+
+    public function setFromGroupPurchase(bool $fromGroupPurchase): self
+    {
+        $this->fromGroupPurchase = $fromGroupPurchase;
+        return $this;
+    }
 }
