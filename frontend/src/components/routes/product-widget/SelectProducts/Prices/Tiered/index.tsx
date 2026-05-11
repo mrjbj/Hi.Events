@@ -52,6 +52,7 @@ export const TieredPricing = ({product, event, form, productIndex}: TieredPricin
                                             className={'hi-price-tier-price-amount'}
                                             freeLabel={t`Free`}
                                             taxAndServiceFeeDisplayType={event?.settings?.price_display_mode}
+                                            quantityMultiplier={product.min_per_order && product.min_per_order > 1 ? product.min_per_order : 1}
                                         />
                                     )}
                                 </div>
@@ -63,6 +64,7 @@ export const TieredPricing = ({product, event, form, productIndex}: TieredPricin
                                             className={'hi-product-quantity-selector'}
                                             min={product.min_per_order ?? 0}
                                             max={(Math.min(price.quantity_remaining ?? 50, product.max_per_order ?? 50))}
+                                            step={product.min_per_order && product.min_per_order > 1 ? product.min_per_order : 1}
                                             fieldName={`products.${productIndex}.quantities.${index}.quantity`}
                                             formInstance={form}
                                         />

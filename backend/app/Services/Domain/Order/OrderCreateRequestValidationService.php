@@ -229,6 +229,19 @@ class OrderCreateRequestValidationService
                 ]),
             ]);
         }
+
+        $rawMinPerOrder = (int)$product->getMinPerOrder();
+        if ($rawMinPerOrder > 1
+            && $totalQuantity >= $rawMinPerOrder
+            && $totalQuantity % $rawMinPerOrder !== 0
+        ) {
+            throw ValidationException::withMessages([
+                "products.$productIndex" => __("The quantity for :product must be purchased in multiples of :pack_size", [
+                    'pack_size' => $rawMinPerOrder,
+                    'product' => $product->getTitle(),
+                ]),
+            ]);
+        }
     }
 
     private function validateProductEvent(EventDomainObject $event, int $productId, ProductDomainObject $product): void

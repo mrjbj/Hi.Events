@@ -150,12 +150,113 @@ class OrderCreateRequestValidationServiceTest extends TestCase
         $this->service->validateRequestData($eventId, $data);
     }
 
+    public function testPackQuantityIsAcceptedWhenMinPerOrderEqualsTwo(): void
+    {
+        $eventId = 1;
+        $productId = 10;
+        $priceId = 101;
+
+        $this->setupMocks(
+            eventId: $eventId,
+            productId: $productId,
+            priceIds: [$priceId],
+            priceLabels: ['Pack Tier'],
+            availabilities: [
+                ['price_id' => $priceId, 'quantity_available' => 10, 'quantity_reserved' => 0],
+            ],
+            minPerOrder: 2,
+            maxPerOrder: 10,
+        );
+
+        $data = [
+            'products' => [
+                [
+                    'product_id' => $productId,
+                    'quantities' => [
+                        ['price_id' => $priceId, 'quantity' => 2],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->service->validateRequestData($eventId, $data);
+        $this->assertTrue(true);
+    }
+
+    public function testDoublePackQuantityIsAcceptedWhenMinPerOrderEqualsTwo(): void
+    {
+        $eventId = 1;
+        $productId = 10;
+        $priceId = 101;
+
+        $this->setupMocks(
+            eventId: $eventId,
+            productId: $productId,
+            priceIds: [$priceId],
+            priceLabels: ['Pack Tier'],
+            availabilities: [
+                ['price_id' => $priceId, 'quantity_available' => 10, 'quantity_reserved' => 0],
+            ],
+            minPerOrder: 2,
+            maxPerOrder: 10,
+        );
+
+        $data = [
+            'products' => [
+                [
+                    'product_id' => $productId,
+                    'quantities' => [
+                        ['price_id' => $priceId, 'quantity' => 4],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->service->validateRequestData($eventId, $data);
+        $this->assertTrue(true);
+    }
+
+    public function testNonMultipleQuantityIsRejectedWhenMinPerOrderEqualsTwo(): void
+    {
+        $eventId = 1;
+        $productId = 10;
+        $priceId = 101;
+
+        $this->setupMocks(
+            eventId: $eventId,
+            productId: $productId,
+            priceIds: [$priceId],
+            priceLabels: ['Pack Tier'],
+            availabilities: [
+                ['price_id' => $priceId, 'quantity_available' => 10, 'quantity_reserved' => 0],
+            ],
+            minPerOrder: 2,
+            maxPerOrder: 10,
+        );
+
+        $data = [
+            'products' => [
+                [
+                    'product_id' => $productId,
+                    'quantities' => [
+                        ['price_id' => $priceId, 'quantity' => 3],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->expectException(ValidationException::class);
+        $this->service->validateRequestData($eventId, $data);
+    }
+
     private function setupMocks(
         int   $eventId,
         int   $productId,
         array $priceIds,
         array $priceLabels,
         array $availabilities,
+        int   $minPerOrder = 1,
+        int   $maxPerOrder = 100,
     ): void
     {
         $event = Mockery::mock(EventDomainObject::class);
@@ -177,8 +278,8 @@ class OrderCreateRequestValidationServiceTest extends TestCase
         $product->shouldReceive('getId')->andReturn($productId);
         $product->shouldReceive('getEventId')->andReturn($eventId);
         $product->shouldReceive('getTitle')->andReturn('Test Product');
-        $product->shouldReceive('getMaxPerOrder')->andReturn(100);
-        $product->shouldReceive('getMinPerOrder')->andReturn(1);
+        $product->shouldReceive('getMaxPerOrder')->andReturn($maxPerOrder);
+        $product->shouldReceive('getMinPerOrder')->andReturn($minPerOrder);
         $product->shouldReceive('isSoldOut')->andReturn(false);
         $product->shouldReceive('getType')->andReturn(ProductPriceType::TIERED->name);
         $product->shouldReceive('getProductPrices')->andReturn($productPrices);

@@ -1,5 +1,5 @@
-import {Button, Loader} from "@mantine/core";
-import {IconTicket} from "@tabler/icons-react";
+import {ActionIcon, Badge, Button, Loader, Tooltip} from "@mantine/core";
+import {IconPencil, IconTicket, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -12,6 +12,7 @@ interface AttendeeListProps {
     isDeletePending: boolean;
     allowOrdersAwaitingOfflinePaymentToCheckIn: boolean;
     onCheckInToggle: (attendee: Attendee) => void;
+    onEditAttendee?: (attendee: Attendee) => void;
     onClickSound?: () => void;
 }
 
@@ -23,6 +24,7 @@ export const AttendeeList = ({
                                  isDeletePending,
                                  allowOrdersAwaitingOfflinePaymentToCheckIn,
                                  onCheckInToggle,
+                                 onEditAttendee,
                                  onClickSound
                              }: AttendeeListProps) => {
     const checkInButtonText = (attendee: Attendee) => {
@@ -75,8 +77,20 @@ export const AttendeeList = ({
                 return (
                     <div className={classes.attendee} key={attendee.public_id}>
                         <div className={classes.details}>
-                            <div>
+                            <div style={{display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap'}}>
                                 <b>{attendee.first_name} {attendee.last_name}</b>
+                                {attendee.from_group_purchase && (
+                                    <Tooltip label={t`Part of a group purchase — verify the guest's name and email at check-in`}>
+                                        <Badge
+                                            color="orange"
+                                            variant="light"
+                                            size="sm"
+                                            leftSection={<IconUsersGroup size={12}/>}
+                                        >
+                                            {t`Group purchase`}
+                                        </Badge>
+                                    </Tooltip>
+                                )}
                             </div>
                             {attendee.status === 'CANCELLED' ? (
                                 <div style={{fontSize: '0.8em', color: 'red'}}>
@@ -100,6 +114,18 @@ export const AttendeeList = ({
                             </div>
                         </div>
                         <div className={classes.actions}>
+                            {onEditAttendee && (
+                                <Tooltip label={t`Edit name or email`}>
+                                    <ActionIcon
+                                        variant="subtle"
+                                        color="gray"
+                                        onClick={() => onEditAttendee(attendee)}
+                                        aria-label={t`Edit attendee`}
+                                    >
+                                        <IconPencil size={18}/>
+                                    </ActionIcon>
+                                </Tooltip>
+                            )}
                             <Button
                                 onClick={() => {
                                     onClickSound?.();

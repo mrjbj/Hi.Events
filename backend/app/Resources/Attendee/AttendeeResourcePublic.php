@@ -26,6 +26,19 @@ class AttendeeResourcePublic extends JsonResource
             'product_price_id' => $this->getProductPriceId(),
             'product' => $this->when((bool)$this->getProduct(), fn() => new ProductMinimalResourcePublic($this->getProduct())),
             'locale' => $this->getLocale(),
+            'profile_completion_recommended' => $this->profileCompletionRecommended(),
         ];
+    }
+
+    /**
+     * True when this attendee's name fields look like a placeholder — usually
+     * because the buyer purchased multiple seats and left the guest details
+     * blank. Frontends can use this to surface a "please confirm your details"
+     * prompt on the public ticket page.
+     */
+    private function profileCompletionRecommended(): bool
+    {
+        return trim((string)$this->getFirstName()) === ''
+            || trim((string)$this->getLastName()) === '';
     }
 }

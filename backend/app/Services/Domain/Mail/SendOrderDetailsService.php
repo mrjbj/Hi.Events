@@ -84,23 +84,47 @@ class SendOrderDetailsService
             ->send($mail);
     }
 
+    /**
+     * Groups attendees by recipient email so each unique recipient gets exactly
+     * one email containing all of their tickets:
+     *  - Buyer's email (matches $order->getEmail()): skipped here — the buyer
+     *    already receives the OrderSummary email, which surfaces their tickets.
+     *  - Other recipients: one email per address. Single-attendee groups use the
+     *    existing AttendeeTicketMail; multi-attendee groups use AttendeeTicketsMail.
+     *
+     * Previously this method deduped by email but only sent the first attendee's
+     * ticket — meaning tickets 2..N went missing whenever attendees shared an email.
+     */
     private function sendAttendeeTicketEmails(OrderDomainObject $order, EventDomainObject $event): void
     {
-        $sentEmails = [];
-        foreach ($order->getAttendees() as $attendee) {
-            if (in_array($attendee->getEmail(), $sentEmails, true)) {
+        $buyerEmail = strtolower(trim((string)$order->getEmail()));
+
+        $groups = collect($order->getAttendees() ?? [])
+            ->groupBy(fn ($attendee) => strtolower(trim((string)$attendee->getEmail())));
+
+        foreach ($groups as $email => $groupAttendees) {
+            if ($email === '' || $email === $buyerEmail) {
                 continue;
             }
 
-            $this->sendAttendeeTicketService->send(
+            if ($groupAttendees->count() === 1) {
+                $this->sendAttendeeTicketService->send(
+                    order: $order,
+                    attendee: $groupAttendees->first(),
+                    event: $event,
+                    eventSettings: $event->getEventSettings(),
+                    organizer: $event->getOrganizer(),
+                );
+                continue;
+            }
+
+            $this->sendAttendeeTicketService->sendCombined(
                 order: $order,
-                attendee: $attendee,
+                attendees: $groupAttendees->values(),
                 event: $event,
                 eventSettings: $event->getEventSettings(),
                 organizer: $event->getOrganizer(),
             );
-
-            $sentEmails[] = $attendee->getEmail();
         }
     }
 

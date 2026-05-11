@@ -11,16 +11,18 @@ interface NumberSelectorProps extends TextInputProps {
     fieldName: string,
     min?: number;
     max?: number;
+    step?: number;
     sharedValues?: SharedValues;
 }
 
-export const NumberSelector = ({formInstance, fieldName, min, max, sharedValues}: NumberSelectorProps) => {
+export const NumberSelector = ({formInstance, fieldName, min, max, step, sharedValues}: NumberSelectorProps) => {
     const handlers = useRef<NumberInputHandlers>(null);
     // Start with 0, ensuring it's treated as number for consistency
     const [value, setValue] = useState<number>(0);
 
     const minValue = min || 0;
     const maxValue = max || 100;
+    const stepValue = step && step > 0 ? step : 1;
 
     const [sharedVals] = useState<SharedValues>(sharedValues ?? new SharedValues(maxValue));
 
@@ -50,22 +52,28 @@ export const NumberSelector = ({formInstance, fieldName, min, max, sharedValues}
         } else if (sharedVals.currentValue < minValue) {
             setValue(prevValue => prevValue + (sharedVals.changeValue(minValue - sharedVals.currentValue)))
         } else if (value < maxValue) {
-            setValue(prevValue => prevValue + sharedVals.changeValue(1));
+            setValue(prevValue => prevValue + sharedVals.changeValue(stepValue));
         }
     };
 
     const decrement = () => {
         // Ensure decrement does not bring the current shared value between 0 and minValue
-        if (sharedVals.currentValue > minValue) {
-            setValue(prevValue => prevValue + sharedVals.changeValue(-1));
+        if (sharedVals.currentValue - stepValue >= minValue) {
+            setValue(prevValue => prevValue + sharedVals.changeValue(-stepValue));
         } else {
             sharedVals.changeValue(-value)
             setValue(0);
         }
     };
 
-    const changeValue = (newValue: number) => {
-        let adjustedDifference = sharedVals.changeValue(newValue - value);
+    const changeValue = (rawValue: string | number) => {
+        const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue) || 0;
+        // Snap to nearest multiple of stepValue (relative to minValue) for typed input
+        let snapped = numericValue;
+        if (stepValue > 1 && numericValue > 0) {
+            snapped = Math.max(minValue, Math.round(numericValue / stepValue) * stepValue);
+        }
+        let adjustedDifference = sharedVals.changeValue(snapped - value);
         setValue(value + adjustedDifference);
     };
 
@@ -86,6 +94,7 @@ export const NumberSelector = ({formInstance, fieldName, min, max, sharedValues}
                 variant="unstyled"
                 min={minValue}
                 max={maxValue}
+                step={stepValue}
                 handlersRef={handlers}
                 value={value}
                 hideControls
