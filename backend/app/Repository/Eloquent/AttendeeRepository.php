@@ -5,6 +5,7 @@ namespace HiEvents\Repository\Eloquent;
 use HiEvents\DomainObjects\AttendeeCheckInDomainObject;
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\Generated\AttendeeDomainObjectAbstract;
+use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\Status\AttendeeStatus;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Http\DTO\QueryParamsDTO;
@@ -158,6 +159,11 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name]);
 
         $this->loadRelation(new Relationship(AttendeeCheckInDomainObject::class, name: 'check_ins'));
+        // Load the buyer's order so the check-in resource can surface
+        // buyer name/email on the "Group purchase" badge popover. The
+        // attendee → order relation is singular ('order'), so we must
+        // name it explicitly — the bare class form would pluralize.
+        $this->loadRelation(new Relationship(OrderDomainObject::class, name: 'order'));
 
         return $this->simplePaginateWhere(
             where: $where,
@@ -270,7 +276,7 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             ->whereNull('product_check_in_lists.deleted_at')
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
 
@@ -292,6 +298,6 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             ->distinct()
             ->get();
 
-        return $rows->map(fn ($r) => $r->order_id . ':' . $r->product_price_id)->all();
+        return $rows->map(fn ($r) => $r->order_id.':'.$r->product_price_id)->all();
     }
 }

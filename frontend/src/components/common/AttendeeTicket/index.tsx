@@ -4,12 +4,13 @@ import {formatCurrency} from "../../../utilites/currency.ts";
 import {t} from "@lingui/macro";
 import {prettyDate} from "../../../utilites/dates.ts";
 import QRCode from "react-qr-code";
-import {IconCopy, IconPrinter, IconLock, IconX} from "@tabler/icons-react";
+import {IconCalendar, IconCopy, IconPrinter, IconLock, IconX} from "@tabler/icons-react";
 import {Address, Attendee, Event, Product} from "../../../types.ts";
 import classes from './AttendeeTicket.module.scss';
 import {imageUrl} from "../../../utilites/urlHelper.ts";
 import {formatAddress} from "../../../utilites/addressUtilities.ts";
 import {PoweredByFooter} from "../PoweredByFooter";
+import {CalendarOptionsPopover} from "../CalendarOptionsPopover";
 
 interface AttendeeTicketProps {
     event: Event;
@@ -186,30 +187,46 @@ export const AttendeeTicket = ({
                         )}
 
                         {!hideButtons && (
-                            <div className={classes.actions}>
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}/print`, '_blank')}
-                                    leftSection={<IconPrinter size={16}/>}
-                                >
-                                    {t`Print to PDF`}
-                                </Button>
+                            <>
+                                <div className={classes.actions}>
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => window?.open(`/product/${event.id}/${attendee.short_id}/print`, '_blank')}
+                                        leftSection={<IconPrinter size={16}/>}
+                                    >
+                                        {t`Print to PDF`}
+                                    </Button>
 
-                                <CopyButton
-                                    value={`${window?.location.origin}/product/${event.id}/${attendee.short_id}`}>
-                                    {({copied, copy}) => (
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            onClick={copy}
-                                            leftSection={<IconCopy size={16}/>}
-                                        >
-                                            {copied ? t`Copied` : t`Copy Link`}
-                                        </Button>
-                                    )}
-                                </CopyButton>
-                            </div>
+                                    <CopyButton
+                                        value={`${window?.location.origin}/product/${event.id}/${attendee.short_id}`}>
+                                        {({copied, copy}) => (
+                                            <Button
+                                                variant="default"
+                                                size="sm"
+                                                onClick={copy}
+                                                leftSection={<IconCopy size={16}/>}
+                                            >
+                                                {copied ? t`Copied` : t`Copy Link`}
+                                            </Button>
+                                        )}
+                                    </CopyButton>
+                                </div>
+
+                                {!isCancelled && (
+                                    <div className={classes.actionsRight}>
+                                        <CalendarOptionsPopover event={event}>
+                                            <Button
+                                                variant="filled"
+                                                size="sm"
+                                                leftSection={<IconCalendar size={16}/>}
+                                            >
+                                                {t`Add to Calendar`}
+                                            </Button>
+                                        </CalendarOptionsPopover>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

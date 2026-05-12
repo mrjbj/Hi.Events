@@ -74,6 +74,7 @@ export const CollectInformation = () => {
     const requireBillingAddress = event?.settings?.require_billing_address;
     const isPerOrderCollection = event?.settings?.attendee_details_collection_method === 'PER_ORDER';
     const [copyOption, setCopyOption] = useState<'none' | 'first' | 'all'>('none');
+    const hasAutoAppliedBundleDefault = useRef(false);
 
     const isEmailValid = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -133,7 +134,7 @@ export const CollectInformation = () => {
 
         const attendeeProductIds = new Set<IdParam>(
             products
-                .filter(product => product && product.product_type === 'TICKET')
+                .filter((product): product is NonNullable<typeof product> => !!product && product.product_type === 'TICKET')
                 .map(product => product.id)
         );
 
@@ -162,6 +163,21 @@ export const CollectInformation = () => {
 
         const copiedEmail = form.values.order.email;
 
+        // For bundle products (min_per_order > 1), attendees beyond the first slot of
+        // the same product_id get distinguishable "Guest N" placeholders instead of
+        // duplicate buyer names. Buyer's email still copies to all so the buyer
+        // (or admin) can resend/forward later from the "Your Order" page.
+        const firstIndexByProductId = new Map<any, number>();
+        form.values.products.forEach((p, i) => {
+            if (!firstIndexByProductId.has(p.product_id)) {
+                firstIndexByProductId.set(p.product_id, i);
+            }
+        });
+        const isBundleProduct = (productId: any) => {
+            const catalogProduct = products.find(cp => !!cp && String(cp.id) === String(productId));
+            return (catalogProduct?.min_per_order ?? 1) > 1;
+        };
+
         const updatedProducts = form.values.products.map((product, index) => {
             const isTicketAttendee = ticketIndices.includes(index);
             const isFirst = index === ticketIndices[0];
@@ -169,6 +185,23 @@ export const CollectInformation = () => {
 
             if (isTicketAttendee) {
                 if (shouldCopy) {
+                    const firstIndexOfThisProduct = firstIndexByProductId.get(product.product_id);
+                    const isBundleSibling = option === 'all'
+                        && isBundleProduct(product.product_id)
+                        && firstIndexOfThisProduct !== undefined
+                        && index !== firstIndexOfThisProduct;
+
+                    if (isBundleSibling) {
+                        const guestNumber = index - (firstIndexOfThisProduct ?? 0) + 1;
+                        return {
+                            ...product,
+                            first_name: `Guest ${guestNumber}`,
+                            last_name: "",
+                            email: form.values.order.email,
+                            email_confirmation: form.values.order.email,
+                        };
+                    }
+
                     return {
                         ...product,
                         first_name: form.values.order.first_name,
@@ -244,8 +277,36 @@ export const CollectInformation = () => {
         if (copyOption !== 'none' && !areOrderDetailsComplete()) {
             setCopyOption('none');
             copyDetailsToAttendees('none');
+            hasAutoAppliedBundleDefault.current = false;
         }
     }, [form.values.order.first_name, form.values.order.last_name, form.values.order.email]);
+
+    // When the cart contains a bundle product (min_per_order > 1) and the buyer
+    // has filled in their own details, auto-default copyOption to "all" so each
+    // bundled seat gets a "Guest N" placeholder name + the buyer's email. The
+    // buyer can override individual fields or pick a different copy option.
+    // Fires once per session to avoid overriding a buyer's manual choice.
+    useEffect(() => {
+        if (hasAutoAppliedBundleDefault.current) return;
+        if (copyOption !== 'none') return;
+        if (!products || !areOrderDetailsComplete()) return;
+
+        const hasBundle = form.values.products.some(p => {
+            const catalog = products.find(cp => !!cp && String(cp.id) === String(p.product_id));
+            return (catalog?.min_per_order ?? 1) > 1;
+        });
+
+        if (!hasBundle) return;
+
+        setCopyOption('all');
+        copyDetailsToAttendees('all');
+        hasAutoAppliedBundleDefault.current = true;
+    }, [
+        form.values.order.first_name,
+        form.values.order.last_name,
+        form.values.order.email,
+        products,
+    ]);
 
     const applyContactToOrder = (result: {first_name: string | null; last_name: string | null}) => {
         const current = form.values.order;

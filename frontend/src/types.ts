@@ -581,6 +581,9 @@ export interface Attendee {
     contact_id?: number | null;
     contact_token?: string | null;
     profile_completion_recommended?: boolean;
+    buyer_first_name?: string | null;
+    buyer_last_name?: string | null;
+    buyer_email?: string | null;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
     from_group_purchase?: boolean;
@@ -677,6 +680,7 @@ export interface OrderItem {
     id: number;
     product_id: number;
     product_price_id: number;
+    product_type?: ProductType;
     item_name: string;
     total_before_additions: number;
     total_before_discount?: number;

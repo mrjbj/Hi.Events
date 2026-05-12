@@ -11,6 +11,7 @@ import {t} from "@lingui/macro";
 import {PoweredByFooter} from "../../../common/PoweredByFooter";
 import {OnlineEventDetails} from "../../../common/OnlineEventDetails";
 import {HomepageInfoMessage} from "../../../common/HomepageInfoMessage";
+import {OrganizerBrandHeader} from "../../../common/OrganizerBrandHeader";
 import {AttendeeProfileCard} from "../OrderSummaryAndProducts/AttendeeProfiles";
 import {contactPortalClientPublic, MyContactResult} from "../../../../api/contact-portal.client.ts";
 import classes from './AttendeeProductAndInformation.module.scss';
@@ -62,6 +63,7 @@ export const AttendeeProductAndInformation = () => {
 
     return (
         <Container>
+            <OrganizerBrandHeader event={event}/>
             <h2 className={classes.title}>{t`Your ticket for`} {event.title}</h2>
 
             {showWelcomeBanner && (

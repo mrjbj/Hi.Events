@@ -91,13 +91,28 @@ export const InlineOrderSummary = ({
                     <div className={classes.divider}/>
 
                     <div className={classes.lineItems}>
-                        {order.order_items?.map((item) => (
+                        {order.order_items?.map((item) => {
+                            // Prefer the order_item's own product_type (works during
+                            // checkout when attendees don't exist yet); fall back to
+                            // attendee lookup for older payloads that don't include it.
+                            const isTicketItem = item.product_type
+                                ? item.product_type === 'TICKET'
+                                : (order.attendees?.some(
+                                    (a) => a.product_price_id === item.product_price_id,
+                                ) ?? false);
+                            return (
                             <div key={item.id} className={classes.lineItem}>
                                 <div className={classes.lineItemLeft}>
                                     <span title={item.item_name}
                                         className={classes.lineItemName}>{item.item_name}</span>
-                                    {/* eslint-disable-next-line lingui/no-unlocalized-strings */}
-                                    <span className={classes.lineItemQuantity}>× {item.quantity}</span>
+                                    {item.quantity > 1 && (
+                                        <span className={classes.lineItemQuantity}>
+                                            {isTicketItem
+                                                ? t`(includes ${item.quantity} tickets)`
+                                                /* eslint-disable-next-line lingui/no-unlocalized-strings */
+                                                : `× ${item.quantity}`}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className={classes.lineItemPriceWrapper}>
                                     {!!item.price_before_discount && (
@@ -110,7 +125,8 @@ export const InlineOrderSummary = ({
                                     </span>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     {order.promo_code && totalDiscount > 0 && (

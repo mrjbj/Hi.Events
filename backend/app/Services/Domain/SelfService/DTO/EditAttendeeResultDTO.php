@@ -9,5 +9,6 @@ class EditAttendeeResultDTO
         public readonly bool $shortIdChanged,
         public readonly ?string $newShortId,
         public readonly bool $emailChanged,
+        public readonly ?string $newContactToken = null,
     ) {}
 }

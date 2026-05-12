@@ -186,6 +186,12 @@ class GetOrderPublicHandler
                     ),
                     new Relationship(
                         domainObject: OrganizerDomainObject::class,
+                        // Eager-load the organizer's images so the public order
+                        // page can render ORGANIZER_LOGO. Without this, the
+                        // nested organizer arrives with an empty images array.
+                        nested: [
+                            new Relationship(domainObject: ImageDomainObject::class),
+                        ],
                         name: OrganizerDomainObjectAbstract::SINGULAR_NAME,
                     ),
                     new Relationship(

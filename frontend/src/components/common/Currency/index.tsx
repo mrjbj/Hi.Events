@@ -99,7 +99,7 @@ export const ProductPriceDisplay: React.FC<ProductPriceProps> = ({
                 {formattedPrice}
                 {multiplier > 1 && (
                     <span style={{marginLeft: '0.4em', fontSize: '0.8em', opacity: 0.75}}>
-                        {t`(pack of ${multiplier})`}
+                        {t`(includes ${multiplier} tickets)`}
                     </span>
                 )}
             </div>

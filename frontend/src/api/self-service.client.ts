@@ -5,6 +5,7 @@ export interface SelfServiceUpdateResult {
     success: boolean;
     short_id_changed: boolean;
     new_short_id?: string;
+    new_contact_token?: string;
     message: string;
     warning?: string;
     email_sent?: boolean;

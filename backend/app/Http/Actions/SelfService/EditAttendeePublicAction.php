@@ -43,6 +43,10 @@ class EditAttendeePublicAction extends BaseAction
                 $response['new_short_id'] = $result->newShortId;
             }
 
+            if ($result->newContactToken !== null) {
+                $response['new_contact_token'] = $result->newContactToken;
+            }
+
             return $this->jsonResponse($response);
         } catch (SelfServiceDisabledException $e) {
             return $this->errorResponse($e->getMessage(), $e->getCode());

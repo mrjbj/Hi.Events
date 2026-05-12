@@ -57,4 +57,28 @@ class UpsertProductRequest extends BaseRequest
             'product_category_id.required' => __('You must select a product category.'),
         ];
     }
+
+    public function after(): array
+    {
+        return [
+            function ($validator) {
+                $min = (int) ($this->input('min_per_order') ?? 0);
+                $max = (int) ($this->input('max_per_order') ?? 0);
+
+                // When the product is sold as a pack (min > 1), max must be a
+                // whole-number multiple of min — otherwise the buyer's pack
+                // stepper can't reach the upper bound (e.g. min=2 max=3 means
+                // the only valid quantity is 2 anyway).
+                if ($min > 1 && $max > 0 && $max % $min !== 0) {
+                    $validator->errors()->add(
+                        'max_per_order',
+                        __('Maximum per order must be a multiple of the minimum per order (e.g. min :min and max :suggested).', [
+                            'min' => $min,
+                            'suggested' => $min * (int) max(1, ceil($max / $min)),
+                        ]),
+                    );
+                }
+            },
+        ];
+    }
 }

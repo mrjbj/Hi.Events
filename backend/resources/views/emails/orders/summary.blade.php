@@ -4,7 +4,6 @@
 @php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var string $orderUrl */ @endphp
-@php /** @var array<int, array{name: string, ticketUrl: string}> $buyerTickets */ @endphp
 
 @php /** @see \HiEvents\Mail\Order\OrderSummary */ @endphp
 
@@ -56,49 +55,9 @@
 - **{{ __('Order Number:') }}** {{ $order->getPublicId() }}
 - **{{ __('Total Amount:') }}** {{ Currency::format($order->getTotalGross(), $event->getCurrency()) }}
 
-@if(!empty($buyerTickets) && count($buyerTickets) > 1)
-{{ __('You have :count tickets in this order. Update each attendee\'s name and registration details before forwarding their individual tickets to them.', ['count' => count($buyerTickets)]) }}
-
 <x-mail::button :url="$orderUrl">
-    {{ __('Manage your attendees') }}
+    {{ __('Get Tickets') }}
 </x-mail::button>
-@else
-<x-mail::button :url="$orderUrl">
-    {{ __('View Order Summary & Tickets') }}
-</x-mail::button>
-@endif
-
-@if(!empty($buyerTickets))
----
-
-# {{ __('Your Tickets') }}
-
-{{ __('Each ticket below has its own unique link. Open a ticket to view the QR code, or forward an individual link to the person attending.') }}
-
-@foreach($buyerTickets as $ticket)
-@php
-    $displayName = $ticket['name'] !== '' ? $ticket['name'] : __('Ticket :number', ['number' => $loop->iteration]);
-    $forwardSubject = rawurlencode(__('Your ticket for :event', ['event' => $event->getTitle()]));
-    $forwardBody = rawurlencode(__("Hi,\n\nHere's your ticket for :event:\n\n:url\n\nClick the link to view your ticket and enter your details before the event.", [
-        'event' => $event->getTitle(),
-        'url' => $ticket['ticketUrl'],
-    ]));
-@endphp
----
-
-**{{ $displayName }}** &middot; {{ $loop->iteration }} / {{ count($buyerTickets) }}
-
-<x-mail::button :url="$ticket['ticketUrl']">
-{{ __('View ticket') }}
-</x-mail::button>
-
-[{{ __('Forward this ticket to the attendee') }}](mailto:?subject={{ $forwardSubject }}&body={{ $forwardBody }})
-
-{{ __('Or copy this link:') }}
-`{{ $ticket['ticketUrl'] }}`
-
-@endforeach
-@endif
 
 {{ __('If you have any questions or need assistance, please contact') }} <a href="mailto:{{ $organizer->getEmail() }}">{{ $organizer->getEmail() }}</a>.
 

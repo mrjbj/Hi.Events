@@ -115,6 +115,10 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
             ->andReturn($checkInList);
 
         $this->attendeeRepository
+            ->shouldReceive('loadRelation')
+            ->andReturnSelf();
+
+        $this->attendeeRepository
             ->shouldReceive('findFirstWhere')
             ->once()
             ->with([
@@ -154,6 +158,10 @@ class GetCheckInListAttendeePublicHandlerTest extends TestCase
 
         $this->checkInListRepository->shouldReceive('loadRelation')->andReturnSelf()->times(2);
         $this->checkInListRepository->shouldReceive('findFirstWhere')->once()->andReturn($checkInList);
+
+        $this->attendeeRepository
+            ->shouldReceive('loadRelation')
+            ->andReturnSelf();
 
         $this->attendeeRepository
             ->shouldReceive('findFirstWhere')

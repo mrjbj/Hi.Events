@@ -8,15 +8,21 @@ use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
+use HiEvents\DomainObjects\ContactDomainObject;
 use HiEvents\Mail\Attendee\AttendeeDetailsChangedMail;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
+use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
+use HiEvents\Services\Domain\Contact\ContactUpsertService;
 use HiEvents\Services\Domain\SelfService\OrderAuditLogService;
 use HiEvents\Services\Domain\SelfService\SelfServiceEditAttendeeService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Mockery\MockInterface;
+use Psr\Log\LoggerInterface;
 use Tests\TestCase;
 
 class SelfServiceEditAttendeeServiceTest extends TestCase
@@ -26,6 +32,10 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
     private MockInterface|EventRepositoryInterface $eventRepository;
     private MockInterface|OrderAuditLogService $orderAuditLogService;
     private MockInterface|SendAttendeeTicketService $sendAttendeeTicketService;
+    private MockInterface|ContactUpsertService $contactUpsertService;
+    private MockInterface|ContactRepositoryInterface $contactRepository;
+    private MockInterface|ContactSignedTokenService $contactTokenService;
+    private MockInterface|LoggerInterface $logger;
 
     protected function setUp(): void
     {
@@ -37,12 +47,46 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class);
         $this->orderAuditLogService = Mockery::mock(OrderAuditLogService::class);
         $this->sendAttendeeTicketService = Mockery::mock(SendAttendeeTicketService::class);
+        $this->contactUpsertService = Mockery::mock(ContactUpsertService::class);
+        $this->contactRepository = Mockery::mock(ContactRepositoryInterface::class);
+        $this->contactTokenService = Mockery::mock(ContactSignedTokenService::class);
+        $this->logger = Mockery::mock(LoggerInterface::class);
+        $this->contactTokenService->shouldReceive('generate')->byDefault()->andReturn('mock-token');
+
+        // Default: never warn unless a test sets it. Most tests will trip the
+        // resyncContactLink path; mock that to a benign no-op too.
+        $this->logger->shouldReceive('warning')->byDefault();
+        $this->contactUpsertService
+            ->shouldReceive('findOrCreateContact')
+            ->byDefault()
+            ->andReturnUsing(function () {
+                $contact = Mockery::mock(ContactDomainObject::class);
+                $contact->shouldReceive('getId')->andReturn(0);
+                $contact->shouldReceive('getFirstName')->andReturn(null);
+                $contact->shouldReceive('getLastName')->andReturn(null);
+                return $contact;
+            });
+        $this->contactRepository->shouldReceive('updateFromArray')->byDefault();
+
+        // resyncContactLink uses a DB::table('attendees') query; stub the
+        // builder chain so the count() returns 1 (treat contact as shared,
+        // skip the contact name sync — keeps these tests focused on the
+        // attendee-update behavior they were originally written to assert).
+        $builder = Mockery::mock(\Illuminate\Database\Query\Builder::class);
+        $builder->shouldReceive('where')->andReturnSelf();
+        $builder->shouldReceive('whereNull')->andReturnSelf();
+        $builder->shouldReceive('count')->andReturn(1);
+        DB::shouldReceive('table')->with('attendees')->andReturn($builder);
 
         $this->service = new SelfServiceEditAttendeeService(
             $this->attendeeRepository,
             $this->eventRepository,
             $this->orderAuditLogService,
-            $this->sendAttendeeTicketService
+            $this->sendAttendeeTicketService,
+            $this->contactUpsertService,
+            $this->contactRepository,
+            $this->contactTokenService,
+            $this->logger,
         );
     }
 
@@ -51,6 +95,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
         $attendee->shouldReceive('getEventId')->andReturn(789);
+        $attendee->shouldReceive('getContactId')->andReturn(0);
         $attendee->shouldReceive('getFirstName')->andReturn('John');
         $attendee->shouldReceive('getLastName')->andReturn('Doe');
         $attendee->shouldReceive('getEmail')->andReturn('old@example.com');
@@ -88,6 +133,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -133,6 +179,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
         $attendee->shouldReceive('getEventId')->andReturn(789);
+        $attendee->shouldReceive('getContactId')->andReturn(0);
         $attendee->shouldReceive('getFirstName')->andReturn('John');
         $attendee->shouldReceive('getLastName')->andReturn('Doe');
         $attendee->shouldReceive('getEmail')->andReturn('old@example.com');
@@ -173,6 +220,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -253,6 +301,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
         $attendee->shouldReceive('getEventId')->andReturn(789);
+        $attendee->shouldReceive('getContactId')->andReturn(0);
         $attendee->shouldReceive('getFirstName')->andReturn('John');
         $attendee->shouldReceive('getLastName')->andReturn('Doe');
         $attendee->shouldReceive('getEmail')->andReturn('old@example.com');
@@ -297,6 +346,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')

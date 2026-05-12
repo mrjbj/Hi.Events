@@ -24,6 +24,7 @@ class OrderItemResourcePublic extends BaseResource
             'quantity' => $this->getQuantity(),
             'product_id' => $this->getProductId(),
             'product_price_id' => $this->getProductPriceId(),
+            'product_type' => $this->getProductType(),
             'item_name' => $this->getItemName(),
             'total_service_fee' => $this->getTotalServiceFee(),
             'total_tax' => $this->getTotalTax(),

@@ -14,6 +14,8 @@ class AttendeeWithCheckInPublicResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $order = $this->getOrder();
+
         return [
             'id' => $this->getId(),
             'email' => $this->getEmail(),
@@ -28,9 +30,25 @@ class AttendeeWithCheckInPublicResource extends JsonResource
             'contact_id' => $this->getContactId(),
             'contact_token' => $this->getContactToken(),
             'from_group_purchase' => $this->getFromGroupPurchase(),
+            'profile_completion_recommended' => $this->profileCompletionRecommended(),
+            'buyer_first_name' => $order?->getFirstName(),
+            'buyer_last_name' => $order?->getLastName(),
+            'buyer_email' => $order?->getEmail(),
             $this->mergeWhen($this->getCheckIn() !== null, [
                 'check_in' => new AttendeeCheckInPublicResource($this->getCheckIn()),
             ]),
         ];
+    }
+
+    /**
+     * True when this attendee's name fields look like a placeholder — usually
+     * because the buyer purchased multiple seats and left the guest details
+     * blank. Check-in staff use this to know which attendees still need their
+     * details captured at the door.
+     */
+    private function profileCompletionRecommended(): bool
+    {
+        return trim((string) $this->getFirstName()) === ''
+            || trim((string) $this->getLastName()) === '';
     }
 }

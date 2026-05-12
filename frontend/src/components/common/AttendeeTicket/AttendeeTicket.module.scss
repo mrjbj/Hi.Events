@@ -533,6 +533,32 @@
   }
 }
 
+.actionsRight {
+  display: flex;
+  gap: 12px;
+  margin-left: auto; // push to the right edge of the footer
+
+  @include mixins.respond-below(md) {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  @include mixins.respond-below(sm) {
+    flex-direction: column;
+    max-width: 280px;
+    gap: 8px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  @media print {
+    display: none;
+  }
+}
+
 .poweredByInTicket {
   display: none;
 

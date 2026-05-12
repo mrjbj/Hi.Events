@@ -169,6 +169,21 @@ class CompleteOrderHandler
 
             $shortId = IdHelper::shortId(IdHelper::ATTENDEE_PREFIX);
 
+            // attendees.first_name / last_name are NOT NULL with default '' in the
+            // schema. PER_TICKET payloads that come through the bundle-sibling
+            // validation relaxation may carry blank or missing values; coerce them
+            // to empty strings here so the explicit insert doesn't violate
+            // NOT NULL (the column default only fires when the column is omitted).
+            // Email is NOT NULL with no default; fall back to the buyer's email
+            // for the same reason — that's the buyer's intent for unassigned
+            // bundle seats and matches PER_ORDER behavior.
+            $attendeeEmail = $isPerOrderCollection ? $orderDTO->email : $attendee->email;
+            if ($attendeeEmail === null || $attendeeEmail === '') {
+                $attendeeEmail = $orderDTO->email;
+            }
+            $attendeeFirstName = $isPerOrderCollection ? $orderDTO->first_name : $attendee->first_name;
+            $attendeeLastName = $isPerOrderCollection ? $orderDTO->last_name : $attendee->last_name;
+
             $inserts[] = [
                 AttendeeDomainObjectAbstract::EVENT_ID => $order->getEventId(),
                 AttendeeDomainObjectAbstract::PRODUCT_ID => $productId,
@@ -176,9 +191,9 @@ class CompleteOrderHandler
                 AttendeeDomainObjectAbstract::STATUS => $order->isPaymentRequired()
                     ? AttendeeStatus::AWAITING_PAYMENT->name
                     : AttendeeStatus::ACTIVE->name,
-                AttendeeDomainObjectAbstract::EMAIL => $isPerOrderCollection ? $orderDTO->email : $attendee->email,
-                AttendeeDomainObjectAbstract::FIRST_NAME => $isPerOrderCollection ? $orderDTO->first_name : $attendee->first_name,
-                AttendeeDomainObjectAbstract::LAST_NAME => $isPerOrderCollection ? $orderDTO->last_name : $attendee->last_name,
+                AttendeeDomainObjectAbstract::EMAIL => $attendeeEmail,
+                AttendeeDomainObjectAbstract::FIRST_NAME => $attendeeFirstName ?? '',
+                AttendeeDomainObjectAbstract::LAST_NAME => $attendeeLastName ?? '',
                 AttendeeDomainObjectAbstract::ORDER_ID => $order->getId(),
                 AttendeeDomainObjectAbstract::PUBLIC_ID => IdHelper::publicId(IdHelper::ATTENDEE_PREFIX),
                 AttendeeDomainObjectAbstract::SHORT_ID => $shortId,

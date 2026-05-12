@@ -23,6 +23,7 @@ import {isSsr} from "../../../utilites/helpers.ts";
 import {AttendeeList} from "../../common/CheckIn/AttendeeList";
 import {CheckInOptionsModal} from "../../common/CheckIn/CheckInOptionsModal";
 import {AttendeeProfileModal} from "../../common/CheckIn/AttendeeProfileModal";
+import {CaptureAttendeeOnArrivalModal} from "../../common/CheckIn/CaptureAttendeeOnArrivalModal";
 import {ScannerSelectionModal} from "../../common/CheckIn/ScannerSelectionModal";
 import {CheckInInfoModal} from "../../common/CheckIn/CheckInInfoModal";
 import {HidScannerStatus} from "../../common/CheckIn/HidScannerStatus";
@@ -58,6 +59,8 @@ const CheckIn = () => {
     const [checkInModalOpen, checkInModalHandlers] = useDisclosure(false);
     const [editingAttendee, setEditingAttendee] = useState<Attendee | null>(null);
     const [profileModalOpen, profileModalHandlers] = useDisclosure(false);
+    const [captureAttendee, setCaptureAttendee] = useState<Attendee | null>(null);
+    const [captureModalOpen, captureModalHandlers] = useDisclosure(false);
     const [infoModalOpen, infoModalHandlers] = useDisclosure(false, {
             onOpen: () => {
                 CheckInListQuery.refetch();
@@ -189,6 +192,15 @@ const CheckIn = () => {
 
         if (!allowOrdersAwaitingOfflinePaymentToCheckIn && isAttendeeAwaitingPayment) {
             showError(t`You cannot check in attendees with unpaid orders. This setting can be changed in the event settings.`);
+            return;
+        }
+
+        // Gate: when an attendee was bundled and never had their details
+        // captured, door staff must fill in name + email + required questions
+        // before the check-in lands.
+        if (attendee.profile_completion_recommended) {
+            setCaptureAttendee(attendee);
+            captureModalHandlers.open();
             return;
         }
 
@@ -493,6 +505,22 @@ const CheckIn = () => {
                 onClose={() => {
                     profileModalHandlers.close();
                     setEditingAttendee(null);
+                }}
+            />
+            <CaptureAttendeeOnArrivalModal
+                opened={captureModalOpen}
+                attendee={captureAttendee}
+                eventId={typeof event?.id === 'string' ? Number(event.id) : event?.id}
+                checkInListShortId={checkInListShortId}
+                onCheckInConfirmed={async (updatedAttendee) => {
+                    // Fire the actual check-in after capture saves landed.
+                    // handleCheckInAction is fire-and-forget; the user sees
+                    // a success toast from inside its onSuccess.
+                    handleCheckInAction(updatedAttendee, 'check-in');
+                }}
+                onClose={() => {
+                    captureModalHandlers.close();
+                    setCaptureAttendee(null);
                 }}
             />
             <ScannerSelectionModal

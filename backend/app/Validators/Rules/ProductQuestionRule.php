@@ -27,7 +27,16 @@ class ProductQuestionRule extends BaseQuestionRule
      */
     protected function validateRequiredQuestionArePresent(Collection $orderProducts): void
     {
-        foreach ($orderProducts as $productData) {
+        $items = $orderProducts->values();
+        foreach ($items as $index => $productData) {
+            // Bundle siblings (2nd-and-later seat of a min_per_order > 1 product)
+            // defer attendee details to the "Your Order" page, so required-question
+            // validation is relaxed here. The buyer still answers them for the
+            // first seat of the bundle.
+            if ($this->isBundleSiblingSlot($productData, (int) $index, $items)) {
+                continue;
+            }
+
             $productId = $this->getProductIdFromProductPriceId($productData['product_price_id']);
             $questions = $productData['questions'] ?? [];
 
@@ -47,9 +56,35 @@ class ProductQuestionRule extends BaseQuestionRule
         }
     }
 
+    /**
+     * A "bundle sibling" is the 2nd-or-later attendee slot for the same product
+     * when that product has min_per_order > 1 (i.e. it's sold as a pack).
+     * The first slot of the bundle still validates normally — that's the buyer's
+     * own seat. Subsequent slots are deferred to the Your Order page where the
+     * buyer fills in real guest details.
+     */
+    private function isBundleSiblingSlot(mixed $productRequestData, int $productIndex, Collection $allProducts): bool
+    {
+        $product = $this->getProductDomainObject($productRequestData['product_id'] ?? null);
+        if (!$product) {
+            return false;
+        }
+        $minPerOrder = (int) $product->getMinPerOrder();
+        if ($minPerOrder <= 1) {
+            return false;
+        }
+
+        $firstIndexOfThisProduct = $allProducts
+            ->search(fn($p) => ($p['product_id'] ?? null) === ($productRequestData['product_id'] ?? null));
+
+        return $firstIndexOfThisProduct !== false
+            && $firstIndexOfThisProduct !== $productIndex;
+    }
+
     protected function validateQuestions(mixed $products): array
     {
         $validationMessages = [];
+        $productsCollection = $products instanceof Collection ? $products : collect($products);
 
         foreach ($products as $productIndex => $productRequestData) {
             $productDomainObject = $this->getProductDomainObject($productRequestData['product_id']);
@@ -59,11 +94,22 @@ class ProductQuestionRule extends BaseQuestionRule
                 continue;
             }
 
-            if ($productDomainObject->getProductType() === ProductType::TICKET->name && !$this->skipBasicAttendeeValidation) {
+            $isBundleSibling = $this->isBundleSiblingSlot($productRequestData, (int) $productIndex, $productsCollection);
+
+            if ($productDomainObject->getProductType() === ProductType::TICKET->name
+                && !$this->skipBasicAttendeeValidation
+                && !$isBundleSibling
+            ) {
                 $validationMessages = [
                     ...$validationMessages,
                     ...$this->validateBasicTicketFields($productRequestData, $productIndex),
                 ];
+            }
+
+            // Skip per-question validation for bundle siblings — they defer to
+            // the Your Order page. The first seat of the bundle still validates.
+            if ($isBundleSibling) {
+                continue;
             }
 
             $questions = $productRequestData['questions'] ?? [];
