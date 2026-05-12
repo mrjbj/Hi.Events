@@ -102,6 +102,15 @@ export const AttendeeTicket = ({
                                 {getAttendeeProductTitle(attendee, product)}
                             </div>
                         </div>
+
+                        {attendee.seat_info && (
+                            <div className={classes.detailRow}>
+                                <div className={classes.detailLabel}>{t`Your Seat`}</div>
+                                <div className={classes.detailValue}>
+                                    {attendee.seat_info}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Attendee Information */}

@@ -41,6 +41,16 @@ export const AttendeeDetails = ({attendee}: { attendee: Attendee }) => {
                     {getLocaleName(attendee.locale as SupportedLocales)}
                 </div>
             </div>
+            {attendee.seat_info && (
+                <div className={classes.block}>
+                    <div className={classes.title}>
+                        {t`Table / Seat`}
+                    </div>
+                    <div className={classes.amount}>
+                        {attendee.seat_info}
+                    </div>
+                </div>
+            )}
             {attendee.check_ins && attendee.check_ins.length > 0 && (
                 <div className={classes.block}>
                     <div className={classes.title}>

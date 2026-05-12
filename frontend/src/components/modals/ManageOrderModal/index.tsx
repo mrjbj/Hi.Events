@@ -7,15 +7,16 @@ import {AttendeeList} from "../../common/AttendeeList";
 import {OrderDetails} from "../../common/OrderDetails";
 import {t} from "@lingui/macro";
 import {QuestionAndAnswerList} from "../../common/QuestionAndAnswerList";
-import {Box, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
-import {IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
+import {Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
+import {IconArmchair, IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
 import {OrderStatusBadge} from "../../common/OrderStatusBadge";
 import {Accordion, AccordionItem} from "../../common/Accordion";
 import {useForm} from "@mantine/form";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useEditOrder} from "../../../mutations/useEditOrder";
+import {useBulkAssignAttendeeSeatInfo} from "../../../mutations/useBulkAssignAttendeeSeatInfo";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler";
-import {showSuccess} from "../../../utilites/notifications";
+import {showError, showSuccess} from "../../../utilites/notifications";
 import {Button} from "../../common/Button";
 import {InputGroup} from "../../common/InputGroup";
 import {InputLabelWithHelp} from "../../common/InputLabelWithHelp";
@@ -37,6 +38,38 @@ export const ManageOrderModal = ({onClose, orderId}: GenericModalProps & ManageO
     const [activeTab, setActiveTab] = useState("view");
     const errorHandler = useFormErrorResponseHandler();
     const mutation = useEditOrder();
+    const seatInfoMutation = useBulkAssignAttendeeSeatInfo();
+
+    // Default the bulk-assign input to whatever's already on the order — the
+    // first attendee with a non-null seat_info wins. Avoids adding an
+    // order-level column while keeping the UX a one-click confirmation when a
+    // table was previously assigned.
+    const defaultSeatInfo = useMemo(() => {
+        return order?.attendees?.find(a => a.seat_info)?.seat_info ?? "";
+    }, [order?.attendees]);
+    const [seatInfoInput, setSeatInfoInput] = useState("");
+    useEffect(() => {
+        setSeatInfoInput(defaultSeatInfo);
+    }, [defaultSeatInfo]);
+
+    const handleBulkAssignSeatInfo = () => {
+        if (!order) return;
+        const trimmed = seatInfoInput.trim();
+        seatInfoMutation.mutate(
+            {
+                eventId,
+                orderId: order.id,
+                seatInfo: trimmed === "" ? null : trimmed,
+            },
+            {
+                onSuccess: (data) => {
+                    showSuccess(t`Updated ${data.updated_count} attendees`);
+                    refetchOrder();
+                },
+                onError: () => showError(t`Failed to assign table / seat`),
+            }
+        );
+    };
 
     const form = useForm({
         initialValues: {
@@ -132,6 +165,37 @@ export const ManageOrderModal = ({onClose, orderId}: GenericModalProps & ManageO
                     {t`No attendees have been added to this order.`}
                 </Text>
             )
+        },
+        {
+            value: 'seating',
+            icon: IconArmchair,
+            title: t`Table / Seat`,
+            hidden: !orderHasAttendees,
+            content: (
+                <Box p="md">
+                    <Stack gap="xs">
+                        <Text size="sm" c="dimmed">
+                            {t`Assign the same table or seat label to every attendee on this order. Leave blank and save to clear all assignments.`}
+                        </Text>
+                        <Group align="flex-end" gap="sm">
+                            <TextInput
+                                style={{flex: 1}}
+                                label={t`Table / Seat`}
+                                placeholder={t`e.g. Table 5`}
+                                value={seatInfoInput}
+                                maxLength={100}
+                                onChange={(e) => setSeatInfoInput(e.currentTarget.value)}
+                            />
+                            <Button
+                                onClick={handleBulkAssignSeatInfo}
+                                disabled={seatInfoMutation.isPending}
+                            >
+                                {seatInfoMutation.isPending ? t`Saving...` : t`Apply to All`}
+                            </Button>
+                        </Group>
+                    </Stack>
+                </Box>
+            ),
         }
     ];
 

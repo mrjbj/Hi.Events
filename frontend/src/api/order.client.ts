@@ -110,7 +110,15 @@ export const orderClient = {
     editOrder: async (eventId: IdParam, orderId: IdParam, payload: EditOrderPayload) => {
         const response = await api.put<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}`, payload);
         return response.data;
-    }
+    },
+
+    bulkAssignAttendeeSeatInfo: async (eventId: IdParam, orderId: IdParam, seatInfo: string | null) => {
+        const response = await api.patch<{updated_count: number}>(
+            `events/${eventId}/orders/${orderId}/attendees/seat-info`,
+            {seat_info: seatInfo},
+        );
+        return response.data;
+    },
 }
 
 export const orderClientPublic = {
