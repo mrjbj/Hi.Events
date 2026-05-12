@@ -14,7 +14,6 @@ use HiEvents\Exceptions\NoTicketsAvailableException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Attendee\DTO\EditAttendeeDTO;
-use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Product\ProductQuantityUpdateService;
 use HiEvents\Services\Infrastructure\DomainEvents\DomainEventDispatcherService;
 use HiEvents\Services\Infrastructure\DomainEvents\Enums\DomainEventType;
@@ -31,7 +30,6 @@ class EditAttendeeHandler
         private readonly ProductQuantityUpdateService $productQuantityService,
         private readonly DatabaseManager $databaseManager,
         private readonly DomainEventDispatcherService $domainEventDispatcherService,
-        private readonly BundleSeatInfoPropagationService $bundleSeatInfoPropagationService,
     ) {}
 
     /**
@@ -42,22 +40,12 @@ class EditAttendeeHandler
     {
         return $this->databaseManager->transaction(function () use ($editAttendeeDTO) {
             $attendee = $this->getAttendee($editAttendeeDTO);
-            $previousSeatInfo = $attendee->getSeatInfo();
 
             $this->validateProductId($editAttendeeDTO, $attendee);
 
             $this->adjustProductQuantities($attendee, $editAttendeeDTO);
 
             $updatedAttendee = $this->updateAttendee($editAttendeeDTO);
-
-            $this->bundleSeatInfoPropagationService->propagate(
-                attendeeId: $updatedAttendee->getId(),
-                orderId: $updatedAttendee->getOrderId(),
-                productId: $updatedAttendee->getProductId(),
-                eventId: $updatedAttendee->getEventId(),
-                newSeatInfo: $updatedAttendee->getSeatInfo(),
-                previousSeatInfo: $previousSeatInfo,
-            );
 
             $this->domainEventDispatcherService->dispatch(
                 new AttendeeEvent(

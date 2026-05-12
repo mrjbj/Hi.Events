@@ -131,7 +131,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
             <TextInput
                 {...form.getInputProps("seat_info")}
                 label={<InputLabelWithHelp label={t`Table / Seat`}
-                                           helpText={t`Optional table or seat assignment. For bundle tickets, setting the buyer's value auto-fills siblings with no assignment.`}/>}
+                                           helpText={t`Optional table or seat assignment for this attendee only. To set the same value for everyone on this order, use "Table / Seat" on the order modal.`}/>}
                 placeholder={t`e.g. Table 5`}
                 maxLength={100}
             />

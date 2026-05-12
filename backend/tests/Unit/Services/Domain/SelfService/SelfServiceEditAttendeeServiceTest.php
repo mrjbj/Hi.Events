@@ -3,17 +3,16 @@
 namespace Tests\Unit\Services\Domain\SelfService;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\ContactDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
-use HiEvents\DomainObjects\ContactDomainObject;
 use HiEvents\Mail\Attendee\AttendeeDetailsChangedMail;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
-use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
@@ -29,14 +28,21 @@ use Tests\TestCase;
 class SelfServiceEditAttendeeServiceTest extends TestCase
 {
     private SelfServiceEditAttendeeService $service;
+
     private MockInterface|AttendeeRepositoryInterface $attendeeRepository;
+
     private MockInterface|EventRepositoryInterface $eventRepository;
+
     private MockInterface|OrderAuditLogService $orderAuditLogService;
+
     private MockInterface|SendAttendeeTicketService $sendAttendeeTicketService;
+
     private MockInterface|ContactUpsertService $contactUpsertService;
+
     private MockInterface|ContactRepositoryInterface $contactRepository;
+
     private MockInterface|ContactSignedTokenService $contactTokenService;
-    private MockInterface|BundleSeatInfoPropagationService $bundleSeatInfoPropagationService;
+
     private MockInterface|LoggerInterface $logger;
 
     protected function setUp(): void
@@ -52,8 +58,6 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $this->contactUpsertService = Mockery::mock(ContactUpsertService::class);
         $this->contactRepository = Mockery::mock(ContactRepositoryInterface::class);
         $this->contactTokenService = Mockery::mock(ContactSignedTokenService::class);
-        $this->bundleSeatInfoPropagationService = Mockery::mock(BundleSeatInfoPropagationService::class);
-        $this->bundleSeatInfoPropagationService->shouldReceive('propagate')->byDefault();
         $this->logger = Mockery::mock(LoggerInterface::class);
         $this->contactTokenService->shouldReceive('generate')->byDefault()->andReturn('mock-token');
 
@@ -68,6 +72,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
                 $contact->shouldReceive('getId')->andReturn(0);
                 $contact->shouldReceive('getFirstName')->andReturn(null);
                 $contact->shouldReceive('getLastName')->andReturn(null);
+
                 return $contact;
             });
         $this->contactRepository->shouldReceive('updateFromArray')->byDefault();
@@ -90,12 +95,11 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             $this->contactUpsertService,
             $this->contactRepository,
             $this->contactTokenService,
-            $this->bundleSeatInfoPropagationService,
             $this->logger,
         );
     }
 
-    public function testSuccessfulEditUpdatesAttendeeFields(): void
+    public function test_successful_edit_updates_attendee_fields(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
@@ -179,7 +183,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         });
     }
 
-    public function testEmailChangeTriggersShortIdRotation(): void
+    public function test_email_change_triggers_short_id_rotation(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
@@ -273,7 +277,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         });
     }
 
-    public function testNoUpdateWhenNoFieldsChange(): void
+    public function test_no_update_when_no_fields_change(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
@@ -301,7 +305,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    public function testMultipleFieldsUpdateTogether(): void
+    public function test_multiple_fields_update_together(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);

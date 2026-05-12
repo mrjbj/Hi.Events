@@ -15,7 +15,6 @@ use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
-use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
@@ -35,7 +34,6 @@ class SelfServiceEditAttendeeService
         private readonly ContactUpsertService $contactUpsertService,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly ContactSignedTokenService $contactTokenService,
-        private readonly BundleSeatInfoPropagationService $bundleSeatInfoPropagationService,
         private readonly LoggerInterface $logger,
     ) {}
 
@@ -150,21 +148,14 @@ class SelfServiceEditAttendeeService
 
         // Seat / table assignment runs on its own track — it's an organizer
         // operation rather than an identity change, so we skip the
-        // "your details changed" email to the previous email holder. Still
-        // audited and still propagates to bundle siblings.
+        // "your details changed" email to the previous email holder. Strictly
+        // local to this attendee — bundle-wide changes go through the
+        // order-level "Apply to All" endpoint, not per-attendee edits.
         if ($seatInfo !== null && $seatInfo !== $attendee->getSeatInfo()) {
             $previousSeatInfo = $attendee->getSeatInfo();
             $this->attendeeRepository->updateWhere(
                 attributes: ['seat_info' => $seatInfo],
                 where: ['id' => $attendee->getId()],
-            );
-            $this->bundleSeatInfoPropagationService->propagate(
-                attendeeId: $attendee->getId(),
-                orderId: $attendee->getOrderId(),
-                productId: $attendee->getProductId(),
-                eventId: $attendee->getEventId(),
-                newSeatInfo: $seatInfo,
-                previousSeatInfo: $previousSeatInfo,
             );
             $this->orderAuditLogService->logAttendeeUpdate(
                 attendee: $attendee,
