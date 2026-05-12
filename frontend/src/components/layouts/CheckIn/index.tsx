@@ -489,6 +489,7 @@ const CheckIn = () => {
                 opened={profileModalOpen}
                 attendee={editingAttendee}
                 eventId={typeof event?.id === 'string' ? Number(event.id) : event?.id}
+                checkInListShortId={checkInListShortId}
                 onClose={() => {
                     profileModalHandlers.close();
                     setEditingAttendee(null);
