@@ -1,5 +1,5 @@
-import {ActionIcon, Badge, Button, Loader, Popover, Text, Tooltip} from "@mantine/core";
-import {IconArmchair, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
+import {ActionIcon, Badge, Button, Loader, Popover, Text, Tooltip, UnstyledButton} from "@mantine/core";
+import {IconArmchair, IconFilter, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -13,6 +13,8 @@ interface AttendeeListProps {
     allowOrdersAwaitingOfflinePaymentToCheckIn: boolean;
     onCheckInToggle: (attendee: Attendee) => void;
     onEditAttendee?: (attendee: Attendee) => void;
+    onFilterByGroup?: (attendee: Attendee) => void;
+    onFilterByTable?: (seatInfo: string) => void;
     onClickSound?: () => void;
 }
 
@@ -25,6 +27,8 @@ export const AttendeeList = ({
                                  allowOrdersAwaitingOfflinePaymentToCheckIn,
                                  onCheckInToggle,
                                  onEditAttendee,
+                                 onFilterByGroup,
+                                 onFilterByTable,
                                  onClickSound
                              }: AttendeeListProps) => {
     const checkInButtonText = (attendee: Attendee) => {
@@ -117,20 +121,50 @@ export const AttendeeList = ({
                                             <Text size="xs" c="dimmed" mt={8} fs="italic">
                                                 {t`Verify the guest's name and email at check-in.`}
                                             </Text>
+                                            {onFilterByGroup && (
+                                                <Button
+                                                    fullWidth
+                                                    size="xs"
+                                                    variant="light"
+                                                    color="orange"
+                                                    leftSection={<IconFilter size={14}/>}
+                                                    mt={8}
+                                                    onClick={() => onFilterByGroup(attendee)}
+                                                >
+                                                    {t`Show all in this group`}
+                                                </Button>
+                                            )}
                                         </Popover.Dropdown>
                                     </Popover>
                                     );
                                 })()}
                                 {attendee.seat_info && (
-                                    <Badge
-                                        color="violet"
-                                        variant="light"
-                                        size="sm"
-                                        leftSection={<IconArmchair size={12}/>}
-                                        aria-label={t`Seat assignment`}
-                                    >
-                                        {attendee.seat_info}
-                                    </Badge>
+                                    onFilterByTable ? (
+                                        <UnstyledButton
+                                            onClick={() => onFilterByTable(attendee.seat_info as string)}
+                                            aria-label={t`Filter to this table`}
+                                        >
+                                            <Badge
+                                                color="violet"
+                                                variant="light"
+                                                size="sm"
+                                                leftSection={<IconArmchair size={12}/>}
+                                                style={{cursor: 'pointer'}}
+                                            >
+                                                {attendee.seat_info}
+                                            </Badge>
+                                        </UnstyledButton>
+                                    ) : (
+                                        <Badge
+                                            color="violet"
+                                            variant="light"
+                                            size="sm"
+                                            leftSection={<IconArmchair size={12}/>}
+                                            aria-label={t`Seat assignment`}
+                                        >
+                                            {attendee.seat_info}
+                                        </Badge>
+                                    )
                                 )}
                             </div>
                             {attendee.status === 'CANCELLED' ? (

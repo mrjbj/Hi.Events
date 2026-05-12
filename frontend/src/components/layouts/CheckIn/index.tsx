@@ -7,9 +7,9 @@ import {showError, showSuccess} from "../../../utilites/notifications.tsx";
 import {t, Trans} from "@lingui/macro";
 import {AxiosError} from "axios";
 import classes from "./CheckIn.module.scss";
-import {ActionIcon, Modal} from "@mantine/core";
+import {ActionIcon, Modal, Badge as MantineBadge, Group, Text} from "@mantine/core";
 import {SearchBar} from "../../common/SearchBar";
-import {IconInfoCircle, IconQrcode, IconVolume, IconVolumeOff} from "@tabler/icons-react";
+import {IconArmchair, IconFilterOff, IconInfoCircle, IconQrcode, IconUsersGroup, IconVolume, IconVolumeOff} from "@tabler/icons-react";
 import {QRScannerComponent} from "../../common/AttendeeCheckInTable/QrScanner.tsx";
 import {useGetCheckInListAttendees} from "../../../queries/useGetCheckInListAttendeesPublic.ts";
 import {useCreateCheckInPublic} from "../../../mutations/useCreateCheckInPublic.ts";
@@ -61,6 +61,15 @@ const CheckIn = () => {
     const [profileModalOpen, profileModalHandlers] = useDisclosure(false);
     const [captureAttendee, setCaptureAttendee] = useState<Attendee | null>(null);
     const [captureModalOpen, captureModalHandlers] = useDisclosure(false);
+    // Soft client-side filter triggered by clicking the Group: or Table: badges
+    // on an attendee row. Narrows the list to attendees sharing the same
+    // order_id (group) or seat_info (table) without hitting the backend — works
+    // off whatever the current page has already loaded.
+    const [attendeeFilter, setAttendeeFilter] = useState<
+        | { type: 'group'; orderId: number; label: string }
+        | { type: 'table'; seatInfo: string }
+        | null
+    >(null);
     const [infoModalOpen, infoModalHandlers] = useDisclosure(false, {
             onOpen: () => {
                 CheckInListQuery.refetch();
@@ -84,6 +93,13 @@ const CheckIn = () => {
         checkInList?.is_active && !checkInList?.is_expired,
     );
     const attendees = attendeesQuery?.data?.data;
+    const displayedAttendees = (() => {
+        if (!attendees || !attendeeFilter) return attendees;
+        if (attendeeFilter.type === 'group') {
+            return attendees.filter(a => a.order_id === attendeeFilter.orderId);
+        }
+        return attendees.filter(a => (a.seat_info ?? '').trim() === attendeeFilter.seatInfo.trim());
+    })();
     const checkInMutation = useCreateCheckInPublic(queryFilters);
     const deleteCheckInMutation = useDeleteCheckInPublic(queryFilters);
     const areOfflinePaymentsEnabled = eventSettings?.payment_providers?.includes('OFFLINE');
@@ -473,8 +489,41 @@ const CheckIn = () => {
                     </div>
                 </div>
             </div>
+            {attendeeFilter && (
+                <Group justify="space-between" align="center" mb="sm" px="sm" py="xs"
+                       style={{background: 'var(--mantine-color-violet-0)', borderRadius: 8}}>
+                    <Group gap="xs" align="center">
+                        {attendeeFilter.type === 'group' ? (
+                            <>
+                                <IconUsersGroup size={16}/>
+                                <Text size="sm">
+                                    {t`Showing group:`} <b>{attendeeFilter.label}</b>
+                                </Text>
+                            </>
+                        ) : (
+                            <>
+                                <IconArmchair size={16}/>
+                                <Text size="sm">
+                                    {t`Showing table:`} <b>{attendeeFilter.seatInfo}</b>
+                                </Text>
+                            </>
+                        )}
+                        <MantineBadge color="violet" variant="light" size="sm">
+                            {displayedAttendees?.length ?? 0}
+                        </MantineBadge>
+                    </Group>
+                    <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        aria-label={t`Clear filter`}
+                        onClick={() => setAttendeeFilter(null)}
+                    >
+                        <IconFilterOff size={16}/>
+                    </ActionIcon>
+                </Group>
+            )}
             <AttendeeList
-                attendees={attendees}
+                attendees={displayedAttendees}
                 products={products}
                 isLoading={attendeesQuery.isFetching}
                 isCheckInPending={checkInMutation.isPending}
@@ -484,6 +533,18 @@ const CheckIn = () => {
                 onEditAttendee={(attendee) => {
                     setEditingAttendee(attendee);
                     profileModalHandlers.open();
+                }}
+                onFilterByGroup={(attendee) => {
+                    const buyer = [attendee.buyer_first_name, attendee.buyer_last_name]
+                        .filter(Boolean).join(' ').trim();
+                    setAttendeeFilter({
+                        type: 'group',
+                        orderId: attendee.order_id,
+                        label: buyer || attendee.buyer_email || t`Group purchase`,
+                    });
+                }}
+                onFilterByTable={(seatInfo) => {
+                    setAttendeeFilter({type: 'table', seatInfo});
                 }}
                 onClickSound={playClickSound}
             />
