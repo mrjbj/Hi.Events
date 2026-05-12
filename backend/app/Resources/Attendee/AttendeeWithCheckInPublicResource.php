@@ -30,6 +30,7 @@ class AttendeeWithCheckInPublicResource extends JsonResource
             'contact_id' => $this->getContactId(),
             'contact_token' => $this->getContactToken(),
             'from_group_purchase' => $this->getFromGroupPurchase(),
+            'seat_info' => $this->getSeatInfo(),
             'profile_completion_recommended' => $this->profileCompletionRecommended(),
             'buyer_first_name' => $order?->getFirstName(),
             'buyer_last_name' => $order?->getLastName(),

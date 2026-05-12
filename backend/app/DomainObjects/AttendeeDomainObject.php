@@ -60,6 +60,10 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
                     'asc' => __('Status A-Z'),
                     'desc' => __('Status Z-A'),
                 ],
+                self::SEAT_INFO => [
+                    'asc' => __('Table / Seat A-Z'),
+                    'desc' => __('Table / Seat Z-A'),
+                ],
             ]
         );
     }

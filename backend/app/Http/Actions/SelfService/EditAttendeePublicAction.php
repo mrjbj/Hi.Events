@@ -33,6 +33,7 @@ class EditAttendeePublicAction extends BaseAction
                 'email' => $request->input('email'),
                 'ipAddress' => $this->getClientIp($request),
                 'userAgent' => $request->userAgent(),
+                'seatInfo' => $request->input('seat_info'),
             ]));
 
             $response = [

@@ -584,6 +584,7 @@ export interface Attendee {
     buyer_first_name?: string | null;
     buyer_last_name?: string | null;
     buyer_email?: string | null;
+    seat_info?: string | null;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
     from_group_purchase?: boolean;

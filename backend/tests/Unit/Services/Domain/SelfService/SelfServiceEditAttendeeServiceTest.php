@@ -13,6 +13,7 @@ use HiEvents\Mail\Attendee\AttendeeDetailsChangedMail;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
+use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
@@ -35,6 +36,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
     private MockInterface|ContactUpsertService $contactUpsertService;
     private MockInterface|ContactRepositoryInterface $contactRepository;
     private MockInterface|ContactSignedTokenService $contactTokenService;
+    private MockInterface|BundleSeatInfoPropagationService $bundleSeatInfoPropagationService;
     private MockInterface|LoggerInterface $logger;
 
     protected function setUp(): void
@@ -50,6 +52,8 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $this->contactUpsertService = Mockery::mock(ContactUpsertService::class);
         $this->contactRepository = Mockery::mock(ContactRepositoryInterface::class);
         $this->contactTokenService = Mockery::mock(ContactSignedTokenService::class);
+        $this->bundleSeatInfoPropagationService = Mockery::mock(BundleSeatInfoPropagationService::class);
+        $this->bundleSeatInfoPropagationService->shouldReceive('propagate')->byDefault();
         $this->logger = Mockery::mock(LoggerInterface::class);
         $this->contactTokenService->shouldReceive('generate')->byDefault()->andReturn('mock-token');
 
@@ -86,6 +90,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             $this->contactUpsertService,
             $this->contactRepository,
             $this->contactTokenService,
+            $this->bundleSeatInfoPropagationService,
             $this->logger,
         );
     }

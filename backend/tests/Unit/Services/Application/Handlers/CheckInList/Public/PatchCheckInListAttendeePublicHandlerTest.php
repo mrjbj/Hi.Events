@@ -8,6 +8,7 @@ use HiEvents\Exceptions\CannotCheckInException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use HiEvents\Services\Application\Handlers\CheckInList\Public\PatchCheckInListAttendeePublicHandler;
+use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use Mockery as m;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Tests\TestCase;
@@ -16,6 +17,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
 {
     private CheckInListRepositoryInterface $checkInListRepository;
     private AttendeeRepositoryInterface $attendeeRepository;
+    private BundleSeatInfoPropagationService $bundleSeatInfoPropagationService;
     private PatchCheckInListAttendeePublicHandler $handler;
 
     protected function setUp(): void
@@ -24,10 +26,13 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
 
         $this->checkInListRepository = m::mock(CheckInListRepositoryInterface::class);
         $this->attendeeRepository = m::mock(AttendeeRepositoryInterface::class);
+        $this->bundleSeatInfoPropagationService = m::mock(BundleSeatInfoPropagationService::class);
+        $this->bundleSeatInfoPropagationService->shouldReceive('propagate')->byDefault();
 
         $this->handler = new PatchCheckInListAttendeePublicHandler(
             $this->attendeeRepository,
-            $this->checkInListRepository
+            $this->checkInListRepository,
+            $this->bundleSeatInfoPropagationService,
         );
     }
 
@@ -88,6 +93,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
 
         $existingAttendee = m::mock(AttendeeDomainObject::class);
         $existingAttendee->shouldReceive('getId')->andReturn(42);
+        $existingAttendee->shouldReceive('getSeatInfo')->andReturn(null);
 
         $refreshedAttendee = m::mock(AttendeeDomainObject::class);
 
@@ -132,6 +138,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
 
         $existingAttendee = m::mock(AttendeeDomainObject::class);
         $existingAttendee->shouldReceive('getId')->andReturn(42);
+        $existingAttendee->shouldReceive('getSeatInfo')->andReturn(null);
 
         $this->checkInListRepository
             ->shouldReceive('findFirstWhere')

@@ -1,5 +1,5 @@
 import {ActionIcon, Badge, Button, Loader, Popover, Text, Tooltip} from "@mantine/core";
-import {IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
+import {IconArmchair, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -121,6 +121,17 @@ export const AttendeeList = ({
                                     </Popover>
                                     );
                                 })()}
+                                {attendee.seat_info && (
+                                    <Badge
+                                        color="violet"
+                                        variant="light"
+                                        size="sm"
+                                        leftSection={<IconArmchair size={12}/>}
+                                        aria-label={t`Seat assignment`}
+                                    >
+                                        {attendee.seat_info}
+                                    </Badge>
+                                )}
                             </div>
                             {attendee.status === 'CANCELLED' ? (
                                 <div style={{fontSize: '0.8em', color: 'red'}}>

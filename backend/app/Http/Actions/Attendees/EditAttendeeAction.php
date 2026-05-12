@@ -38,6 +38,7 @@ class EditAttendeeAction extends BaseAction
                 'event_id' => $eventId,
                 'attendee_id' => $attendeeId,
                 'notes' => $request->input('notes'),
+                'seat_info' => $request->input('seat_info'),
             ]));
         } catch (NoTicketsAvailableException $exception) {
             throw ValidationException::withMessages([

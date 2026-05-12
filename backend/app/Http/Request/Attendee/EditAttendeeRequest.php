@@ -16,6 +16,7 @@ class EditAttendeeRequest extends BaseRequest
             'product_id' => RulesHelper::REQUIRED_NUMERIC,
             'product_price_id' => RulesHelper::REQUIRED_NUMERIC,
             'notes' => RulesHelper::OPTIONAL_TEXT_MEDIUM_LENGTH,
+            'seat_info' => ['string', 'max:100', 'nullable'],
         ];
     }
 

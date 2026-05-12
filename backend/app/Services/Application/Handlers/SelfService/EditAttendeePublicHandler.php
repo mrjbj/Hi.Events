@@ -48,7 +48,8 @@ class EditAttendeePublicHandler
             lastName: $dto->lastName,
             email: $dto->email,
             ipAddress: $dto->ipAddress,
-            userAgent: $dto->userAgent
+            userAgent: $dto->userAgent,
+            seatInfo: $dto->seatInfo,
         );
     }
 }

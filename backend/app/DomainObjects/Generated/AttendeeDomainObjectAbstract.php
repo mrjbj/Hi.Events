@@ -31,6 +31,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     final public const LOCALE = 'locale';
     final public const NOTES = 'notes';
     final public const CONTACT_LINK_IGNORED_AT = 'contact_link_ignored_at';
+    final public const SEAT_INFO = 'seat_info';
 
     protected int $id;
     protected int $order_id;
@@ -53,6 +54,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     protected string $locale = 'en';
     protected ?string $notes = null;
     protected ?string $contact_link_ignored_at = null;
+    protected ?string $seat_info = null;
 
     public function toArray(): array
     {
@@ -78,6 +80,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
                     'locale' => $this->locale ?? null,
                     'notes' => $this->notes ?? null,
                     'contact_link_ignored_at' => $this->contact_link_ignored_at ?? null,
+                    'seat_info' => $this->seat_info ?? null,
                 ];
     }
 
@@ -310,5 +313,16 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     public function getContactLinkIgnoredAt(): ?string
     {
         return $this->contact_link_ignored_at;
+    }
+
+    public function setSeatInfo(?string $seat_info): self
+    {
+        $this->seat_info = $seat_info;
+        return $this;
+    }
+
+    public function getSeatInfo(): ?string
+    {
+        return $this->seat_info;
     }
 }

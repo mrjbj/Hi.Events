@@ -238,10 +238,9 @@ const GuestListItem = ({
                                 )}
                             </div>
                             <Button
-                                size="sm"
-                                color="green"
+                                size="xs"
                                 variant="filled"
-                                leftSection={<IconTicket size={16}/>}
+                                leftSection={<IconTicket size={14}/>}
                                 onClick={guardedAction(() => window?.open(`/product/${event.id}/${attendee.short_id}`, '_blank'))}
                             >
                                 {t`View Ticket`}

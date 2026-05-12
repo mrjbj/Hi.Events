@@ -14,6 +14,7 @@ use HiEvents\Exceptions\NoTicketsAvailableException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Attendee\DTO\EditAttendeeDTO;
+use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Product\ProductQuantityUpdateService;
 use HiEvents\Services\Infrastructure\DomainEvents\DomainEventDispatcherService;
 use HiEvents\Services\Infrastructure\DomainEvents\Enums\DomainEventType;
@@ -25,14 +26,13 @@ use Throwable;
 class EditAttendeeHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface  $attendeeRepository,
-        private readonly ProductRepositoryInterface   $productRepository,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly ProductRepositoryInterface $productRepository,
         private readonly ProductQuantityUpdateService $productQuantityService,
-        private readonly DatabaseManager              $databaseManager,
+        private readonly DatabaseManager $databaseManager,
         private readonly DomainEventDispatcherService $domainEventDispatcherService,
-    )
-    {
-    }
+        private readonly BundleSeatInfoPropagationService $bundleSeatInfoPropagationService,
+    ) {}
 
     /**
      * @throws ValidationException
@@ -42,12 +42,22 @@ class EditAttendeeHandler
     {
         return $this->databaseManager->transaction(function () use ($editAttendeeDTO) {
             $attendee = $this->getAttendee($editAttendeeDTO);
+            $previousSeatInfo = $attendee->getSeatInfo();
 
             $this->validateProductId($editAttendeeDTO, $attendee);
 
             $this->adjustProductQuantities($attendee, $editAttendeeDTO);
 
             $updatedAttendee = $this->updateAttendee($editAttendeeDTO);
+
+            $this->bundleSeatInfoPropagationService->propagate(
+                attendeeId: $updatedAttendee->getId(),
+                orderId: $updatedAttendee->getOrderId(),
+                productId: $updatedAttendee->getProductId(),
+                eventId: $updatedAttendee->getEventId(),
+                newSeatInfo: $updatedAttendee->getSeatInfo(),
+                previousSeatInfo: $previousSeatInfo,
+            );
 
             $this->domainEventDispatcherService->dispatch(
                 new AttendeeEvent(
@@ -84,6 +94,7 @@ class EditAttendeeHandler
             'product_id' => $editAttendeeDTO->product_id,
             'product_price_id' => $editAttendeeDTO->product_price_id,
             'notes' => $editAttendeeDTO->notes,
+            'seat_info' => $editAttendeeDTO->seat_info,
         ], [
             'event_id' => $editAttendeeDTO->event_id,
         ]);
@@ -96,8 +107,7 @@ class EditAttendeeHandler
     private function validateProductId(
         EditAttendeeDTO $editAttendeeDTO,
         AttendeeDomainObject $attendee,
-    ): void
-    {
+    ): void {
         /** @var ProductDomainObject $product */
         $product = $this->productRepository
             ->loadRelation(ProductPriceDomainObject::class)
@@ -111,8 +121,8 @@ class EditAttendeeHandler
             ]);
         }
 
-        $productPriceIds = $product->getProductPrices()->map(fn($productPrice) => $productPrice->getId())->toArray();
-        if (!in_array($editAttendeeDTO->product_price_id, $productPriceIds, true)) {
+        $productPriceIds = $product->getProductPrices()->map(fn ($productPrice) => $productPrice->getId())->toArray();
+        if (! in_array($editAttendeeDTO->product_price_id, $productPriceIds, true)) {
             throw ValidationException::withMessages([
                 'product_price_id' => __('Product price ID is not valid'),
             ]);

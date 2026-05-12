@@ -94,6 +94,7 @@ export const CaptureAttendeeOnArrivalModal = ({
             first_name: '',
             last_name: '',
             email: '',
+            seat_info: '',
         },
         validate: {
             first_name: (value) => !value?.trim() ? t`First name is required` : null,
@@ -113,6 +114,7 @@ export const CaptureAttendeeOnArrivalModal = ({
                 first_name: attendee.first_name ?? '',
                 last_name: attendee.last_name ?? '',
                 email: attendee.email ?? '',
+                seat_info: attendee.seat_info ?? '',
             });
             form.resetDirty();
         }
@@ -152,14 +154,17 @@ export const CaptureAttendeeOnArrivalModal = ({
 
         setSubmitting(true);
         try {
-            // 1. Update the attendee row first (name + email). The backend
-            //    relink logic spins up a contact for the new email if needed.
+            // 1. Update the attendee row first (name + email + seat). The
+            //    backend relink logic spins up a contact for the new email if
+            //    needed; seat changes also fan out to bundle siblings.
+            const trimmedSeat = values.seat_info.trim();
             const patchResult = await patchAttendee.mutateAsync({
                 attendeePublicId: attendee.public_id,
                 payload: {
                     first_name: values.first_name.trim(),
                     last_name: values.last_name.trim(),
                     email: values.email.trim(),
+                    seat_info: trimmedSeat === '' ? null : trimmedSeat,
                 },
             });
 
@@ -197,6 +202,7 @@ export const CaptureAttendeeOnArrivalModal = ({
                 first_name: values.first_name.trim(),
                 last_name: values.last_name.trim(),
                 email: values.email.trim(),
+                seat_info: trimmedSeat === '' ? null : trimmedSeat,
             };
             await onCheckInConfirmed(updatedAttendee);
 
@@ -303,6 +309,12 @@ export const CaptureAttendeeOnArrivalModal = ({
                         type="email"
                         required
                         {...form.getInputProps('email')}
+                    />
+                    <TextInput
+                        label={t`Table / Seat (optional)`}
+                        placeholder={t`e.g. Table 5`}
+                        maxLength={100}
+                        {...form.getInputProps('seat_info')}
                     />
 
                     {contactToken && profileQuery.isLoading && (

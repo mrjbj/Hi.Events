@@ -46,6 +46,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
             last_name: "",
             email: "",
             notes: "",
+            seat_info: "",
             product_id: "",
             product_price_id: "",
         },
@@ -60,6 +61,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                 last_name: attendee.last_name,
                 email: attendee.email,
                 notes: attendee.notes || "",
+                seat_info: attendee.seat_info || "",
                 product_id: String(attendee.product_id),
                 product_price_id: attendee.product_price_id ? String(attendee.product_price_id) : "",
             });
@@ -126,6 +128,13 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                     />
                 )}
             </InputGroup>
+            <TextInput
+                {...form.getInputProps("seat_info")}
+                label={<InputLabelWithHelp label={t`Table / Seat`}
+                                           helpText={t`Optional table or seat assignment. For bundle tickets, setting the buyer's value auto-fills siblings with no assignment.`}/>}
+                placeholder={t`e.g. Table 5`}
+                maxLength={100}
+            />
             <Textarea
                 label={<InputLabelWithHelp label={t`Notes`}
                                            helpText={t`Add any notes about the attendee. These will not be visible to the attendee.`}/>}

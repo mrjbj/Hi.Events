@@ -28,6 +28,7 @@ class AttendeeResourcePublic extends JsonResource
             'locale' => $this->getLocale(),
             'contact_id' => $this->getContactId(),
             'contact_token' => $this->getContactToken(),
+            'seat_info' => $this->getSeatInfo(),
             'profile_completion_recommended' => $this->profileCompletionRecommended(),
         ];
     }

@@ -15,6 +15,7 @@ use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
+use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
@@ -34,6 +35,7 @@ class SelfServiceEditAttendeeService
         private readonly ContactUpsertService $contactUpsertService,
         private readonly ContactRepositoryInterface $contactRepository,
         private readonly ContactSignedTokenService $contactTokenService,
+        private readonly BundleSeatInfoPropagationService $bundleSeatInfoPropagationService,
         private readonly LoggerInterface $logger,
     ) {}
 
@@ -43,7 +45,8 @@ class SelfServiceEditAttendeeService
         ?string $lastName,
         ?string $email,
         string $ipAddress,
-        ?string $userAgent
+        ?string $userAgent,
+        ?string $seatInfo = null
     ): EditAttendeeResultDTO {
         $oldValues = [];
         $newValues = [];
@@ -73,7 +76,7 @@ class SelfServiceEditAttendeeService
             $emailChanged = true;
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $oldEmail = $attendee->getEmail();
 
             if ($emailChanged) {
@@ -142,6 +145,33 @@ class SelfServiceEditAttendeeService
                 newValues: $newValues,
                 ipAddress: $ipAddress,
                 userAgent: $userAgent
+            );
+        }
+
+        // Seat / table assignment runs on its own track — it's an organizer
+        // operation rather than an identity change, so we skip the
+        // "your details changed" email to the previous email holder. Still
+        // audited and still propagates to bundle siblings.
+        if ($seatInfo !== null && $seatInfo !== $attendee->getSeatInfo()) {
+            $previousSeatInfo = $attendee->getSeatInfo();
+            $this->attendeeRepository->updateWhere(
+                attributes: ['seat_info' => $seatInfo],
+                where: ['id' => $attendee->getId()],
+            );
+            $this->bundleSeatInfoPropagationService->propagate(
+                attendeeId: $attendee->getId(),
+                orderId: $attendee->getOrderId(),
+                productId: $attendee->getProductId(),
+                eventId: $attendee->getEventId(),
+                newSeatInfo: $seatInfo,
+                previousSeatInfo: $previousSeatInfo,
+            );
+            $this->orderAuditLogService->logAttendeeUpdate(
+                attendee: $attendee,
+                oldValues: ['seat_info' => $previousSeatInfo],
+                newValues: ['seat_info' => $seatInfo],
+                ipAddress: $ipAddress,
+                userAgent: $userAgent,
             );
         }
 
@@ -217,7 +247,7 @@ class SelfServiceEditAttendeeService
                 if ($newLastName !== null && $newLastName !== $targetContact->getLastName()) {
                     $contactUpdates['last_name'] = $newLastName;
                 }
-                if (!empty($contactUpdates)) {
+                if (! empty($contactUpdates)) {
                     $this->contactRepository->updateFromArray($targetContact->getId(), $contactUpdates);
                 }
             }
@@ -233,6 +263,7 @@ class SelfServiceEditAttendeeService
                 'new_email' => $newEmail,
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }

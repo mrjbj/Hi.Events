@@ -9,6 +9,7 @@ export interface EditAttendeeRequest {
     last_name: string;
     email: string;
     notes?: string;
+    seat_info?: string | null;
     product_id?: IdParam;
     product_price_id?: IdParam;
     status?: string;
@@ -72,6 +73,7 @@ export interface PatchCheckInListAttendeePayload {
     first_name?: string;
     last_name?: string;
     email?: string;
+    seat_info?: string | null;
 }
 
 export const attendeeClientPublic = {

@@ -12,6 +12,7 @@ class EditAttendeePublicRequest extends BaseRequest
             'first_name' => ['sometimes', 'string', 'max:255'],
             'last_name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
+            'seat_info' => ['sometimes', 'nullable', 'string', 'max:100'],
         ];
     }
 
