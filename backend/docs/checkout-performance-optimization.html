@@ -82,6 +82,8 @@
     <li><a href="#rejected">Things considered and rejected</a></li>
     <li><a href="#verify">How to verify it's still working</a></li>
     <li><a href="#future">Future considerations</a></li>
+    <li><a href="#safari">Safari compatibility fix (Turnstile)</a></li>
+    <li><a href="#instrumentation">Server-Timing — keep or remove?</a></li>
   </ol>
 </div>
 
@@ -347,11 +349,104 @@ PHP_FPM_PM_MAX_REQUESTS=500
 <h3>Upstream PR considerations</h3>
 <p>The frontend and backend code changes (commits <code>96a7094f</code> and <code>1f695603</code>) are general improvements that benefit any Hi.Events deployment and would likely be welcomed upstream. The <code>startup.sh</code> change (commit <code>c5198551</code>) is more opinionated — upstream may prefer the clear-on-restart behavior for the typical self-hosted user. If submitting, frame it as a <code>HIEVENTS_OPTIMIZE_ON_START=true</code> opt-in flag rather than changing the default.</p>
 
+<h2 id="safari">9. Safari compatibility fix (Turnstile)</h2>
+
+<p class="muted">Commit <code>a1f61d42</code> — added after the main perf pass</p>
+
+<p>Shortly after the perf work above shipped, users on Safari (including private windows) reported the Continue button hanging indefinitely with the spinner stuck. Chrome worked normally. Investigation in Safari Web Inspector revealed the actual error:</p>
+
+<pre><code>TurnstileError: [Cloudflare Turnstile] Invalid value for parameter "size",
+expected "compact", "flexible", or "normal", got "invisible".</code></pre>
+
+<h3>Root cause</h3>
+
+<p>Cloudflare had deprecated <code>size: "invisible"</code> as a valid parameter for the Turnstile widget. Our <code>useTurnstile.ts</code> hook was still passing it. <strong>Chrome silently swallowed the rejection and rendered the widget anyway</strong>, so token issuance still worked. <strong>Safari's stricter validation</strong> left the widget in a broken state — neither the success callback nor the error callback fired, so the in-flight token Promise sat unresolved forever. The mutation never completed → the button spinner never stopped.</p>
+
+<p>Cascading errors that appeared but were not the root cause:</p>
+<ul>
+  <li><code>Blocked a frame with origin "https://challenges.cloudflare.com"...</code> — cross-origin postMessage failed because the widget never finished initializing</li>
+  <li>Multiple <code>require-trusted-types-for 'script'</code> CSP warnings — Cloudflare's broken-state retry path tripped these</li>
+</ul>
+
+<h3>The fix</h3>
+
+<p>Two-part fix:</p>
+
+<p><strong>1. Code change</strong> — replaced the deprecated <code>size</code> parameter with the modern <code>appearance</code> parameter:</p>
+
+<p><span class="file-path">frontend/src/hooks/useTurnstile.ts</span></p>
+<pre><code>// Before
+widgetIdRef.current = window.turnstile.render(containerRef.current, {
+  sitekey: siteKey,
+  size: "invisible",     // ← deprecated, rejected by current API
+  callback: ...,
+  "error-callback": ...,
+});
+
+// After
+widgetIdRef.current = window.turnstile.render(containerRef.current, {
+  sitekey: siteKey,
+  appearance: "interaction-only",  // hide widget unless interaction required
+  callback: ...,
+  "error-callback": ...,
+});
+</code></pre>
+
+<p><strong>2. Cloudflare dashboard change</strong> — sitekey widget mode changed from <strong>Managed</strong> to <strong>Invisible</strong> in the Turnstile dashboard at <code>dash.cloudflare.com</code> → Turnstile → sitekey settings.</p>
+
+<p>The dashboard change matters because <code>appearance: "interaction-only"</code> only suppresses the widget UI <em>if no interaction is required</em>. With Managed mode, Cloudflare could decide a user looked suspicious and force a manual challenge — which our off-screen container at <code>-9999px</code> would prevent the user from clicking, causing a hang. Setting the sitekey itself to Invisible mode guarantees no manual challenge ever appears.</p>
+
+<div class="panel good">
+  <strong>Result:</strong> Safari (normal and private) now completes the Continue flow identically to Chrome. No spinner hang, no cross-origin errors, no CSP warnings.
+</div>
+
+<h3>Why this didn't show up sooner</h3>
+
+<p>The deprecation of <code>size: "invisible"</code> was a Cloudflare API change that propagated silently. Chrome's permissive validation hid the breakage. Most desktop traffic to a small ticketing site is Chrome-dominant, so the Safari path could have been quietly broken for weeks before someone tested it. <strong>Lesson:</strong> when integrating third-party SDKs whose API can change without our redeploys, periodically test in a non-default browser to catch silent regressions.</p>
+
+<h3>If something similar happens again</h3>
+
+<ol>
+  <li>Open Safari Web Inspector → Console while clicking Continue</li>
+  <li>Look for errors mentioning <code>Turnstile</code>, <code>cloudflare.com</code>, or <code>cross-origin</code></li>
+  <li>Check Network panel — does <code>POST /events/.../order</code> even fire?
+    <ul>
+      <li><strong>No</strong> → blocked in <code>getTurnstileToken()</code> Promise</li>
+      <li><strong>Yes, pending forever</strong> → likely cookie / CORS issue, not Turnstile</li>
+      <li><strong>Yes, 403</strong> → token rejected (sitekey misconfigured)</li>
+    </ul>
+  </li>
+  <li>Defensive option still available: add a 5-second timeout in <code>useTurnstile.ts</code> so <code>getToken()</code> resolves <code>null</code> instead of hanging — turns a soft hang into a clean error. Not implemented yet because the fix above resolved the issue cleanly.</li>
+</ol>
+
+<h2 id="instrumentation">10. Server-Timing — keep or remove?</h2>
+
+<p><strong>Keep.</strong></p>
+
+<p>The <code>Server-Timing</code> instrumentation added in commit <code>1f695603</code> to <code>CreateOrderActionPublic.php</code> is a permanent fixture, not a one-off debugging tool.</p>
+
+<table>
+  <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>Runtime cost</td><td>4 <code>hrtime()</code> calls + 1 <code>sprintf</code>. Sub-microsecond overhead per request, well below any other phase.</td></tr>
+    <tr><td>Operational value</td><td>If anyone reports checkout slowness in the future, the first diagnostic step is "open DevTools → Network → click <code>order</code> row → check Server-Timing." Without it, you're guessing.</td></tr>
+    <tr><td>Information disclosure risk</td><td>Low. Response headers expose three phase timings (validate, handle, serialize). No sensitive data leaks. Similar to what New Relic, Datadog APM, or any RUM tool emits.</td></tr>
+    <tr><td>Maintenance burden</td><td>~10 lines of code in one action. If the action's phase structure changes, the timing labels would need updating to match. Trivial.</td></tr>
+  </tbody>
+</table>
+
+<p>If you later add APM (New Relic, Datadog, etc.), Server-Timing becomes redundant and can be removed. Until then, it's the cheapest possible observability layer for the most performance-critical endpoint in the app.</p>
+
+<div class="panel note">
+  <strong>Possible future extension:</strong> if order creation slowness ever returns, instrument <em>inside</em> the handler too — separately measure the advisory lock wait, the availability recheck, the order insert, and the item processing. Would tell you whether the lock is contended (a leading indicator of needing connection-pool or process-pool changes). Don't bother until you see a problem; premature instrumentation is its own technical debt.
+</div>
+
 <hr>
 
 <p class="meta">
   Performance review and implementation: Jason Bruce Jones + Claude Opus 4.7 (1M context).<br>
-  Generated 2026-05-13. Local-only document; lives in <code>ops/docs/</code> which is gitignored per repository convention.
+  Generated 2026-05-13. Last updated 2026-05-13 with Safari/Turnstile fix and Server-Timing retention note.<br>
+  Lives in <code>backend/docs/</code> alongside the other architecture and operations documents.
 </p>
 
 </body>
