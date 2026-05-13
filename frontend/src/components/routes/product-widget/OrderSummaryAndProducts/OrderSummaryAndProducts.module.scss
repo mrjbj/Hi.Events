@@ -87,11 +87,11 @@ $font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
 }
 
 .ticketsCard {
-  // 3px purple accent on top of the card to mark this as the primary section
+  // 3px accent on top of the card to mark this as the primary section
   // the user is here for, without enclosing the inner rows (which carry their
   // own amber/red stripes for unassigned/cancelled states).
   border-top: 3px solid var(--checkout-accent, #6366f1);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--checkout-accent, #6366f1) 12%, transparent);
   position: relative;
 }
 
@@ -151,8 +151,8 @@ $font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(139, 92, 246, 0.15);
-  color: #6d28d9;
+  background: color-mix(in srgb, var(--checkout-accent, #6366f1) 15%, transparent);
+  color: color-mix(in srgb, var(--checkout-accent, #6366f1) 75%, black);
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -180,7 +180,7 @@ $font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
 }
 
 .guestItemAssigned {
-  background: rgba(99, 102, 241, 0.04);
+  background: color-mix(in srgb, var(--checkout-accent, #6366f1) 6%, transparent);
   border-left: 3px solid var(--checkout-accent, #6366f1);
   padding-left: 12px;
   margin-left: -12px;
