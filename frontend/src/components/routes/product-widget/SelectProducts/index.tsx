@@ -25,6 +25,8 @@ import {range, useInputState, useResizeObserver} from "@mantine/hooks";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {showError, showInfo, showSuccess} from "../../../../utilites/notifications.tsx";
 import {addQueryStringToUrl, isObjectEmpty, removeQueryStringFromUrl} from "../../../../utilites/helpers.ts";
+import {GET_ORDER_PUBLIC_QUERY_KEY} from "../../../../queries/useGetOrderPublic.ts";
+import {GET_EVENT_PUBLIC_QUERY_KEY} from "../../../../queries/useGetEventPublic.ts";
 import {TieredPricing} from "./Prices/Tiered";
 import classNames from 'classnames';
 import '../../../../styles/widget/default.scss';
@@ -155,20 +157,24 @@ const SelectProducts = (props: SelectProductsProps) => {
             return result;
         },
 
-        onSuccess: (data) => queryClient.invalidateQueries()
-            .then(() => {
-                const url = '/checkout/' + eventId + '/' + data.data.short_id + '/details';
-                if (props.widgetMode === 'embedded') {
-                    window.open(
-                        url + '?session_identifier=' + data.data.session_identifier + '&utm_source=embedded_widget',
-                        '_blank'
-                    );
-                    setOrderInProcessOverlayVisible(true);
-                    return;
-                }
+        onSuccess: (data) => {
+            const url = '/checkout/' + eventId + '/' + data.data.short_id + '/details';
+            if (props.widgetMode === 'embedded') {
+                window.open(
+                    url + '?session_identifier=' + data.data.session_identifier + '&utm_source=embedded_widget',
+                    '_blank'
+                );
+                setOrderInProcessOverlayVisible(true);
+            } else {
+                queryClient.setQueryData(
+                    [GET_ORDER_PUBLIC_QUERY_KEY, eventId, data.data.short_id, null],
+                    {...data.data, event},
+                );
+                navigate(url);
+            }
 
-                return navigate(url);
-            }),
+            queryClient.invalidateQueries({queryKey: [GET_EVENT_PUBLIC_QUERY_KEY, eventId]});
+        },
 
         onError: (error: any) => {
             if (error?.response?.data?.errors) {

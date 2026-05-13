@@ -49,7 +49,7 @@ class OrderCreateRequestValidationService
         $this->availableProductQuantities = $this->fetchAvailableProductQuantitiesService
             ->getAvailableProductQuantities(
                 $event->getId(),
-                ignoreCache: true,
+                ignoreCache: false,
             );
 
         $this->validateOverallCapacity($data);
