@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Checkout Performance Optimization — Hi.Events on Elestio</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a1f2a;
+    --border: #2a3140;
+    --text: #d8dee9;
+    --muted: #7a8499;
+    --accent: #88c0d0;
+    --good: #a3be8c;
+    --warn: #ebcb8b;
+    --bad: #bf616a;
+    --code-bg: #11151c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 24px 80px;
+  }
+  h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2em; }
+  h2 { color: var(--accent); margin-top: 48px; border-bottom: 1px solid var(--border); padding-bottom: 6px; font-size: 1.5em; }
+  h3 { color: var(--text); margin-top: 32px; font-size: 1.15em; }
+  .meta { color: var(--muted); font-size: 0.9em; margin-bottom: 32px; }
+  .meta strong { color: var(--text); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+  .panel.good { border-left: 4px solid var(--good); }
+  .panel.warn { border-left: 4px solid var(--warn); }
+  .panel.note { border-left: 4px solid var(--accent); }
+  .panel.bad  { border-left: 4px solid var(--bad); }
+  code, pre { font-family: "SF Mono", Consolas, "Monaco", monospace; font-size: 0.88em; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 3px; color: var(--accent); }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; line-height: 1.5; }
+  pre code { background: none; padding: 0; color: var(--text); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92em; }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  th { background: var(--panel); color: var(--accent); font-weight: 600; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  .good-text { color: var(--good); font-weight: 600; }
+  .bad-text { color: var(--bad); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .tag { display: inline-block; background: var(--code-bg); color: var(--accent); padding: 2px 8px; border-radius: 3px; font-size: 0.78em; font-family: "SF Mono", monospace; margin: 0 4px 0 0; }
+  ul li, ol li { margin: 4px 0; }
+  .file-path { color: var(--warn); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+  blockquote { border-left: 3px solid var(--muted); margin: 16px 0; padding: 4px 16px; color: var(--muted); font-style: italic; }
+  .toc { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 16px 24px; }
+  .toc ol { margin: 8px 0; padding-left: 24px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>Checkout Performance Optimization</h1>
+<p class="meta">
+  <strong>Date:</strong> 2026-05-13 &nbsp;|&nbsp;
+  <strong>Branch:</strong> <code>jbj/local</code> &nbsp;|&nbsp;
+  <strong>Deployment:</strong> Elestio (district11), <code>ghcr.io/mrjbj/hi-events-all-in-one:latest</code>
+</p>
+
+<div class="panel note">
+  <strong>TL;DR.</strong> The lag between clicking <em>Continue</em> on the event homepage and seeing the Order Summary page was reduced from <strong>~352ms typical TTFB</strong> to <strong>~117ms steady-state TTFB</strong> (3× faster), through a combination of three application-code commits, one Dockerfile/startup fix, one production cache build, and PHP-FPM worker tuning via container env vars. Further optimization requires infrastructure changes (Redis cache, persistent DB connections, geographic CDN) with diminishing returns.
+</div>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#problem">The problem</a></li>
+    <li><a href="#approach">Investigation approach</a></li>
+    <li><a href="#changes">Changes made</a></li>
+    <li><a href="#measurements">Before / after measurements</a></li>
+    <li><a href="#config">Production configuration</a></li>
+    <li><a href="#rejected">Things considered and rejected</a></li>
+    <li><a href="#verify">How to verify it's still working</a></li>
+    <li><a href="#future">Future considerations</a></li>
+  </ol>
+</div>
+
+<h2 id="problem">1. The problem</h2>
+
+<p>Users on the production Elestio instance reported a <em>noticeable lag</em> after clicking the Continue button on an event homepage. The spinner would appear and the Order Summary page (where the countdown timer starts) took perceptibly long to render. Less noticeable on local dev, more noticeable on the hosted production deployment.</p>
+
+<p>The flow under examination:</p>
+<ol>
+  <li>User selects tickets on <code>SelectProducts</code> (event homepage product picker)</li>
+  <li>Clicks <strong>Continue</strong></li>
+  <li>Frontend mutation fires <code>POST /api/events/{id}/order</code></li>
+  <li>Backend creates a <code>RESERVED</code> order and returns it</li>
+  <li>Frontend navigates to <code>/checkout/&lt;eventId&gt;/&lt;orderShortId&gt;/details</code></li>
+  <li><code>CollectInformation</code> page mounts and renders the form</li>
+</ol>
+
+<h2 id="approach">2. Investigation approach</h2>
+
+<p>Started with a code-explorer agent tracing the full call chain frontend → backend → database. Then captured production network traces from Chrome DevTools (Network panel, Server-Timing headers) to measure where time was actually spent. Added <code>Server-Timing</code> instrumentation to the backend action so the breakdown was visible per request.</p>
+
+<h3>Bottlenecks identified, ranked by user-visible impact</h3>
+
+<table>
+  <thead><tr><th>#</th><th>Bottleneck</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Duplicate product-availability SQL (heavy CTE, twice per order)</td><td>Backend — validation + handler both forced cache bypass</td></tr>
+    <tr><td>2</td><td><code>queryClient.invalidateQueries()</code> awaited before navigation</td><td>Frontend — blocked navigation behind global cache wipe</td></tr>
+    <tr><td>3</td><td>3-query waterfall on CollectInformation mount (order → event → questions)</td><td>Frontend — refetched data that was already known</td></tr>
+    <tr><td>4</td><td>Lazy chunks for Checkout layout + CollectInformation</td><td>Frontend — cold-cache visitors paid 1-2 round trips post-mutation</td></tr>
+    <tr><td>5</td><td>Production Laravel caches not built (config, routes, events, views)</td><td>Backend — startup.sh actively <em>cleared</em> caches</td></tr>
+    <tr><td>6</td><td>PHP-FPM default tuning (start=2, min_spare=1, max_requests=0)</td><td>Container — sparse warm worker pool</td></tr>
+  </tbody>
+</table>
+
+<h2 id="changes">3. Changes made</h2>
+
+<h3>3.1 Backend: cache pre-flight availability check</h3>
+<p class="muted">Commit <code>96a7094f</code></p>
+<p>The availability check ran twice per order creation — once in <code>OrderCreateRequestValidationService::validateRequestData</code> (pre-flight) and once again inside the advisory lock in <code>CreateOrderHandler::validateProductAvailability</code>. Both forced <code>ignoreCache: true</code> on a heavy multi-join CTE that scans <code>products → product_prices → order_items → orders</code>.</p>
+<p>Changed pre-flight to honor the 2-second cache (<code>ignoreCache: false</code>) since the inside-lock recheck remains authoritative and prevents race conditions. The cache hits when the homepage just loaded availability.</p>
+
+<p><span class="file-path">backend/app/Services/Domain/Order/OrderCreateRequestValidationService.php:52</span></p>
+<pre><code>// Before
+$this-&gt;availableProductQuantities = $this-&gt;fetchAvailableProductQuantitiesService
+    -&gt;getAvailableProductQuantities($event-&gt;getId(), ignoreCache: true);
+
+// After
+$this-&gt;availableProductQuantities = $this-&gt;fetchAvailableProductQuantitiesService
+    -&gt;getAvailableProductQuantities($event-&gt;getId(), ignoreCache: false);
+</code></pre>
+
+<h3>3.2 Frontend: navigate before invalidating queries</h3>
+<p class="muted">Commit <code>96a7094f</code></p>
+<p>The mutation's <code>onSuccess</code> handler used to <code>await queryClient.invalidateQueries().then(() =&gt; navigate(...))</code>. The unfiltered invalidation marked every cached query stale and triggered refetches on any active observers (the homepage's event query) before navigation could proceed.</p>
+<p>Changed to navigate immediately and let the invalidation fire-and-forget. Also scoped the invalidation to just the event query (<code>GET_EVENT_PUBLIC_QUERY_KEY</code>) to preserve unrelated caches.</p>
+
+<h3>3.3 Frontend: prime order cache before navigation</h3>
+<p class="muted">Commit <code>96a7094f</code></p>
+<p>The mutation response already contains the full order. Rather than letting <code>CollectInformation</code> mount and fire <code>useGetOrderPublic</code> to refetch the same data, we prime the React Query cache with the mutation result before navigating. Also attach the locally-known <code>event</code> object (from the homepage) so consumers like the Checkout layout that read <code>order.event</code> see complete data immediately.</p>
+
+<p><span class="file-path">frontend/src/components/routes/product-widget/SelectProducts/index.tsx</span></p>
+<pre><code>queryClient.setQueryData(
+  [GET_ORDER_PUBLIC_QUERY_KEY, eventId, data.data.short_id, null],
+  {...data.data, event},
+);
+navigate(url);
+queryClient.invalidateQueries({queryKey: [GET_EVENT_PUBLIC_QUERY_KEY, eventId]});
+</code></pre>
+
+<h3>3.4 Frontend: preload checkout chunks on mount</h3>
+<p class="muted">Commit <code>1f695603</code></p>
+<p>Both <code>Checkout</code> (layout) and <code>CollectInformation</code> (child route) are lazy-loaded. On cold visits the browser fetched both chunks sequentially after the order POST returned. Added a mount-time <code>useEffect</code> in <code>SelectProducts</code> that fires <code>import()</code> for both, warming the chunks while the user is reading prices.</p>
+
+<pre><code>useEffect(() =&gt; {
+  if (typeof window === 'undefined') return;
+  import("../../../layouts/Checkout");
+  import("../CollectInformation");
+}, []);
+</code></pre>
+
+<h3>3.5 Backend: Server-Timing instrumentation</h3>
+<p class="muted">Commit <code>1f695603</code></p>
+<p>Added <code>hrtime()</code> measurements around the three phases of <code>POST /order</code> (validate, handle, serialize) and emitted a <code>Server-Timing</code> response header with <code>Timing-Allow-Origin: *</code>. Browser DevTools → Network → Timing tab now shows the breakdown.</p>
+
+<p><span class="file-path">backend/app/Http/Actions/Orders/Public/CreateOrderActionPublic.php</span></p>
+
+<h3>3.6 Container: build caches on startup instead of clearing</h3>
+<p class="muted">Commit <code>c5198551</code></p>
+<p>The all-in-one image's <code>startup.sh</code> was clearing all Laravel caches on every container start, leaving production permanently uncached. Replaced with <code>optimize:clear</code> followed by <code>optimize</code> so caches are wiped (defensive against version drift) then immediately rebuilt fresh from the current code and <code>.env</code>.</p>
+
+<p><span class="file-path">docker/all-in-one/scripts/startup.sh</span></p>
+<pre><code># Before
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# After
+php artisan optimize:clear
+php artisan optimize
+</code></pre>
+
+<h3>3.7 Container env: PHP-FPM tuning</h3>
+<p class="muted">Set on Elestio via the project <code>.env</code> (consumed by docker-compose)</p>
+<p>The serversideup/php base image defaults were too conservative for production:</p>
+<pre><code># PHP worker config — keep workers warm, recycle periodically
+PHP_FPM_PM_CONTROL=dynamic
+PHP_FPM_PM_START_SERVERS=4
+PHP_FPM_PM_MIN_SPARE_SERVERS=2
+PHP_FPM_PM_MAX_SPARE_SERVERS=6
+PHP_FPM_PM_MAX_CHILDREN=20
+PHP_FPM_PM_MAX_REQUESTS=500
+</code></pre>
+
+<div class="panel warn">
+  <strong>Gotcha:</strong> docker-compose's <code>.env</code> only does variable substitution in <code>docker-compose.yml</code> by default. To actually pass these to the container, the compose file must either reference each var in an <code>environment:</code> block or include <code>env_file: .env</code> on the service.
+</div>
+
+<div class="panel warn">
+  <strong>Gotcha 2:</strong> Inline <code>#</code> comments after a value (e.g. <code>VAR=value # note</code>) are <strong>not</strong> stripped by docker-compose's .env parser — the entire string after <code>=</code> becomes the value. Always put comments on their own line.
+</div>
+
+<h2 id="measurements">4. Before / after measurements</h2>
+
+<p>All measurements taken from production Elestio instance via Chrome DevTools Network panel, looking at the <code>POST /api/events/{id}/order</code> request's TTFB and the Server-Timing header values (after instrumentation was added).</p>
+
+<table>
+  <thead><tr>
+    <th>Stage</th>
+    <th>Typical TTFB</th>
+    <th>Server-side action</th>
+    <th>Spike pattern</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>Initial baseline</td><td class="num bad-text">~352 ms</td><td class="num muted">unknown</td><td>n/a</td></tr>
+    <tr><td>After three code commits</td><td class="num">~143 ms</td><td class="num">62 ms</td><td>occasional 350+ ms</td></tr>
+    <tr><td>+ production <code>artisan optimize</code></td><td class="num">~130 ms</td><td class="num">~65 ms</td><td>occasional 280+ ms</td></tr>
+    <tr><td>+ optimize baked into startup.sh</td><td class="num">~130 ms</td><td class="num">~65 ms</td><td>same (persistence guarantee)</td></tr>
+    <tr><td><strong>+ PHP-FPM tuning</strong></td><td class="num good-text"><strong>~117 ms</strong></td><td class="num good-text"><strong>~60 ms</strong></td><td>only on container cold-start</td></tr>
+  </tbody>
+</table>
+
+<h3>Final test (5 trials, May 2026)</h3>
+<table>
+  <thead><tr><th>Trial</th><th>TTFB</th><th>Server total</th><th>validate</th><th>handle</th><th>serialize</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td class="num bad-text">388 ms</td><td class="num">78 ms</td><td class="num">23</td><td class="num">54</td><td class="num">1.3</td><td>first request — cold worker</td></tr>
+    <tr><td>2</td><td class="num">116 ms</td><td class="num">60 ms</td><td class="num">17</td><td class="num">43</td><td class="num">1.1</td><td>✓</td></tr>
+    <tr><td>3</td><td class="num">149 ms</td><td class="num muted">n/a</td><td colspan="3" class="muted">(no Server-Timing in response)</td><td class="muted">probably different endpoint</td></tr>
+    <tr><td>4</td><td class="num good-text">115 ms</td><td class="num">59 ms</td><td class="num">17</td><td class="num">42</td><td class="num">1.0</td><td>✓</td></tr>
+    <tr><td>5</td><td class="num good-text">119 ms</td><td class="num">59 ms</td><td class="num">18</td><td class="num">40</td><td class="num">1.1</td><td>✓</td></tr>
+  </tbody>
+</table>
+
+<div class="panel good">
+  <strong>Steady-state user experience:</strong> 115–119 ms TTFB with ±2 ms variance.
+  Real users on continuously-trafficked production never see trial 1's 388 ms because workers stay warm across requests. That spike is an artifact of one-shot testing from idle.
+</div>
+
+<h2 id="config">5. Production configuration</h2>
+
+<h3>Required env vars (Elestio <code>.env</code> on the host)</h3>
+<pre><code># PHP worker config — keep workers warm, recycle periodically
+PHP_FPM_PM_CONTROL=dynamic
+PHP_FPM_PM_START_SERVERS=4
+PHP_FPM_PM_MIN_SPARE_SERVERS=2
+PHP_FPM_PM_MAX_SPARE_SERVERS=6
+PHP_FPM_PM_MAX_CHILDREN=20
+PHP_FPM_PM_MAX_REQUESTS=500
+
+# Turnstile bot protection (already enabled before this work)
+TURNSTILE_ENABLED=true
+VITE_TURNSTILE_SITE_KEY=...
+TURNSTILE_SECRET_KEY=...
+</code></pre>
+
+<h3>docker-compose.yml requirement</h3>
+<p>The compose file for the Hi.Events service on Elestio must either include <code>env_file: .env</code> on the all-in-one service, or list each <code>PHP_FPM_*</code> var in an <code>environment:</code> block. Without this, the <code>.env</code> file is read but not propagated into the container's environment.</p>
+
+<h3>What ships in the image (via this fork)</h3>
+<ul>
+  <li><code>startup.sh</code> runs <code>php artisan optimize</code> on every container start (commit <code>c5198551</code>)</li>
+  <li><code>Server-Timing</code> header on <code>POST /order</code> for diagnostics (commit <code>1f695603</code>)</li>
+  <li>All frontend optimizations: cache priming, scoped invalidation, chunk preload (commits <code>96a7094f</code>, <code>1f695603</code>)</li>
+  <li>Backend pre-flight availability uses cache (commit <code>96a7094f</code>)</li>
+</ul>
+
+<h2 id="rejected">6. Things considered and rejected</h2>
+
+<h3>Backend B — pass loaded <code>$event</code> / <code>$account</code> into OrderItemProcessingService</h3>
+<p>Would eliminate 1–4 small queries inside the advisory lock (redundant event + account fetches, plus N+1 product loop). Realistic savings: 15–60 ms inside the lock.</p>
+<p><strong>Rejected because:</strong> the <code>handle</code> phase is already only ~42 ms. Saving 15 ms there is below user perception threshold. The refactor cost (modifying signatures, updating tests) outweighed the benefit.</p>
+
+<h3>Adding Redis to the stack</h3>
+<p>Would speed up Laravel's cache driver (currently <code>file</code>) and session driver. The 2-second product availability cache could become a hot Redis hit instead of disk I/O.</p>
+<p><strong>Rejected because:</strong> the file cache is on a fast volume and isn't currently the bottleneck (Server-Timing shows <code>validate</code> is only ~17 ms even with file cache). Adding Redis is a meaningful infra change (new container, new env vars, new monitoring surface) for marginal latency win.</p>
+
+<h3>Persistent Postgres connections</h3>
+<p>Laravel's default opens a fresh Postgres TCP connection per request. Switching to persistent connections would shave the TCP handshake from every request (5–50 ms variable).</p>
+<p><strong>Deferred:</strong> would help with the occasional gap spike but has tradeoffs (connection limit exhaustion, stale connection issues). Worth revisiting if real-user spike reports appear.</p>
+
+<h3>Removing Cloudflare Turnstile</h3>
+<p>Turnstile loads a 364 KB script per page and triggers a 401 challenge handshake. Looks heavy in the network panel.</p>
+<p><strong>Rejected:</strong> the bot protection is genuinely valuable for a ticketing platform (scalper bots, fake orders). The implementation is well-engineered (14-minute freshness cache, invisible mode, lazy script load) and the cost is amortized across user reading time, not blocking Continue clicks. The 401 errors are normal Turnstile protocol, not real failures.</p>
+
+<h3>Geographic CDN / closer hosting</h3>
+<p>Network RTT to Elestio's data center accounts for some of the irreducible gap. Hosting closer to users would help.</p>
+<p><strong>Deferred:</strong> beyond scope for an in-flight perf pass. Worth considering if Hi.Events instance grows internationally.</p>
+
+<h2 id="verify">7. How to verify it's still working</h2>
+
+<h3>Check Laravel caches are built</h3>
+<pre><code>ssh root@district11 \
+  'docker exec -w /app/backend hi-events-all-in-one-1 php artisan about --only=cache'
+</code></pre>
+<p>Expected: all four rows (Config, Events, Routes, Views) show <strong>CACHED</strong>.</p>
+
+<h3>Check PHP-FPM tuning is applied</h3>
+<pre><code>ssh root@district11 'docker exec hi-events-all-in-one-1 env | grep PHP_FPM_PM'
+</code></pre>
+<p>Expected values:</p>
+<pre><code>PHP_FPM_PM_CONTROL=dynamic
+PHP_FPM_PM_START_SERVERS=4
+PHP_FPM_PM_MIN_SPARE_SERVERS=2
+PHP_FPM_PM_MAX_SPARE_SERVERS=6
+PHP_FPM_PM_MAX_CHILDREN=20
+PHP_FPM_PM_MAX_REQUESTS=500
+</code></pre>
+
+<h3>Check PHP-FPM actually honored them (vs being set but ignored)</h3>
+<pre><code>ssh root@district11 \
+  'docker exec hi-events-all-in-one-1 php-fpm -tt 2&gt;&amp;1 | grep -E "^\[.*pm[ \.]"'
+</code></pre>
+<p>Look for <code>pm = dynamic</code>, <code>pm.start_servers = 4</code>, etc.</p>
+
+<h3>Measure POST /order TTFB</h3>
+<p>Open the production site → DevTools Network panel → click Continue → click the <code>order</code> row (status 201) → Timing tab. Look at:</p>
+<ul>
+  <li><strong>Waiting for server response</strong> (TTFB) — should be 100–150 ms typical</li>
+  <li><strong>Server Timing → total</strong> — should be 50–80 ms</li>
+  <li><strong>Gap</strong> (TTFB minus total) — should be 50–100 ms typical, occasional spikes acceptable</li>
+</ul>
+
+<h2 id="future">8. Future considerations</h2>
+
+<h3>If users start reporting slowness again</h3>
+<ol>
+  <li>Pull a fresh network trace with Server-Timing — check if it's <code>total</code> growing (server work) or the <code>gap</code> growing (infra)</li>
+  <li>Run <code>php artisan about --only=cache</code> — confirm caches still built; redeploys with the new <code>startup.sh</code> should keep this state, but verify</li>
+  <li>Check Postgres slow query log for any new queries that crept in</li>
+  <li>Check Cloudflare analytics for edge latency anomalies</li>
+</ol>
+
+<h3>If load grows significantly</h3>
+<ol>
+  <li>Add Redis to the stack and switch <code>CACHE_DRIVER=redis</code>, <code>SESSION_DRIVER=redis</code></li>
+  <li>Switch <code>QUEUE_CONNECTION</code> from <code>sync</code> to <code>database</code> or <code>redis</code> — sync queue blocks responses on dispatched jobs (currently no jobs dispatch during order creation, but other flows do)</li>
+  <li>Consider Postgres persistent connections (<code>config/database.php</code> → <code>'options' =&gt; [PDO::ATTR_PERSISTENT =&gt; true]</code>)</li>
+  <li>Bump <code>PHP_FPM_PM_MAX_CHILDREN</code> based on observed memory headroom</li>
+</ol>
+
+<h3>Upstream PR considerations</h3>
+<p>The frontend and backend code changes (commits <code>96a7094f</code> and <code>1f695603</code>) are general improvements that benefit any Hi.Events deployment and would likely be welcomed upstream. The <code>startup.sh</code> change (commit <code>c5198551</code>) is more opinionated — upstream may prefer the clear-on-restart behavior for the typical self-hosted user. If submitting, frame it as a <code>HIEVENTS_OPTIMIZE_ON_START=true</code> opt-in flag rather than changing the default.</p>
+
+<hr>
+
+<p class="meta">
+  Performance review and implementation: Jason Bruce Jones + Claude Opus 4.7 (1M context).<br>
+  Generated 2026-05-13. Local-only document; lives in <code>ops/docs/</code> which is gitignored per repository convention.
+</p>
+
+</body>
+</html>
