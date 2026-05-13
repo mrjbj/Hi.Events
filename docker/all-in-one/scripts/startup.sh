@@ -9,10 +9,8 @@ if ! php artisan migrate --force; then
     echo "============================================"
 fi
 
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
+php artisan optimize:clear
+php artisan optimize
 php artisan storage:link
 
 chown -R www-data:www-data /app/backend
