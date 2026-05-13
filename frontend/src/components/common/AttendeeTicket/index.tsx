@@ -102,24 +102,25 @@ export const AttendeeTicket = ({
                                 {getAttendeeProductTitle(attendee, product)}
                             </div>
                         </div>
-
-                        {attendee.seat_info && (
-                            <div className={classes.detailRow}>
-                                <div className={classes.detailLabel}>{t`Your Seat`}</div>
-                                <div className={classes.detailValue}>
-                                    {attendee.seat_info}
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {/* Attendee Information */}
                     <div className={classes.attendeeSection}>
-                        <div className={classes.detailLabel}>{t`Attendee`}</div>
-                        <div className={classes.attendeeName}>
-                            {attendee.first_name} {attendee.last_name}
+                        <div className={classes.attendeeInfo}>
+                            <div className={classes.detailLabel}>{t`Attendee`}</div>
+                            <div className={classes.attendeeName}>
+                                {attendee.first_name} {attendee.last_name}
+                            </div>
+                            <div className={classes.attendeeEmail}>{attendee.email}</div>
                         </div>
-                        <div className={classes.attendeeEmail}>{attendee.email}</div>
+                        {attendee.seat_info && (
+                            <div className={classes.seatInfo}>
+                                <div className={classes.detailLabel}>{t`Your Seat`}</div>
+                                <div className={classes.seatValue}>
+                                    {attendee.seat_info}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                 </div>
