@@ -12,7 +12,8 @@ declare global {
         turnstile?: {
             render: (el: HTMLElement, opts: {
                 sitekey: string;
-                size?: "invisible" | "normal" | "compact";
+                size?: "normal" | "flexible" | "compact";
+                appearance?: "always" | "execute" | "interaction-only";
                 callback?: (token: string) => void;
                 "error-callback"?: () => void;
             }) => string;
@@ -110,7 +111,7 @@ export const useTurnstile = (): {getToken: () => Promise<string | null>} => {
                 if (cancelled || !window.turnstile || !containerRef.current) return;
                 widgetIdRef.current = window.turnstile.render(containerRef.current, {
                     sitekey: siteKey,
-                    size: "invisible",
+                    appearance: "interaction-only",
                     callback: (token) => {
                         const resolve = resolverRef.current;
                         resolverRef.current = null;
