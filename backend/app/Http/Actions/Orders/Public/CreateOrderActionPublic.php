@@ -34,7 +34,10 @@ class CreateOrderActionPublic extends BaseAction
      */
     public function __invoke(CreateOrderRequest $request, int $eventId): JsonResponse
     {
+        $tStart = hrtime(true);
         $this->orderCreateRequestValidationService->validateRequestData($eventId, $request->all());
+        $tValidate = hrtime(true);
+
         $sessionId = $this->sessionIdentifierService->getSessionId();
 
         $order = $this->orderHandler->handle(
@@ -48,17 +51,30 @@ class CreateOrderActionPublic extends BaseAction
                 'order_locale' => $this->localeService->getLocaleOrDefault($request->getPreferredLanguage()),
             ])
         );
+        $tHandle = hrtime(true);
 
         $order->setSessionIdentifier($sessionId);
 
-        $response =  $this->resourceResponse(
+        $response = $this->resourceResponse(
             resource: OrderResourcePublic::class,
             data: $order,
             statusCode: ResponseCodes::HTTP_CREATED,
         );
+        $tSerialize = hrtime(true);
 
-        return $response->withCookie(
-            cookie: $this->sessionIdentifierService->getSessionCookie(),
+        $serverTiming = sprintf(
+            'validate;dur=%.1f, handle;dur=%.1f, serialize;dur=%.1f, total;dur=%.1f',
+            ($tValidate - $tStart) / 1e6,
+            ($tHandle - $tValidate) / 1e6,
+            ($tSerialize - $tHandle) / 1e6,
+            ($tSerialize - $tStart) / 1e6,
         );
+
+        return $response
+            ->header('Server-Timing', $serverTiming)
+            ->header('Timing-Allow-Origin', '*')
+            ->withCookie(
+                cookie: $this->sessionIdentifierService->getSessionCookie(),
+            );
     }
 }

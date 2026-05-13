@@ -97,6 +97,13 @@ const SelectProducts = (props: SelectProductsProps) => {
     useEffect(() => sendHeightToIframeWidgets(), [resizeObserverRect.height]);
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+        // Warm the checkout chunks so they're cached by the time Continue is clicked.
+        import("../../../layouts/Checkout");
+        import("../CollectInformation");
+    }, []);
+
+    useEffect(() => {
         const storageKey = 'affiliate_code_' + eventId;
 
         const now = Date.now();
