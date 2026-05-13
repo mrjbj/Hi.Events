@@ -5,6 +5,7 @@ import {router} from "./router";
 import {App} from "./App";
 import {queryClient} from "./utilites/queryClient";
 import {dynamicActivateLocale, getClientLocale, getSupportedLocale,} from "./locales.ts";
+import {handleStaleChunkError, installStaleChunkReloadHandler} from "./utilites/staleChunkReload.ts";
 
 declare global {
     interface Window {
@@ -40,4 +41,10 @@ async function initClientApp() {
     );
 }
 
-initClientApp();
+installStaleChunkReloadHandler();
+
+initClientApp().catch((error) => {
+    if (!handleStaleChunkError(error)) {
+        throw error;
+    }
+});
