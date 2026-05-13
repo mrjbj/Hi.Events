@@ -1,6 +1,5 @@
-import {getAttendeeProductPrice, getAttendeeProductTitle} from "../../../utilites/products.ts";
+import {getAttendeeProductTitle} from "../../../utilites/products.ts";
 import {Button, CopyButton} from "@mantine/core";
-import {formatCurrency} from "../../../utilites/currency.ts";
 import {t} from "@lingui/macro";
 import {prettyDate} from "../../../utilites/dates.ts";
 import QRCode from "react-qr-code";
@@ -27,7 +26,6 @@ export const AttendeeTicket = ({
                                    hideButtons = false,
                                    showPoweredBy = false,
                                }: AttendeeTicketProps) => {
-    const productPrice = getAttendeeProductPrice(attendee, product);
     const hasVenue = event?.settings?.location_details?.venue_name || event?.settings?.location_details?.address_line_1;
 
     const ticketDesignSettings = event?.settings?.ticket_design_settings;
@@ -61,9 +59,6 @@ export const AttendeeTicket = ({
             <div className={classes.header}>
                 <div className={classes.headerContent}>
                     <h1 className={classes.eventTitle}>{event?.title}</h1>
-                    <div className={classes.priceDisplay}>
-                        {productPrice > 0 ? formatCurrency(productPrice, event?.currency) : t`Free`}
-                    </div>
                 </div>
             </div>
 
