@@ -486,20 +486,23 @@ const SelectProducts = (props: SelectProductsProps) => {
                                                                 {product.title}
                                                             </h3>
                                                             <div className={'hi-product-title-metadata'}>
-                                                                {(product.is_available && !!product.quantity_available) && (
-                                                                    <>
-                                                                        {product.quantity_available === Constants.INFINITE_TICKETS && (
-                                                                            <Trans>
-                                                                                Unlimited available
-                                                                            </Trans>
-                                                                        )}
-                                                                        {product.quantity_available !== Constants.INFINITE_TICKETS && (
-                                                                            <Trans>
-                                                                                {product.quantity_available} available
-                                                                            </Trans>
-                                                                        )}
-                                                                    </>
-                                                                )}
+                                                                {(product.is_available && !!product.quantity_available) && (() => {
+                                                                    if (product.quantity_available === Constants.INFINITE_TICKETS) {
+                                                                        return <Trans>Unlimited available</Trans>;
+                                                                    }
+                                                                    const minPerOrder = product.min_per_order && product.min_per_order > 1
+                                                                        ? product.min_per_order
+                                                                        : 1;
+                                                                    const displayCount = Math.floor(product.quantity_available / minPerOrder);
+                                                                    if (displayCount < 1) {
+                                                                        return null;
+                                                                    }
+                                                                    return (
+                                                                        <Trans>
+                                                                            {displayCount} available
+                                                                        </Trans>
+                                                                    );
+                                                                })()}
 
                                                                 {(!product.is_available && product.type === 'TIERED') && (
                                                                     <ProductAvailabilityMessage product={product}

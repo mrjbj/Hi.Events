@@ -38,6 +38,7 @@ import {useEffect} from "react";
 import {CustomSelect, ItemProps} from "../../common/CustomSelect";
 import {formatCurrency, getCurrencySymbol} from "../../../utilites/currency.ts";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import {useGetEventCapacityAssignments} from "../../../queries/useGetCapacityAssignments.ts";
 import {useGetTaxesAndFees} from "../../../queries/useGetTaxesAndFees.ts";
 import {Card} from "../../common/Card";
 import classes from './ProductForm.module.scss';
@@ -182,6 +183,16 @@ export const ProductForm = ({form, product}: ProductFormProps) => {
     const isDonationProduct = form.values.type === 'DONATION';
     const {data: event} = useGetEvent(eventId);
     const {data: taxesAndFees} = useGetTaxesAndFees();
+    const {data: capacityAssignmentsData} = useGetEventCapacityAssignments(eventId, {perPage: 100});
+
+    const productId = product?.id ? Number(product.id) : null;
+    const applicableCapacityAssignments = productId
+        ? (capacityAssignmentsData?.data ?? []).filter(
+            (assignment) =>
+                assignment.status === 'ACTIVE'
+                && assignment.products?.some((p) => Number(p.id) === productId)
+        )
+        : [];
 
     const handleTaxOrFeeCreated = (taxOrFee: TaxAndFee) => {
         const currentIds = form.values.tax_and_fee_ids || [];
@@ -325,11 +336,17 @@ export const ProductForm = ({form, product}: ProductFormProps) => {
                                      helpText={(
                                          <Trans>
                                              <p>
-                                                 The number of products available for this product
+                                                 The total number of individual tickets that can ever be sold for this product. Sold tickets are subtracted from this total automatically — you don't need to adjust for them.
                                              </p>
                                              <p>
-                                                 This value can be overridden if there are <a target={'__blank'}
-                                                                                              href={'capacity-assignments'}>Capacity
+                                                 To re-open a sold-out product, raise this value above the number already sold.
+                                             </p>
+                                             <p>
+                                                 If the product requires a minimum quantity per order (e.g. a table of 10), set this to the total individual tickets (e.g. 20 for 2 tables of 10).
+                                             </p>
+                                             <p>
+                                                 This value can be further constrained by <a target={'__blank'}
+                                                                                             href={'capacity-assignments'}>Capacity
                                                  Limits</a> associated with this product.
                                              </p>
                                          </Trans>
@@ -337,6 +354,48 @@ export const ProductForm = ({form, product}: ProductFormProps) => {
                                  />}
                     />
                 </InputGroup>
+            )}
+
+            {applicableCapacityAssignments.length > 0 && (
+                <Alert
+                    variant="light"
+                    color="blue"
+                    icon={<IconInfoCircle size={18}/>}
+                    mt={10}
+                    mb={20}
+                    title={applicableCapacityAssignments.length === 1
+                        ? t`A shared capacity limit also applies to this product`
+                        : t`Shared capacity limits also apply to this product`}
+                >
+                    <ul style={{margin: 0, paddingLeft: 18}}>
+                        {applicableCapacityAssignments.map((assignment) => {
+                            const capacity = assignment.capacity;
+                            const used = assignment.used_capacity ?? 0;
+                            const remaining = typeof capacity === 'number'
+                                ? Math.max(0, capacity - used)
+                                : null;
+                            return (
+                                <li key={assignment.id}>
+                                    <strong>{assignment.name}</strong>
+                                    {' — '}
+                                    {typeof capacity === 'number' ? (
+                                        <Trans>
+                                            {used} of {capacity} used ({remaining} remaining)
+                                        </Trans>
+                                    ) : (
+                                        <Trans>{used} used (unlimited capacity)</Trans>
+                                    )}
+                                </li>
+                            );
+                        })}
+                    </ul>
+                    <div style={{marginTop: 8}}>
+                        <Trans>
+                            Sales of this product will stop when any shared capacity is full, even if Quantity Available is higher.{' '}
+                            <a target="__blank" href="capacity-assignments">Manage capacity limits</a>
+                        </Trans>
+                    </div>
+                </Alert>
             )}
 
             {form.values.type === ProductPriceType.Tiered && (
