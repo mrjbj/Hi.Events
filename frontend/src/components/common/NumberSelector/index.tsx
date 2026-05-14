@@ -23,6 +23,14 @@ export const NumberSelector = ({formInstance, fieldName, min, max, step, sharedV
     const minValue = min || 0;
     const maxValue = max || 100;
     const stepValue = step && step > 0 ? step : 1;
+    // When step > 1 the product is a bundle: form/internal state tracks raw ticket
+    // count, but the input shows bundle count (value / stepValue) so the buyer sees
+    // "1 sponsor table" instead of "10 tickets".
+    const bundleMode = stepValue > 1;
+    const displayValue = bundleMode ? value / stepValue : value;
+    const displayMin = bundleMode ? Math.ceil(minValue / stepValue) : minValue;
+    const displayMax = bundleMode ? Math.floor(maxValue / stepValue) : maxValue;
+    const displayStep = bundleMode ? 1 : stepValue;
 
     const [sharedVals] = useState<SharedValues>(sharedValues ?? new SharedValues(maxValue));
 
@@ -68,10 +76,12 @@ export const NumberSelector = ({formInstance, fieldName, min, max, step, sharedV
 
     const changeValue = (rawValue: string | number) => {
         const numericValue = typeof rawValue === 'number' ? rawValue : Number(rawValue) || 0;
+        // In bundle mode, the user types bundle count — scale up to raw ticket count.
+        const rawTickets = bundleMode ? numericValue * stepValue : numericValue;
         // Snap to nearest multiple of stepValue (relative to minValue) for typed input
-        let snapped = numericValue;
-        if (stepValue > 1 && numericValue > 0) {
-            snapped = Math.max(minValue, Math.round(numericValue / stepValue) * stepValue);
+        let snapped = rawTickets;
+        if (stepValue > 1 && rawTickets > 0) {
+            snapped = Math.max(minValue, Math.round(rawTickets / stepValue) * stepValue);
         }
         let adjustedDifference = sharedVals.changeValue(snapped - value);
         setValue(value + adjustedDifference);
@@ -92,11 +102,11 @@ export const NumberSelector = ({formInstance, fieldName, min, max, step, sharedV
             <NumberInput
                 mb={0}
                 variant="unstyled"
-                min={minValue}
-                max={maxValue}
-                step={stepValue}
+                min={displayMin}
+                max={displayMax}
+                step={displayStep}
                 handlersRef={handlers}
-                value={value}
+                value={displayValue}
                 hideControls
                 onChange={changeValue}
                 classNames={{input: classes.input}}
