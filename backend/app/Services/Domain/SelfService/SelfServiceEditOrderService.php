@@ -9,6 +9,7 @@ use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
+use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\Helper\IdHelper;
 use HiEvents\Mail\Order\OrderDetailsChangedMail;
 use HiEvents\Repository\Eloquent\Value\Relationship;
@@ -120,7 +121,10 @@ class SelfServiceEditOrderService
     private function sendConfirmationToNewEmail(int $orderId, EventDomainObject $event): void
     {
         $order = $this->orderRepository
-            ->loadRelation(OrderItemDomainObject::class)
+            ->loadRelation(new Relationship(
+                domainObject: OrderItemDomainObject::class,
+                nested: [new Relationship(ProductDomainObject::class, name: 'product')],
+            ))
             ->loadRelation(AttendeeDomainObject::class)
             ->loadRelation(InvoiceDomainObject::class)
             ->findById($orderId);

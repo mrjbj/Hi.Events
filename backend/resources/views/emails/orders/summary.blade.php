@@ -4,6 +4,7 @@
 @php /** @var \HiEvents\DomainObjects\OrganizerDomainObject $organizer */ @endphp
 @php /** @var \HiEvents\DomainObjects\EventSettingDomainObject $eventSettings */ @endphp
 @php /** @var string $orderUrl */ @endphp
+@php /** @var bool $isBundleOrder */ @endphp
 
 @php /** @see \HiEvents\Mail\Order\OrderSummary */ @endphp
 
@@ -56,7 +57,7 @@
 - **{{ __('Total Amount:') }}** {{ Currency::format($order->getTotalGross(), $event->getCurrency()) }}
 
 <x-mail::button :url="$orderUrl">
-    {{ __('Get Tickets') }}
+    {{ ($isBundleOrder ?? false) ? __('Assign Tickets') : __('View Ticket') }}
 </x-mail::button>
 
 {{ __('If you have any questions or need assistance, please contact') }} <a href="mailto:{{ $organizer->getEmail() }}">{{ $organizer->getEmail() }}</a>.

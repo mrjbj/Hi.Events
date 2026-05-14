@@ -67,6 +67,7 @@ class OrderSummary extends BaseMail
                 'event' => $this->event,
                 'order' => $this->order,
                 'organizer' => $this->organizer,
+                'isBundleOrder' => $this->isBundleOrder(),
                 'orderUrl' => sprintf(
                     Url::getFrontEndUrlFromConfig(Url::ORDER_SUMMARY),
                     $this->event->getId(),
@@ -74,6 +75,24 @@ class OrderSummary extends BaseMail
                 ),
             ]
         );
+    }
+
+    /**
+     * True when any order item is for a product configured as a bundle
+     * (min_per_order > 1). Returns false when product relations aren't loaded,
+     * so callers that haven't eager-loaded the nested product fall back to
+     * the non-bundle CTA wording.
+     */
+    private function isBundleOrder(): bool
+    {
+        foreach ($this->order->getOrderItems() ?? [] as $orderItem) {
+            $product = $orderItem->getProduct();
+            if ($product && (int) $product->getMinPerOrder() > 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function attachments(): array

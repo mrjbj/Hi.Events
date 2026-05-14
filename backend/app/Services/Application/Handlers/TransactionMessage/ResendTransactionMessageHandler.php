@@ -10,6 +10,7 @@ use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
+use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\DomainObjects\OutgoingTransactionMessageDomainObject;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
@@ -116,7 +117,10 @@ class ResendTransactionMessageHandler
     private function resendOrderSummary(OutgoingTransactionMessageDomainObject $message, $event, ?string $retryForSesMessageId = null, ?int $retryForId = null): void
     {
         $order = $this->orderRepository
-            ->loadRelation(OrderItemDomainObject::class)
+            ->loadRelation(new Relationship(
+                domainObject: OrderItemDomainObject::class,
+                nested: [new Relationship(ProductDomainObject::class, name: 'product')],
+            ))
             ->loadRelation(InvoiceDomainObject::class)
             ->findById($message->getOrderId());
 

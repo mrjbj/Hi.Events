@@ -14,6 +14,7 @@ use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
+use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\DomainObjects\Status\AttendeeStatus;
 use HiEvents\DomainObjects\Status\InvoiceStatus;
 use HiEvents\DomainObjects\Status\OrderApplicationFeeStatus;
@@ -84,7 +85,10 @@ class MarkOrderAsPaidService
             $this->updateOrderInvoice($orderId);
 
             $updatedOrder = $this->orderRepository
-                ->loadRelation(OrderItemDomainObject::class)
+                ->loadRelation(new Relationship(
+                    domainObject: OrderItemDomainObject::class,
+                    nested: [new Relationship(ProductDomainObject::class, name: 'product')],
+                ))
                 ->findById($orderId);
 
             // Update affiliate sales if this order has an affiliate

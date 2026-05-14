@@ -302,10 +302,12 @@ class SelfServiceResendEmailServiceTest extends TestCase
         $this->orderRepository
             ->shouldReceive('loadRelation')
             ->times(3)
-            ->with(Mockery::on(function ($domainObject) use (&$loadRelationCallCount) {
+            ->with(Mockery::on(function ($arg) use (&$loadRelationCallCount) {
                 $loadRelationCallCount++;
-                return in_array($domainObject, [
-                    OrderItemDomainObject::class,
+                if ($arg instanceof Relationship) {
+                    return $arg->getDomainObject() === OrderItemDomainObject::class;
+                }
+                return in_array($arg, [
                     AttendeeDomainObject::class,
                     InvoiceDomainObject::class,
                 ]);

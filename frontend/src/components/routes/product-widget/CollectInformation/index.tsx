@@ -4,14 +4,16 @@ import {useNavigate, useParams, useSearchParams} from "react-router";
 import {
     Button,
     Checkbox,
+    Collapse,
     NativeSelect,
     SegmentedControl,
     Skeleton,
     Text,
     TextInput,
-    Tooltip
+    Tooltip,
+    UnstyledButton
 } from "@mantine/core";
-import {IconArrowRight, IconCheck, IconCircleCheck, IconClock} from "@tabler/icons-react";
+import {IconArrowRight, IconCheck, IconChevronDown, IconCircleCheck, IconClock, IconInfoCircle, IconTicket} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
 import {useForm} from "@mantine/form";
 import {notifications} from "@mantine/notifications";
@@ -75,6 +77,7 @@ export const CollectInformation = () => {
     const isPerOrderCollection = event?.settings?.attendee_details_collection_method === 'PER_ORDER';
     const [copyOption, setCopyOption] = useState<'none' | 'first' | 'all'>('none');
     const hasAutoAppliedBundleDefault = useRef(false);
+    const [expandedBundles, setExpandedBundles] = useState<Record<string, boolean>>({});
 
     const isEmailValid = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -471,6 +474,7 @@ export const CollectInformation = () => {
         onError: (error: any) => {
             if (error?.response?.data?.errors && Object.keys(error?.response?.data?.errors).length > 0) {
                 form.setErrors(error.response.data.errors);
+                handleSubmitErrors(error.response.data.errors);
             } else if (error?.response?.data?.message) {
                 notifications.show({
                     message: error?.response?.data?.message,
@@ -540,6 +544,29 @@ export const CollectInformation = () => {
 
     const handleSubmit = (values: any) => {
         mutation.mutate(values);
+    };
+
+    const expandAllBundles = () => {
+        if (!orderItems || !products) return;
+        const next: Record<string, boolean> = {};
+        orderItems.forEach((orderItem) => {
+            const product = products.find(p => p && p.id === orderItem.product_id);
+            const quantity = orderItem.quantity ?? 0;
+            const isBundleItem = ((product?.min_per_order ?? 1) > 1) && quantity > 1;
+            if (isBundleItem) {
+                next[String(orderItem.id)] = true;
+            }
+        });
+        if (Object.keys(next).length > 0) {
+            setExpandedBundles(prev => ({...prev, ...next}));
+        }
+    };
+
+    const handleSubmitErrors = (errors: Record<string, unknown>) => {
+        const hasProductError = Object.keys(errors).some(key => key.startsWith('products.'));
+        if (hasProductError) {
+            expandAllBundles();
+        }
     };
 
     useEffect(() => {
@@ -645,7 +672,7 @@ export const CollectInformation = () => {
     });
 
     return (
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form onSubmit={form.onSubmit(handleSubmit, handleSubmitErrors)}>
 
             <CheckoutContent>
                 {isFromWaitlist && (
@@ -848,125 +875,179 @@ export const CollectInformation = () => {
                         return null;
                     }
 
-                    return (
-                        <div key={orderItem.product_id + orderItem.id} className={classes.ticketSection}>
-                            <div className={classes.ticketTypeHeader}>
-                                <h3>{orderItem?.item_name}</h3>
-                                <span className={classes.ticketCountBadge}>
-                                    {orderItem.quantity === 1
-                                        ? t`1 ticket`
-                                        : t`${orderItem.quantity} tickets`}
-                                </span>
-                            </div>
-                            {Array.from(Array(orderItem?.quantity)).map((_, index) => {
-                                const currentProductIndex = productIndex;
-                                const ticketIndices = getTicketAttendeeIndices();
-                                const isTicketAttendee = ticketIndices.includes(currentProductIndex);
-                                const isFirstTicketAttendee = currentProductIndex === getFirstTicketAttendeeIndex();
-                                const isCopied = isTicketAttendee && (
-                                    copyOption === 'all' || (copyOption === 'first' && isFirstTicketAttendee)
-                                );
+                    const quantity = orderItem.quantity ?? 0;
+                    const isBundleItem = (product.min_per_order ?? 1) > 1 && quantity > 1;
+                    const bundleKey = String(orderItem.id);
+                    const isExpanded = !!expandedBundles[bundleKey];
+                    const guestCount = quantity;
 
-                                // Check if current values still match the order details
-                                const currentProduct = form.values.products[currentProductIndex];
-                                const valuesMatchOrder = currentProduct &&
-                                    currentProduct.first_name === form.values.order.first_name &&
-                                    currentProduct.last_name === form.values.order.last_name &&
-                                    currentProduct.email === form.values.order.email;
+                    const attendeeCards = Array.from(Array(quantity)).map((_, index) => {
+                        const currentProductIndex = productIndex;
+                        const ticketIndices = getTicketAttendeeIndices();
+                        const isTicketAttendee = ticketIndices.includes(currentProductIndex);
+                        const isFirstTicketAttendee = currentProductIndex === getFirstTicketAttendeeIndex();
+                        const isCopied = isTicketAttendee && (
+                            copyOption === 'all' || (copyOption === 'first' && isFirstTicketAttendee)
+                        );
 
-                                // Only show badge if copied AND values still match
-                                const showCopiedBadge = isCopied && productRequiresDetails && valuesMatchOrder;
+                        // Check if current values still match the order details
+                        const currentProduct = form.values.products[currentProductIndex];
+                        const valuesMatchOrder = currentProduct &&
+                            currentProduct.first_name === form.values.order.first_name &&
+                            currentProduct.last_name === form.values.order.last_name &&
+                            currentProduct.email === form.values.order.email;
 
-                                const productInputs = (
-                                    <Card key={`${orderItem.id} ${index}`} className={classes.attendeeCard}>
-                                        <div className={classes.attendeeCardHeader}>
-                                            <div className={classes.attendeeHeaderLeft}>
-                                                <div className={classes.attendeeNumber}>
-                                                    {index + 1}
-                                                </div>
-                                                <div className={classes.attendeeInfo}>
-                                                    <h4>
-                                                        {product.product_type === 'TICKET' ? t`Attendee` : t`Item`} {index + 1}
-                                                    </h4>
-                                                    <span className={classes.attendeeTicketType}>
-                                                        {orderItem?.item_name}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            {showCopiedBadge && (
-                                                <span className={classes.copiedBadge}>
-                                                    {t`Copied from above`}
-                                                </span>
-                                            )}
+                        // Only show badge if copied AND values still match
+                        const showCopiedBadge = isCopied && productRequiresDetails && valuesMatchOrder;
+
+                        const productInputs = (
+                            <Card key={`${orderItem.id} ${index}`} className={classes.attendeeCard}>
+                                <div className={classes.attendeeCardHeader}>
+                                    <div className={classes.attendeeHeaderLeft}>
+                                        <div className={classes.attendeeNumber}>
+                                            {index + 1}
                                         </div>
+                                        <div className={classes.attendeeInfo}>
+                                            <h4>
+                                                {product.product_type === 'TICKET' ? t`Attendee` : t`Item`} {index + 1}
+                                            </h4>
+                                            <span className={classes.attendeeTicketType}>
+                                                {orderItem?.item_name}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {showCopiedBadge && (
+                                        <span className={classes.copiedBadge}>
+                                            {t`Copied from above`}
+                                        </span>
+                                    )}
+                                </div>
 
-                                        {productRequiresDetails && (
-                                            <>
-                                                <InputGroup>
-                                                    {(() => {
-                                                        const emailProps = form.getInputProps(`products.${currentProductIndex}.email`);
-                                                        return (
-                                                            <TextInput
-                                                                withAsterisk
-                                                                type={"email"}
-                                                                label={t`Email Address`}
-                                                                placeholder={t`Email Address`}
-                                                                rightSection={isEmailValid(form.values.products[currentProductIndex]?.email || '') ?
-                                                                    <EmailCheckIcon/> : null}
-                                                                {...emailProps}
-                                                                onFocus={(e) => {
-                                                                    emailProps.onFocus?.(e);
-                                                                    prewarmTurnstile();
-                                                                }}
-                                                                onBlur={(e) => {
-                                                                    emailProps.onBlur?.(e);
-                                                                    handleProductEmailBlur(currentProductIndex);
-                                                                }}
-                                                            />
-                                                        );
-                                                    })()}
+                                {productRequiresDetails && (
+                                    <>
+                                        <InputGroup>
+                                            {(() => {
+                                                const emailProps = form.getInputProps(`products.${currentProductIndex}.email`);
+                                                return (
                                                     <TextInput
                                                         withAsterisk
                                                         type={"email"}
-                                                        label={t`Confirm Email Address`}
-                                                        placeholder={t`Confirm Email Address`}
-                                                        rightSection={isEmailValid(form.values.products[currentProductIndex]?.email_confirmation || '') ?
+                                                        label={t`Email Address`}
+                                                        placeholder={t`Email Address`}
+                                                        rightSection={isEmailValid(form.values.products[currentProductIndex]?.email || '') ?
                                                             <EmailCheckIcon/> : null}
-                                                        {...form.getInputProps(`products.${currentProductIndex}.email_confirmation`)}
+                                                        {...emailProps}
+                                                        onFocus={(e) => {
+                                                            emailProps.onFocus?.(e);
+                                                            prewarmTurnstile();
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            emailProps.onBlur?.(e);
+                                                            handleProductEmailBlur(currentProductIndex);
+                                                        }}
                                                     />
-                                                </InputGroup>
+                                                );
+                                            })()}
+                                            <TextInput
+                                                withAsterisk
+                                                type={"email"}
+                                                label={t`Confirm Email Address`}
+                                                placeholder={t`Confirm Email Address`}
+                                                rightSection={isEmailValid(form.values.products[currentProductIndex]?.email_confirmation || '') ?
+                                                    <EmailCheckIcon/> : null}
+                                                {...form.getInputProps(`products.${currentProductIndex}.email_confirmation`)}
+                                            />
+                                        </InputGroup>
 
-                                                <InputGroup>
-                                                    <TextInput
-                                                        withAsterisk
-                                                        label={t`First Name`}
-                                                        placeholder={t`First name`}
-                                                        {...form.getInputProps(`products.${currentProductIndex}.first_name`)}
-                                                    />
-                                                    <TextInput
-                                                        withAsterisk
-                                                        label={t`Last Name`}
-                                                        placeholder={t`Last Name`}
-                                                        {...form.getInputProps(`products.${currentProductIndex}.last_name`)}
-                                                    />
-                                                </InputGroup>
-                                            </>
-                                        )}
+                                        <InputGroup>
+                                            <TextInput
+                                                withAsterisk
+                                                label={t`First Name`}
+                                                placeholder={t`First name`}
+                                                {...form.getInputProps(`products.${currentProductIndex}.first_name`)}
+                                            />
+                                            <TextInput
+                                                withAsterisk
+                                                label={t`Last Name`}
+                                                placeholder={t`Last Name`}
+                                                {...form.getInputProps(`products.${currentProductIndex}.last_name`)}
+                                            />
+                                        </InputGroup>
+                                    </>
+                                )}
 
-                                        {productQuestions &&
-                                            <CheckoutProductQuestions
-                                                index={currentProductIndex}
-                                                product={product}
-                                                form={form}
-                                                questions={productQuestions}
-                                                hiddenQuestionIds={productHiddenQuestionIds[currentProductIndex] ?? []}/>}
-                                    </Card>
-                                );
+                                {productQuestions &&
+                                    <CheckoutProductQuestions
+                                        index={currentProductIndex}
+                                        product={product}
+                                        form={form}
+                                        questions={productQuestions}
+                                        hiddenQuestionIds={productHiddenQuestionIds[currentProductIndex] ?? []}/>}
+                            </Card>
+                        );
 
-                                productIndex++;
+                        productIndex++;
 
-                                return productInputs;
-                            })}
+                        return productInputs;
+                    });
+
+                    if (!isBundleItem) {
+                        return (
+                            <div key={orderItem.product_id + orderItem.id} className={classes.ticketSection}>
+                                <div className={classes.ticketTypeHeader}>
+                                    <h3>{orderItem?.item_name}</h3>
+                                    <span className={classes.ticketCountBadge}>
+                                        {quantity === 1
+                                            ? t`1 ticket`
+                                            : t`${quantity} tickets`}
+                                    </span>
+                                </div>
+                                {attendeeCards}
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div key={orderItem.product_id + orderItem.id} className={classes.ticketSection}>
+                            <UnstyledButton
+                                type="button"
+                                className={classes.bundleHeaderToggle}
+                                aria-expanded={isExpanded}
+                                onClick={() => setExpandedBundles(prev => ({
+                                    ...prev,
+                                    [bundleKey]: !prev[bundleKey],
+                                }))}
+                            >
+                                <span className={classes.bundleHeaderTitle}>
+                                    <IconTicket size={18} className={classes.bundleTicketIcon}/>
+                                    <strong>{t`Tickets`}</strong>{' '}({orderItem?.item_name})
+                                </span>
+                                <span className={classes.ticketCountBadge}>
+                                    {t`${quantity} tickets, assign now or later`}
+                                </span>
+                                <Tooltip
+                                    multiline
+                                    w={260}
+                                    withArrow
+                                    label={t`You can enter your guests' details now, or assign their tickets later from the order confirmation page you'll receive via email once your order is complete.`}
+                                >
+                                    <span
+                                        className={classes.bundleGuestsInfo}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <IconInfoCircle size={16}/>
+                                    </span>
+                                </Tooltip>
+                                <IconChevronDown
+                                    size={20}
+                                    className={isExpanded ? classes.bundleChevronOpen : classes.bundleChevron}
+                                />
+                            </UnstyledButton>
+                            <Collapse in={isExpanded}>
+                                <div className={classes.bundleGuestsBody}>
+                                    {attendeeCards}
+                                </div>
+                            </Collapse>
                         </div>
                     );
                 })}

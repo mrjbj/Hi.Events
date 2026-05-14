@@ -158,6 +158,87 @@ $transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
+.bundleHeaderToggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--checkout-surface-muted, #F9FAFB);
+  border: 1px solid var(--checkout-border, #E5E7EB);
+  border-radius: $radius-sm;
+  text-align: left;
+  cursor: pointer;
+  transition: background $transition-fast, border-color $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    background: var(--checkout-accent-soft, #F3F4F6);
+    border-color: var(--checkout-accent, #D1D5DB);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  &:hover .bundleHeaderTitle {
+    color: var(--checkout-accent, var(--mantine-primary-color-filled));
+  }
+}
+
+.bundleHeaderTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: $font-display;
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--checkout-text-primary, #111827);
+  transition: color $transition-fast;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.bundleTicketIcon {
+  color: var(--checkout-accent, var(--mantine-primary-color-filled));
+  flex-shrink: 0;
+}
+
+.bundleChevron,
+.bundleChevronOpen {
+  margin-left: auto;
+  transition: transform $transition-fast;
+  color: var(--checkout-text-secondary, #6B7280);
+}
+
+.bundleChevron {
+  transform: rotate(90deg);
+}
+
+.bundleChevronOpen {
+  transform: rotate(0deg);
+}
+
+.bundleGuestsInfo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--checkout-accent, var(--mantine-primary-color-filled));
+  cursor: help;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+
+.bundleGuestsBody {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .checkoutActions {
   margin-top: 32px;
   margin-bottom: 24px;
