@@ -18,6 +18,21 @@ export const publicCheckInClient = {
         const response = await publicApi.get<GenericPaginatedResponse<Attendee>>(`/check-in-lists/${checkInListShortId}/attendees` + queryParamsHelper.buildQueryString(pagination));
         return response.data;
     },
+    getCheckInListFilterOptions: async (checkInListShortId: IdParam) => {
+        const response = await publicApi.get<GenericDataResponse<{ tables: string[]; groups: Array<{ order_id: number; label: string }> }>>(
+            `/check-in-lists/${checkInListShortId}/filter-options`
+        );
+        return response.data;
+    },
+    getCheckInListSiblings: async (checkInListShortId: IdParam) => {
+        const response = await publicApi.get<GenericDataResponse<Array<{
+            short_id: string;
+            name: string;
+            is_active: boolean;
+            is_expired: boolean;
+        }>>>(`/check-in-lists/${checkInListShortId}/siblings`);
+        return response.data;
+    },
     getCheckInListAttendee: async (checkInListShortId: IdParam, attendeePublicId: IdParam) => {
         const response = await publicApi.get<GenericDataResponse<Attendee>>(`/check-in-lists/${checkInListShortId}/attendees/${attendeePublicId}`);
         return response.data;

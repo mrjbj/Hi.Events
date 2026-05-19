@@ -67,6 +67,13 @@ export const attendeesClient = {
     resendTicket: async (eventId: IdParam, attendeeId: IdParam) => {
         return await api.post(`events/${eventId}/attendees/${attendeeId}/resend-ticket`);
     },
+    getFilterOptions: async (eventId: IdParam) => {
+        const response = await api.get<GenericDataResponse<{
+            tables: string[];
+            groups: Array<{order_id: number; label: string}>;
+        }>>(`/events/${eventId}/attendees/filter-options`);
+        return response.data;
+    },
 }
 
 export interface PatchCheckInListAttendeePayload {

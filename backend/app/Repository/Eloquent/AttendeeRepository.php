@@ -158,6 +158,10 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             ->whereIn('attendees.status', [AttendeeStatus::ACTIVE->name, AttendeeStatus::CANCELLED->name, AttendeeStatus::AWAITING_PAYMENT->name])
             ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name]);
 
+        if ($params->filter_fields && $params->filter_fields->isNotEmpty()) {
+            $this->applyFilterFields($params, AttendeeDomainObject::getAllowedFilterFields(), prefix: 'attendees');
+        }
+
         $this->loadRelation(new Relationship(AttendeeCheckInDomainObject::class, name: 'check_ins'));
         // Load the buyer's order so the check-in resource can surface
         // buyer name/email on the "Group purchase" badge popover. The
@@ -281,6 +285,137 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
         }
 
         return $this->findFirstWhere(['id' => $row->id]);
+    }
+
+    public function getCheckInListFilterOptions(string $shortId): array
+    {
+        $tables = DB::table('attendees')
+            ->join('product_check_in_lists', 'product_check_in_lists.product_id', '=', 'attendees.product_id')
+            ->join('check_in_lists', 'check_in_lists.id', '=', 'product_check_in_lists.check_in_list_id')
+            ->join('orders', 'orders.id', '=', 'attendees.order_id')
+            ->where('check_in_lists.short_id', $shortId)
+            ->whereNotNull('attendees.seat_info')
+            ->where('attendees.seat_info', '!=', '')
+            ->whereIn('attendees.status', [AttendeeStatus::ACTIVE->name, AttendeeStatus::CANCELLED->name, AttendeeStatus::AWAITING_PAYMENT->name])
+            ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name])
+            ->whereNull('attendees.deleted_at')
+            ->distinct()
+            ->orderBy('attendees.seat_info')
+            ->pluck('attendees.seat_info')
+            ->all();
+
+        // Aggregate per order: ticket count is the sum of quantities for that
+        // order (multi-ticket order items only). We then join back to orders to
+        // pick up buyer name/email and short_id for disambiguating labels.
+        $groups = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->join('product_check_in_lists', 'product_check_in_lists.product_id', '=', 'order_items.product_id')
+            ->join('check_in_lists', 'check_in_lists.id', '=', 'product_check_in_lists.check_in_list_id')
+            ->where('check_in_lists.short_id', $shortId)
+            ->where('order_items.quantity', '>', 1)
+            ->whereNull('order_items.deleted_at')
+            ->whereNull('orders.deleted_at')
+            ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name])
+            ->groupBy('orders.id', 'orders.short_id', 'orders.first_name', 'orders.last_name', 'orders.email')
+            ->select(
+                'orders.id as order_id',
+                'orders.short_id as order_short_id',
+                'orders.first_name',
+                'orders.last_name',
+                'orders.email',
+                DB::raw('SUM(order_items.quantity) as ticket_count'),
+            )
+            ->orderBy('orders.last_name')
+            ->orderBy('orders.first_name')
+            ->get();
+
+        $groupOptions = $groups
+            ->map(function ($row) {
+                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                $name = $name !== '' ? $name : ($row->email ?? '');
+                $ticketCount = (int) $row->ticket_count;
+                $shortId = (string) ($row->order_short_id ?? '');
+                $shortSuffix = $shortId !== '' ? mb_substr($shortId, -4) : '';
+                $label = $name;
+                if ($shortSuffix !== '') {
+                    $label .= ' · #' . $shortSuffix;
+                }
+                $label .= ' (' . $ticketCount . ')';
+                return [
+                    'order_id' => (int) $row->order_id,
+                    'label' => $label,
+                ];
+            })
+            ->unique('order_id')
+            ->values()
+            ->all();
+
+        return [
+            'tables' => $tables,
+            'groups' => $groupOptions,
+        ];
+    }
+
+    public function getEventAttendeeFilterOptions(int $eventId): array
+    {
+        $tables = DB::table('attendees')
+            ->join('orders', 'orders.id', '=', 'attendees.order_id')
+            ->where('attendees.event_id', $eventId)
+            ->whereNotNull('attendees.seat_info')
+            ->where('attendees.seat_info', '!=', '')
+            ->whereIn('attendees.status', [AttendeeStatus::ACTIVE->name, AttendeeStatus::CANCELLED->name, AttendeeStatus::AWAITING_PAYMENT->name])
+            ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name])
+            ->whereNull('attendees.deleted_at')
+            ->distinct()
+            ->orderBy('attendees.seat_info')
+            ->pluck('attendees.seat_info')
+            ->all();
+
+        $groups = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.event_id', $eventId)
+            ->where('order_items.quantity', '>', 1)
+            ->whereNull('order_items.deleted_at')
+            ->whereNull('orders.deleted_at')
+            ->whereIn('orders.status', [OrderStatus::COMPLETED->name, OrderStatus::AWAITING_OFFLINE_PAYMENT->name])
+            ->groupBy('orders.id', 'orders.short_id', 'orders.first_name', 'orders.last_name', 'orders.email')
+            ->select(
+                'orders.id as order_id',
+                'orders.short_id as order_short_id',
+                'orders.first_name',
+                'orders.last_name',
+                'orders.email',
+                DB::raw('SUM(order_items.quantity) as ticket_count'),
+            )
+            ->orderBy('orders.last_name')
+            ->orderBy('orders.first_name')
+            ->get();
+
+        $groupOptions = $groups
+            ->map(function ($row) {
+                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                $name = $name !== '' ? $name : ($row->email ?? '');
+                $ticketCount = (int) $row->ticket_count;
+                $shortId = (string) ($row->order_short_id ?? '');
+                $shortSuffix = $shortId !== '' ? mb_substr($shortId, -4) : '';
+                $label = $name;
+                if ($shortSuffix !== '') {
+                    $label .= ' · #' . $shortSuffix;
+                }
+                $label .= ' (' . $ticketCount . ')';
+                return [
+                    'order_id' => (int) $row->order_id,
+                    'label' => $label,
+                ];
+            })
+            ->unique('order_id')
+            ->values()
+            ->all();
+
+        return [
+            'tables' => $tables,
+            'groups' => $groupOptions,
+        ];
     }
 
     public function getGroupPurchaseKeysByCheckInShortId(string $shortId): array

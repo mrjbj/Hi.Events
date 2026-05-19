@@ -20,6 +20,7 @@ import {t} from "@lingui/macro";
 import {withLoadingNotification} from "../../../utilites/withLoadingNotification.tsx";
 import {FilterModal, FilterOption} from "../../common/FilterModal";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import {useGetEventAttendeeFilterOptions} from "../../../queries/useGetEventAttendeeFilterOptions.ts";
 import {getProductsFromEvent} from "../../../utilites/helpers.ts";
 
 const attendeeStatuses = [
@@ -37,6 +38,13 @@ const Attendees = () => {
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
     const [downloadPending, setDownloadPending] = useState(false);
     const {data: event} = useGetEvent(eventId);
+    const filterOptionsQuery = useGetEventAttendeeFilterOptions(eventId);
+    const eventFilterOptions = filterOptionsQuery.data?.data;
+    const tableOptions = (eventFilterOptions?.tables ?? []).map(seat => ({label: seat, value: seat}));
+    const groupOptions = (eventFilterOptions?.groups ?? []).map(g => ({
+        label: g.label || t`Group purchase`,
+        value: String(g.order_id),
+    }));
 
     const productOptions = getProductsFromEvent(event)
         ?.filter(product => product.product_type === ProductType.Ticket)
@@ -72,6 +80,18 @@ const Attendees = () => {
             label: t`Attendee Status`,
             type: 'multi-select',
             options: attendeeStatuses
+        },
+        {
+            field: 'order_id',
+            label: t`Group`,
+            type: 'multi-select',
+            options: groupOptions
+        },
+        {
+            field: 'seat_info',
+            label: t`Table`,
+            type: 'multi-select',
+            options: tableOptions
         }
     ];
 
@@ -99,6 +119,12 @@ const Attendees = () => {
         }
         if (values.status?.length > 0) {
             filterFields.status = {operator: QueryFilterOperator.In, value: values.status};
+        }
+        if (values.order_id?.length > 0) {
+            filterFields.order_id = {operator: QueryFilterOperator.In, value: values.order_id};
+        }
+        if (values.seat_info?.length > 0) {
+            filterFields.seat_info = {operator: QueryFilterOperator.In, value: values.seat_info};
         }
 
         setSearchParams({
@@ -161,7 +187,9 @@ const Attendees = () => {
 
     const currentFilters = {
         product_id: getProductFilterValues(),
-        status: getFilterValue(searchParams.filterFields?.status)
+        status: getFilterValue(searchParams.filterFields?.status),
+        order_id: getFilterValue(searchParams.filterFields?.order_id),
+        seat_info: getFilterValue(searchParams.filterFields?.seat_info)
     };
 
     return (

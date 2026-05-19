@@ -50,4 +50,23 @@ interface AttendeeRepositoryInterface extends RepositoryInterface
      * product must be on this list). Returns null if not found or not on the list.
      */
     public function findAttendeeOnCheckInList(string $checkInListShortId, string $attendeePublicId): ?AttendeeDomainObject;
+
+    /**
+     * Returns dropdown filter options for the check-in UI, sourced from the entire
+     * database (not just the page the client has loaded). Shape:
+     *   [
+     *     'tables' => string[],                                  // distinct non-empty seat_info values
+     *     'groups' => array{order_id:int,label:string}[],        // multi-ticket purchases with buyer label
+     *   ]
+     */
+    public function getCheckInListFilterOptions(string $shortId): array;
+
+    /**
+     * Same shape as {@see getCheckInListFilterOptions}, but scoped to a whole
+     * event rather than a single check-in list — used by the attendees admin
+     * page so staff can filter attendees by table or group across the event.
+     *
+     * @return array{tables:string[], groups:array{order_id:int,label:string}[]}
+     */
+    public function getEventAttendeeFilterOptions(int $eventId): array;
 }

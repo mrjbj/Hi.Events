@@ -5,6 +5,7 @@ import {IconDownload} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {useGetEvent} from "../../../queries/useGetEvent";
 import {useGetEventOrders} from "../../../queries/useGetEventOrders";
+import {useGetEventProductCategories} from "../../../queries/useGetProductCategories";
 import {PageTitle} from "../../common/PageTitle";
 import {PageBody} from "../../common/PageBody";
 import {OrdersTable} from "../../common/OrdersTable";
@@ -12,7 +13,7 @@ import {SearchBarWrapper} from "../../common/SearchBar";
 import {Pagination} from "../../common/Pagination";
 import {ToolBar} from "../../common/ToolBar";
 import {useFilterQueryParamSync} from "../../../hooks/useFilterQueryParamSync";
-import {IdParam, QueryFilterOperator, QueryFilters} from "../../../types";
+import {IdParam, QueryFilterCondition, QueryFilterOperator, QueryFilters} from "../../../types";
 import {TableSkeleton} from "../../common/TableSkeleton";
 import {orderClient} from "../../../api/order.client";
 import {downloadBinary} from "../../../utilites/download";
@@ -37,6 +38,12 @@ export const Orders: React.FC = () => {
     const ordersQuery = useGetEventOrders(eventId, searchParams as QueryFilters);
     const orders = ordersQuery?.data?.data;
     const pagination = ordersQuery?.data?.meta;
+    const productCategoriesQuery = useGetEventProductCategories(eventId);
+    const productCategories = productCategoriesQuery.data?.data ?? [];
+    const productOptions = productCategories
+        .flatMap(category => category.products ?? [])
+        .filter(product => product.id !== undefined)
+        .map(product => ({label: product.title, value: String(product.id)}));
     const [downloadPending, setDownloadPending] = useState(false);
 
     const filterOptions: FilterOption[] = [
@@ -51,6 +58,12 @@ export const Orders: React.FC = () => {
             label: t`Refund Status`,
             type: 'multi-select',
             options: refundStatuses
+        },
+        {
+            field: 'product_id',
+            label: t`Tickets / Products`,
+            type: 'multi-select',
+            options: productOptions
         }
     ];
 
@@ -64,6 +77,9 @@ export const Orders: React.FC = () => {
                     : undefined,
                 refund_status: values.refund_status?.length > 0
                     ? {operator: QueryFilterOperator.In, value: values.refund_status}
+                    : undefined,
+                product_id: values.product_id?.length > 0
+                    ? {operator: QueryFilterOperator.In, value: values.product_id}
                     : undefined
             }
         };
@@ -103,9 +119,14 @@ export const Orders: React.FC = () => {
             });
     };
 
+    // filterFields entries are always set as single conditions here (not arrays),
+    // but the type allows both — cast through the single-condition shape to keep
+    // .value access type-safe.
+    const filterFields = searchParams.filterFields as Record<string, QueryFilterCondition | undefined> | undefined;
     const currentFilters = {
-        status: searchParams.filterFields?.status?.value || [],
-        refund_status: searchParams.filterFields?.refund_status?.value || []
+        status: filterFields?.status?.value || [],
+        refund_status: filterFields?.refund_status?.value || [],
+        product_id: filterFields?.product_id?.value || []
     };
 
     return (

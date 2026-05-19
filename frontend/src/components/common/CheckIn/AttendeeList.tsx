@@ -1,5 +1,5 @@
-import {ActionIcon, Badge, Button, Loader, Popover, Text, Tooltip, UnstyledButton} from "@mantine/core";
-import {IconArmchair, IconFilter, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
+import {ActionIcon, Badge, Button, Loader, Tooltip, UnstyledButton} from "@mantine/core";
+import {IconArmchair, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -88,55 +88,28 @@ export const AttendeeList = ({
                                         .filter(Boolean)
                                         .join(' ')
                                         .trim();
-                                    return (
-                                    <Popover position="top" withArrow shadow="md" width={260}>
-                                        <Popover.Target>
-                                            <Badge
-                                                color="orange"
-                                                variant="light"
-                                                size="sm"
-                                                leftSection={<IconUsersGroup size={12}/>}
-                                                style={{cursor: 'pointer'}}
-                                                aria-label={t`Group purchase — click for buyer info`}
-                                            >
-                                                {buyerName
-                                                    ? t`Group: ${buyerName}`
-                                                    : t`Group purchase`}
-                                            </Badge>
-                                        </Popover.Target>
-                                        <Popover.Dropdown>
-                                            <Text size="xs" c="dimmed" mb={4}>{t`Purchased by`}</Text>
-                                            {(attendee.buyer_first_name || attendee.buyer_last_name) ? (
-                                                <Text size="sm" fw={500}>
-                                                    {attendee.buyer_first_name} {attendee.buyer_last_name}
-                                                </Text>
-                                            ) : (
-                                                <Text size="sm" fs="italic" c="dimmed">{t`Buyer name unavailable`}</Text>
-                                            )}
-                                            {attendee.buyer_email && (
-                                                <Text size="xs" c="dimmed" mt={2}>
-                                                    {attendee.buyer_email}
-                                                </Text>
-                                            )}
-                                            <Text size="xs" c="dimmed" mt={8} fs="italic">
-                                                {t`Verify the guest's name and email at check-in.`}
-                                            </Text>
-                                            {onFilterByGroup && (
-                                                <Button
-                                                    fullWidth
-                                                    size="xs"
-                                                    variant="light"
-                                                    color="orange"
-                                                    leftSection={<IconFilter size={14}/>}
-                                                    mt={8}
-                                                    onClick={() => onFilterByGroup(attendee)}
-                                                >
-                                                    {t`Show all in this group`}
-                                                </Button>
-                                            )}
-                                        </Popover.Dropdown>
-                                    </Popover>
+                                    const badgeLabel = buyerName
+                                        ? t`Group: ${buyerName}`
+                                        : t`Group purchase`;
+                                    const badge = (
+                                        <Badge
+                                            color="orange"
+                                            variant="light"
+                                            size="sm"
+                                            leftSection={<IconUsersGroup size={12}/>}
+                                            style={{cursor: onFilterByGroup ? 'pointer' : 'default'}}
+                                        >
+                                            {badgeLabel}
+                                        </Badge>
                                     );
+                                    return onFilterByGroup ? (
+                                        <UnstyledButton
+                                            onClick={() => onFilterByGroup(attendee)}
+                                            aria-label={t`Filter to this group`}
+                                        >
+                                            {badge}
+                                        </UnstyledButton>
+                                    ) : badge;
                                 })()}
                                 {attendee.seat_info && (
                                     onFilterByTable ? (

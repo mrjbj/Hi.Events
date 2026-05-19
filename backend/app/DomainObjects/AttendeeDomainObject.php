@@ -79,6 +79,8 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
             self::STATUS,
             self::PRODUCT_ID,
             self::PRODUCT_PRICE_ID,
+            self::ORDER_ID,
+            self::SEAT_INFO,
         ];
     }
 

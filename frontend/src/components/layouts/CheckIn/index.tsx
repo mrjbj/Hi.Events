@@ -7,9 +7,12 @@ import {showError, showSuccess} from "../../../utilites/notifications.tsx";
 import {t, Trans} from "@lingui/macro";
 import {AxiosError} from "axios";
 import classes from "./CheckIn.module.scss";
-import {ActionIcon, Modal, Badge as MantineBadge, Group, Text} from "@mantine/core";
+import {ActionIcon, Menu, Modal, Badge as MantineBadge, Group, Select, Text, UnstyledButton} from "@mantine/core";
+import {useNavigate} from "react-router";
 import {SearchBar} from "../../common/SearchBar";
-import {IconArmchair, IconFilterOff, IconInfoCircle, IconQrcode, IconUsersGroup, IconVolume, IconVolumeOff} from "@tabler/icons-react";
+import {IconArmchair, IconCheck, IconChevronDown, IconFilterOff, IconInfoCircle, IconQrcode, IconUsersGroup, IconVolume, IconVolumeOff} from "@tabler/icons-react";
+import {useGetCheckInListFilterOptionsPublic} from "../../../queries/useGetCheckInListFilterOptionsPublic.ts";
+import {useGetCheckInListSiblingsPublic} from "../../../queries/useGetCheckInListSiblingsPublic.ts";
 import {QRScannerComponent} from "../../common/AttendeeCheckInTable/QrScanner.tsx";
 import {useGetCheckInListAttendees} from "../../../queries/useGetCheckInListAttendeesPublic.ts";
 import {useCreateCheckInPublic} from "../../../mutations/useCreateCheckInPublic.ts";
@@ -30,6 +33,7 @@ import {HidScannerStatus} from "../../common/CheckIn/HidScannerStatus";
 import {Button} from "@mantine/core";
 
 const CheckIn = () => {
+    const navigate = useNavigate();
     const networkStatus = useNetwork();
     const {checkInListShortId} = useParams();
     const CheckInListQuery = useGetCheckInListPublic(checkInListShortId);
@@ -61,10 +65,11 @@ const CheckIn = () => {
     const [profileModalOpen, profileModalHandlers] = useDisclosure(false);
     const [captureAttendee, setCaptureAttendee] = useState<Attendee | null>(null);
     const [captureModalOpen, captureModalHandlers] = useDisclosure(false);
-    // Soft client-side filter triggered by clicking the Group: or Table: badges
-    // on an attendee row. Narrows the list to attendees sharing the same
-    // order_id (group) or seat_info (table) without hitting the backend — works
-    // off whatever the current page has already loaded.
+    // Mutually-exclusive server-side filter for the attendee list. Clicking a
+    // Group or Table badge (or picking from the dropdowns above the list) sets
+    // this filter and pushes it into the API query — so results reflect the
+    // entire DB, not just the current page. Selecting a different filter
+    // replaces the prior one.
     const [attendeeFilter, setAttendeeFilter] = useState<
         | { type: 'group'; orderId: number; label: string }
         | { type: 'table'; seatInfo: string }
@@ -84,6 +89,12 @@ const CheckIn = () => {
         perPage: 150,
         filterFields: {
             status: {operator: QueryFilterOperator.Equals, value: 'ACTIVE'},
+            ...(attendeeFilter?.type === 'group'
+                ? {order_id: {operator: QueryFilterOperator.Equals, value: attendeeFilter.orderId}}
+                : {}),
+            ...(attendeeFilter?.type === 'table'
+                ? {seat_info: {operator: QueryFilterOperator.Equals, value: attendeeFilter.seatInfo}}
+                : {}),
         },
     };
 
@@ -93,13 +104,17 @@ const CheckIn = () => {
         checkInList?.is_active && !checkInList?.is_expired,
     );
     const attendees = attendeesQuery?.data?.data;
-    const displayedAttendees = (() => {
-        if (!attendees || !attendeeFilter) return attendees;
-        if (attendeeFilter.type === 'group') {
-            return attendees.filter(a => a.order_id === attendeeFilter.orderId);
-        }
-        return attendees.filter(a => (a.seat_info ?? '').trim() === attendeeFilter.seatInfo.trim());
-    })();
+    const filterOptionsQuery = useGetCheckInListFilterOptionsPublic(
+        checkInListShortId,
+        Boolean(checkInList?.is_active && !checkInList?.is_expired),
+    );
+    const filterOptions = filterOptionsQuery.data?.data;
+    const siblingsQuery = useGetCheckInListSiblingsPublic(
+        checkInListShortId,
+        Boolean(checkInList),
+    );
+    const siblings = siblingsQuery.data?.data ?? [];
+    const hasOtherLists = siblings.some(s => s.short_id !== checkInListShortId);
     const checkInMutation = useCreateCheckInPublic(queryFilters);
     const deleteCheckInMutation = useDeleteCheckInPublic(queryFilters);
     const areOfflinePaymentsEnabled = eventSettings?.payment_providers?.includes('OFFLINE');
@@ -455,27 +470,114 @@ const CheckIn = () => {
             />
             <div className={classes.header}>
                 <div>
-                    <h4 className={classes.title}>
-                        <Truncate text={checkInList?.name} length={30}/>
-                    </h4>
+                    {hasOtherLists ? (
+                        <Menu shadow="md" position="bottom-start" width={260}>
+                            <Menu.Target>
+                                <UnstyledButton
+                                    className={classes.titleButton}
+                                    aria-label={t`Switch check-in list`}
+                                >
+                                    <h4 className={classes.title}>
+                                        <Truncate text={checkInList?.name} length={30}/>
+                                        <IconChevronDown size={16} className={classes.titleChevron}/>
+                                    </h4>
+                                </UnstyledButton>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Label>{t`Switch check-in list`}</Menu.Label>
+                                {siblings.map(sibling => {
+                                    const isCurrent = sibling.short_id === checkInListShortId;
+                                    return (
+                                        <Menu.Item
+                                            key={sibling.short_id}
+                                            leftSection={isCurrent ? <IconCheck size={14}/> : <span style={{display: 'inline-block', width: 14}}/>}
+                                            disabled={isCurrent}
+                                            onClick={() => {
+                                                if (isCurrent) return;
+                                                navigate(`/check-in/${sibling.short_id}`);
+                                            }}
+                                        >
+                                            <Text size="sm" fw={isCurrent ? 600 : 400}>
+                                                {sibling.name}
+                                            </Text>
+                                            {(sibling.is_expired || !sibling.is_active) && (
+                                                <Text size="xs" c="dimmed">
+                                                    {sibling.is_expired ? t`Expired` : t`Not yet active`}
+                                                </Text>
+                                            )}
+                                        </Menu.Item>
+                                    );
+                                })}
+                            </Menu.Dropdown>
+                        </Menu>
+                    ) : (
+                        <h4 className={classes.title}>
+                            <Truncate text={checkInList?.name} length={30}/>
+                        </h4>
+                    )}
                 </div>
                 <div className={classes.search}>
                     <div className={classes.searchBar}>
                         <SearchBar
                             className={classes.searchInput}
-                            mb={20}
                             value={searchQuery}
                             onChange={(event) => setSearchQuery(event.target.value)}
                             onClear={() => setSearchQuery('')}
                             placeholder={t`Search by name, order #, attendee # or email...`}
                         />
+                        <Select
+                            className={classes.filterSelectGroup}
+                            size="md"
+                            placeholder={t`Group`}
+                            value={attendeeFilter?.type === 'group' ? String(attendeeFilter.orderId) : null}
+                            data={(filterOptions?.groups ?? []).map(g => ({
+                                value: String(g.order_id),
+                                label: g.label || t`Group purchase`,
+                            }))}
+                            onChange={(value) => {
+                                if (!value) {
+                                    if (attendeeFilter?.type === 'group') setAttendeeFilter(null);
+                                    return;
+                                }
+                                const match = filterOptions?.groups.find(g => String(g.order_id) === value);
+                                setAttendeeFilter({
+                                    type: 'group',
+                                    orderId: Number(value),
+                                    label: match?.label || t`Group purchase`,
+                                });
+                            }}
+                            leftSection={<IconUsersGroup size={16}/>}
+                            clearable
+                            searchable
+                            disabled={!filterOptions || filterOptions.groups.length === 0}
+                            aria-label={t`Filter by group purchase`}
+                        />
+                        <Select
+                            className={classes.filterSelect}
+                            size="md"
+                            placeholder={t`Table`}
+                            value={attendeeFilter?.type === 'table' ? attendeeFilter.seatInfo : null}
+                            data={filterOptions?.tables ?? []}
+                            onChange={(value) => {
+                                if (!value) {
+                                    if (attendeeFilter?.type === 'table') setAttendeeFilter(null);
+                                    return;
+                                }
+                                setAttendeeFilter({type: 'table', seatInfo: value});
+                            }}
+                            leftSection={<IconArmchair size={16}/>}
+                            clearable
+                            searchable
+                            disabled={!filterOptions || filterOptions.tables.length === 0}
+                            aria-label={t`Filter by table`}
+                        />
                         <Button variant={'light'} size={'md'} className={classes.scanButton}
                                 onClick={() => setScannerSelectionOpen(true)} leftSection={<IconQrcode/>}>
                             {t`Scan`}
                         </Button>
-                        <ActionIcon 
-                            aria-label={isSoundOn ? t`Turn sound off` : t`Turn sound on`} 
-                            variant={'light'} 
+                        <ActionIcon
+                            aria-label={isSoundOn ? t`Turn sound off` : t`Turn sound on`}
+                            variant={'light'}
                             size={'xl'}
                             onClick={() => setIsSoundOn(!isSoundOn)}
                         >
@@ -509,7 +611,7 @@ const CheckIn = () => {
                             </>
                         )}
                         <MantineBadge color="violet" variant="light" size="sm">
-                            {displayedAttendees?.length ?? 0}
+                            {attendees?.length ?? 0}
                         </MantineBadge>
                     </Group>
                     <ActionIcon
@@ -523,7 +625,7 @@ const CheckIn = () => {
                 </Group>
             )}
             <AttendeeList
-                attendees={displayedAttendees}
+                attendees={attendees}
                 products={products}
                 isLoading={attendeesQuery.isFetching}
                 isCheckInPending={checkInMutation.isPending}
@@ -535,12 +637,17 @@ const CheckIn = () => {
                     profileModalHandlers.open();
                 }}
                 onFilterByGroup={(attendee) => {
+                    // Prefer the rich label from filterOptions (already includes
+                    // shortcode suffix + ticket count) so the banner matches the
+                    // dropdown. Fall back to buyer name / email if the options
+                    // query hasn't resolved yet.
+                    const match = filterOptions?.groups.find(g => g.order_id === attendee.order_id);
                     const buyer = [attendee.buyer_first_name, attendee.buyer_last_name]
                         .filter(Boolean).join(' ').trim();
                     setAttendeeFilter({
                         type: 'group',
                         orderId: attendee.order_id,
-                        label: buyer || attendee.buyer_email || t`Group purchase`,
+                        label: match?.label || buyer || attendee.buyer_email || t`Group purchase`,
                     });
                 }}
                 onFilterByTable={(seatInfo) => {

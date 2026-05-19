@@ -52,6 +52,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             };
         }
 
+        // product_id lives on order_items, not orders, so the generic
+        // applyFilterFields path can't reach it. Translate it into a
+        // whereHas('order_items', ...) clause.
+        $this->applyProductIdFilter($params);
+
         if (!empty($params->filter_fields)) {
             $this->applyFilterFields($params, OrderDomainObject::getAllowedFilterFields());
         }
@@ -66,6 +71,37 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             limit: $params->per_page,
             page: $params->page,
         );
+    }
+
+    private function applyProductIdFilter(QueryParamsDTO $params): void
+    {
+        $filterFields = $params->filter_fields;
+        if (!$filterFields || $filterFields->isEmpty()) {
+            return;
+        }
+
+        $productIdFilter = $filterFields->first(static fn ($f) => $f->field === 'product_id');
+        if (!$productIdFilter) {
+            return;
+        }
+
+        $productIds = is_array($productIdFilter->value)
+            ? $productIdFilter->value
+            : explode(',', (string) $productIdFilter->value);
+        $productIds = array_values(array_filter(
+            array_map('intval', $productIds),
+            static fn ($v) => $v > 0,
+        ));
+
+        if (empty($productIds)) {
+            return;
+        }
+
+        // product_id is not in OrderDomainObject::getAllowedFilterFields(), so
+        // applyFilterFields will skip it harmlessly — we don't need to strip it.
+        $this->model = $this->model->whereHas('order_items', static function (Builder $q) use ($productIds) {
+            $q->whereIn('product_id', $productIds);
+        });
     }
 
     public function findByOrganizerId(int $organizerId, int $accountId, QueryParamsDTO $params): LengthAwarePaginator

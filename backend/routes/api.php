@@ -51,6 +51,7 @@ use HiEvents\Http\Actions\Attendees\ExportAttendeesAction;
 use HiEvents\Http\Actions\Attendees\GetAttendeeAction;
 use HiEvents\Http\Actions\Attendees\GetAttendeeActionPublic;
 use HiEvents\Http\Actions\Attendees\GetAttendeesAction;
+use HiEvents\Http\Actions\Attendees\GetEventAttendeeFilterOptionsAction;
 use HiEvents\Http\Actions\Attendees\PartialEditAttendeeAction;
 use HiEvents\Http\Actions\Attendees\ResendAttendeeTicketAction;
 use HiEvents\Http\Actions\Auth\AcceptInvitationAction;
@@ -74,7 +75,9 @@ use HiEvents\Http\Actions\CheckInLists\Public\CreateAttendeeCheckInPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\DeleteAttendeeCheckInPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListAttendeePublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListAttendeesPublicAction;
+use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListFilterOptionsPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListPublicAction;
+use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListSiblingsPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\PatchCheckInListAttendeePublicAction;
 use HiEvents\Http\Actions\CheckInLists\UpdateCheckInListAction;
 use HiEvents\Http\Actions\Common\GetColorThemesAction;
@@ -387,6 +390,7 @@ $router->middleware(['auth:api'])->group(
         // Attendees
         $router->post('/events/{event_id}/attendees', CreateAttendeeAction::class);
         $router->get('/events/{event_id}/attendees', GetAttendeesAction::class);
+        $router->get('/events/{event_id}/attendees/filter-options', GetEventAttendeeFilterOptionsAction::class);
         $router->get('/events/{event_id}/attendees/{attendee_id}', GetAttendeeAction::class);
         $router->put('/events/{event_id}/attendees/{attendee_id}', EditAttendeeAction::class);
         $router->patch('/events/{event_id}/attendees/{attendee_id}', PartialEditAttendeeAction::class);
@@ -613,6 +617,8 @@ $router->prefix('/public')->group(
         // Check-In
         $router->get('/check-in-lists/{check_in_list_short_id}', GetCheckInListPublicAction::class);
         $router->get('/check-in-lists/{check_in_list_short_id}/attendees', GetCheckInListAttendeesPublicAction::class);
+        $router->get('/check-in-lists/{check_in_list_short_id}/filter-options', GetCheckInListFilterOptionsPublicAction::class);
+        $router->get('/check-in-lists/{check_in_list_short_id}/siblings', GetCheckInListSiblingsPublicAction::class);
         $router->get('/check-in-lists/{check_in_list_short_id}/attendees/{attendee_public_id}', GetCheckInListAttendeePublicAction::class);
         $router->patch('/check-in-lists/{check_in_list_short_id}/attendees/{attendee_public_id}', PatchCheckInListAttendeePublicAction::class);
         $router->post('/check-in-lists/{check_in_list_short_id}/check-ins', CreateAttendeeCheckInPublicAction::class);
