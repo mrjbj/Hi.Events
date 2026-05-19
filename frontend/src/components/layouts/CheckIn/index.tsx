@@ -644,6 +644,7 @@ const CheckIn = () => {
                     const match = filterOptions?.groups.find(g => g.order_id === attendee.order_id);
                     const buyer = [attendee.buyer_first_name, attendee.buyer_last_name]
                         .filter(Boolean).join(' ').trim();
+                    setSearchQuery('');
                     setAttendeeFilter({
                         type: 'group',
                         orderId: attendee.order_id,
@@ -651,6 +652,7 @@ const CheckIn = () => {
                     });
                 }}
                 onFilterByTable={(seatInfo) => {
+                    setSearchQuery('');
                     setAttendeeFilter({type: 'table', seatInfo});
                 }}
                 onClickSound={playClickSound}
