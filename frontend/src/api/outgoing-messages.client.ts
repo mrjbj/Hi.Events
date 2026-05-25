@@ -11,6 +11,13 @@ export const outgoingMessagesClient = {
         return response.data;
     },
 
+    allPromoting: async (eventId: IdParam, pagination: QueryFilters) => {
+        const response: AxiosResponse<GenericPaginatedResponse<OutgoingMessage>> = await api.get<GenericPaginatedResponse<OutgoingMessage>>(
+            `events/${eventId}/promoting-messages` + queryParamsHelper.buildQueryString(pagination),
+        );
+        return response.data;
+    },
+
     resend: async (eventId: IdParam, messageId: IdParam, email?: string) => {
         const response: AxiosResponse<GenericDataResponse<OutgoingMessage>> = await api.post(
             `events/${eventId}/outgoing-messages/${messageId}/resend`,

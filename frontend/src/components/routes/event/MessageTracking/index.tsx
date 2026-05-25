@@ -3,12 +3,14 @@ import {t} from "@lingui/macro";
 import {PageBody} from "../../../common/PageBody";
 import {ActionIcon, Group, Tooltip, Tabs} from "@mantine/core";
 import {useState, useCallback} from "react";
-import {IconMail, IconReceipt, IconRefresh} from "@tabler/icons-react";
+import {IconMail, IconReceipt, IconRefresh, IconSpeakerphone} from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
 import {MarketingTab} from "./MarketingTab.tsx";
 import {TransactionsTab} from "./TransactionsTab.tsx";
+import {PromotingTab} from "./PromotingTab.tsx";
 import {GET_OUTGOING_MESSAGES_QUERY_KEY} from "../../../../queries/useGetOutgoingMessages.ts";
 import {GET_TRANSACTION_MESSAGES_QUERY_KEY} from "../../../../queries/useGetTransactionMessages.ts";
+import {GET_PROMOTING_MESSAGES_QUERY_KEY} from "../../../../queries/useGetPromotingMessages.ts";
 
 const MessageTracking = () => {
     const [activeTab, setActiveTab] = useState<string | null>('transactions');
@@ -16,7 +18,11 @@ const MessageTracking = () => {
     const queryClient = useQueryClient();
 
     const handleRefresh = useCallback(() => {
-        const key = activeTab === 'transactions' ? GET_TRANSACTION_MESSAGES_QUERY_KEY : GET_OUTGOING_MESSAGES_QUERY_KEY;
+        const key = activeTab === 'transactions'
+            ? GET_TRANSACTION_MESSAGES_QUERY_KEY
+            : activeTab === 'promoting'
+                ? GET_PROMOTING_MESSAGES_QUERY_KEY
+                : GET_OUTGOING_MESSAGES_QUERY_KEY;
         queryClient.invalidateQueries({queryKey: [key]});
         setSpinning(true);
         setTimeout(() => setSpinning(false), 600);
@@ -46,6 +52,9 @@ const MessageTracking = () => {
                     <Tabs.Tab value="marketing" leftSection={<IconMail size={16}/>}>
                         {t`Announcements`}
                     </Tabs.Tab>
+                    <Tabs.Tab value="promoting" leftSection={<IconSpeakerphone size={16}/>}>
+                        {t`Promoting`}
+                    </Tabs.Tab>
                 </Tabs.List>
 
                 <Tabs.Panel value="transactions">
@@ -54,6 +63,10 @@ const MessageTracking = () => {
 
                 <Tabs.Panel value="marketing">
                     <MarketingTab/>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="promoting">
+                    <PromotingTab/>
                 </Tabs.Panel>
             </Tabs>
         </PageBody>

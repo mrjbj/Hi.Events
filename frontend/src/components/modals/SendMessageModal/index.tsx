@@ -1,6 +1,7 @@
 import {Event, GenericModalProps, IdParam, MessageType, ProductType} from "../../../types.ts";
 import {useParams} from "react-router";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import {useGetEvents} from "../../../queries/useGetEvents.ts";
 import {useGetOrder} from "../../../queries/useGetOrder.ts";
 import {Modal} from "../../common/Modal";
 import {
@@ -141,6 +142,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
     const [isScheduled, setIsScheduled] = useState(false);
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
     const {data: checkInListsData} = useGetEventCheckInLists(eventId);
+    const {data: allEventsData} = useGetEvents({pageNumber: 1, perPage: 100});
 
     const presets = useMemo(() => event ? getSchedulePresets(event) : [], [event]);
 
@@ -166,6 +168,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
             order_statuses: ['COMPLETED'],
             scheduled_at: '',
             check_in_list_id: '',
+            promotes_event_id: eventId ? String(eventId) : '',
         },
         validate: {
             acknowledgement: (value) => value === true ? null : t`You must acknowledge that this email is not promotional`,
@@ -182,6 +185,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
     const handleSend = (values: any) => {
         setTierLimitError(null);
         const submitData = {...values};
+        submitData.promotes_event_id = values.promotes_event_id ? Number(values.promotes_event_id) : null;
         if (isScheduled) {
             if (selectedPreset && selectedPreset !== CUSTOM_PRESET && resolvedPreset && event) {
                 submitData.scheduled_at = resolvedPreset.utcDate.tz(event.timezone).format('YYYY-MM-DDTHH:mm');
@@ -312,6 +316,18 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
                                     {...form.getInputProps('message_type')}
                                 />
                             )}
+
+                            <Select
+                                label={t`This message is about`}
+                                description={t`Tag which event this message promotes. Defaults to the current event. Use a different event when sending an invitation to a past audience.`}
+                                placeholder={t`Select event`}
+                                searchable
+                                data={(allEventsData?.data ?? []).map(e => ({
+                                    value: String(e.id),
+                                    label: e.title,
+                                }))}
+                                {...form.getInputProps('promotes_event_id')}
+                            />
 
                             {((form.values.message_type === MessageType.IndividualAttendees) && attendeeId && orderId) && (
                                 <AttendeeField eventId={eventId} orderId={orderId} attendeeId={attendeeId} form={form}/>

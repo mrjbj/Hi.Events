@@ -767,6 +767,8 @@ export interface QuestionRequestData {
 
 export interface Message {
     id?: IdParam;
+    event_id?: IdParam;
+    promotes_event_id?: IdParam | null;
     subject: string;
     message: string;
     message_preview: string;
