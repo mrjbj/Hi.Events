@@ -19,8 +19,12 @@ class OrderQuestionRule extends BaseQuestionRule
             ->map(fn(QuestionDomainObject $question) => $question->getId());
 
         if (array_diff($requiredQuestionIds->toArray(), $orderQuestions->pluck('question_id')->toArray())) {
+            // Keyed by 'order.questions' (not a numeric index) so the frontend's
+            // form.setErrors() / fallback toast can surface this — previously it
+            // produced an invisible numeric-keyed error and the submit appeared
+            // to silently fail.
             throw ValidationException::withMessages([
-                'Required questions have not been answered. You may need to reload the page.'
+                'order.questions' => __('Required questions have not been answered. Please reload the page.'),
             ]);
         }
     }

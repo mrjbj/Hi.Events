@@ -16,7 +16,6 @@ import {
 import {IconArrowRight, IconCheck, IconChevronDown, IconCircleCheck, IconClock, IconInfoCircle, IconTicket} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
 import {useForm} from "@mantine/form";
-import {notifications} from "@mantine/notifications";
 import {useGetOrderPublic} from "../../../../queries/useGetOrderPublic.ts";
 import {useGetEventPublic} from "../../../../queries/useGetEventPublic.ts";
 import {useGetEventQuestionsPublic} from "../../../../queries/useGetEventQuestionsPublic.ts";
@@ -32,7 +31,7 @@ import {getConfig} from "../../../../utilites/config.ts";
 import {HomepageInfoMessage} from "../../../common/HomepageInfoMessage";
 import {InlineOrderSummary} from "../../../common/InlineOrderSummary";
 import {eventCheckoutPath, eventHomepagePath} from "../../../../utilites/urlHelper.ts";
-import {showInfo} from "../../../../utilites/notifications.tsx";
+import {showError, showInfo} from "../../../../utilites/notifications.tsx";
 import countries from "../../../../../data/countries.json";
 import classes from "./CollectInformation.module.scss";
 import {trackEvent, AnalyticsEvents} from "../../../../utilites/analytics.ts";
@@ -243,11 +242,14 @@ export const CollectInformation = () => {
 
         if (option !== 'none' && isEmailValid(copiedEmail)) {
             void fetchLookup(copiedEmail).then((result) => {
-                if (!result) return;
+                // Sync regardless of result — if no contact, the copied
+                // attendees must NOT inherit hidden IDs from a previous
+                // per-attendee lookup, or the backend autofill mismatch
+                // produces invisible validation errors on submit.
                 setProductHiddenQuestionIds(prev => {
                     const next = {...prev};
                     copiedIndices.forEach((idx) => {
-                        next[idx] = result.answered_question_ids ?? [];
+                        next[idx] = result?.answered_question_ids ?? [];
                     });
                     return next;
                 });
@@ -384,24 +386,34 @@ export const CollectInformation = () => {
         }
     };
 
-    const runLookup = async (email: string, apply: (r: any) => void) => {
-        const result = await fetchLookup(email);
-        if (result) apply(result);
+    // Always sync hidden-question state to the result of the lookup for the
+    // *current* email. If the user changes a known email to one with no
+    // contact, we must clear the prior hidden IDs — otherwise the backend
+    // autofill (which keys off the submitted email) won't fill those
+    // questions, validation fails on fields that aren't rendered, and the
+    // submit appears to silently fail.
+    const handleOrderEmailBlur = async () => {
+        const result = await fetchLookup(form.values.order.email ?? '');
+        if (result) {
+            applyContactToOrder(result);
+            setOrderHiddenQuestionIds(result.answered_question_ids ?? []);
+        } else {
+            setOrderHiddenQuestionIds([]);
+        }
     };
 
-    const handleOrderEmailBlur = () => {
-        void runLookup(form.values.order.email ?? '', (r) => {
-            applyContactToOrder(r);
-            setOrderHiddenQuestionIds(r.answered_question_ids ?? []);
-        });
-    };
-
-    const handleProductEmailBlur = (idx: number) => {
-        const email = form.values.products[idx]?.email ?? '';
-        void runLookup(email, (r) => {
-            applyContactToProduct(idx, r);
-            setProductHiddenQuestionIds(prev => ({...prev, [idx]: r.answered_question_ids ?? []}));
-        });
+    const handleProductEmailBlur = async (idx: number) => {
+        const result = await fetchLookup(form.values.products[idx]?.email ?? '');
+        if (result) {
+            applyContactToProduct(idx, result);
+            setProductHiddenQuestionIds(prev => ({...prev, [idx]: result.answered_question_ids ?? []}));
+        } else {
+            setProductHiddenQuestionIds(prev => {
+                const next = {...prev};
+                delete next[idx];
+                return next;
+            });
+        }
     };
 
     // Signed-token prefill: if ?c=<token> is in the URL (from an email link),
@@ -472,18 +484,50 @@ export const CollectInformation = () => {
         },
 
         onError: (error: any) => {
-            if (error?.response?.data?.errors && Object.keys(error?.response?.data?.errors).length > 0) {
-                form.setErrors(error.response.data.errors);
-                handleSubmitErrors(error.response.data.errors);
-            } else if (error?.response?.data?.message) {
-                notifications.show({
-                    message: error?.response?.data?.message,
-                });
+            const errors = error?.response?.data?.errors;
+            const message = error?.response?.data?.message;
+            const status = error?.response?.status;
 
-                // if it's a 409, we need to redirect to the event page as the order is no longer valid
-                if (error.response.status === 409) {
-                    navigate(eventHomepagePath(event as Event));
+            if (errors && Object.keys(errors).length > 0) {
+                form.setErrors(errors);
+                handleSubmitErrors(errors);
+
+                // Validation errors keyed by a hidden form path (e.g. a
+                // question hidden via hiddenQuestionIds) or by a numeric
+                // index (raised via ValidationException::withMessages([...]))
+                // produce no on-screen feedback — the submit looks like it
+                // silently fails. Surface the first such error as a toast so
+                // the user always knows the request was rejected.
+                const isVisibleField = (key: string) => {
+                    if (key === 'order.email_confirmation') return true;
+                    if (key === 'order.first_name' || key === 'order.last_name' || key === 'order.email') return true;
+                    if (key.startsWith('order.address.')) return true;
+                    // products.{i}.first_name|last_name|email|email_confirmation are visible;
+                    // products.{i}.questions.{j}.response.answer is hidden if that question
+                    // is in productHiddenQuestionIds — we can't cheaply check here, so be
+                    // conservative and treat all question-keyed errors as potentially hidden.
+                    if (/^products\.\d+\.(first_name|last_name|email|email_confirmation)$/.test(key)) return true;
+                    return false;
+                };
+                const hasOnlyHiddenErrors = Object.keys(errors).every((key) => !isVisibleField(key));
+                if (hasOnlyHiddenErrors) {
+                    const firstMessage = Object.values(errors).flat()[0];
+                    showError(
+                        typeof firstMessage === 'string' && firstMessage.length > 0
+                            ? firstMessage
+                            : t`We couldn't process your order. Please reload the page and try again.`
+                    );
                 }
+            } else if (message) {
+                showError(message);
+            } else {
+                showError(t`We couldn't process your order. Please try again.`);
+            }
+
+            // 409 means the order is no longer valid (e.g. another buyer took
+            // the last seat) — push the user back to the event page.
+            if (status === 409) {
+                navigate(eventHomepagePath(event as Event));
             }
         }
     });

@@ -49,8 +49,12 @@ class ProductQuestionRule extends BaseQuestionRule
                 ->map(fn(QuestionDomainObject $question) => $question->getId());
 
             if (array_diff($requiredQuestionIds->toArray(), collect($questions)->pluck('question_id')->toArray())) {
+                // Keyed by 'products.{index}.questions' so the frontend's
+                // form.setErrors() / fallback toast can surface this — previously
+                // the message landed at a numeric key with no path and the
+                // submit appeared to silently fail.
                 throw ValidationException::withMessages([
-                    __('Required questions have not been answered. You may need to reload the page.')
+                    "products.$index.questions" => __('Required questions have not been answered. Please reload the page.'),
                 ]);
             }
         }
