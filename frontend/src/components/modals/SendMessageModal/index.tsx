@@ -14,6 +14,7 @@ import {
     Menu,
     MultiSelect,
     Select,
+    SimpleGrid,
     TextInput
 } from "@mantine/core";
 import {
@@ -286,6 +287,28 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
                 {!formIsDisabled && (
                     <fieldset disabled={formIsDisabled} style={{border: 'none', padding: 0, margin: 0}}>
                         <div className={classes.formSection}>
+                            <SimpleGrid cols={{base: 1, sm: 2}} spacing="md">
+                                <TextInput
+                                    label={t`Source Event`}
+                                    description={t`The audience for this message is drawn from this event.`}
+                                    value={event.title}
+                                    readOnly
+                                    disabled
+                                />
+
+                                <Select
+                                    label={t`Relating to`}
+                                    description={t`Which event this message promotes. Defaults to the source event.`}
+                                    placeholder={t`Select event`}
+                                    searchable
+                                    data={(allEventsData?.data ?? []).map(e => ({
+                                        value: String(e.id),
+                                        label: e.title,
+                                    }))}
+                                    {...form.getInputProps('promotes_event_id')}
+                                />
+                            </SimpleGrid>
+
                             {!isPreselectedRecipient && (
                                 <Select
                                     data={[
@@ -316,26 +339,6 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
                                     {...form.getInputProps('message_type')}
                                 />
                             )}
-
-                            <TextInput
-                                label={t`Sending from`}
-                                description={t`The audience for this message is drawn from this event.`}
-                                value={event.title}
-                                readOnly
-                                disabled
-                            />
-
-                            <Select
-                                label={t`This message is about`}
-                                description={t`Tag which event this message promotes. Defaults to the current event. Choose a different event when sending an invitation to an audience from a past event.`}
-                                placeholder={t`Select event`}
-                                searchable
-                                data={(allEventsData?.data ?? []).map(e => ({
-                                    value: String(e.id),
-                                    label: e.title,
-                                }))}
-                                {...form.getInputProps('promotes_event_id')}
-                            />
 
                             {((form.values.message_type === MessageType.IndividualAttendees) && attendeeId && orderId) && (
                                 <AttendeeField eventId={eventId} orderId={orderId} attendeeId={attendeeId} form={form}/>
