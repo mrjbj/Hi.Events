@@ -3,9 +3,10 @@
 namespace HiEvents\Http\Actions\Messages;
 
 use HiEvents\DomainObjects\EventDomainObject;
+use HiEvents\Exceptions\ContactEmailConflictException;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Resources\Message\OutgoingMessageResource;
-use HiEvents\Services\Application\Handlers\Message\ResendOutgoingMessageHandler;
+use HiEvents\Services\Application\Handlers\DeliveryIssue\ResolveDeliveryIssueHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -14,7 +15,7 @@ use Throwable;
 class ResendOutgoingMessageAction extends BaseAction
 {
     public function __construct(
-        private readonly ResendOutgoingMessageHandler $handler,
+        private readonly ResolveDeliveryIssueHandler $handler,
     )
     {
     }
@@ -28,14 +29,22 @@ class ResendOutgoingMessageAction extends BaseAction
         $this->isActionAuthorized($eventId, EventDomainObject::class);
 
         $this->validate($request, [
-            'email' => 'sometimes|email',
+            'email' => 'sometimes|nullable|email',
         ]);
 
-        $result = $this->handler->handle(
-            eventId: $eventId,
-            messageId: $messageId,
-            newEmail: $request->input('email'),
-        );
+        try {
+            $result = $this->handler->handle(
+                eventId: $eventId,
+                messageId: $messageId,
+                sourceType: ResolveDeliveryIssueHandler::SOURCE_ANNOUNCEMENT,
+                newEmail: $request->input('email'),
+                resend: true,
+            );
+        } catch (ContactEmailConflictException $e) {
+            throw ValidationException::withMessages([
+                'email' => [__('Another contact in this account already uses this email address.')],
+            ]);
+        }
 
         return $this->resourceResponse(OutgoingMessageResource::class, $result);
     }

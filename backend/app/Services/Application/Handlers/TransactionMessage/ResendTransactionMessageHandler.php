@@ -2,12 +2,10 @@
 
 namespace HiEvents\Services\Application\Handlers\TransactionMessage;
 
-use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\Enums\TransactionalEmailType;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\OutgoingTransactionMessageDomainObjectAbstract;
 use HiEvents\DomainObjects\InvoiceDomainObject;
-use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
@@ -35,6 +33,10 @@ class ResendTransactionMessageHandler
     }
 
     /**
+     * Resends the same email via the matching domain service. Entity email/contact
+     * mutations live in {@see \HiEvents\Services\Application\Handlers\DeliveryIssue\ResolveDeliveryIssueHandler}
+     * — this handler stays focused on the actual resend.
+     *
      * @throws ValidationException
      */
     public function handle(int $eventId, int $messageId, ?string $newEmail = null): OutgoingTransactionMessageDomainObject
@@ -50,46 +52,9 @@ class ResendTransactionMessageHandler
 
         $emailType = TransactionalEmailType::from($message->getEmailType());
 
-        if ($newEmail) {
-            $this->updateEntityEmail($message, $emailType, $newEmail);
-        }
-
         $this->resendByType($message, $emailType, $message->getSesMessageId(), $message->getId());
 
         return $this->repository->findById($messageId);
-    }
-
-    private function updateEntityEmail(
-        OutgoingTransactionMessageDomainObject $message,
-        TransactionalEmailType                 $emailType,
-        string                                 $newEmail,
-    ): void
-    {
-        match ($emailType) {
-            TransactionalEmailType::ORDER_SUMMARY,
-            TransactionalEmailType::ORDER_FAILED => $this->updateOrderEmail($message->getOrderId(), $newEmail),
-
-            TransactionalEmailType::ATTENDEE_TICKET,
-            TransactionalEmailType::WAITLIST_OFFER,
-            TransactionalEmailType::WAITLIST_CONFIRMATION,
-            TransactionalEmailType::WAITLIST_OFFER_EXPIRED => $this->updateAttendeeEmail($message->getAttendeeId(), $newEmail),
-        };
-    }
-
-    private function updateOrderEmail(int $orderId, string $email): void
-    {
-        $this->orderRepository->updateWhere(
-            attributes: ['email' => strtolower($email)],
-            where: ['id' => $orderId],
-        );
-    }
-
-    private function updateAttendeeEmail(int $attendeeId, string $email): void
-    {
-        $this->attendeeRepository->updateWhere(
-            attributes: ['email' => strtolower($email)],
-            where: ['id' => $attendeeId],
-        );
     }
 
     private function resendByType(
