@@ -113,4 +113,63 @@ class OutgoingMessageRepository extends BaseRepository implements OutgoingMessag
 
         return $affected > 0;
     }
+
+    public function getForPromotedEvent(int $promotedEventId, QueryParamsDTO $params): LengthAwarePaginator
+    {
+        $table = 'outgoing_messages';
+        $query = OutgoingMessage::query()
+            ->join('messages', 'messages.id', '=', "{$table}.message_id")
+            ->where('messages.promotes_event_id', $promotedEventId)
+            ->whereNull('messages.deleted_at')
+            ->selectRaw("{$table}.*,
+                (SELECT COUNT(*) FROM {$table} r WHERE r.retry_for_id = {$table}.id) as retry_count,
+                (SELECT r2.recipient FROM {$table} r2 WHERE r2.retry_for_id = {$table}.id ORDER BY r2.created_at DESC LIMIT 1) as latest_retry_recipient,
+                (SELECT r3.status FROM {$table} r3 WHERE r3.retry_for_id = {$table}.id ORDER BY r3.created_at DESC LIMIT 1) as latest_retry_status,
+                (SELECT o.recipient FROM {$table} o WHERE o.id = {$table}.retry_for_id) as original_recipient,
+                (SELECT o2.status FROM {$table} o2 WHERE o2.id = {$table}.retry_for_id) as original_status");
+
+        if ($params->query) {
+            $search = '%' . $params->query . '%';
+            $query->where(function ($q) use ($table, $search) {
+                $q->where("{$table}.recipient", 'ilike', $search)
+                    ->orWhere("{$table}.subject", 'ilike', $search);
+            });
+        }
+
+        if ($params->filter_fields) {
+            foreach ($params->filter_fields as $filter) {
+                if ($filter->field === 'status' && !empty($filter->value)) {
+                    $values = is_array($filter->value) ? $filter->value : explode(',', $filter->value);
+                    if (in_array('RESOLVED', $values)) {
+                        $otherValues = array_filter($values, fn($v) => $v !== 'RESOLVED');
+                        $query->where(function ($q) use ($table, $otherValues) {
+                            $q->whereNotNull("{$table}.resolved_at");
+                            if (!empty($otherValues)) {
+                                $q->orWhereIn("{$table}.status", $otherValues);
+                            }
+                        });
+                    } else {
+                        $query->whereIn("{$table}.status", $values);
+                    }
+                }
+                if ($filter->field === 'date_range' && !empty($filter->value)) {
+                    $days = match ($filter->value) {
+                        '1d' => 1, '7d' => 7, '30d' => 30, '90d' => 90, '365d' => 365, default => null,
+                    };
+                    if ($days) {
+                        $query->where("{$table}.created_at", '>=', now()->subDays($days));
+                    }
+                }
+            }
+        }
+
+        $allowedSortFields = ['created_at', 'updated_at', 'status', 'recipient', 'subject'];
+        $sortBy = in_array($params->sort_by, $allowedSortFields) ? $params->sort_by : 'created_at';
+        $sortDir = strtolower($params->sort_direction ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $query->orderBy("{$table}.{$sortBy}", $sortDir);
+
+        $results = $query->paginate(perPage: $params->per_page ?? 20, page: $params->page);
+
+        return $this->handleResults($results);
+    }
 }

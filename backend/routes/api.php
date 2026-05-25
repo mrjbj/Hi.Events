@@ -122,6 +122,7 @@ use HiEvents\Http\Actions\Messages\CancelMessageAction;
 use HiEvents\Http\Actions\Messages\GetMessageRecipientsAction;
 use HiEvents\Http\Actions\Messages\GetMessagesAction;
 use HiEvents\Http\Actions\Messages\GetOutgoingMessagesAction;
+use HiEvents\Http\Actions\Messages\GetPromotingMessagesAction;
 use HiEvents\Http\Actions\Messages\ResendOutgoingMessageAction;
 use HiEvents\Http\Actions\Messages\SendMessageAction;
 use HiEvents\Http\Actions\Orders\BulkAssignAttendeeSeatInfoAction;
@@ -448,6 +449,7 @@ $router->middleware(['auth:api'])->group(
         $router->post('/events/{event_id}/messages/{message_id}/cancel', CancelMessageAction::class);
         $router->get('/events/{event_id}/messages/{message_id}/recipients', GetMessageRecipientsAction::class);
         $router->get('/events/{event_id}/outgoing-messages', GetOutgoingMessagesAction::class);
+        $router->get('/events/{event_id}/promoting-messages', GetPromotingMessagesAction::class);
         $router->post('/events/{event_id}/outgoing-messages/{message_id}/resend', ResendOutgoingMessageAction::class);
 
         // Transaction Messages

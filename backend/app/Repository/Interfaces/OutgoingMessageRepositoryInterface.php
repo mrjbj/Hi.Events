@@ -18,4 +18,6 @@ interface OutgoingMessageRepositoryInterface extends RepositoryInterface
     public function markAsDelivered(string $sesMessageId): bool;
 
     public function getForEvent(int $eventId, QueryParamsDTO $params): LengthAwarePaginator;
+
+    public function getForPromotedEvent(int $promotedEventId, QueryParamsDTO $params): LengthAwarePaginator;
 }
