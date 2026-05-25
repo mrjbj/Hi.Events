@@ -317,9 +317,17 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
                                 />
                             )}
 
+                            <TextInput
+                                label={t`Sending from`}
+                                description={t`The audience for this message is drawn from this event.`}
+                                value={event.title}
+                                readOnly
+                                disabled
+                            />
+
                             <Select
                                 label={t`This message is about`}
-                                description={t`Tag which event this message promotes. Defaults to the current event. Use a different event when sending an invitation to a past audience.`}
+                                description={t`Tag which event this message promotes. Defaults to the current event. Choose a different event when sending an invitation to an audience from a past event.`}
                                 placeholder={t`Select event`}
                                 searchable
                                 data={(allEventsData?.data ?? []).map(e => ({
