@@ -182,4 +182,37 @@ class OutgoingMessageRepository extends BaseRepository implements OutgoingMessag
 
         return $this->handleResults($results);
     }
+
+    public function countUnresolvedFailuresForEmails(array $emails, int $accountId): array
+    {
+        if (empty($emails)) {
+            return ['count' => 0, 'sample' => []];
+        }
+
+        $lowered = array_values(array_unique(array_map(
+            fn ($e) => strtolower(trim((string)$e)),
+            $emails,
+        )));
+
+        $base = DB::table('outgoing_messages as om')
+            ->join('events as e', 'e.id', '=', 'om.event_id')
+            ->whereIn('om.status', ['BOUNCED', 'FAILED'])
+            ->whereNull('om.resolved_at')
+            ->whereNull('om.deleted_at')
+            ->whereIn(DB::raw('LOWER(om.recipient)'), $lowered)
+            ->where('e.account_id', $accountId);
+
+        $sample = (clone $base)
+            ->select('om.recipient')
+            ->distinct()
+            ->limit(5)
+            ->pluck('om.recipient')
+            ->all();
+
+        $count = (clone $base)
+            ->distinct('om.recipient')
+            ->count('om.recipient');
+
+        return ['count' => $count, 'sample' => $sample];
+    }
 }

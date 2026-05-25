@@ -34,6 +34,7 @@ import { showSuccess } from "../../../utilites/notifications.tsx";
 import { t } from "@lingui/macro";
 import { Editor } from "../../common/Editor";
 import { useSendEventMessage } from "../../../mutations/useSendEventMessage.ts";
+import { messagesClient, PreflightSendResponse } from "../../../api/messages.client.ts";
 import { ProductSelector } from "../../common/ProductSelector";
 import { useEffect, useMemo, useState } from "react";
 import { useGetAccount } from "../../../queries/useGetAccount.ts";
@@ -153,6 +154,12 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
   }, [selectedPreset, presets]);
 
   const sendMessageMutation = useSendEventMessage();
+  const [preflightWarning, setPreflightWarning] = useState<{
+    data: PreflightSendResponse;
+    payload: any;
+    isScheduled: boolean;
+  } | null>(null);
+  const [isPreflightRunning, setIsPreflightRunning] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -183,24 +190,15 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
     }
   });
 
-  const handleSend = (values: any) => {
-    setTierLimitError(null);
-    const submitData = { ...values };
-    submitData.promotes_event_id = values.promotes_event_id ? Number(values.promotes_event_id) : null;
-    if (isScheduled) {
-      if (selectedPreset && selectedPreset !== CUSTOM_PRESET && resolvedPreset && event) {
-        submitData.scheduled_at = resolvedPreset.utcDate.tz(event.timezone).format('YYYY-MM-DDTHH:mm');
-      }
-    } else {
-      delete submitData.scheduled_at;
-    }
+  const dispatchSend = (submitData: any, scheduled: boolean) => {
     sendMessageMutation.mutate({
       eventId: eventId,
       messageData: submitData,
     }, {
       onSuccess: () => {
-        showSuccess(isScheduled ? t`Message Scheduled` : t`Message Sent`);
+        showSuccess(scheduled ? t`Message Scheduled` : t`Message Sent`);
         form.reset();
+        setPreflightWarning(null);
         onClose();
       },
       onError: (error: any) => {
@@ -212,6 +210,42 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
         }
       }
     });
+  };
+
+  const handleSend = async (values: any, skipPreflight = false) => {
+    setTierLimitError(null);
+    const submitData = { ...values };
+    submitData.promotes_event_id = values.promotes_event_id ? Number(values.promotes_event_id) : null;
+    if (isScheduled) {
+      if (selectedPreset && selectedPreset !== CUSTOM_PRESET && resolvedPreset && event) {
+        submitData.scheduled_at = resolvedPreset.utcDate.tz(event.timezone).format('YYYY-MM-DDTHH:mm');
+      }
+    } else {
+      delete submitData.scheduled_at;
+    }
+
+    // Skip preflight for test mode or when the user already clicked
+    // "Send Anyway" in the warning modal.
+    if (skipPreflight || submitData.is_test) {
+      dispatchSend(submitData, isScheduled);
+      return;
+    }
+
+    setIsPreflightRunning(true);
+    try {
+      const result = await messagesClient.preflight(eventId, submitData);
+      if (result.unresolved_recipient_count > 0) {
+        setPreflightWarning({ data: result, payload: submitData, isScheduled });
+        return;
+      }
+      dispatchSend(submitData, isScheduled);
+    } catch {
+      // If preflight fails for any reason, fall through to the actual send —
+      // the real validation/auth errors will surface there.
+      dispatchSend(submitData, isScheduled);
+    } finally {
+      setIsPreflightRunning(false);
+    }
   }
 
   useEffect(() => {
@@ -236,7 +270,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
         </div>
       )}
 
-      <form onSubmit={form.onSubmit(handleSend)}>
+      <form onSubmit={form.onSubmit((values) => handleSend(values))}>
         {(!isAccountVerified && isAccountFetched) && (
           <Alert className={classes.verificationAlert} variant={'light'}
             icon={<IconAlertCircle size="1rem" />}>
@@ -494,7 +528,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
               <Group gap={0}>
                 <Button
                   className={classes.sendButton}
-                  loading={sendMessageMutation.isPending}
+                  loading={sendMessageMutation.isPending || isPreflightRunning}
                   type={'submit'}
                   leftSection={isScheduled ? <IconClock size={16} /> : <IconSend size={16} />}
                   disabled={!form.values.acknowledgement || !isAccountVerified || accountRequiresManualVerification}
@@ -538,6 +572,40 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
           </fieldset>
         )}
       </form>
+
+      {preflightWarning && (
+        <Modal
+          heading={t`Recipients with unresolved delivery issues`}
+          onClose={() => setPreflightWarning(null)}
+          opened
+        >
+          <Alert color="orange" icon={<IconAlertCircle size={16} />}>
+            {t`${preflightWarning.data.unresolved_recipient_count} of ${preflightWarning.data.total_recipient_count} recipients have an unresolved bounce or failure on a prior message. Sending now will likely fail again for those addresses.`}
+          </Alert>
+          {preflightWarning.data.sample.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <strong>{t`Sample:`}</strong>
+              <ul style={{ marginTop: 4 }}>
+                {preflightWarning.data.sample.map((email) => (
+                  <li key={email}>{email}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Group mt="xl" grow>
+            <Button variant="default" onClick={() => setPreflightWarning(null)}>
+              {t`Cancel & resolve first`}
+            </Button>
+            <Button
+              color="orange"
+              loading={sendMessageMutation.isPending}
+              onClick={() => handleSend(preflightWarning.payload, true)}
+            >
+              {t`Send anyway`}
+            </Button>
+          </Group>
+        </Modal>
+      )}
     </Modal>
   )
 };

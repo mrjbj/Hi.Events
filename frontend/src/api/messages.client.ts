@@ -3,9 +3,22 @@ import {GenericPaginatedResponse, IdParam, Message, OutgoingMessage, QueryFilter
 import {queryParamsHelper} from "../utilites/queryParamsHelper.ts";
 import {AxiosResponse} from "axios";
 
+export interface PreflightSendResponse {
+    unresolved_recipient_count: number;
+    sample: string[];
+    total_recipient_count: number;
+}
+
 export const messagesClient = {
     send: async (eventId: IdParam, messagesRequest: Message) => {
         return await api.post(`events/${eventId}/messages`, messagesRequest);
+    },
+    preflight: async (eventId: IdParam, messagesRequest: Message): Promise<PreflightSendResponse> => {
+        const response: AxiosResponse<PreflightSendResponse> = await api.post(
+            `events/${eventId}/messages/preflight`,
+            messagesRequest,
+        );
+        return response.data;
     },
     all: async (eventId: IdParam, pagination: QueryFilters) => {
         const response: AxiosResponse<GenericPaginatedResponse<Message>> = await api.get<GenericPaginatedResponse<Message>>(

@@ -308,6 +308,94 @@ class SendEventEmailMessagesService
         });
     }
 
+    /**
+     * Returns the deduped, lowercase list of emails that would receive this
+     * message if it were sent now. Mirrors the routing in send() but skips
+     * dispatch, suppression checks, and the "copy to sender" / "test" paths.
+     * Used by the preflight endpoint to warn senders about unresolved bounces
+     * in the upcoming audience.
+     *
+     * @return string[]
+     */
+    public function resolveAudienceEmails(SendMessageDTO $messageData): array
+    {
+        $event = $this->eventRepository
+            ->loadRelation(EventSettingDomainObject::class)
+            ->findById($messageData->event_id);
+        if ($event === null) {
+            return [];
+        }
+
+        $emails = match ($messageData->type) {
+            MessageTypeEnum::INDIVIDUAL_ATTENDEES => $this->emailsFromAttendees(
+                $this->attendeesQuery()->findWhereIn('id', $messageData->attendee_ids, [
+                    'event_id' => $messageData->event_id,
+                ], $this->attendeeColumns()),
+                $messageData,
+            ),
+            MessageTypeEnum::TICKET_HOLDERS => $this->emailsFromAttendees(
+                $this->attendeesQuery()->findWhereIn('product_id', $messageData->product_ids, [
+                    'event_id' => $messageData->event_id,
+                    'status' => AttendeeStatus::ACTIVE->name,
+                ], $this->attendeeColumns()),
+                $messageData,
+            ),
+            MessageTypeEnum::ALL_ATTENDEES => $this->emailsFromAttendees(
+                $this->attendeesQuery()->findWhere([
+                    'event_id' => $messageData->event_id,
+                    'status' => AttendeeStatus::ACTIVE->name,
+                ], $this->attendeeColumns()),
+                $messageData,
+            ),
+            MessageTypeEnum::CHECKED_IN_ATTENDEES => $this->emailsFromAttendees(
+                $this->attendeesQuery()->findCheckedInAttendees(
+                    $messageData->event_id,
+                    $messageData->check_in_list_id,
+                    $this->attendeeColumns(),
+                ),
+                $messageData,
+            ),
+            MessageTypeEnum::NOT_CHECKED_IN_ATTENDEES => $this->emailsFromAttendees(
+                $this->attendeesQuery()->findNotCheckedInAttendees(
+                    $messageData->event_id,
+                    $messageData->check_in_list_id,
+                    $this->attendeeColumns(),
+                ),
+                $messageData,
+            ),
+            MessageTypeEnum::ORDER_OWNER => array_filter([
+                $this->orderRepository->findFirstWhere([
+                    'id' => $messageData->order_id,
+                    'event_id' => $messageData->event_id,
+                ])?->getEmail(),
+            ]),
+            MessageTypeEnum::ORDER_OWNERS_WITH_PRODUCT => $this->orderRepository
+                ->findOrdersAssociatedWithProducts(
+                    eventId: $messageData->event_id,
+                    productIds: $messageData->product_ids,
+                    orderStatuses: $messageData->order_statuses,
+                )
+                ->map(fn (OrderDomainObject $order) => $order->getEmail())
+                ->all(),
+        };
+
+        return array_values(array_unique(array_map(
+            fn (string $e) => strtolower(trim($e)),
+            array_filter($emails),
+        )));
+    }
+
+    /**
+     * @param Collection<AttendeeDomainObject> $attendees
+     * @return string[]
+     */
+    private function emailsFromAttendees(Collection $attendees, SendMessageDTO $messageData): array
+    {
+        return $attendees
+            ->map(fn (AttendeeDomainObject $attendee) => $this->resolveAttendeeEmail($attendee, $messageData))
+            ->all();
+    }
+
     private function sendMessage(
         string            $emailAddress,
         string            $fullName,

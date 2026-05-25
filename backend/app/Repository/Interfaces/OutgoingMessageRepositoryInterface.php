@@ -20,4 +20,11 @@ interface OutgoingMessageRepositoryInterface extends RepositoryInterface
     public function getForEvent(int $eventId, QueryParamsDTO $params): LengthAwarePaginator;
 
     public function getForPromotedEvent(int $promotedEventId, QueryParamsDTO $params): LengthAwarePaginator;
+
+    /**
+     * Counts distinct $emails that currently have an unresolved BOUNCED/FAILED
+     * outgoing_messages row scoped to any event in $accountId. Returns:
+     *   ['count' => int, 'sample' => string[]]   // sample of up to 5 emails
+     */
+    public function countUnresolvedFailuresForEmails(array $emails, int $accountId): array;
 }
