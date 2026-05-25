@@ -486,21 +486,42 @@ const SelectProducts = (props: SelectProductsProps) => {
                                                                 {product.title}
                                                             </h3>
                                                             <div className={'hi-product-title-metadata'}>
-                                                                {(product.is_available && !!product.quantity_available) && (() => {
-                                                                    if (product.quantity_available === Constants.INFINITE_TICKETS) {
-                                                                        return <Trans>Unlimited available</Trans>;
+                                                                {(() => {
+                                                                    const isBundle = !!(product.min_per_order && product.min_per_order > 1);
+                                                                    const bundleSize = isBundle ? (product.min_per_order as number) : 1;
+                                                                    const hasQty = product.is_available && !!product.quantity_available;
+                                                                    const isUnlimited = product.quantity_available === Constants.INFINITE_TICKETS;
+
+                                                                    const bundleSpan = isBundle && (
+                                                                        <span className={'hi-product-bundle-indicator'}>
+                                                                            {t`(includes ${bundleSize} tickets)`}
+                                                                        </span>
+                                                                    );
+
+                                                                    if (!hasQty) {
+                                                                        return bundleSpan || null;
                                                                     }
-                                                                    const minPerOrder = product.min_per_order && product.min_per_order > 1
-                                                                        ? product.min_per_order
-                                                                        : 1;
-                                                                    const displayCount = Math.floor(product.quantity_available / minPerOrder);
+
+                                                                    if (isUnlimited) {
+                                                                        return bundleSpan || null;
+                                                                    }
+
+                                                                    const displayCount = Math.floor((product.quantity_available as number) / bundleSize);
                                                                     if (displayCount < 1) {
-                                                                        return null;
+                                                                        return bundleSpan || null;
                                                                     }
+
                                                                     return (
-                                                                        <Trans>
-                                                                            {displayCount} available
-                                                                        </Trans>
+                                                                        <>
+                                                                            {bundleSpan}
+                                                                            {isBundle && (
+                                                                                /* eslint-disable-next-line lingui/no-unlocalized-strings */
+                                                                                <span aria-hidden="true">·</span>
+                                                                            )}
+                                                                            <span>
+                                                                                <Trans>{displayCount} available</Trans>
+                                                                            </span>
+                                                                        </>
                                                                     );
                                                                 })()}
 

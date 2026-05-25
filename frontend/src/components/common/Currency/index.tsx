@@ -95,14 +95,7 @@ export const ProductPriceDisplay: React.FC<ProductPriceProps> = ({
 
     return (
         <div className={className}>
-            <div>
-                {formattedPrice}
-                {multiplier > 1 && (
-                    <span style={{marginLeft: '0.4em', fontSize: '0.8em', opacity: 0.75}}>
-                        {t`(includes ${multiplier} tickets)`}
-                    </span>
-                )}
-            </div>
+            <div>{formattedPrice}</div>
             <div>{appendedText}</div>
         </div>
     );
