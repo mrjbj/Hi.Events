@@ -1,15 +1,15 @@
 import { CustomSelect, ItemProps } from "../../common/CustomSelect";
 import { t, Trans } from "@lingui/macro";
 import { ContactAttributeDefinition, ProductCategory, QuestionBelongsToType, QuestionType } from "../../../types.ts";
-import { ActionIcon, Button, Checkbox, Group, Select, Switch, TextInput, Tooltip } from "@mantine/core";
+import { Alert, Anchor, Button, Checkbox, Group, Select, Switch, Text, TextInput, Tooltip } from "@mantine/core";
+import { useParams } from "react-router";
+import { useGetEventQuestions } from "../../../queries/useGetEventQuestions.ts";
 import {
   IconAlignBoxLeftTop,
   IconCalendar,
   IconCircleCheck,
   IconForms,
   IconInfoCircle,
-  IconLock,
-  IconLockOpen,
   IconMapPin,
   IconReceipt,
   IconSelector,
@@ -25,7 +25,7 @@ import { Editor } from "../../common/Editor";
 import { useEffect, useState } from "react";
 import { ProductSelector } from "../../common/ProductSelector";
 import { useGetContactAttributeDefinitions } from "../../../queries/useGetContactAttributeDefinitions.ts";
-import { confirmationDialog } from "../../../utilites/confirmationDialog.tsx";
+import { EditContactAttributeDefinitionModal } from "../../modals/EditContactAttributeDefinitionModal";
 
 const NEW_QUESTION_SENTINEL = '__new__';
 
@@ -56,7 +56,7 @@ export const definitionTypeFromQuestionType = (questionType: string): ContactAtt
   return 'text';
 };
 
-const isDefinitionCompatibleWithQuestionType = (
+export const isDefinitionCompatibleWithQuestionType = (
   definitionType: ContactAttributeDefinition['type'],
   questionType: string,
 ): boolean => {
@@ -72,19 +72,10 @@ const isDefinitionCompatibleWithQuestionType = (
   }
 };
 
-const Options = ({ form, locked, onRequestUnlock }: { form: UseFormReturnType<any>; locked: boolean; onRequestUnlock: () => void }) => {
+const Options = ({ form, locked }: { form: UseFormReturnType<any>; locked: boolean }) => {
   return (
-    <Card className={locked ? classes.lockedField : undefined}>
-      <Group justify="space-between" align="center" mb="xs">
-        <h3 className={classes.optionsHeading}><Trans>Options</Trans></h3>
-        {locked && (
-          <Tooltip label={t`Unlock to edit options for this event only`}>
-            <ActionIcon variant="subtle" onClick={onRequestUnlock} aria-label={t`Unlock options`}>
-              <IconLock size={16} />
-            </ActionIcon>
-          </Tooltip>
-        )}
-      </Group>
+    <Card>
+      <h3 className={classes.optionsHeading}><Trans>Options</Trans></h3>
       {form.values.options.length === 0 && (
         <div className={classes.noOptionsMessage}>
           <Trans>Please add at least one option</Trans>
@@ -120,35 +111,18 @@ const Options = ({ form, locked, onRequestUnlock }: { form: UseFormReturnType<an
         );
       })}
 
-      <Button
-        variant="outline"
-        disabled={locked}
-        onClick={() => form.setFieldValue('options', [...form.values.options, ''])}
-        size="xs"
-      >
-        {t`Add Option`}
-      </Button>
+      {!locked && (
+        <Button
+          variant="outline"
+          onClick={() => form.setFieldValue('options', [...form.values.options, ''])}
+          size="xs"
+        >
+          {t`Add Option`}
+        </Button>
+      )}
     </Card>
   )
 };
-
-const LockableLabel = ({ label, locked, onToggle, showIcon }: {
-  label: string;
-  locked: boolean;
-  onToggle: () => void;
-  showIcon: boolean;
-}) => (
-  <Group gap={6} align="center" mb={4}>
-    <span>{label}</span>
-    {showIcon && (
-      <Tooltip label={locked ? t`Unlock to edit (this will change the field for this event only)` : t`This field is linked to a reusable attribute`}>
-        <ActionIcon variant="subtle" size="xs" onClick={onToggle} aria-label={locked ? t`Unlock field` : t`Re-lock field`}>
-          {locked ? <IconLock size={14} /> : <IconLockOpen size={14} />}
-        </ActionIcon>
-      </Tooltip>
-    )}
-  </Group>
-);
 
 interface QuestionFormProps {
   form: UseFormReturnType<any>;
@@ -158,28 +132,36 @@ interface QuestionFormProps {
 
 export const QuestionForm = ({ form, productCategories, isEditMode = false }: QuestionFormProps) => {
   const [showDescription, setShowDescription] = useState(false);
+  const [manageDefinitionOpen, setManageDefinitionOpen] = useState(false);
+  const { eventId } = useParams();
   const definitionsQuery = useGetContactAttributeDefinitions();
   const definitions = (definitionsQuery.data?.data ?? []).filter((d) => d.is_active);
+  const eventQuestionsQuery = useGetEventQuestions(eventId);
+  const eventQuestions = eventQuestionsQuery.data ?? [];
 
-  const reusableSelection: string = form.values.__reusable_selection ?? NEW_QUESTION_SENTINEL;
-  const linkedDefinitionId: number | null = reusableSelection !== NEW_QUESTION_SENTINEL ? Number(reusableSelection) : null;
+  const reusableSelection: string = form.values.__reusable_selection ?? '';
+  const isNewQuestion = reusableSelection === NEW_QUESTION_SENTINEL;
+  const isReuseUnselected = reusableSelection === '';
+  const linkedDefinitionId: number | null = (!isNewQuestion && !isReuseUnselected)
+    ? Number(reusableSelection)
+    : null;
   const linkedDefinition = linkedDefinitionId != null ? definitions.find((d) => d.id === linkedDefinitionId) : undefined;
   const isLinked = !!linkedDefinition;
 
-  const [unlockedFields, setUnlockedFields] = useState<{ title: boolean; type: boolean; options: boolean }>({
-    title: false,
-    type: false,
-    options: false,
-  });
+  const trimmedTitle = (form.values.title ?? '').trim().toLowerCase();
+  const editingId = (form.values as any).__editing_question_id ?? null;
+  const duplicateTitleQuestion = trimmedTitle && !isLinked
+    ? eventQuestions.find((q) => q.id !== editingId && (q.title ?? '').trim().toLowerCase() === trimmedTitle)
+    : undefined;
 
-  const titleLocked = isLinked && !unlockedFields.title;
-  const typeLocked = isLinked && !unlockedFields.type;
-  const optionsLocked = isLinked && !unlockedFields.options;
+  const candidateAttributeName = trimmedTitle ? slugifyToAttributeName(form.values.title ?? '') : '';
+  const collidingDefinition = (!isEditMode && form.values.__make_reusable && candidateAttributeName)
+    ? definitions.find((d) => d.name === candidateAttributeName && d.id !== linkedDefinitionId)
+    : undefined;
 
   useEffect(() => {
     if (reusableSelection === NEW_QUESTION_SENTINEL) {
       form.setFieldValue('contact_attribute_definition_id', null);
-      setUnlockedFields({ title: false, type: false, options: false });
       return;
     }
     if (!linkedDefinition) return;
@@ -191,27 +173,24 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
     if (linkedDefinition.options && linkedDefinition.options.length > 0) {
       form.setFieldValue('options', [...linkedDefinition.options]);
     }
-    setUnlockedFields({ title: false, type: false, options: false });
   }, [reusableSelection]);
-
-  const requestUnlock = (field: 'title' | 'type' | 'options') => {
-    if (unlockedFields[field]) {
-      setUnlockedFields((prev) => ({ ...prev, [field]: false }));
-      return;
-    }
-    confirmationDialog(
-      t`Unlock this field and override the reusable attribute for this event only?`,
-      () => setUnlockedFields((prev) => ({ ...prev, [field]: true })),
-    );
-  };
 
   const newQuestionLabel = form.values.__make_reusable
     ? t`New Question (reusable on future events)`
     : t`New Question (this event only)`;
-  const reusableOptions = [
-    { value: NEW_QUESTION_SENTINEL, label: newQuestionLabel },
-    ...definitions.map((d) => ({ value: String(d.id), label: d.label })),
-  ];
+  const hasDefinitions = definitions.length > 0;
+  const reusableOptions = hasDefinitions
+    ? [
+        {
+          group: t`Reuse a contact attribute (recommended)`,
+          items: definitions.map((d) => ({ value: String(d.id), label: d.label })),
+        },
+        {
+          group: t`Or create a new question`,
+          items: [{ value: NEW_QUESTION_SENTINEL, label: newQuestionLabel }],
+        },
+      ]
+    : [{ value: NEW_QUESTION_SENTINEL, label: newQuestionLabel }];
 
   const belongToOptions: ItemProps[] = [
     {
@@ -278,7 +257,8 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
     QuestionType.DROPDOWN.toString(),
   ];
 
-  const filteredQuestionTypeOptions = typeLocked && linkedDefinition
+  // When linked to a contact attribute, only widgets compatible with the attribute's data shape are allowed.
+  const filteredQuestionTypeOptions = linkedDefinition
     ? questionTypeOptions.filter((opt) => isDefinitionCompatibleWithQuestionType(linkedDefinition.type, String(opt.value)))
     : questionTypeOptions;
 
@@ -286,25 +266,44 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
     <>
       {!isEditMode && (
         <Select
-          label={t`Re-use Existing Question`}
-          description={t`Answers will update the attendee's contact profile, making them reusable in future`}
-          data={reusableOptions}
-          value={reusableSelection}
+          label={t`Re-use a saved question?`}
+          description={hasDefinitions
+            ? t`Linking to a saved question keeps answers consistent across events and updates the attendee's contact profile.`
+            : t`No saved questions yet — create one below and tick "make reusable" to save it for future events.`}
+          data={reusableOptions as any}
+          value={form.values.__reusable_selection || null}
           allowDeselect={false}
+          placeholder={hasDefinitions ? t`Pick a saved question or create new` : t`Create a new question`}
+          error={form.errors.__reusable_selection as string | undefined}
           onChange={(value) => {
-            form.setFieldValue('__reusable_selection', value ?? NEW_QUESTION_SENTINEL);
+            form.setFieldValue('__reusable_selection', value ?? '');
+          }}
+          renderOption={({option}) => {
+            const isNew = option.value === NEW_QUESTION_SENTINEL;
+            return (
+              <Group gap="xs" align="center" wrap="nowrap" style={{flex: 1}}>
+                <Text size="sm" fw={isNew ? 400 : 600} c={isNew ? 'dimmed' : undefined}>
+                  {option.label}
+                </Text>
+                {!isNew && (
+                  <Text size="xs" c="teal" fw={500}>
+                    <Trans>Reusable</Trans>
+                  </Text>
+                )}
+              </Group>
+            );
           }}
         />
       )}
 
-      {reusableSelection === NEW_QUESTION_SENTINEL && (
+      {isNewQuestion && (
         <Checkbox
           mt="sm"
           mb="lg"
           label={(
             <Group gap={6} align="center">
-              <span>{t`Make this question reusable for future events`}</span>
-              <Tooltip label={t`Question will be added to the account library for use on future events`} withArrow multiline w={260}>
+              <span>{t`Save to library for re-use on future events`}</span>
+              <Tooltip label={t`Question will be added to the account library as a reusable contact attribute. Answers sync to the attendee's contact profile.`} withArrow multiline w={260}>
                 <IconInfoCircle size={14} style={{ opacity: 0.6, cursor: 'help' }} />
               </Tooltip>
             </Group>
@@ -332,37 +331,55 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
         />
       )}
 
-      <div className={typeLocked ? classes.lockedField : undefined}>
-        <LockableLabel
-          label={t`What type of question is this?`}
-          locked={typeLocked}
-          onToggle={() => requestUnlock('type')}
-          showIcon={isLinked}
-        />
-        <CustomSelect
-          optionList={filteredQuestionTypeOptions}
-          label=""
-          required
-          form={form}
-          name="type"
-          disabled={typeLocked}
-        />
-      </div>
+      <CustomSelect
+        optionList={filteredQuestionTypeOptions}
+        label={t`What type of question is this?`}
+        required
+        form={form}
+        name="type"
+      />
+      {isLinked && (
+        <Tooltip label={t`Title and options come from the linked contact attribute and can't be changed for this event.`} withArrow multiline w={300}>
+          <span className={classes.linkedHint}>
+            <IconInfoCircle size={12} style={{ opacity: 0.6 }} />
+            <Trans>Linked to a reusable contact attribute</Trans>
+          </span>
+        </Tooltip>
+      )}
 
-      <div className={titleLocked ? classes.lockedField : undefined}>
-        <LockableLabel
-          label={t`Question Title`}
-          locked={titleLocked}
-          onToggle={() => requestUnlock('title')}
-          showIcon={isLinked}
-        />
-        <TextInput
-          {...form.getInputProps('title')}
-          placeholder={t`What time will you be arriving?`}
-          required
-          disabled={titleLocked}
-        />
-      </div>
+      <TextInput
+        label={t`Question Title`}
+        {...form.getInputProps('title')}
+        placeholder={t`What time will you be arriving?`}
+        required
+        disabled={isLinked}
+      />
+      {duplicateTitleQuestion && (
+        <Alert color="yellow" variant="light" mt="xs">
+          <Trans>
+            Another {duplicateTitleQuestion.belongs_to === QuestionBelongsToType.ORDER ? 'order-level' : 'attendee-level'} question on this event already uses this title.
+            Having two questions with the same name can confuse buyers — consider renaming or removing the duplicate.
+          </Trans>
+        </Alert>
+      )}
+      {collidingDefinition && (
+        <Alert color="yellow" variant="light" mt="xs">
+          <Trans>
+            A reusable contact attribute named <strong>{collidingDefinition.label}</strong> already exists.
+            Linking to it keeps answers consistent across events.
+          </Trans>{' '}
+          <Anchor
+            component="button"
+            type="button"
+            onClick={() => {
+              form.setFieldValue('__reusable_selection', String(collidingDefinition.id));
+              form.setFieldValue('__make_reusable', false);
+            }}
+          >
+            <Trans>Link to existing</Trans>
+          </Anchor>
+        </Alert>
+      )}
 
       {(showDescription || form.values.description) ? (
         <Editor
@@ -388,7 +405,20 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
       )}
 
       {multiAnswerQuestionTypes.includes(form.values.type) && (
-        <Options form={form} locked={optionsLocked} onRequestUnlock={() => requestUnlock('options')} />
+        <>
+          <Options form={form} locked={isLinked} />
+          {isLinked && linkedDefinition && (
+            <Anchor
+              component="button"
+              type="button"
+              size="xs"
+              mt={4}
+              onClick={() => setManageDefinitionOpen(true)}
+            >
+              <Trans>Manage options on "{linkedDefinition.label}"</Trans>
+            </Anchor>
+          )}
+        </>
       )}
 
       <Switch
@@ -404,6 +434,13 @@ export const QuestionForm = ({ form, productCategories, isEditMode = false }: Qu
         description={t`Hidden questions are only visible to the event organizer and not to the customer.`}
         label={t`Hide this question`}
       />
+
+      {manageDefinitionOpen && linkedDefinition && (
+        <EditContactAttributeDefinitionModal
+          definition={linkedDefinition}
+          onClose={() => setManageDefinitionOpen(false)}
+        />
+      )}
     </>
   )
 }

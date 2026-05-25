@@ -23,6 +23,7 @@ class UpsertQuestionRequest extends BaseRequest
             'required' => 'required|boolean',
             'is_hidden' => 'required|boolean',
             'contact_attribute_definition_id' => ['nullable', 'integer', 'exists:contact_attribute_definitions,id'],
+            'force_type_change' => ['nullable', 'boolean'],
         ];
     }
 

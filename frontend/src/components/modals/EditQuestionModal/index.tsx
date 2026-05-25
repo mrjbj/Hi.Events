@@ -1,4 +1,5 @@
 import {Button, Group, LoadingOverlay} from "@mantine/core";
+import {modals} from "@mantine/modals";
 import {ContactAttributeDefinition, GenericModalProps, IdParam, QuestionRequestData, QuestionType} from "../../../types.ts";
 import {useForm} from "@mantine/form";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
@@ -74,42 +75,47 @@ export const EditQuestionModal = ({onClose, questionId}: EditQuestionModalProps)
                 contact_attribute_definition_id: definitionId,
                 __reusable_selection: definitionId != null ? String(definitionId) : '__new__',
                 __make_reusable: false,
-            });
+                __editing_question_id: data.id,
+            } as any);
         }
         , [questionQuery.isFetched]);
 
-    const mutation = useMutation({
-        mutationFn: async (values: EditQuestionFormValues) => {
-            let contact_attribute_definition_id = values.contact_attribute_definition_id;
+    const submitUpdate = async (values: EditQuestionFormValues, forceTypeChange = false) => {
+        let contact_attribute_definition_id = values.contact_attribute_definition_id;
 
-            if (values.__reusable_selection === '__new__' && values.__make_reusable) {
-                const definitionType = definitionTypeFromQuestionType(values.type);
-                const payload: Partial<ContactAttributeDefinition> = {
-                    name: slugifyToAttributeName(values.title),
-                    label: values.title,
-                    type: definitionType,
-                    is_active: true,
-                    sort_order: 0,
-                };
-                if (definitionType !== 'text' && values.options && values.options.length > 0) {
-                    payload.options = values.options;
-                }
-                const response = await contactAttributeDefinitionClient.create(me?.account_id, payload);
-                contact_attribute_definition_id = response.data.id ?? null;
-                queryClient.invalidateQueries({queryKey: [GET_CONTACT_ATTRIBUTE_DEFINITIONS_QUERY_KEY]});
+        if (values.__reusable_selection === '__new__' && values.__make_reusable) {
+            const definitionType = definitionTypeFromQuestionType(values.type);
+            const payload: Partial<ContactAttributeDefinition> = {
+                name: slugifyToAttributeName(values.title),
+                label: values.title,
+                type: definitionType,
+                is_active: true,
+                sort_order: 0,
+            };
+            if (definitionType !== 'text' && values.options && values.options.length > 0) {
+                payload.options = values.options;
             }
+            const response = await contactAttributeDefinitionClient.create(me?.account_id, payload);
+            contact_attribute_definition_id = response.data.id ?? null;
+            queryClient.invalidateQueries({queryKey: [GET_CONTACT_ATTRIBUTE_DEFINITIONS_QUERY_KEY]});
+        }
 
-            const {
-                __reusable_selection: _a,
-                __make_reusable: _b,
-                ...rest
-            } = values;
+        const {
+            __reusable_selection: _a,
+            __make_reusable: _b,
+            __editing_question_id: _c,
+            ...rest
+        } = values as any;
 
-            return questionClient.update(eventId, questionId, {
-                ...rest,
-                contact_attribute_definition_id,
-            } as QuestionRequestData);
-        },
+        return questionClient.update(eventId, questionId, {
+            ...rest,
+            contact_attribute_definition_id,
+            ...(forceTypeChange ? {force_type_change: true} : {}),
+        } as QuestionRequestData);
+    };
+
+    const mutation = useMutation({
+        mutationFn: async (values: EditQuestionFormValues) => submitUpdate(values),
 
         onSuccess: () => {
             notifications.show({
@@ -126,12 +132,55 @@ export const EditQuestionModal = ({onClose, questionId}: EditQuestionModalProps)
             )
         },
 
-        onError: (error: any) => {
-            if (error?.response?.data?.errors) {
-                form.setErrors(error.response.data.errors);
+        onError: (error: any, variables: EditQuestionFormValues) => {
+            const errors = error?.response?.data?.errors;
+            const typeError = errors?.type;
+            const typeErrorMessage = Array.isArray(typeError) ? typeError[0] : typeError;
+
+            if (typeErrorMessage && /existing answers/i.test(String(typeErrorMessage))) {
+                modals.openConfirmModal({
+                    title: t`Change question type with existing answers?`,
+                    children: (
+                        <div style={{fontSize: 14}}>
+                            {typeErrorMessage}
+                            <br /><br />
+                            {t`Saved answers are preserved as-is but may render incorrectly under the new type (e.g. free-text answers under a fixed-options dropdown).`}
+                        </div>
+                    ),
+                    labels: {confirm: t`Change type anyway`, cancel: t`Keep current type`},
+                    confirmProps: {color: 'red'},
+                    onConfirm: async () => {
+                        try {
+                            await submitUpdate(variables, true);
+                            mutation.reset();
+                            notifications.show({
+                                message: t`Successfully Updated Question`,
+                                color: 'green',
+                                position: 'top-center',
+                            });
+                            await queryClient.invalidateQueries({queryKey: [GET_EVENT_QUESTIONS_QUERY_KEY, eventId]});
+                            await queryClient.invalidateQueries({queryKey: [GET_QUESTION_QUERY_KEY, eventId, questionId]});
+                            form.reset();
+                            onClose();
+                        } catch (e: any) {
+                            notifications.show({
+                                message: e?.response?.data?.message || t`Unable to update question.`,
+                                color: 'red',
+                                position: 'top-center',
+                            });
+                        }
+                    },
+                });
+                return;
             }
+
+            if (errors) {
+                form.setErrors(errors);
+            }
+            const firstError = errors ? Object.values(errors)[0] : null;
+            const detail = Array.isArray(firstError) ? firstError[0] : firstError;
             notifications.show({
-                message: t`Unable to update question. Please check the your details`,
+                message: detail || error?.response?.data?.message || t`Unable to update question. Please check your details`,
                 color: 'red',
                 position: 'top-center',
             });

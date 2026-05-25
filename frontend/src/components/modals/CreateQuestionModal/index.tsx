@@ -59,8 +59,12 @@ export const CreateQuestionModal = ({onClose, onCompleted, defaultBelongsTo = 'O
             belongs_to: defaultBelongsTo,
             is_hidden: false,
             contact_attribute_definition_id: null,
-            __reusable_selection: '__new__',
-            __make_reusable: false,
+            __reusable_selection: '',
+            __make_reusable: true,
+        },
+        validate: {
+            __reusable_selection: (value) =>
+                value ? null : t`Pick a saved question or choose "Create new" to continue.`,
         },
     });
 
@@ -112,11 +116,13 @@ export const CreateQuestionModal = ({onClose, onCompleted, defaultBelongsTo = 'O
         },
 
         onError: (error: any) => {
-            if (error?.response?.data?.errors) {
-                form.setErrors(error.response.data.errors);
-            } else {
-                showError(t`Unable to create question. Please check the your details`);
+            const errors = error?.response?.data?.errors;
+            if (errors) {
+                form.setErrors(errors);
             }
+            const firstError = errors ? Object.values(errors)[0] : null;
+            const detail = Array.isArray(firstError) ? firstError[0] : firstError;
+            showError(detail || error?.response?.data?.message || t`Unable to create question. Please check your details`);
         }
     });
 

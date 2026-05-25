@@ -1,14 +1,15 @@
 import {useParams} from "react-router";
 import {useGetAttendee} from "../../../queries/useGetAttendee.ts";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import {useGetEventQuestions} from "../../../queries/useGetEventQuestions.ts";
 import {useGetOrder} from "../../../queries/useGetOrder.ts";
 import {useUpdateAttendee} from "../../../mutations/useUpdateAttendee.ts";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {useForm} from "@mantine/form";
 import {Accordion} from "../../common/Accordion";
 import {Button} from "../../common/Button";
-import {Avatar, Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
-import {IconEdit, IconNotebook, IconQuestionMark, IconReceipt, IconTicket, IconUser} from "@tabler/icons-react";
+import {Alert, Avatar, Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
+import {IconAlertTriangle, IconEdit, IconNotebook, IconQuestionMark, IconReceipt, IconTicket, IconUser} from "@tabler/icons-react";
 import {LoadingMask} from "../../common/LoadingMask";
 import {AttendeeDetails} from "../../common/AttendeeDetails";
 import {OrderDetails} from "../../common/OrderDetails";
@@ -37,6 +38,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
     const {data: attendee, refetch: refetchAttendee} = useGetAttendee(eventId, attendeeId);
     const {data: order} = useGetOrder(eventId, attendee?.order_id);
     const {data: event} = useGetEvent(eventId);
+    const {data: eventQuestions} = useGetEventQuestions(eventId);
     const errorHandler = useFormErrorResponseHandler();
     const mutation = useUpdateAttendee();
 
@@ -105,6 +107,25 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
 
     const fullName = `${attendee.first_name} ${attendee.last_name}`;
     const hasQuestions = attendee.question_answers && attendee.question_answers.length > 0;
+
+    const isAnswerBlank = (a: QuestionAnswer): boolean => {
+        if (Array.isArray(a.answer)) return a.answer.filter(Boolean).length === 0;
+        const value = (a.answer ?? a.text_answer ?? '').toString().trim();
+        return value === '';
+    };
+    const answeredQuestionIds = new Set(
+        (attendee.question_answers ?? [])
+            .filter((qa) => !isAnswerBlank(qa))
+            .map((qa) => qa.question_id)
+    );
+    const attendeeProductId = Number(attendee.product_id);
+    const missingRequiredQuestions = (eventQuestions ?? []).filter((q) => {
+        if (!q.required || q.is_hidden) return false;
+        if (q.belongs_to !== 'PRODUCT') return false;
+        const productIds = q.product_ids ?? [];
+        if (!productIds.map(Number).includes(attendeeProductId)) return false;
+        return !answeredQuestionIds.has(Number(q.id));
+    });
 
     const detailsTab = (
         <div>
@@ -224,6 +245,23 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                         </Group>
                     </Group>
                 </div>
+                {missingRequiredQuestions.length > 0 && (() => {
+                    const count = missingRequiredQuestions.length;
+                    const headline = count === 1
+                        ? t`Awaiting 1 required answer`
+                        : t`Awaiting ${count} required answers`;
+                    return (
+                        <Alert color="yellow" variant="light" icon={<IconAlertTriangle size={16}/>}>
+                            <Text size="sm" mb={4} fw={500}>{headline}</Text>
+                            <Text size="xs" c="dimmed" mb={4}>
+                                {missingRequiredQuestions.map((q) => q.title).join(' · ')}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                {t`These will be collected when the attendee details are completed.`}
+                            </Text>
+                        </Alert>
+                    );
+                })()}
                 <Tabs value={activeTab} onChange={setActiveTab as any}>
                     <Tabs.List>
                         <Tabs.Tab value="view" leftSection={<IconUser size={16}/>}>{t`View`}</Tabs.Tab>

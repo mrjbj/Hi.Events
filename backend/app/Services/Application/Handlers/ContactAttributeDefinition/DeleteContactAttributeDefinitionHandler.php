@@ -24,19 +24,26 @@ readonly class DeleteContactAttributeDefinitionHandler
             ContactAttributeDefinitionDomainObject::ACCOUNT_ID => $accountId,
         ]);
 
-        $linked = DB::table('questions')
-            ->where('contact_attribute_definition_id', $definitionId)
-            ->whereNull('deleted_at')
-            ->selectRaw('count(*) as question_count, count(distinct event_id) as event_count')
-            ->first();
+        $events = DB::table('questions as q')
+            ->join('events as e', 'e.id', '=', 'q.event_id')
+            ->where('q.contact_attribute_definition_id', $definitionId)
+            ->whereNull('q.deleted_at')
+            ->select('e.title')
+            ->selectRaw('count(q.id) as question_count')
+            ->groupBy('e.id', 'e.title')
+            ->orderBy('e.title')
+            ->get();
 
-        if ($linked && (int) $linked->question_count > 0) {
+        if ($events->isNotEmpty()) {
+            $summary = $events->map(function ($row) {
+                $count = (int) $row->question_count;
+                $label = $count > 1 ? " ({$count} questions)" : '';
+                return $row->title . $label;
+            })->implode(', ');
+
             throw new ResourceConflictException(__(
-                'In use by :questions question(s) across :events event(s). Unlink or delete those questions first.',
-                [
-                    'questions' => (int) $linked->question_count,
-                    'events' => (int) $linked->event_count,
-                ],
+                'In use on :events. Unlink or delete those questions first.',
+                ['events' => $summary],
             ));
         }
 

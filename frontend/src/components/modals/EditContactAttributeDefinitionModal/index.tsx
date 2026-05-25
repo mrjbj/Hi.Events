@@ -1,20 +1,34 @@
 import {useForm} from "@mantine/form";
 import {ContactAttributeDefinition, GenericModalProps} from "../../../types.ts";
 import {Modal} from "../../common/Modal";
-import {Button, Group, Select, Switch, TextInput} from "@mantine/core";
+import {Button, Group, Select, Stack, Switch, Text, TextInput} from "@mantine/core";
 import {useUpdateContactAttributeDefinition} from "../../../mutations/useUpdateContactAttributeDefinition.ts";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {showSuccess} from "../../../utilites/notifications.tsx";
 import {t} from "@lingui/macro";
 import {SortableOptionsInput} from "../../common/SortableOptionsInput";
+import {useGetMe} from "../../../queries/useGetMe.ts";
+import {useGetContactAttributeOptionUsage} from "../../../queries/useGetContactAttributeOptionUsage.ts";
+import {useState} from "react";
+import {OptionMigration} from "../../../api/contact-attribute-definition.client.ts";
+import {OptionMigrationModal} from "../OptionMigrationModal";
 
 interface EditContactAttributeDefinitionModalProps extends GenericModalProps {
     definition: ContactAttributeDefinition;
 }
 
+interface PendingMigrationPrompt {
+    value: string;
+    usageCount: number;
+    resolve: (proceed: boolean) => void;
+}
+
 export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditContactAttributeDefinitionModalProps) => {
     const updateMutation = useUpdateContactAttributeDefinition();
     const formErrorHandler = useFormErrorResponseHandler();
+    const {data: me} = useGetMe();
+    const usageQuery = useGetContactAttributeOptionUsage(me?.account_id, definition.id ?? null);
+    const usageCounts = usageQuery.data?.data ?? {};
 
     const form = useForm<Partial<ContactAttributeDefinition>>({
         initialValues: {
@@ -32,12 +46,19 @@ export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditC
         },
     });
 
+    const [stagedMigrations, setStagedMigrations] = useState<OptionMigration[]>([]);
+    const [pendingPrompt, setPendingPrompt] = useState<PendingMigrationPrompt | null>(null);
+
     const handleSubmit = () => {
         form.validate();
         if (form.isValid()) {
+            const payload: any = {...form.values};
+            if (stagedMigrations.length > 0) {
+                payload.option_migrations = stagedMigrations;
+            }
             updateMutation.mutate({
                 definitionId: definition.id,
-                definitionData: form.values,
+                definitionData: payload,
             }, {
                 onSuccess: () => {
                     showSuccess(t`Attribute definition updated successfully`);
@@ -49,6 +70,16 @@ export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditC
     };
 
     const showOptions = form.values.type === 'select' || form.values.type === 'multi_select';
+
+    const handleRemoveInUse = (value: string, count: number): Promise<boolean> => {
+        return new Promise<boolean>((resolve) => {
+            setPendingPrompt({value, usageCount: count, resolve});
+        });
+    };
+
+    const otherOptionsForPrompt = (pendingPrompt
+        ? (form.values.options ?? []).filter((o) => o !== pendingPrompt.value)
+        : []);
 
     return (
         <Modal heading={t`Edit Attribute Definition`} onClose={onClose} opened>
@@ -68,6 +99,7 @@ export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditC
             />
             <Select
                 label={t`Type`}
+                description={t`Determines the underlying data shape. Linked event questions can use any compatible widget: 'Text' supports single/multi-line text, date, address, phone. 'Single Select' supports radio buttons and dropdowns. 'Multi Select' supports checkboxes and multi-select dropdowns.`}
                 data={[
                     {value: 'text', label: t`Text`},
                     {value: 'select', label: t`Single Select`},
@@ -77,13 +109,25 @@ export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditC
                 mb="sm"
             />
             {showOptions && (
-                <div style={{marginBottom: 'var(--mantine-spacing-sm)'}}>
+                <Stack gap={6} mb="sm">
                     <SortableOptionsInput
                         label={t`Options`}
                         value={form.values.options ?? []}
                         onChange={(value) => form.setFieldValue('options', value)}
+                        usageCounts={usageCounts}
+                        onRemoveInUse={handleRemoveInUse}
                     />
-                </div>
+                    {stagedMigrations.length > 0 && (
+                        <Text size="xs" c="orange.7">
+                            {t`${stagedMigrations.length} pending migration(s):`}{' '}
+                            {stagedMigrations.map((m) =>
+                                m.action === 'delete'
+                                    ? t`delete "${m.from}"`
+                                    : t`rename "${m.from}" → "${m.to ?? ''}"`,
+                            ).join(', ')}
+                        </Text>
+                    )}
+                </Stack>
             )}
             <Switch
                 label={t`Active`}
@@ -106,6 +150,38 @@ export const EditContactAttributeDefinitionModal = ({definition, onClose}: EditC
                     {updateMutation.isPending ? t`Working...` : t`Update Attribute`}
                 </Button>
             </Group>
+
+            {pendingPrompt && (
+                <OptionMigrationModal
+                    optionBeingRemoved={pendingPrompt.value}
+                    usageCount={pendingPrompt.usageCount}
+                    otherOptions={otherOptionsForPrompt}
+                    onConfirm={(migration) => {
+                        setStagedMigrations((prev) => [
+                            ...prev.filter((m) => m.from !== migration.from),
+                            migration,
+                        ]);
+
+                        // Drive the options list update atomically here (instead of letting
+                        // SortableOptionsInput auto-remove + then us racing to add). This avoids
+                        // losing data when the user renames to a value not already in the list.
+                        const currentOptions = form.values.options ?? [];
+                        const withoutRemoved = currentOptions.filter((o) => o !== pendingPrompt.value);
+                        const finalOptions = (migration.action === 'rename' && migration.to && !withoutRemoved.includes(migration.to))
+                            ? [...withoutRemoved, migration.to]
+                            : withoutRemoved;
+                        form.setFieldValue('options', finalOptions);
+
+                        // Tell SortableOptionsInput NOT to also remove — we've already done it.
+                        pendingPrompt.resolve(false);
+                        setPendingPrompt(null);
+                    }}
+                    onCancel={() => {
+                        pendingPrompt.resolve(false);
+                        setPendingPrompt(null);
+                    }}
+                />
+            )}
         </Modal>
     );
 };

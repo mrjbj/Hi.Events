@@ -709,6 +709,7 @@ export interface Question {
     belongs_to: string;
     is_hidden: boolean;
     contact_attribute_definition_id?: number | null;
+    answers_count?: number;
 }
 
 export interface CapacityAssignment {

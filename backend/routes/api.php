@@ -353,6 +353,7 @@ $router->middleware(['auth:api'])->group(
         $router->put('/accounts/{account_id}/contact-attribute-definitions/{definition_id}', \HiEvents\Http\Actions\ContactAttributeDefinitions\UpdateContactAttributeDefinitionAction::class);
         $router->delete('/accounts/{account_id}/contact-attribute-definitions/{definition_id}', \HiEvents\Http\Actions\ContactAttributeDefinitions\DeleteContactAttributeDefinitionAction::class);
         $router->get('/accounts/{account_id}/contact-attribute-definitions/{definition_id}/linked-questions', \HiEvents\Http\Actions\ContactAttributeDefinitions\GetLinkedQuestionsAction::class);
+        $router->get('/accounts/{account_id}/contact-attribute-definitions/{definition_id}/option-usage', \HiEvents\Http\Actions\ContactAttributeDefinitions\GetOptionUsageAction::class);
 
         // Events
         $router->post('/events', CreateEventAction::class);

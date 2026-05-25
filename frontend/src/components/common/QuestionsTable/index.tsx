@@ -10,7 +10,7 @@ import {
     UnstyledButton,
     ActionIcon,
 } from '@mantine/core';
-import {IdParam, Question} from "../../../types.ts";
+import {IdParam, Question, QuestionRequestData} from "../../../types.ts";
 import {
     IconChevronDown,
     IconChevronUp,
@@ -40,7 +40,9 @@ import {EditQuestionModal} from "../../modals/EditQuestionModal";
 import {useDeleteQuestion} from "../../../mutations/useDeleteQuestion.ts";
 import {useParams} from "react-router";
 import {showError, showSuccess} from "../../../utilites/notifications.tsx";
-import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
+import {modals} from "@mantine/modals";
+import {questionClient} from "../../../api/question.client.ts";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {useDragItemsHandler} from "../../../hooks/useDragItemsHandler.ts";
 import {
     closestCenter,
@@ -76,7 +78,7 @@ const SortableQuestion = ({
 }: {
     question: Partial<Question>;
     onEditModalOpen?: (id: IdParam) => void;
-    onDelete: (id: IdParam) => void;
+    onDelete: (question: Partial<Question>) => void;
 }) => {
     const uniqueId = question.id as UniqueIdentifier;
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
@@ -145,9 +147,9 @@ const SortableQuestion = ({
                     <Menu.Item
                         color="red"
                         leftSection={<IconTrash size={14}/>}
-                        onClick={() => onDelete(question.id)}
+                        onClick={() => onDelete(question)}
                     >
-                        {t`Delete`}
+                        {t`Remove`}
                     </Menu.Item>
                 </Menu.Dropdown>
             </Menu>
@@ -169,8 +171,30 @@ const QuestionsList = ({
     onAddQuestion,
 }: QuestionsListProps) => {
     const {eventId} = useParams();
+    const queryClient = useQueryClient();
     const deleteQuestionMutation = useDeleteQuestion();
     const sortMutation = useSortQuestions();
+    const hideMutation = useMutation({
+        mutationFn: async (question: Partial<Question>) => {
+            const payload: QuestionRequestData = {
+                title: question.title!,
+                description: question.description ?? '',
+                type: question.type!,
+                required: question.required!,
+                options: question.options ?? [],
+                product_ids: (question.product_ids ?? []).map(String),
+                belongs_to: question.belongs_to!,
+                is_hidden: true,
+                contact_attribute_definition_id: question.contact_attribute_definition_id ?? null,
+            };
+            return questionClient.update(eventId, question.id, payload);
+        },
+        onSuccess: () => {
+            showSuccess(t`Question hidden from checkout`);
+            queryClient.invalidateQueries({queryKey: ['getEventQuestions', eventId]});
+        },
+        onError: (error: any) => showError(error?.response?.data?.message || t`Failed to hide question`),
+    });
     const {items, setItems, handleDragEnd} = useDragItemsHandler({
         initialItemIds: questions.map((question) => Number(question.id)),
         onSortEnd: (newArray) => {
@@ -193,16 +217,68 @@ const QuestionsList = ({
 
     const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor));
 
-    const onDelete = (id: IdParam) => {
-        confirmationDialog(t`Delete this question? This cannot be undone.`, () => {
-            deleteQuestionMutation.mutate(
-                {eventId, questionId: id},
-                {
-                    onSuccess: () => showSuccess(t`Question deleted`),
-                    onError: (error: any) =>
-                        showError(error?.response?.data?.message || t`Failed to delete question`),
-                }
-            );
+    const runDelete = (questionId: IdParam) => {
+        deleteQuestionMutation.mutate(
+            {eventId, questionId},
+            {
+                onSuccess: () => showSuccess(t`Question deleted`),
+                onError: (error: any) =>
+                    showError(error?.response?.data?.message || t`Failed to delete question`),
+            }
+        );
+    };
+
+    const onDelete = (question: Partial<Question>) => {
+        const answersCount = question.answers_count ?? 0;
+        const hasAnswers = answersCount > 0;
+
+        let title: string;
+        if (!hasAnswers) {
+            title = t`Remove this question`;
+        } else if (answersCount === 1) {
+            title = t`This question has 1 answer`;
+        } else {
+            title = t`This question has ${answersCount} answers`;
+        }
+
+        const explanation = hasAnswers
+            ? t`Permanent deletion isn't allowed while answers exist, so the answer history isn't lost. Hide it instead — the question disappears from checkout but historical answers remain.`
+            : t`Hiding removes it from checkout but keeps it editable. Deletion only works while no one has answered yet.`;
+
+        const modalId = `question-action-${question.id}`;
+        modals.open({
+            modalId,
+            title,
+            children: (
+                <div>
+                    <Text size="sm" mb="md">{explanation}</Text>
+                    <Group justify="flex-end" gap="xs">
+                        <Button variant="default" onClick={() => modals.close(modalId)}>
+                            {t`Cancel`}
+                        </Button>
+                        {!hasAnswers && (
+                            <Button
+                                color="red"
+                                variant="outline"
+                                onClick={() => {
+                                    modals.close(modalId);
+                                    runDelete(question.id);
+                                }}
+                            >
+                                {t`Delete permanently`}
+                            </Button>
+                        )}
+                        <Button
+                            onClick={() => {
+                                modals.close(modalId);
+                                hideMutation.mutate(question);
+                            }}
+                        >
+                            {t`Hide from checkout`}
+                        </Button>
+                    </Group>
+                </div>
+            ),
         });
     };
 
@@ -341,9 +417,66 @@ const LivePreview = ({
 export const QuestionsTable = ({questions}: QuestionsTableProp) => {
     const {eventId} = useParams();
     const [activeTab, setActiveTab] = useState<QuestionType>('ORDER');
-    const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
+    const [createBelongsTo, setCreateBelongsTo] = useState<'ORDER' | 'PRODUCT' | null>(null);
     const [editModalOpen, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
     const [questionId, setQuestionId] = useState<IdParam>();
+
+    const promptAddQuestion = () => {
+        if (activeTab === 'PRODUCT') {
+            setCreateBelongsTo('PRODUCT');
+            return;
+        }
+        const modalId = 'order-question-confirm';
+        modals.open({
+            modalId,
+            title: t`Add an order-level question?`,
+            size: 'lg',
+            children: (
+                <div>
+                    <Text size="sm" mb="sm">
+                        {t`Most registration questions belong at the attendee level — they collect info that varies per ticket holder. Order-level questions apply once to the whole order.`}
+                    </Text>
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16}}>
+                        <div>
+                            <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>{t`Per attendee (recommended)`}</Text>
+                            <Text size="xs" c="dimmed">
+                                {t`Dietary needs · Shirt size · Phone · Job title · Date of birth · Pronouns · Accessibility needs`}
+                            </Text>
+                        </div>
+                        <div>
+                            <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb={4}>{t`Per order`}</Text>
+                            <Text size="xs" c="dimmed">
+                                {t`Shipping address · Company name for invoice · How did you hear about us · Promo source`}
+                            </Text>
+                        </div>
+                    </div>
+                    <Group justify="flex-end" gap="xs">
+                        <Button variant="default" onClick={() => modals.close(modalId)}>
+                            {t`Cancel`}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                modals.close(modalId);
+                                setCreateBelongsTo('ORDER');
+                            }}
+                        >
+                            {t`Continue per-order`}
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                modals.close(modalId);
+                                setActiveTab('PRODUCT');
+                                setCreateBelongsTo('PRODUCT');
+                            }}
+                        >
+                            {t`Switch to per-attendee`}
+                        </Button>
+                    </Group>
+                </div>
+            ),
+        });
+    };
 
     const eventSettingsQuery = useGetEventSettings(eventId);
     const updateSettingsMutation = useUpdateEventSettings();
@@ -473,7 +606,7 @@ export const QuestionsTable = ({questions}: QuestionsTableProp) => {
                         <ExportButton/>
                         <Button
                             leftSection={<IconPlus size={16}/>}
-                            onClick={openCreateModal}
+                            onClick={promptAddQuestion}
                         >
                             {t`Add Question`}
                         </Button>
@@ -483,7 +616,7 @@ export const QuestionsTable = ({questions}: QuestionsTableProp) => {
                 <QuestionsList
                     questions={activeQuestions}
                     onEditModalOpen={handleModalOpen}
-                    onAddQuestion={openCreateModal}
+                    onAddQuestion={promptAddQuestion}
                     emptyMessage={
                         activeTab === 'ORDER'
                             ? t`No order questions yet`
@@ -502,11 +635,11 @@ export const QuestionsTable = ({questions}: QuestionsTableProp) => {
                 isPerOrderCollection={isPerOrderCollection}
             />
 
-            {createModalOpen && (
+            {createBelongsTo && (
                 <CreateQuestionModal
                     onCompleted={onCompleted}
-                    onClose={closeCreateModal}
-                    defaultBelongsTo={activeTab}
+                    onClose={() => setCreateBelongsTo(null)}
+                    defaultBelongsTo={createBelongsTo}
                 />
             )}
             {editModalOpen && questionId && (

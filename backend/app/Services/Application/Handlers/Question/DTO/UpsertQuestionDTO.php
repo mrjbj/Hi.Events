@@ -19,6 +19,7 @@ class UpsertQuestionDTO extends BaseDTO
         public QuestionBelongsTo $belongs_to,
         public ?string           $description = null,
         public ?int              $contact_attribute_definition_id = null,
+        public bool              $force_type_change = false,
     )
     {
     }

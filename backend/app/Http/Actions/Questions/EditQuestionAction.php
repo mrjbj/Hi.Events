@@ -42,6 +42,7 @@ class EditQuestionAction extends BaseAction
                 'belongs_to' => QuestionBelongsTo::fromName($request->input('belongs_to')),
                 'description' => $request->input('description'),
                 'contact_attribute_definition_id' => $request->input('contact_attribute_definition_id'),
+                'force_type_change' => $request->boolean('force_type_change'),
             ]));
 
         return $this->resourceResponse(QuestionResource::class, $question);

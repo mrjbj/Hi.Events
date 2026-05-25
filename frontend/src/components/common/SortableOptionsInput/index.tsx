@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {ActionIcon, Group, Text, TextInput} from "@mantine/core";
+import {useEffect, useState} from "react";
+import {ActionIcon, Group, Text, TextInput, Tooltip} from "@mantine/core";
 import {IconGripVertical, IconPlus, IconX} from "@tabler/icons-react";
 import {
     closestCenter,
@@ -28,10 +28,11 @@ const toItems = (values: string[]): OptionItem[] =>
 
 interface SortableOptionRowProps {
     item: OptionItem;
+    usageCount?: number;
     onRemove: () => void;
 }
 
-const SortableOptionRow = ({item, onRemove}: SortableOptionRowProps) => {
+const SortableOptionRow = ({item, usageCount, onRemove}: SortableOptionRowProps) => {
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
         useSortable({id: item.id as UniqueIdentifier});
 
@@ -39,6 +40,8 @@ const SortableOptionRow = ({item, onRemove}: SortableOptionRowProps) => {
         transform: CSS.Transform.toString(transform),
         transition,
     };
+
+    const inUse = (usageCount ?? 0) > 0;
 
     return (
         <div
@@ -55,15 +58,29 @@ const SortableOptionRow = ({item, onRemove}: SortableOptionRowProps) => {
                 <IconGripVertical size={14}/>
             </span>
             <Text size="sm" className={classes.optionLabel}>{item.value}</Text>
-            <ActionIcon
-                size="xs"
-                variant="subtle"
-                color="red"
-                onClick={onRemove}
-                aria-label={t`Remove option`}
+            {inUse && (
+                <Text size="xs" c="dimmed">
+                    {usageCount === 1 ? t`1 answer` : t`${usageCount} answers`}
+                </Text>
+            )}
+            <Tooltip
+                label={inUse
+                    ? t`Used by ${usageCount} stored answer(s). Removing requires a migration plan.`
+                    : t`Remove option`}
+                withArrow
+                multiline
+                w={240}
             >
-                <IconX size={12}/>
-            </ActionIcon>
+                <ActionIcon
+                    size="xs"
+                    variant="subtle"
+                    color="red"
+                    onClick={onRemove}
+                    aria-label={t`Remove option`}
+                >
+                    <IconX size={12}/>
+                </ActionIcon>
+            </Tooltip>
         </div>
     );
 };
@@ -72,11 +89,30 @@ interface SortableOptionsInputProps {
     label?: string;
     value: string[];
     onChange: (value: string[]) => void;
+    /** Optional map of option value → usage count. Drives "N answers" badges. */
+    usageCounts?: Record<string, number>;
+    /**
+     * Called when user clicks remove on an option that is in use (count > 0).
+     * Caller is expected to gather a migration plan and then apply the remove via the regular
+     * onChange when ready. Return true to proceed with immediate removal, false to abort.
+     * If not provided, in-use options remove immediately (no migration step).
+     */
+    onRemoveInUse?: (value: string, usageCount: number) => boolean | Promise<boolean>;
 }
 
-export const SortableOptionsInput = ({label, value, onChange}: SortableOptionsInputProps) => {
+export const SortableOptionsInput = ({label, value, onChange, usageCounts, onRemoveInUse}: SortableOptionsInputProps) => {
     const [items, setItems] = useState<OptionItem[]>(() => toItems(value));
     const [inputValue, setInputValue] = useState('');
+
+    // Re-sync internal items when parent's value diverges (e.g. options added via migration modal).
+    // Compare by joined string to avoid reference equality false-negatives.
+    useEffect(() => {
+        const current = items.map(i => i.value).join('\x00');
+        const incoming = value.join('\x00');
+        if (current !== incoming) {
+            setItems(toItems(value));
+        }
+    }, [value]);
 
     const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor));
 
@@ -101,7 +137,14 @@ export const SortableOptionsInput = ({label, value, onChange}: SortableOptionsIn
         setInputValue('');
     };
 
-    const handleRemove = (id: number) => {
+    const handleRemove = async (id: number) => {
+        const target = items.find(i => i.id === id);
+        if (!target) return;
+        const count = usageCounts?.[target.value] ?? 0;
+        if (count > 0 && onRemoveInUse) {
+            const proceed = await onRemoveInUse(target.value, count);
+            if (!proceed) return;
+        }
         const updated = items.filter(i => i.id !== id);
         setItems(updated);
         onChange(updated.map(i => i.value));
@@ -156,6 +199,7 @@ export const SortableOptionsInput = ({label, value, onChange}: SortableOptionsIn
                                 <SortableOptionRow
                                     key={item.id}
                                     item={item}
+                                    usageCount={usageCounts?.[item.value]}
                                     onRemove={() => handleRemove(item.id)}
                                 />
                             ))}

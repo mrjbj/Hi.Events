@@ -9,6 +9,8 @@ class QuestionDomainObject extends Generated\QuestionDomainObjectAbstract
 {
     public ?Collection $products = null;
 
+    public ?int $answersCount = null;
+
     public function setProducts(?Collection $products): QuestionDomainObject
     {
         $this->products = $products;
@@ -18,6 +20,17 @@ class QuestionDomainObject extends Generated\QuestionDomainObjectAbstract
     public function getProducts(): ?Collection
     {
         return $this->products;
+    }
+
+    public function setAnswersCount(?int $count): QuestionDomainObject
+    {
+        $this->answersCount = $count;
+        return $this;
+    }
+
+    public function getAnswersCount(): ?int
+    {
+        return $this->answersCount;
     }
 
     public function isPreDefinedChoice(): bool

@@ -33,7 +33,19 @@ export const contactAttributeDefinitionClient = {
         );
         return response.data;
     },
+    optionUsage: async (accountId: IdParam, definitionId: IdParam) => {
+        const response = await api.get<{data: Record<string, number>}>(
+            `accounts/${accountId}/contact-attribute-definitions/${definitionId}/option-usage`,
+        );
+        return response.data;
+    },
 };
+
+export interface OptionMigration {
+    from: string;
+    action: 'rename' | 'delete';
+    to?: string;
+}
 
 export interface LinkedQuestionRow {
     question_id: number;

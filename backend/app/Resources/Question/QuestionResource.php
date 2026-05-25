@@ -28,6 +28,10 @@ class QuestionResource extends BaseResource
                 !is_null($this->getProducts()),
                 fn() => $this->getProducts()->map(fn($product) => $product->getId())
             ),
+            'answers_count' => $this->when(
+                !is_null($this->getAnswersCount()),
+                fn() => $this->getAnswersCount()
+            ),
         ];
     }
 }

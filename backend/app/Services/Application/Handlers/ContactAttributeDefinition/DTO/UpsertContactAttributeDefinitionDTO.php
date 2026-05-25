@@ -16,6 +16,8 @@ class UpsertContactAttributeDefinitionDTO extends BaseDataObject
         public readonly int|Optional    $sort_order = new Optional(),
         public readonly bool|Optional   $is_active = new Optional(),
         public readonly bool|Optional   $is_globally_recommended = new Optional(),
+        /** @var array<int, array{from: string, action: string, to?: string|null}>|Optional */
+        public readonly array|Optional  $option_migrations = new Optional(),
     ) {
     }
 }
