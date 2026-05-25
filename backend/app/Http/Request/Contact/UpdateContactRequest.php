@@ -11,6 +11,7 @@ class UpdateContactRequest extends BaseRequest
         return [
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
+            'email' => 'sometimes|email|max:255',
             'attributes' => 'nullable|array',
         ];
     }

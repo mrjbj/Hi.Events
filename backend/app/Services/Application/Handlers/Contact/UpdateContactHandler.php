@@ -3,17 +3,26 @@
 namespace HiEvents\Services\Application\Handlers\Contact;
 
 use HiEvents\DomainObjects\ContactDomainObject;
+use HiEvents\Exceptions\ContactEmailConflictException;
+use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Contact\DTO\UpsertContactDTO;
 use HiEvents\Services\Domain\Contact\ContactUpsertService;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 readonly class UpdateContactHandler
 {
     public function __construct(
         private ContactRepositoryInterface $contactRepository,
+        private AttendeeRepositoryInterface $attendeeRepository,
         private ContactUpsertService $contactUpsertService,
     ) {}
 
+    /**
+     * @throws ContactEmailConflictException
+     * @throws Throwable
+     */
     public function handle(int $contactId, int $accountId, int $userId, UpsertContactDTO $dto): ContactDomainObject
     {
         $contact = $this->contactRepository->findFirstWhere([
@@ -29,22 +38,49 @@ readonly class UpdateContactHandler
             $updates[ContactDomainObject::LAST_NAME] = $dto->last_name;
         }
 
-        if (! empty($updates)) {
-            $this->contactRepository->updateFromArray($contactId, $updates);
+        $emailChanging = $dto->wasProvided('email')
+            && strtolower($dto->email) !== strtolower($contact->getEmail());
+
+        if ($emailChanging) {
+            $existing = $this->contactRepository->findByEmailAndAccountId($dto->email, $accountId);
+            if ($existing !== null && $existing->getId() !== $contactId) {
+                throw new ContactEmailConflictException();
+            }
+        }
+
+        if ($emailChanging || !empty($updates)) {
+            DB::transaction(function () use ($contactId, $accountId, $updates, $emailChanging, $dto) {
+                if (!empty($updates)) {
+                    $this->contactRepository->updateFromArray($contactId, $updates);
+                }
+                if ($emailChanging) {
+                    try {
+                        $this->contactRepository->updateEmail($contactId, $dto->email);
+                    } catch (Throwable $e) {
+                        if ($this->isUniqueViolation($e)) {
+                            throw new ContactEmailConflictException();
+                        }
+                        throw $e;
+                    }
+                    $this->attendeeRepository->updateEmailByContactId($contactId, $dto->email, $accountId);
+                }
+            });
         }
 
         if ($dto->wasProvided('attributes') && ! empty($dto->attributes)) {
-            if (! empty($updates)) {
-                $contact = $this->contactRepository->findById($contactId);
-            }
-
+            $contact = $this->contactRepository->findById($contactId);
             return $this->contactUpsertService->updateContactAttributes($contact, $dto->attributes, $userId);
         }
 
-        if (! empty($updates)) {
+        if ($emailChanging || !empty($updates)) {
             return $this->contactRepository->findById($contactId);
         }
 
         return $contact;
+    }
+
+    private function isUniqueViolation(Throwable $e): bool
+    {
+        return method_exists($e, 'getCode') && (string)$e->getCode() === '23505';
     }
 }

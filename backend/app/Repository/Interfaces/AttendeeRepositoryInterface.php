@@ -28,6 +28,12 @@ interface AttendeeRepositoryInterface extends RepositoryInterface
     public function countNotCheckedInAttendees(int $eventId, ?int $checkInListId = null): int;
 
     /**
+     * Lowercases and writes $newEmail on every attendee whose contact_id matches and
+     * whose event belongs to $accountId. Returns number of rows updated.
+     */
+    public function updateEmailByContactId(int $contactId, string $newEmail, int $accountId): int;
+
+    /**
      * Bulk-set contact_link_ignored_at on attendees, scoped to the given account (verified via events JOIN).
      *
      * @param  int[]  $attendeeIds

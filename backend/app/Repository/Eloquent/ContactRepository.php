@@ -87,4 +87,38 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
             fn (Builder $builder) => $builder->whereRaw('lower(email) = ?', [strtolower($email)]),
         ]);
     }
+
+    public function updateEmail(int $contactId, string $email, string $reason = 'manual_resolve'): void
+    {
+        $contact = $this->findById($contactId);
+        if ($contact === null) {
+            return;
+        }
+
+        $oldEmail = $contact->getEmail();
+        $newEmail = strtolower($email);
+        if ($oldEmail === $newEmail) {
+            return;
+        }
+
+        $history = $contact->getAttributesHistory();
+        if (is_string($history)) {
+            $decoded = json_decode($history, true);
+            $history = is_array($decoded) ? $decoded : [];
+        } elseif (!is_array($history)) {
+            $history = [];
+        }
+        $history[] = [
+            'field' => 'email',
+            'old_value' => $oldEmail,
+            'new_value' => $newEmail,
+            'changed_at' => now()->toIso8601String(),
+            'reason' => $reason,
+        ];
+
+        $this->updateFromArray($contactId, [
+            ContactDomainObjectAbstract::EMAIL => $newEmail,
+            ContactDomainObjectAbstract::ATTRIBUTES_HISTORY => json_encode($history),
+        ]);
+    }
 }
