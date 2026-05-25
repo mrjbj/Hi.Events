@@ -3,6 +3,7 @@
 namespace HiEvents\Services\Domain\Mail;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\ContactDomainObject;
 use HiEvents\DomainObjects\Enums\MessageTypeEnum;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
@@ -101,13 +102,13 @@ class SendEventEmailMessagesService
 
     private function sendAttendeeMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $attendees = $this->attendeeRepository->findWhereIn(
+        $attendees = $this->attendeesQuery()->findWhereIn(
             field: 'id',
             values: $messageData->attendee_ids,
             additionalWhere: [
                 'event_id' => $messageData->event_id,
             ],
-            columns: ['first_name', 'last_name', 'email']
+            columns: $this->attendeeColumns(),
         );
 
         $this->emailAttendees($attendees, $messageData, $event);
@@ -115,14 +116,14 @@ class SendEventEmailMessagesService
 
     private function sendTicketHolderMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $attendees = $this->attendeeRepository->findWhereIn(
+        $attendees = $this->attendeesQuery()->findWhereIn(
             field: 'product_id',
             values: $messageData->product_ids,
             additionalWhere: [
                 'event_id' => $messageData->event_id,
                 'status' => AttendeeStatus::ACTIVE->name,
             ],
-            columns: ['first_name', 'last_name', 'email']
+            columns: $this->attendeeColumns(),
         );
 
         $this->emailAttendees($attendees, $messageData, $event);
@@ -158,19 +159,57 @@ class SendEventEmailMessagesService
 
         $sentEmails = [];
         $attendees->each(function (AttendeeDomainObject $attendee) use (&$sentEmails, $event, $messageData) {
-            if (in_array($attendee->getEmail(), $sentEmails, true)) {
+            $email = $this->resolveAttendeeEmail($attendee, $messageData);
+            if (in_array($email, $sentEmails, true)) {
                 return;
             }
 
-            $sentEmails[] = $attendee->getEmail();
+            $sentEmails[] = $email;
 
             $this->sendMessage(
-                emailAddress: $attendee->getEmail(),
+                emailAddress: $email,
                 fullName: $attendee->getFullName(),
                 messageData: $messageData,
                 event: $event,
             );
         });
+    }
+
+    /**
+     * Cross-event announcements (audience event != promoted event) prefer the
+     * Contact's current email so cleanups done in the Resolve modal compound
+     * across all future sends. Same-event and transactional sends use the
+     * attendee's email verbatim.
+     */
+    private function resolveAttendeeEmail(AttendeeDomainObject $attendee, SendMessageDTO $messageData): string
+    {
+        $promotes = $messageData->promotes_event_id;
+        $isCrossEvent = $promotes !== null && (int)$promotes !== (int)$messageData->event_id;
+        if (!$isCrossEvent) {
+            return $attendee->getEmail();
+        }
+
+        if ($attendee->getContactId() === null || $attendee->getContactLinkIgnoredAt() !== null) {
+            return $attendee->getEmail();
+        }
+
+        $contact = $attendee->getContact();
+        return $contact?->getEmail() ?? $attendee->getEmail();
+    }
+
+    private function attendeesQuery(): AttendeeRepositoryInterface
+    {
+        return $this->attendeeRepository->loadRelation(
+            new Relationship(ContactDomainObject::class, name: 'contact'),
+        );
+    }
+
+    /**
+     * @return string[] columns required for resolveAttendeeEmail() + send.
+     */
+    private function attendeeColumns(): array
+    {
+        return ['id', 'first_name', 'last_name', 'email', 'contact_id', 'contact_link_ignored_at', 'event_id'];
     }
 
     private function updateMessageStatus(SendMessageDTO $messageData, MessageStatus $status): void
@@ -196,12 +235,12 @@ class SendEventEmailMessagesService
      */
     private function sendEventMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $attendees = $this->attendeeRepository->findWhere(
+        $attendees = $this->attendeesQuery()->findWhere(
             where: [
                 'event_id' => $messageData->event_id,
                 'status' => AttendeeStatus::ACTIVE->name,
             ],
-            columns: ['first_name', 'last_name', 'email']
+            columns: $this->attendeeColumns(),
         );
 
         $this->emailAttendees($attendees, $messageData, $event);
@@ -209,10 +248,10 @@ class SendEventEmailMessagesService
 
     private function sendCheckedInMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $attendees = $this->attendeeRepository->findCheckedInAttendees(
+        $attendees = $this->attendeesQuery()->findCheckedInAttendees(
             eventId: $messageData->event_id,
             checkInListId: $messageData->check_in_list_id,
-            columns: ['first_name', 'last_name', 'email'],
+            columns: $this->attendeeColumns(),
         );
 
         $this->emailAttendees($attendees, $messageData, $event);
@@ -220,10 +259,10 @@ class SendEventEmailMessagesService
 
     private function sendNotCheckedInMessages(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        $attendees = $this->attendeeRepository->findNotCheckedInAttendees(
+        $attendees = $this->attendeesQuery()->findNotCheckedInAttendees(
             eventId: $messageData->event_id,
             checkInListId: $messageData->check_in_list_id,
-            columns: ['first_name', 'last_name', 'email'],
+            columns: $this->attendeeColumns(),
         );
 
         $this->emailAttendees($attendees, $messageData, $event);

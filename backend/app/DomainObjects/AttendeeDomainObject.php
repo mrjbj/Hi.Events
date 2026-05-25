@@ -15,6 +15,8 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
 
     private ?ProductDomainObject $product = null;
 
+    private ?ContactDomainObject $contact = null;
+
     /** @var Collection<QuestionAndAnswerViewDomainObject>|null */
     public ?Collection $questionAndAnswerViews = null;
 
@@ -107,6 +109,18 @@ class AttendeeDomainObject extends Generated\AttendeeDomainObjectAbstract implem
     public function setProduct(?ProductDomainObject $product): self
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getContact(): ?ContactDomainObject
+    {
+        return $this->contact;
+    }
+
+    public function setContact(?ContactDomainObject $contact): self
+    {
+        $this->contact = $contact;
 
         return $this;
     }

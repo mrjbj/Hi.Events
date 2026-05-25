@@ -108,6 +108,8 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
         return $attendee;
     }
 
+    private const EXPECTED_COLUMNS = ['id', 'first_name', 'last_name', 'email', 'contact_id', 'contact_link_ignored_at', 'event_id'];
+
     public function testSendCheckedInMessagesQueriesCheckedInAttendees(): void
     {
         $event = $this->mockEvent();
@@ -116,11 +118,12 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
 
         $attendee = $this->createAttendee('checked@example.com', 'John', 'Doe');
 
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->attendeeRepository
             ->shouldReceive('findCheckedInAttendees')
             ->once()
             ->withArgs(function ($eventId, $checkInListId, $columns) {
-                return $eventId === 10 && $checkInListId === null && $columns === ['first_name', 'last_name', 'email'];
+                return $eventId === 10 && $checkInListId === null && $columns === self::EXPECTED_COLUMNS;
             })
             ->andReturn(new Collection([$attendee]));
 
@@ -143,11 +146,12 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
 
         $attendee = $this->createAttendee('noshow@example.com', 'Jane', 'Doe');
 
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->attendeeRepository
             ->shouldReceive('findNotCheckedInAttendees')
             ->once()
             ->withArgs(function ($eventId, $checkInListId, $columns) {
-                return $eventId === 10 && $checkInListId === null && $columns === ['first_name', 'last_name', 'email'];
+                return $eventId === 10 && $checkInListId === null && $columns === self::EXPECTED_COLUMNS;
             })
             ->andReturn(new Collection([$attendee]));
 
@@ -168,6 +172,7 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
         $this->setupEventRepository($event);
         $messageDTO = $this->createMessageDTO(MessageTypeEnum::CHECKED_IN_ATTENDEES);
 
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->attendeeRepository
             ->shouldReceive('findCheckedInAttendees')
             ->once()
@@ -179,6 +184,127 @@ class SendEventEmailMessagesServiceCheckinTest extends TestCase
         $this->messageRepository
             ->shouldReceive('updateWhere')
             ->once();
+
+        $this->service->send($messageDTO);
+    }
+
+    public function testSameEventAnnouncementUsesAttendeeEmail(): void
+    {
+        $event = $this->mockEvent();
+        $this->setupEventRepository($event);
+        $messageDTO = SendMessageDTO::fromArray([
+            'account_id' => 1,
+            'event_id' => 10,
+            'subject' => 'Test',
+            'message' => 'Test message',
+            'type' => MessageTypeEnum::ALL_ATTENDEES,
+            'is_test' => false,
+            'send_copy_to_current_user' => false,
+            'sent_by_user_id' => 1,
+            'id' => 100,
+            'promotes_event_id' => 10,
+        ]);
+
+        $contact = new \HiEvents\DomainObjects\ContactDomainObject();
+        $contact->setEmail('contact@example.com');
+
+        $attendee = $this->createAttendee('attendee@example.com', 'John', 'Doe');
+        $attendee->setContactId(7);
+        $attendee->setContact($contact);
+
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findWhere')->andReturn(new Collection([$attendee]));
+
+        $this->dispatcher->shouldReceive('dispatch')
+            ->once()
+            ->withArgs(function ($job) {
+                $ref = new \ReflectionProperty($job, 'email');
+                $ref->setAccessible(true);
+                return $ref->getValue($job) === 'attendee@example.com';
+            });
+
+        $this->messageRepository->shouldReceive('updateWhere')->once();
+
+        $this->service->send($messageDTO);
+    }
+
+    public function testCrossEventAnnouncementPrefersContactEmail(): void
+    {
+        $event = $this->mockEvent();
+        $this->setupEventRepository($event);
+        $messageDTO = SendMessageDTO::fromArray([
+            'account_id' => 1,
+            'event_id' => 10,
+            'subject' => 'Test',
+            'message' => 'Test message',
+            'type' => MessageTypeEnum::ALL_ATTENDEES,
+            'is_test' => false,
+            'send_copy_to_current_user' => false,
+            'sent_by_user_id' => 1,
+            'id' => 100,
+            'promotes_event_id' => 99,
+        ]);
+
+        $contact = new \HiEvents\DomainObjects\ContactDomainObject();
+        $contact->setEmail('contact@example.com');
+
+        $attendee = $this->createAttendee('attendee@example.com', 'John', 'Doe');
+        $attendee->setContactId(7);
+        $attendee->setContact($contact);
+
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findWhere')->andReturn(new Collection([$attendee]));
+
+        $this->dispatcher->shouldReceive('dispatch')
+            ->once()
+            ->withArgs(function ($job) {
+                $ref = new \ReflectionProperty($job, 'email');
+                $ref->setAccessible(true);
+                return $ref->getValue($job) === 'contact@example.com';
+            });
+
+        $this->messageRepository->shouldReceive('updateWhere')->once();
+
+        $this->service->send($messageDTO);
+    }
+
+    public function testCrossEventAnnouncementFallsBackWhenContactLinkIgnored(): void
+    {
+        $event = $this->mockEvent();
+        $this->setupEventRepository($event);
+        $messageDTO = SendMessageDTO::fromArray([
+            'account_id' => 1,
+            'event_id' => 10,
+            'subject' => 'Test',
+            'message' => 'Test message',
+            'type' => MessageTypeEnum::ALL_ATTENDEES,
+            'is_test' => false,
+            'send_copy_to_current_user' => false,
+            'sent_by_user_id' => 1,
+            'id' => 100,
+            'promotes_event_id' => 99,
+        ]);
+
+        $contact = new \HiEvents\DomainObjects\ContactDomainObject();
+        $contact->setEmail('contact@example.com');
+
+        $attendee = $this->createAttendee('attendee@example.com', 'John', 'Doe');
+        $attendee->setContactId(7);
+        $attendee->setContactLinkIgnoredAt('2026-01-01T00:00:00Z');
+        $attendee->setContact($contact);
+
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findWhere')->andReturn(new Collection([$attendee]));
+
+        $this->dispatcher->shouldReceive('dispatch')
+            ->once()
+            ->withArgs(function ($job) {
+                $ref = new \ReflectionProperty($job, 'email');
+                $ref->setAccessible(true);
+                return $ref->getValue($job) === 'attendee@example.com';
+            });
+
+        $this->messageRepository->shouldReceive('updateWhere')->once();
 
         $this->service->send($messageDTO);
     }
