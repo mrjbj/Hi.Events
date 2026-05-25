@@ -23,6 +23,7 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     final public const RESOLVED_AT = 'resolved_at';
     final public const RETRY_FOR_ID = 'retry_for_id';
     final public const RESOLUTION_TYPE = 'resolution_type';
+    final public const ORIGINAL_RECIPIENT = 'original_recipient';
 
     protected int $id;
     protected int $event_id;
@@ -37,6 +38,7 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     protected ?string $resolved_at = null;
     protected ?int $retry_for_id = null;
     protected ?string $resolution_type = null;
+    protected ?string $original_recipient = null;
 
     public function toArray(): array
     {
@@ -54,6 +56,7 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
                     'resolved_at' => $this->resolved_at ?? null,
                     'retry_for_id' => $this->retry_for_id ?? null,
                     'resolution_type' => $this->resolution_type ?? null,
+                    'original_recipient' => $this->original_recipient ?? null,
                 ];
     }
 
@@ -198,5 +201,16 @@ abstract class OutgoingMessageDomainObjectAbstract extends \HiEvents\DomainObjec
     public function getResolutionType(): ?string
     {
         return $this->resolution_type;
+    }
+
+    public function setOriginalRecipient(?string $original_recipient): self
+    {
+        $this->original_recipient = $original_recipient;
+        return $this;
+    }
+
+    public function getOriginalRecipient(): ?string
+    {
+        return $this->original_recipient;
     }
 }

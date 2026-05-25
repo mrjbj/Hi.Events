@@ -97,6 +97,10 @@ class TransactionalEmailTrackingService
 
         if ($retryForId !== null) {
             $attributes[OutgoingTransactionMessageDomainObjectAbstract::RETRY_FOR_ID] = $retryForId;
+            $previous = $this->repository->findById($retryForId);
+            if ($previous !== null) {
+                $attributes[OutgoingTransactionMessageDomainObjectAbstract::ORIGINAL_RECIPIENT] = $previous->getOriginalRecipient() ?? $previous->getRecipient();
+            }
         }
 
         $this->repository->create($attributes);

@@ -83,6 +83,7 @@ class ResendOutgoingMessageHandler
                 OutgoingMessageDomainObjectAbstract::EVENT_ID => $eventId,
                 OutgoingMessageDomainObjectAbstract::STATUS => OutgoingMessageStatus::SUPPRESSED->name,
                 OutgoingMessageDomainObjectAbstract::RECIPIENT => $recipient,
+                OutgoingMessageDomainObjectAbstract::ORIGINAL_RECIPIENT => $outgoingMessage->getRecipient(),
                 OutgoingMessageDomainObjectAbstract::SUBJECT => $message->getSubject(),
                 OutgoingMessageDomainObjectAbstract::RETRY_FOR_ID => $outgoingMessage->getId(),
             ]);
@@ -98,6 +99,7 @@ class ResendOutgoingMessageHandler
                 OutgoingMessageDomainObjectAbstract::EVENT_ID => $eventId,
                 OutgoingMessageDomainObjectAbstract::STATUS => OutgoingMessageStatus::FAILED->name,
                 OutgoingMessageDomainObjectAbstract::RECIPIENT => $recipient,
+                OutgoingMessageDomainObjectAbstract::ORIGINAL_RECIPIENT => $outgoingMessage->getRecipient(),
                 OutgoingMessageDomainObjectAbstract::SUBJECT => $message->getSubject(),
                 OutgoingMessageDomainObjectAbstract::RETRY_FOR_ID => $outgoingMessage->getId(),
             ]);
@@ -110,6 +112,7 @@ class ResendOutgoingMessageHandler
             OutgoingMessageDomainObjectAbstract::EVENT_ID => $eventId,
             OutgoingMessageDomainObjectAbstract::STATUS => OutgoingMessageStatus::SENT->name,
             OutgoingMessageDomainObjectAbstract::RECIPIENT => $recipient,
+            OutgoingMessageDomainObjectAbstract::ORIGINAL_RECIPIENT => $outgoingMessage->getRecipient(),
             OutgoingMessageDomainObjectAbstract::SUBJECT => $message->getSubject(),
             OutgoingMessageDomainObjectAbstract::SES_MESSAGE_ID => $sentMessage?->getMessageId(),
             OutgoingMessageDomainObjectAbstract::RETRY_FOR_ID => $outgoingMessage->getId(),
