@@ -28,6 +28,7 @@ class SendMessageRequest extends FormRequest
             'scheduled_at' => 'nullable|date',
             'check_in_list_id' => 'nullable|integer|required_if:message_type,' . MessageTypeEnum::CHECKED_IN_ATTENDEES->name
                 . '|required_if:message_type,' . MessageTypeEnum::NOT_CHECKED_IN_ATTENDEES->name,
+            'promotes_event_id' => 'nullable|integer|exists:events,id',
         ];
     }
 

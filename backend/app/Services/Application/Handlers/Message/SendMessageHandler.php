@@ -101,6 +101,7 @@ class SendMessageHandler
 
         $message = $this->messageRepository->create([
             'event_id' => $messageData->event_id,
+            'promotes_event_id' => $messageData->promotes_event_id,
             'subject' => $messageData->subject,
             'message' => $this->purifier->purify($messageData->message),
             'type' => $messageData->type->name,
@@ -141,6 +142,7 @@ class SendMessageHandler
                 'attendee_ids' => $message->getAttendeeIds(),
                 'product_ids' => $message->getProductIds(),
                 'check_in_list_id' => $messageData->check_in_list_id,
+                'promotes_event_id' => $messageData->promotes_event_id,
             ]);
 
             SendMessagesJob::dispatch($updatedData);

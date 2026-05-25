@@ -26,6 +26,11 @@ class SendMessageAction extends BaseAction
     {
         $this->isActionAuthorized($eventId, EventDomainObject::class);
 
+        $promotesEventId = $request->input('promotes_event_id');
+        if ($promotesEventId !== null && (int)$promotesEventId !== $eventId) {
+            $this->isActionAuthorized((int)$promotesEventId, EventDomainObject::class);
+        }
+
         $user = $this->getAuthenticatedUser();
 
         try {
@@ -44,6 +49,7 @@ class SendMessageAction extends BaseAction
                 'account_id' => $this->getAuthenticatedAccountId(),
                 'scheduled_at' => $request->input('scheduled_at'),
                 'check_in_list_id' => $request->input('check_in_list_id'),
+                'promotes_event_id' => $promotesEventId !== null ? (int)$promotesEventId : null,
             ]));
         } catch (AccountNotVerifiedException $e) {
             return $this->errorResponse($e->getMessage(), Response::HTTP_UNAUTHORIZED);

@@ -125,6 +125,62 @@ class SendMessageHandlerTest extends TestCase
         $this->handler->handle($dto);
     }
 
+    public function testHandlePersistsPromotesEventId(): void
+    {
+        $dto = new SendMessageDTO(
+            account_id: 1,
+            event_id: 101,
+            subject: 'Invite to Brunch',
+            message: '<p>Come to the brunch</p>',
+            type: MessageTypeEnum::INDIVIDUAL_ATTENDEES,
+            is_test: false,
+            send_copy_to_current_user: false,
+            sent_by_user_id: 99,
+            order_id: null,
+            order_statuses: [],
+            attendee_ids: [10],
+            product_ids: [],
+            promotes_event_id: 202,
+        );
+
+        $event = m::mock(EventDomainObject::class);
+        $event->shouldReceive('getTimezone')->andReturn('UTC');
+        $this->eventRepository->shouldReceive('findById')->with(101)->andReturn($event);
+
+        $account = m::mock(AccountDomainObject::class);
+        $account->shouldReceive('getAccountVerifiedAt')->andReturn(Carbon::now());
+        $account->shouldReceive('getIsManuallyVerified')->andReturn(true);
+        $this->accountRepository->shouldReceive('findById')->with(1)->andReturn($account);
+
+        $this->config->shouldReceive('get')->with('app.saas_mode_enabled')->andReturn(false);
+        $this->eligibilityService->shouldReceive('checkTierLimits')->andReturn(null);
+        $this->eligibilityService->shouldReceive('checkEligibility')->andReturn(null);
+        $this->purifier->shouldReceive('purify')->andReturnArg(0);
+
+        $attendee = (new AttendeeDomainObject())->setId(10);
+        $this->attendeeRepository->shouldReceive('findWhereIn')->andReturn(collect([$attendee]));
+        $this->productRepository->shouldReceive('findWhereIn')->andReturn(collect([]));
+        $this->orderRepository->shouldReceive('findFirstWhere')->andReturn(null);
+
+        $message = m::mock(MessageDomainObject::class);
+        $message->shouldReceive('getId')->andReturn(1);
+        $message->shouldReceive('getOrderId')->andReturn(null);
+        $message->shouldReceive('getAttendeeIds')->andReturn([10]);
+        $message->shouldReceive('getProductIds')->andReturn([]);
+        $message->shouldReceive('getStatus')->andReturn('PROCESSING');
+
+        $this->messageRepository
+            ->shouldReceive('create')
+            ->once()
+            ->with(m::on(fn(array $attrs) => ($attrs['promotes_event_id'] ?? null) === 202
+                && ($attrs['event_id'] ?? null) === 101))
+            ->andReturn($message);
+
+        Bus::fake();
+
+        $this->handler->handle($dto);
+    }
+
     public function testHandleCreatesMessageAndDispatchesJob(): void
     {
         $dto = new SendMessageDTO(

@@ -17,6 +17,7 @@ class MessageResource extends JsonResource
         return [
             'id' => $this->getId(),
             'event_id' => $this->getEventId(),
+            'promotes_event_id' => $this->getPromotesEventId(),
             'subject' => $this->getSubject(),
             'message' => $this->getMessage(),
             'type' => $this->getType(),

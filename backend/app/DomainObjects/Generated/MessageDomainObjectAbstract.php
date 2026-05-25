@@ -13,6 +13,7 @@ abstract class MessageDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     final public const ID = 'id';
     final public const EVENT_ID = 'event_id';
     final public const SENT_BY_USER_ID = 'sent_by_user_id';
+    final public const PROMOTES_EVENT_ID = 'promotes_event_id';
     final public const SUBJECT = 'subject';
     final public const MESSAGE = 'message';
     final public const TYPE = 'type';
@@ -32,6 +33,7 @@ abstract class MessageDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     protected int $id;
     protected int $event_id;
     protected int $sent_by_user_id;
+    protected ?int $promotes_event_id = null;
     protected string $subject;
     protected string $message;
     protected string $type;
@@ -54,6 +56,7 @@ abstract class MessageDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
                     'id' => $this->id ?? null,
                     'event_id' => $this->event_id ?? null,
                     'sent_by_user_id' => $this->sent_by_user_id ?? null,
+                    'promotes_event_id' => $this->promotes_event_id ?? null,
                     'subject' => $this->subject ?? null,
                     'message' => $this->message ?? null,
                     'type' => $this->type ?? null,
@@ -103,6 +106,17 @@ abstract class MessageDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     public function getSentByUserId(): int
     {
         return $this->sent_by_user_id;
+    }
+
+    public function setPromotesEventId(?int $promotes_event_id): self
+    {
+        $this->promotes_event_id = $promotes_event_id;
+        return $this;
+    }
+
+    public function getPromotesEventId(): ?int
+    {
+        return $this->promotes_event_id;
     }
 
     public function setSubject(string $subject): self
