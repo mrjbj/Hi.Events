@@ -9,7 +9,7 @@ import {Pagination} from "../../../common/Pagination";
 import {useMemo, useState} from "react";
 import {TableSkeleton} from "../../../common/TableSkeleton";
 import {DeliveryIssue, OutgoingMessage, QueryFilterOperator} from "../../../../types.ts";
-import {IconCheck, IconCircleDashed, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
+import {IconArrowDownLeft, IconArrowUpRight, IconCheck, IconCircleDashed, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
 import {statusColor, statusFilterOptions, dateRangeOptions, ResolvedHoverCard, RetryHoverCard} from "./shared.tsx";
 import {useResolveDeliveryIssue} from "../../../../mutations/useResolveDeliveryIssue.ts";
 import {ResolveDeliveryIssueModal} from "../../../modals/ResolveDeliveryIssueModal";
@@ -260,7 +260,7 @@ export const PromotingTab = () => {
                         <Text c="dimmed" ta="center" py="xl">
                             {isIssuesFilter
                                 ? t`No delivery issues found.`
-                                : t`No messages from other events are promoting this event.`
+                                : t`No cross-event promotions involving this event yet.`
                             }
                         </Text>
                     )}
@@ -274,7 +274,8 @@ export const PromotingTab = () => {
                                         <SortableTh label={t`Status`} field="status" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Subject`} field="subject" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Recipient`} field="recipient" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
-                                        <Table.Th>{t`From event`}</Table.Th>
+                                        <Table.Th>{t`Direction`}</Table.Th>
+                                        <Table.Th>{t`Related event`}</Table.Th>
                                         <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Updated`} field="updated_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <Table.Th></Table.Th>
@@ -283,7 +284,10 @@ export const PromotingTab = () => {
                                 <Table.Tbody>
                                     {messages.map((msg) => {
                                         const audienceEventId = (msg as any).event_id;
-                                        const audienceEventTitle = audienceEventId ? eventTitleById[String(audienceEventId)] : undefined;
+                                        const promotesEventId = (msg as any).promotes_event_id;
+                                        const isOutbound = audienceEventId !== undefined && String(audienceEventId) === String(eventId);
+                                        const relatedEventId = isOutbound ? promotesEventId : audienceEventId;
+                                        const relatedEventTitle = relatedEventId ? eventTitleById[String(relatedEventId)] : undefined;
                                         return (
                                             <Table.Tr key={String(msg.id)}>
                                                 <Table.Td>{getResolvedIcon(msg)}</Table.Td>
@@ -298,8 +302,23 @@ export const PromotingTab = () => {
                                                 </Table.Td>
                                                 <Table.Td>{msg.recipient}</Table.Td>
                                                 <Table.Td>
+                                                    {isOutbound ? (
+                                                        <Tooltip label={t`This event promoted the related event`}>
+                                                            <Badge size="sm" color="teal" variant="light" leftSection={<IconArrowUpRight size={12}/>}>
+                                                                {t`Promoting`}
+                                                            </Badge>
+                                                        </Tooltip>
+                                                    ) : (
+                                                        <Tooltip label={t`The related event promoted this event`}>
+                                                            <Badge size="sm" color="violet" variant="light" leftSection={<IconArrowDownLeft size={12}/>}>
+                                                                {t`Promoted by`}
+                                                            </Badge>
+                                                        </Tooltip>
+                                                    )}
+                                                </Table.Td>
+                                                <Table.Td>
                                                     <Text size="sm" c="dimmed">
-                                                        {audienceEventTitle ?? (audienceEventId ? `#${audienceEventId}` : '')}
+                                                        {relatedEventTitle ?? (relatedEventId ? `#${relatedEventId}` : '')}
                                                     </Text>
                                                 </Table.Td>
                                                 <Table.Td>{relativeDate(msg.created_at || '')}</Table.Td>

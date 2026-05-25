@@ -57,7 +57,8 @@ class OutgoingMessageRepository extends BaseRepository implements OutgoingMessag
                 (SELECT r2.recipient FROM {$table} r2 WHERE r2.retry_for_id = {$table}.id ORDER BY r2.created_at DESC LIMIT 1) as latest_retry_recipient,
                 (SELECT r3.status FROM {$table} r3 WHERE r3.retry_for_id = {$table}.id ORDER BY r3.created_at DESC LIMIT 1) as latest_retry_status,
                 (SELECT o.recipient FROM {$table} o WHERE o.id = {$table}.retry_for_id) as original_recipient,
-                (SELECT o2.status FROM {$table} o2 WHERE o2.id = {$table}.retry_for_id) as original_status");
+                (SELECT o2.status FROM {$table} o2 WHERE o2.id = {$table}.retry_for_id) as original_status,
+                (SELECT m.promotes_event_id FROM messages m WHERE m.id = {$table}.message_id) as promotes_event_id");
 
         if ($params->query) {
             $search = '%' . $params->query . '%';
@@ -114,14 +115,23 @@ class OutgoingMessageRepository extends BaseRepository implements OutgoingMessag
         return $affected > 0;
     }
 
-    public function getForPromotedEvent(int $promotedEventId, QueryParamsDTO $params): LengthAwarePaginator
+    public function getForPromotedEvent(int $eventId, QueryParamsDTO $params): LengthAwarePaginator
     {
         $table = 'outgoing_messages';
         $query = OutgoingMessage::query()
             ->join('messages', 'messages.id', '=', "{$table}.message_id")
-            ->where('messages.promotes_event_id', $promotedEventId)
             ->whereNull('messages.deleted_at')
+            ->whereNotNull('messages.promotes_event_id')
+            ->whereColumn('messages.promotes_event_id', '!=', 'messages.event_id')
+            ->where(function ($q) use ($eventId) {
+                $q->where(function ($outbound) use ($eventId) {
+                    $outbound->where('messages.event_id', $eventId);
+                })->orWhere(function ($inbound) use ($eventId) {
+                    $inbound->where('messages.promotes_event_id', $eventId);
+                });
+            })
             ->selectRaw("{$table}.*,
+                messages.promotes_event_id as promotes_event_id,
                 (SELECT COUNT(*) FROM {$table} r WHERE r.retry_for_id = {$table}.id) as retry_count,
                 (SELECT r2.recipient FROM {$table} r2 WHERE r2.retry_for_id = {$table}.id ORDER BY r2.created_at DESC LIMIT 1) as latest_retry_recipient,
                 (SELECT r3.status FROM {$table} r3 WHERE r3.retry_for_id = {$table}.id ORDER BY r3.created_at DESC LIMIT 1) as latest_retry_status,

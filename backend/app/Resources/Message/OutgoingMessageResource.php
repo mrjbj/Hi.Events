@@ -15,6 +15,8 @@ class OutgoingMessageResource extends JsonResource
     {
         return [
             'id' => $this->getId(),
+            'event_id' => $this->getEventId(),
+            'promotes_event_id' => $this->getPromotesEventId(),
             'message_id' => $this->getMessageId(),
             'recipient' => $this->getRecipient(),
             'status' => $this->getStatus(),
