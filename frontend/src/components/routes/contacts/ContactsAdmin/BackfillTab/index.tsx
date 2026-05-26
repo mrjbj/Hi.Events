@@ -1,10 +1,11 @@
 import {t} from "@lingui/macro";
 import {useState} from "react";
 import {Badge, Stack, Tabs} from "@mantine/core";
-import {IconAlertTriangle, IconLink, IconUserPlus} from "@tabler/icons-react";
+import {IconAlertTriangle, IconExclamationCircle, IconLink, IconUserPlus} from "@tabler/icons-react";
 import {UnlinkedAttendeesSubTab} from "./UnlinkedAttendeesSubTab";
 import {UnmappedQuestionsSubTab} from "./UnmappedQuestionsSubTab";
 import {ConflictsSubTab} from "./ConflictsSubTab";
+import {StaleValuesSubTab} from "./StaleValuesSubTab";
 import {useGetBackfillSummary} from "../../../../../queries/useGetBackfillSummary.ts";
 import classes from "./BackfillTab.module.scss";
 
@@ -44,6 +45,13 @@ export const BackfillTab = () => {
                     >
                         {t`Different Answers`}
                     </Tabs.Tab>
+                    <Tabs.Tab
+                        value="stale-values"
+                        leftSection={<IconExclamationCircle size={14}/>}
+                        rightSection={renderBadge(summary?.stale_values_count, 'red')}
+                    >
+                        {t`Stale Values`}
+                    </Tabs.Tab>
                 </Tabs.List>
 
                 <Tabs.Panel value="attendees">
@@ -54,6 +62,9 @@ export const BackfillTab = () => {
                 </Tabs.Panel>
                 <Tabs.Panel value="conflicts">
                     <ConflictsSubTab/>
+                </Tabs.Panel>
+                <Tabs.Panel value="stale-values">
+                    <StaleValuesSubTab/>
                 </Tabs.Panel>
             </Tabs>
         </Stack>

@@ -348,6 +348,8 @@ $router->middleware(['auth:api'])->group(
         $router->post('/accounts/{account_id}/contacts/backfill/ignore-questions', \HiEvents\Http\Actions\Contacts\IgnoreQuestionsAction::class);
         $router->post('/accounts/{account_id}/contacts/backfill/unignore-questions', \HiEvents\Http\Actions\Contacts\UnignoreQuestionsAction::class);
         $router->post('/accounts/{account_id}/contacts/backfill/apply-conflict-decisions', \HiEvents\Http\Actions\Contacts\ApplyConflictDecisionsAction::class);
+        $router->get('/accounts/{account_id}/contacts/backfill/stale-values', \HiEvents\Http\Actions\Contacts\GetStaleValuesBackfillAction::class);
+        $router->post('/accounts/{account_id}/contacts/backfill/apply-stale-value-remaps', \HiEvents\Http\Actions\Contacts\ApplyStaleValueRemapsAction::class);
 
         // Contact Attribute Definitions
         $router->post('/accounts/{account_id}/contact-attribute-definitions', \HiEvents\Http\Actions\ContactAttributeDefinitions\CreateContactAttributeDefinitionAction::class);

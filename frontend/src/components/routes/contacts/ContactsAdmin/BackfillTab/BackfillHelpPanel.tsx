@@ -61,6 +61,13 @@ export const BackfillHelpPopover = () => {
               Whenver an attendee's answer to a reusable question differs from the value stored on their contact, that discrepancy will appear here. Select <i>Update</i> to change the contact default; click <i>Ignore</i> to keep it the same.
             </Trans>
           </Text>
+          <Text size="sm">
+            <strong><Trans>Stale Values</Trans></strong>
+            {' — '}
+            <Trans>
+              Contact attributes whose stored value isn't in the attribute's current dropdown options — usually because the option list was edited, or the value came from a typo or import. Pick a replacement for each row and click <i>Apply</i>. Unfixed stale values silently break checkout for the affected contact.
+            </Trans>
+          </Text>
         </Stack>
       </Popover.Dropdown>
     </Popover>

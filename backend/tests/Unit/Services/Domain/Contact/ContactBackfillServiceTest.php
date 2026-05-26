@@ -56,6 +56,34 @@ class ContactBackfillServiceTest extends TestCase
         $this->assertSame([], ContactBackfillService::normalizeAttributes(42));
     }
 
+    /**
+     * Regression: a small number of prod rows have double-encoded JSON in
+     * attributes / attributes_history (typically from an older email-change
+     * flow). A single json_decode yields the inner string, which would then
+     * break callers that foreach the result. The shared decoder must hand
+     * back an empty array rather than letting the string escape upward.
+     */
+    public function test_decode_json_array_or_empty_returns_empty_for_double_encoded_string(): void
+    {
+        $doubleEncoded = json_encode(json_encode([
+            ['field' => 'email', 'reason' => 'manual_resolve'],
+        ]));
+
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty($doubleEncoded));
+        $this->assertSame([], ContactBackfillService::normalizeAttributes($doubleEncoded));
+    }
+
+    public function test_decode_json_array_or_empty_handles_scalars_and_nulls(): void
+    {
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty(null));
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty(''));
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty(42));
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty('not-json'));
+        $this->assertSame([], ContactBackfillService::decodeJsonArrayOrEmpty('"a string"'));
+        $this->assertSame(['ok' => 1], ContactBackfillService::decodeJsonArrayOrEmpty('{"ok":1}'));
+        $this->assertSame(['ok' => 1], ContactBackfillService::decodeJsonArrayOrEmpty(['ok' => 1]));
+    }
+
     public function test_decode_answer_decodes_json_array_string(): void
     {
         $this->assertSame(['yes', 'no'], ContactBackfillService::decodeAnswer('["yes","no"]'));

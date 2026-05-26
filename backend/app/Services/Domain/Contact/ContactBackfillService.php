@@ -50,7 +50,7 @@ class ContactBackfillService
 
         $map = [];
         foreach ($rows as $row) {
-            $ids = json_decode($row->processed_question_answer_ids ?? '[]', true) ?? [];
+            $ids = self::decodeJsonArrayOrEmpty($row->processed_question_answer_ids);
             $map[strtolower($row->email)] = array_flip(array_map('intval', $ids));
         }
 
@@ -71,9 +71,17 @@ class ContactBackfillService
 
         $map = [];
         foreach ($rows as $row) {
-            $history = json_decode($row->attributes_history ?? '[]', true) ?? [];
+            // Legacy data: a few prod rows (e.g. ones written by an older
+            // email-change flow) have a double-encoded JSON string here, so a
+            // single decode still returns a string and the foreach blows up.
+            // Use the shared array-safe decoder so we degrade gracefully
+            // instead of 500-ing the whole Sync tab.
+            $history = self::decodeJsonArrayOrEmpty($row->attributes_history);
             $perQa = [];
             foreach ($history as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
                 $at = $entry['changed_at'] ?? null;
                 if ($at === null) {
                     continue;
@@ -102,7 +110,7 @@ class ContactBackfillService
 
         $map = [];
         foreach ($rows as $row) {
-            $ids = json_decode($row->ignored_question_answer_ids ?? '[]', true) ?? [];
+            $ids = self::decodeJsonArrayOrEmpty($row->ignored_question_answer_ids);
             $map[strtolower($row->email)] = array_flip(array_map('intval', $ids));
         }
 
@@ -396,14 +404,30 @@ class ContactBackfillService
 
     public static function normalizeAttributes(mixed $attributes): array
     {
-        if (is_array($attributes)) {
-            return $attributes;
-        }
-        if (is_string($attributes)) {
-            return json_decode($attributes, true) ?? [];
-        }
+        return self::decodeJsonArrayOrEmpty($attributes);
+    }
 
-        return [];
+    /**
+     * Decode a JSON column value and guarantee an array back, returning [] for
+     * anything that's not actually an array after decoding. Catches: nulls,
+     * scalars, malformed JSON, AND double-encoded values (a JSON string of a
+     * JSON string — single decode yields the inner string, not an array).
+     *
+     * Used wherever we read attributes_history / processed_question_answer_ids
+     * / ignored_question_answer_ids / attributes from raw DB rows, so a single
+     * bad legacy row can't 500 the whole endpoint.
+     */
+    public static function decodeJsonArrayOrEmpty(mixed $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+        if (!is_string($value)) {
+            return [];
+        }
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     public static function decodeAnswer(mixed $answer): mixed
@@ -428,6 +452,311 @@ class ContactBackfillService
         }
 
         return $answer;
+    }
+
+    /**
+     * Scan every contact for select/multi_select attribute values that aren't in the
+     * attribute definition's current option list (option list edited since, typo from
+     * import, case mismatch, retired label). Each (contact, attribute) stale pair is
+     * one row.
+     *
+     * Why this matters: a stale value is silently invalidated by the checkout prefill
+     * (since the validity-aware fix shipped 2026-05-26) and silently rendered blank
+     * in the contact edit modal — both surfaces hide the data from admins, so the
+     * stale rows accumulate and the buyer's order keeps failing. This sub-tab is
+     * the remediation surface.
+     */
+    public function getStaleValues(int $accountId, QueryParamsDTO $params): LengthAwarePaginator
+    {
+        $rows = $this->collectStaleValueRows($accountId);
+
+        if ($params->query !== null && $params->query !== '') {
+            $needle = strtolower($params->query);
+            $rows = array_values(array_filter($rows, function (array $r) use ($needle) {
+                $haystack = strtolower(
+                    ($r['contact_email'] ?? '')
+                    .' '.($r['attribute_label'] ?? '')
+                    .' '.($r['attribute_name'] ?? '')
+                    .' '.(is_array($r['current_value']) ? implode(' ', $r['current_value']) : (string) $r['current_value'])
+                );
+
+                return str_contains($haystack, $needle);
+            }));
+        }
+
+        $sortable = ['contact_email', 'attribute_name', 'attribute_label'];
+        $sortBy = in_array($params->sort_by, $sortable, true) ? $params->sort_by : 'contact_email';
+        $sortDir = strtolower($params->sort_direction ?? 'asc') === 'desc' ? 'desc' : 'asc';
+        usort($rows, function (array $a, array $b) use ($sortBy, $sortDir) {
+            $cmp = strcmp((string) ($a[$sortBy] ?? ''), (string) ($b[$sortBy] ?? ''));
+
+            return $sortDir === 'desc' ? -$cmp : $cmp;
+        });
+
+        $perPage = max(1, (int) ($params->per_page ?? 25));
+        $page = max(1, (int) ($params->page ?? 1));
+        $total = count($rows);
+        $slice = array_slice($rows, ($page - 1) * $perPage, $perPage);
+
+        return new LengthAwarePaginator($slice, $total, $perPage, $page);
+    }
+
+    /**
+     * Apply per-row remaps. Each remap names a contact + attribute and EITHER
+     *   - a new_value to write (a valid option string, an array for multi_select,
+     *     or null/empty to clear), OR
+     *   - an add_values_to_options list to extend the attribute definition's
+     *     option list with one or more stale values (so they become valid as-is,
+     *     no contact write needed), OR
+     *   - both (rare, but a frontend may pick "Add" AND set a value).
+     *
+     * Option-list extensions are applied first, atomically per definition, and
+     * deduplicated across remaps — picking "+ Add 'cheerokee'" on 5 rows that
+     * all reference the same County attribute only adds the value once.
+     *
+     * Writes go through ContactUpsertService so attribute history is recorded.
+     *
+     * @param  array<array{contact_id:int,attribute_name:string,new_value?:mixed,add_values_to_options?:string[]}>  $remaps
+     * @return array{attributes_written:int,options_added:int}
+     */
+    public function applyStaleValueRemaps(int $accountId, array $remaps, int $changedByUserId): array
+    {
+        if (empty($remaps)) {
+            return ['attributes_written' => 0, 'options_added' => 0];
+        }
+
+        $optionsAdded = $this->extendDefinitionOptionsFromRemaps($accountId, $remaps);
+
+        // Bucket attribute writes by contact so each contact is updated in one
+        // go (one history entry).
+        $byContact = [];
+        foreach ($remaps as $r) {
+            $contactId = (int) ($r['contact_id'] ?? 0);
+            $name = (string) ($r['attribute_name'] ?? '');
+            if ($contactId <= 0 || $name === '') {
+                continue;
+            }
+            // Skip remaps that don't carry a new_value — those were pure
+            // option-list extensions handled above; the contact's existing value
+            // is now valid as-is and doesn't need rewriting.
+            if (!array_key_exists('new_value', $r)) {
+                continue;
+            }
+            $value = $r['new_value'];
+            if ($value === '' || $value === []) {
+                $value = null;
+            }
+            $byContact[$contactId][$name] = $value;
+        }
+
+        // Load definitions AFTER the option-list extension so validation sees
+        // any newly-added options.
+        $defs = DB::table('contact_attribute_definitions')
+            ->where('account_id', $accountId)
+            ->whereNull('deleted_at')
+            ->select(['name', 'type', 'options'])
+            ->get()
+            ->keyBy('name');
+
+        $applied = 0;
+        foreach ($byContact as $contactId => $attrs) {
+            $contact = $this->contactRepository->findById($contactId);
+            if ($contact === null) {
+                continue;
+            }
+            if ((int) $contact->getAccountId() !== $accountId) {
+                continue;
+            }
+
+            $valid = [];
+            foreach ($attrs as $name => $value) {
+                $def = $defs->get($name);
+                if ($def === null) {
+                    continue;
+                }
+                if ($value === null) {
+                    $valid[$name] = null;
+                    continue;
+                }
+                $options = is_string($def->options) ? (json_decode($def->options, true) ?? []) : [];
+                if ($def->type === 'select' && is_string($value)) {
+                    if (!in_array($value, $options, true)) {
+                        continue;
+                    }
+                    $valid[$name] = $value;
+                } elseif ($def->type === 'multi_select') {
+                    $arr = is_array($value) ? $value : [$value];
+                    $rejected = array_diff($arr, $options);
+                    if (!empty($rejected)) {
+                        continue;
+                    }
+                    $valid[$name] = array_values($arr);
+                } else {
+                    // text / phone / date / etc. — no option list to validate against.
+                    $valid[$name] = $value;
+                }
+            }
+
+            if (empty($valid)) {
+                continue;
+            }
+
+            $this->contactUpsertService->updateContactAttributes(
+                contact: $contact,
+                newAttributes: $valid,
+                changedByUserId: $changedByUserId,
+            );
+            $applied += count($valid);
+        }
+
+        return ['attributes_written' => $applied, 'options_added' => $optionsAdded];
+    }
+
+    /**
+     * First pass of applyStaleValueRemaps: collect every requested
+     * add_values_to_options across remaps, group by attribute_name, dedupe,
+     * and write the extensions back to the definition rows. Returns the count
+     * of options actually added (skipping ones already present).
+     *
+     * @param  array<array{attribute_name:string,add_values_to_options?:string[]}>  $remaps
+     */
+    private function extendDefinitionOptionsFromRemaps(int $accountId, array $remaps): int
+    {
+        $perDef = [];
+        foreach ($remaps as $r) {
+            $name = (string) ($r['attribute_name'] ?? '');
+            $toAdd = $r['add_values_to_options'] ?? null;
+            if ($name === '' || !is_array($toAdd) || empty($toAdd)) {
+                continue;
+            }
+            foreach ($toAdd as $v) {
+                if (!is_string($v) || $v === '') {
+                    continue;
+                }
+                $perDef[$name][$v] = true;
+            }
+        }
+        if (empty($perDef)) {
+            return 0;
+        }
+
+        $defs = DB::table('contact_attribute_definitions')
+            ->where('account_id', $accountId)
+            ->whereIn('name', array_keys($perDef))
+            ->whereNull('deleted_at')
+            ->whereIn('type', ['select', 'multi_select'])
+            ->select(['id', 'name', 'options'])
+            ->get();
+
+        $added = 0;
+        foreach ($defs as $def) {
+            $current = self::decodeJsonArrayOrEmpty($def->options);
+            $current = array_values(array_filter($current, 'is_string'));
+            $merged = $current;
+            foreach (array_keys($perDef[$def->name] ?? []) as $candidate) {
+                if (!in_array($candidate, $merged, true)) {
+                    $merged[] = $candidate;
+                    $added++;
+                }
+            }
+            if ($merged === $current) {
+                continue;
+            }
+            DB::table('contact_attribute_definitions')
+                ->where('id', $def->id)
+                ->update([
+                    'options' => json_encode(array_values($merged)),
+                    'updated_at' => now(),
+                ]);
+        }
+
+        return $added;
+    }
+
+    /**
+     * Shared by getStaleValues and getSummaryCounts. Returns one synthetic row per
+     * (contact, attribute) where the stored value isn't in the definition's options.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function collectStaleValueRows(int $accountId): array
+    {
+        $defs = DB::table('contact_attribute_definitions')
+            ->where('account_id', $accountId)
+            ->whereNull('deleted_at')
+            ->where('is_active', true)
+            ->whereIn('type', ['select', 'multi_select'])
+            ->select(['id', 'name', 'label', 'type', 'options'])
+            ->get();
+
+        if ($defs->isEmpty()) {
+            return [];
+        }
+
+        $defsByName = [];
+        foreach ($defs as $def) {
+            $options = is_string($def->options) ? (json_decode($def->options, true) ?? []) : [];
+            $defsByName[$def->name] = [
+                'label' => $def->label,
+                'type' => $def->type,
+                'options' => is_array($options) ? $options : [],
+            ];
+        }
+
+        $contacts = DB::table('contacts')
+            ->where('account_id', $accountId)
+            ->whereNull('deleted_at')
+            ->select(['id', 'email', 'first_name', 'last_name', 'attributes'])
+            ->get();
+
+        $rows = [];
+        foreach ($contacts as $contact) {
+            $attrs = self::normalizeAttributes($contact->attributes);
+            foreach ($defsByName as $name => $def) {
+                if (!array_key_exists($name, $attrs)) {
+                    continue;
+                }
+                $value = $attrs[$name];
+                if ($value === null || $value === '' || $value === []) {
+                    continue;
+                }
+
+                $options = $def['options'];
+                $invalid = [];
+                if ($def['type'] === 'select') {
+                    if (!is_string($value) || !in_array($value, $options, true)) {
+                        $invalid = is_array($value) ? $value : [(string) $value];
+                    }
+                } else { // multi_select
+                    $arr = is_array($value) ? $value : [$value];
+                    foreach ($arr as $v) {
+                        if (!in_array($v, $options, true)) {
+                            $invalid[] = $v;
+                        }
+                    }
+                }
+                if (empty($invalid)) {
+                    continue;
+                }
+
+                // Synthetic id makes per-row selection in the frontend easier.
+                $rows[] = [
+                    'id' => (int) $contact->id.'_'.$name,
+                    'contact_id' => (int) $contact->id,
+                    'contact_email' => $contact->email,
+                    'first_name' => $contact->first_name,
+                    'last_name' => $contact->last_name,
+                    'attribute_name' => $name,
+                    'attribute_label' => $def['label'],
+                    'attribute_type' => $def['type'],
+                    'current_value' => $value,
+                    'invalid_values' => array_values($invalid),
+                    'options' => array_values($options),
+                ];
+            }
+        }
+
+        return $rows;
     }
 
     public function getSummaryCounts(int $accountId): array
@@ -457,10 +786,13 @@ class ContactBackfillService
             includeProcessed: false,
         )->total();
 
+        $staleValuesTotal = count($this->collectStaleValueRows($accountId));
+
         return [
             'unlinked_attendees_count' => (int) $unlinkedAttendees,
             'unmapped_questions_count' => (int) $unmappedQuestions,
             'conflicts_count' => (int) $conflictsTotal,
+            'stale_values_count' => (int) $staleValuesTotal,
         ];
     }
 

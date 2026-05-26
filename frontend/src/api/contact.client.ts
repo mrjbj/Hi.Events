@@ -136,12 +136,37 @@ export const contactClient = {
         );
         return response.data;
     },
+    backfillStaleValues: async (
+        accountId: IdParam,
+        params: QueryFilters = {},
+    ) => {
+        const response = await api.get<GenericPaginatedResponse<ContactBackfillStaleValueRow>>(
+            `accounts/${accountId}/contacts/backfill/stale-values` + queryParamsHelper.buildQueryString(params),
+        );
+        return response.data;
+    },
+    backfillApplyStaleValueRemaps: async (
+        accountId: IdParam,
+        remaps: Array<{
+            contact_id: number;
+            attribute_name: string;
+            new_value?: string | string[] | null;
+            add_values_to_options?: string[];
+        }>,
+    ) => {
+        const response = await api.post<{ data: { count: number; attributes_written: number; options_added: number } }>(
+            `accounts/${accountId}/contacts/backfill/apply-stale-value-remaps`,
+            {remaps},
+        );
+        return response.data;
+    },
 };
 
 export interface ContactBackfillSummary {
     unlinked_attendees_count: number;
     unmapped_questions_count: number;
     conflicts_count: number;
+    stale_values_count: number;
 }
 
 export interface ContactBackfillUnlinkedAttendee {
@@ -183,4 +208,18 @@ export interface ContactBackfillConflictRow {
     processed: boolean;
     decision_applied: 'updated' | 'ignored' | null;
     applied_at: string | null;
+}
+
+export interface ContactBackfillStaleValueRow {
+    id: string;
+    contact_id: number;
+    contact_email: string;
+    first_name: string | null;
+    last_name: string | null;
+    attribute_name: string;
+    attribute_label: string;
+    attribute_type: 'select' | 'multi_select';
+    current_value: string | string[];
+    invalid_values: string[];
+    options: string[];
 }

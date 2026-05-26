@@ -101,9 +101,16 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
             return;
         }
 
+        // Read defensively: a few legacy rows have a double-encoded JSON string
+        // here (from the pre-fix version of THIS method, see below), so a single
+        // json_decode yields the inner string. Recurse one extra level to
+        // recover, otherwise we lose history when self-healing the row.
         $history = $contact->getAttributesHistory();
         if (is_string($history)) {
             $decoded = json_decode($history, true);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
             $history = is_array($decoded) ? $decoded : [];
         } elseif (!is_array($history)) {
             $history = [];
@@ -116,9 +123,16 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
             'reason' => $reason,
         ];
 
+        // CRITICAL: pass the array, not json_encode($history). The Contact model
+        // casts attributes_history to 'array', so Eloquent encodes whatever it
+        // receives. Passing an already-encoded string here produces a JSON
+        // string of a JSON string — every subsequent read decodes to a string
+        // instead of an array, breaking the Sync → Different Answers tab and
+        // the EditContactModal history panel. Fixed 2026-05-26 after contact
+        // 6 (account 39) surfaced the corruption.
         $this->updateFromArray($contactId, [
             ContactDomainObjectAbstract::EMAIL => $newEmail,
-            ContactDomainObjectAbstract::ATTRIBUTES_HISTORY => json_encode($history),
+            ContactDomainObjectAbstract::ATTRIBUTES_HISTORY => $history,
         ]);
     }
 }

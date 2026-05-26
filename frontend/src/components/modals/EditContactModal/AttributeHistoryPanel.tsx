@@ -44,7 +44,13 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
     }, [usersData]);
 
     const rows = useMemo<HistoryRow[]>(() => {
-        const history: ContactAttributeChange[] = contact.attributes_history ?? [];
+        // A handful of legacy prod rows have a double-encoded JSON string here
+        // (e.g. from an older email-change flow). The api/Eloquent layer
+        // sometimes hands that through as a string rather than an array, and
+        // calling .forEach on it crashes the whole modal. Treat anything
+        // non-array as empty; the rest of the contact still renders.
+        const raw = contact.attributes_history;
+        const history: ContactAttributeChange[] = Array.isArray(raw) ? raw : [];
         const emitted: HistoryRow[] = [];
         history.forEach(change => {
             const keys = new Set<string>([
