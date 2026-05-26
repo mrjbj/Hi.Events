@@ -20,6 +20,7 @@ export interface CreateAttendeeRequest extends EditAttendeeRequest {
     send_confirmation_email: boolean,
     taxes_and_fees: TaxAndFee[],
     locale: SupportedLocales,
+    requires_offline_payment?: boolean,
 }
 
 export const attendeesClient = {

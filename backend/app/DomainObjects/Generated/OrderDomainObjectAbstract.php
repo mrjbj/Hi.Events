@@ -44,6 +44,8 @@ abstract class OrderDomainObjectAbstract extends \HiEvents\DomainObjects\Abstrac
     final public const NOTES = 'notes';
     final public const STATISTICS_DECREMENTED_AT = 'statistics_decremented_at';
     final public const OPTED_INTO_MARKETING_AT = 'opted_into_marketing_at';
+    final public const OFFLINE_PAYMENT_METHOD = 'offline_payment_method';
+    final public const OFFLINE_PAYMENT_REFERENCE = 'offline_payment_reference';
 
     protected int $id;
     protected int $event_id;
@@ -79,6 +81,8 @@ abstract class OrderDomainObjectAbstract extends \HiEvents\DomainObjects\Abstrac
     protected ?string $notes = null;
     protected ?string $statistics_decremented_at = null;
     protected ?string $opted_into_marketing_at = null;
+    protected ?string $offline_payment_method = null;
+    protected ?string $offline_payment_reference = null;
 
     public function toArray(): array
     {
@@ -117,6 +121,8 @@ abstract class OrderDomainObjectAbstract extends \HiEvents\DomainObjects\Abstrac
                     'notes' => $this->notes ?? null,
                     'statistics_decremented_at' => $this->statistics_decremented_at ?? null,
                     'opted_into_marketing_at' => $this->opted_into_marketing_at ?? null,
+                    'offline_payment_method' => $this->offline_payment_method ?? null,
+                    'offline_payment_reference' => $this->offline_payment_reference ?? null,
                 ];
     }
 
@@ -492,5 +498,27 @@ abstract class OrderDomainObjectAbstract extends \HiEvents\DomainObjects\Abstrac
     public function getOptedIntoMarketingAt(): ?string
     {
         return $this->opted_into_marketing_at;
+    }
+
+    public function setOfflinePaymentMethod(?string $offline_payment_method): self
+    {
+        $this->offline_payment_method = $offline_payment_method;
+        return $this;
+    }
+
+    public function getOfflinePaymentMethod(): ?string
+    {
+        return $this->offline_payment_method;
+    }
+
+    public function setOfflinePaymentReference(?string $offline_payment_reference): self
+    {
+        $this->offline_payment_reference = $offline_payment_reference;
+        return $this;
+    }
+
+    public function getOfflinePaymentReference(): ?string
+    {
+        return $this->offline_payment_reference;
     }
 }

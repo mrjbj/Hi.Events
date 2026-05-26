@@ -5,10 +5,11 @@ import {useGetOrder} from "../../../queries/useGetOrder.ts";
 import {OrderSummary} from "../../common/OrderSummary";
 import {AttendeeList} from "../../common/AttendeeList";
 import {OrderDetails} from "../../common/OrderDetails";
+import {PaymentAdjustmentList} from "../../common/PaymentAdjustmentList";
 import {t} from "@lingui/macro";
 import {QuestionAndAnswerList} from "../../common/QuestionAndAnswerList";
 import {Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
-import {IconArmchair, IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
+import {IconArmchair, IconCoin, IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
 import {OrderStatusBadge} from "../../common/OrderStatusBadge";
 import {Accordion, AccordionItem} from "../../common/Accordion";
 import {useForm} from "@mantine/form";
@@ -137,6 +138,20 @@ export const ManageOrderModal = ({onClose, orderId}: GenericModalProps & ManageO
             icon: IconReceipt,
             title: t`Order Summary`,
             content: <OrderSummary event={event} order={order}/>
+        },
+        {
+            value: 'payment-adjustments',
+            icon: IconCoin,
+            title: t`Payment Adjustments`,
+            hidden: !order.payment_adjustments || order.payment_adjustments.length === 0,
+            count: order.payment_adjustments?.length,
+            content: (
+                <PaymentAdjustmentList
+                    adjustments={order.payment_adjustments ?? []}
+                    currency={order.currency}
+                    timezone={event.timezone}
+                />
+            ),
         },
         {
             value: 'questions',

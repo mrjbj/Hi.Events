@@ -7,12 +7,17 @@ export const useCreateCheckInPublic = (pagination: QueryFilters) => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({checkInListShortId, attendeePublicId, action}: {
+        mutationFn: ({checkInListShortId, attendeePublicId, action, payment}: {
             checkInListShortId: IdParam,
             attendeePublicId: IdParam,
-            action: 'check-in' | 'check-in-and-mark-order-as-paid'
+            action: 'check-in' | 'check-in-and-mark-order-as-paid',
+            payment?: {
+                payment_method: string;
+                payment_reference?: string | null;
+                collected_amount?: number | null;
+            },
         }) =>
-            publicCheckInClient.createCheckIn(checkInListShortId, attendeePublicId, action),
+            publicCheckInClient.createCheckIn(checkInListShortId, attendeePublicId, action, payment),
 
         onSuccess: (data, {checkInListShortId, action}) => {
             const markedAsPaid = action === 'check-in-and-mark-order-as-paid';

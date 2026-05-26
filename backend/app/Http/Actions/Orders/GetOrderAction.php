@@ -6,6 +6,7 @@ use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderItemDomainObject;
+use HiEvents\DomainObjects\OrderPaymentAdjustmentDomainObject;
 use HiEvents\DomainObjects\QuestionAndAnswerViewDomainObject;
 use HiEvents\Exceptions\ResourceNotFoundException;
 use HiEvents\Http\Actions\BaseAction;
@@ -34,6 +35,7 @@ class GetOrderAction extends BaseAction
         $order = $this->orderRepository
             ->loadRelation(OrderItemDomainObject::class)
             ->loadRelation(AttendeeDomainObject::class)
+            ->loadRelation(OrderPaymentAdjustmentDomainObject::class)
             ->loadRelation(new Relationship(domainObject: QuestionAndAnswerViewDomainObject::class, orderAndDirections: [
                 new OrderAndDirection(order: 'question_id'),
             ]))

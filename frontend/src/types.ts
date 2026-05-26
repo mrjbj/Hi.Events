@@ -584,6 +584,8 @@ export interface Attendee {
     buyer_first_name?: string | null;
     buyer_last_name?: string | null;
     buyer_email?: string | null;
+    order_total_gross?: number | null;
+    order_currency?: string | null;
     seat_info?: string | null;
     check_in?: AttendeeCheckIn; // Use in contexts where a single check is expected, like dealing with a check-in list
     check_ins?: AttendeeCheckIn[];
@@ -623,6 +625,20 @@ interface TaxesAndFeesRollup {
     taxes: TaxOrFee[];
 }
 
+export interface OrderPaymentAdjustment {
+    id: number;
+    original_total_gross: number;
+    original_total_before_additions: number;
+    original_total_tax: number;
+    original_total_fee: number;
+    adjusted_total_gross: number;
+    payment_method: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER';
+    payment_reference?: string | null;
+    adjusted_by_user_id?: number | null;
+    adjusted_by_ip?: string | null;
+    created_at: string;
+}
+
 export interface Order {
     id: IdParam;
     short_id: string;
@@ -632,6 +648,9 @@ export interface Order {
     company_name: string;
     address: Address;
     payment_provider: PaymentProvider;
+    offline_payment_method?: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER' | null;
+    offline_payment_reference?: string | null;
+    payment_adjustments?: OrderPaymentAdjustment[];
     notes?: string;
     email: string;
     reserved_until: string;

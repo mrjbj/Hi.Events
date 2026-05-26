@@ -144,23 +144,31 @@ export const PaymentAndInvoicingSettings = () => {
                                         <Text size="sm"
                                               mt="xs">{t`Offline orders are not reflected in event statistics until the order is marked as paid.`}</Text>
                                     </MantineCard>
-                                    <Editor
-                                        editorType={'simple'}
-                                        value={form.values.offline_payment_instructions}
-                                        error={form.errors.offline_payment_instructions as string}
-                                        label={<InputLabelWithHelp label={t`Offline Payment Instructions`}
-                                                                   helpText={t`This information will be shown on the payment page, order summary page, and order confirmation email.`}/>}
-                                        description={t`Add instructions for offline payments (e.g., bank transfer details, where to send checks, payment deadlines)`}
-                                        onChange={(value) => form.setFieldValue('offline_payment_instructions', value)}
-                                    />
-                                    <Switch
-                                        label={t`Allow attendees associated with unpaid orders to check in`}
-                                        description={t`If enabled, check-in staff can either mark attendees as checked in or mark the order as paid and check in the attendees. If disabled, attendees associated with unpaid orders cannot be checked in.`}
-                                        checked={form.values.allow_orders_awaiting_offline_payment_to_check_in}
-                                        {...form.getInputProps('allow_orders_awaiting_offline_payment_to_check_in', {type: 'checkbox'})}
-                                    />
                                 </Card>
                             )}
+                        </Paper>
+
+                        <Paper withBorder p="md" radius="md">
+                            <Text size="lg" fw={500} mb="md">{t`Pay-at-door / Unpaid Orders`}</Text>
+                            <Text size="sm" c="dimmed" mb="md">
+                                {t`These settings apply to any order awaiting offline payment, whether the buyer chose 'Pay offline' at public checkout or an organizer manually issued the ticket with payment collected at check-in.`}
+                            </Text>
+                            <Editor
+                                editorType={'simple'}
+                                value={form.values.offline_payment_instructions}
+                                error={form.errors.offline_payment_instructions as string}
+                                label={<InputLabelWithHelp label={t`Offline Payment Instructions`}
+                                                           helpText={t`This information will be shown on the payment page, order summary page, and order confirmation email.`}/>}
+                                description={t`Add instructions for unpaid orders (e.g., 'Bring cash or check to the door', bank transfer details, payment deadlines).`}
+                                onChange={(value) => form.setFieldValue('offline_payment_instructions', value)}
+                            />
+                            <Switch
+                                mt="md"
+                                label={t`Allow attendees associated with unpaid orders to check in`}
+                                description={t`If enabled, check-in staff can either mark attendees as checked in or mark the order as paid and check in the attendees. Required for the 'Collect payment at check-in' option when manually adding attendees.`}
+                                checked={form.values.allow_orders_awaiting_offline_payment_to_check_in}
+                                {...form.getInputProps('allow_orders_awaiting_offline_payment_to_check_in', {type: 'checkbox'})}
+                            />
                         </Paper>
 
                         <Paper withBorder p="md" radius="md">

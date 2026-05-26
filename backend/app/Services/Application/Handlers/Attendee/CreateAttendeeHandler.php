@@ -4,7 +4,9 @@ namespace HiEvents\Services\Application\Handlers\Attendee;
 
 use Brick\Money\Money;
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\Enums\ProductType;
+use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\AttendeeDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\OrderItemDomainObjectAbstract;
@@ -19,9 +21,11 @@ use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Events\OrderStatusChangedEvent;
 use HiEvents\Exceptions\InvalidProductPriceId;
 use HiEvents\Exceptions\NoTicketsAvailableException;
+use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Helper\IdHelper;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
+use HiEvents\Repository\Interfaces\EventSettingsRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\ProductRepositoryInterface;
 use HiEvents\Repository\Interfaces\TaxAndFeeRepositoryInterface;
@@ -41,26 +45,32 @@ use Throwable;
 class CreateAttendeeHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface  $attendeeRepository,
-        private readonly OrderRepositoryInterface     $orderRepository,
-        private readonly ProductRepositoryInterface   $productRepository,
-        private readonly EventRepositoryInterface     $eventRepository,
-        private readonly ProductQuantityUpdateService $productQuantityAdjustmentService,
-        private readonly DatabaseManager              $databaseManager,
-        private readonly TaxAndFeeRepositoryInterface $taxAndFeeRepository,
-        private readonly TaxAndFeeRollupService       $taxAndFeeRollupService,
-        private readonly OrderManagementService       $orderManagementService,
-        private readonly DomainEventDispatcherService $domainEventDispatcherService,
+        private readonly AttendeeRepositoryInterface       $attendeeRepository,
+        private readonly OrderRepositoryInterface          $orderRepository,
+        private readonly ProductRepositoryInterface        $productRepository,
+        private readonly EventRepositoryInterface          $eventRepository,
+        private readonly ProductQuantityUpdateService      $productQuantityAdjustmentService,
+        private readonly DatabaseManager                   $databaseManager,
+        private readonly TaxAndFeeRepositoryInterface      $taxAndFeeRepository,
+        private readonly TaxAndFeeRollupService            $taxAndFeeRollupService,
+        private readonly OrderManagementService            $orderManagementService,
+        private readonly DomainEventDispatcherService      $domainEventDispatcherService,
+        private readonly EventSettingsRepositoryInterface  $eventSettingsRepository,
     )
     {
     }
 
     /**
      * @throws NoTicketsAvailableException
+     * @throws ResourceConflictException
      * @throws Throwable
      */
     public function handle(CreateAttendeeDTO $attendeeDTO): AttendeeDomainObject
     {
+        if ($attendeeDTO->requires_offline_payment) {
+            $this->validateOfflinePaymentAllowed($attendeeDTO->event_id);
+        }
+
         return $this->databaseManager->transaction(function () use ($attendeeDTO) {
             $this->calculateTaxesAndFees($attendeeDTO);
 
@@ -115,24 +125,48 @@ class CreateAttendeeHandler
         $event = $this->eventRepository->findById($eventId);
         $total = Money::of($attendeeDTO->amount_paid, $event->getCurrency());
 
-        return $this->orderRepository->create(
-            [
-                OrderDomainObjectAbstract::TOTAL_GROSS => $total->getAmount()->toFloat(),
-                OrderDomainObjectAbstract::FIRST_NAME => $attendeeDTO->first_name,
-                OrderDomainObjectAbstract::LAST_NAME => $attendeeDTO->last_name,
-                OrderDomainObjectAbstract::EMAIL => $attendeeDTO->email,
-                OrderDomainObjectAbstract::EVENT_ID => $eventId,
-                OrderDomainObjectAbstract::SHORT_ID => IdHelper::shortId(IdHelper::ORDER_PREFIX),
-                OrderDomainObjectAbstract::STATUS => OrderStatus::COMPLETED->name,
-                OrderDomainObjectAbstract::PAYMENT_STATUS => $total->isZero()
-                    ? OrderPaymentStatus::NO_PAYMENT_REQUIRED->name
-                    : OrderPaymentStatus::PAYMENT_RECEIVED->name,
-                OrderDomainObjectAbstract::CURRENCY => $event->getCurrency(),
-                OrderDomainObjectAbstract::PUBLIC_ID => IdHelper::publicId(IdHelper::ORDER_PREFIX),
-                OrderDomainObjectAbstract::IS_MANUALLY_CREATED => true,
-                OrderDomainObjectAbstract::LOCALE => $attendeeDTO->locale,
-            ]
-        );
+        $orderAttributes = [
+            OrderDomainObjectAbstract::TOTAL_GROSS => $total->getAmount()->toFloat(),
+            OrderDomainObjectAbstract::FIRST_NAME => $attendeeDTO->first_name,
+            OrderDomainObjectAbstract::LAST_NAME => $attendeeDTO->last_name,
+            OrderDomainObjectAbstract::EMAIL => $attendeeDTO->email,
+            OrderDomainObjectAbstract::EVENT_ID => $eventId,
+            OrderDomainObjectAbstract::SHORT_ID => IdHelper::shortId(IdHelper::ORDER_PREFIX),
+            OrderDomainObjectAbstract::CURRENCY => $event->getCurrency(),
+            OrderDomainObjectAbstract::PUBLIC_ID => IdHelper::publicId(IdHelper::ORDER_PREFIX),
+            OrderDomainObjectAbstract::IS_MANUALLY_CREATED => true,
+            OrderDomainObjectAbstract::LOCALE => $attendeeDTO->locale,
+        ];
+
+        if ($attendeeDTO->requires_offline_payment) {
+            $orderAttributes[OrderDomainObjectAbstract::STATUS] = OrderStatus::AWAITING_OFFLINE_PAYMENT->name;
+            $orderAttributes[OrderDomainObjectAbstract::PAYMENT_STATUS] = OrderPaymentStatus::AWAITING_OFFLINE_PAYMENT->name;
+            $orderAttributes[OrderDomainObjectAbstract::PAYMENT_PROVIDER] = PaymentProviders::OFFLINE->value;
+        } else {
+            $orderAttributes[OrderDomainObjectAbstract::STATUS] = OrderStatus::COMPLETED->name;
+            $orderAttributes[OrderDomainObjectAbstract::PAYMENT_STATUS] = $total->isZero()
+                ? OrderPaymentStatus::NO_PAYMENT_REQUIRED->name
+                : OrderPaymentStatus::PAYMENT_RECEIVED->name;
+        }
+
+        return $this->orderRepository->create($orderAttributes);
+    }
+
+    /**
+     * @throws ResourceConflictException
+     */
+    private function validateOfflinePaymentAllowed(int $eventId): void
+    {
+        /** @var EventSettingDomainObject $eventSettings */
+        $eventSettings = $this->eventSettingsRepository->findFirstWhere([
+            'event_id' => $eventId,
+        ]);
+
+        if (!$eventSettings->getAllowOrdersAwaitingOfflinePaymentToCheckIn()) {
+            throw new ResourceConflictException(
+                __('"Allow attendees associated with unpaid orders to check in" must be enabled in event payment settings before issuing tickets that collect payment at check-in.')
+            );
+        }
     }
 
     /**
@@ -225,7 +259,9 @@ class CreateAttendeeHandler
             AttendeeDomainObjectAbstract::EVENT_ID => $order->getEventId(),
             AttendeeDomainObjectAbstract::PRODUCT_ID => $attendeeDTO->product_id,
             AttendeeDomainObjectAbstract::PRODUCT_PRICE_ID => $attendeeDTO->product_price_id,
-            AttendeeDomainObjectAbstract::STATUS => AttendeeStatus::ACTIVE->name,
+            AttendeeDomainObjectAbstract::STATUS => $attendeeDTO->requires_offline_payment
+                ? AttendeeStatus::AWAITING_PAYMENT->name
+                : AttendeeStatus::ACTIVE->name,
             AttendeeDomainObjectAbstract::EMAIL => $attendeeDTO->email,
             AttendeeDomainObjectAbstract::FIRST_NAME => $attendeeDTO->first_name,
             AttendeeDomainObjectAbstract::LAST_NAME => $attendeeDTO->last_name,

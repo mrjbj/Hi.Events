@@ -8,6 +8,7 @@ use HiEvents\DomainObjects\AttendeeCheckInDomainObject;
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\CheckInListDomainObject;
 use HiEvents\DomainObjects\Enums\AttendeeCheckInActionType;
+use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\AttendeeCheckInDomainObjectAbstract;
 use HiEvents\DomainObjects\Status\AttendeeStatus;
@@ -19,6 +20,7 @@ use HiEvents\Repository\Interfaces\EventSettingsRepositoryInterface;
 use HiEvents\Services\Application\Handlers\CheckInList\Public\DTO\AttendeeAndActionDTO;
 use HiEvents\Services\Domain\CheckInList\DTO\CheckInResultDTO;
 use HiEvents\Services\Domain\CheckInList\DTO\CreateAttendeeCheckInsResponseDTO;
+use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
 use HiEvents\Services\Domain\Order\MarkOrderAsPaidService;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Collection;
@@ -194,14 +196,19 @@ class CreateAttendeeCheckInService
             return new CheckInResultDTO(error: $error);
         }
 
-        return $this->db->transaction(function () use ($attendee, $checkInList, $checkInAction, $checkInUserIpAddress) {
+        return $this->db->transaction(function () use ($attendee, $checkInList, $checkInAction, $checkInUserIpAddress, $attendeeAction) {
             $checkIn = $this->createCheckIn($attendee, $checkInList, $checkInUserIpAddress);
 
             if ($checkInAction->value === AttendeeCheckInActionType::CHECK_IN_AND_MARK_ORDER_AS_PAID->value) {
-                $this->markOrderAsPaidService->markOrderAsPaid(
-                    orderId: $attendee->getOrderId(),
+                $this->markOrderAsPaidService->markOrderAsPaid(new MarkOrderAsPaidDTO(
                     eventId: $attendee->getEventId(),
-                );
+                    orderId: $attendee->getOrderId(),
+                    paymentMethod: $attendeeAction->payment_method ?? OfflinePaymentMethod::OTHER,
+                    paymentReference: $attendeeAction->payment_reference,
+                    collectedAmount: $attendeeAction->collected_amount,
+                    adjustedByUserId: null,
+                    adjustedByIp: $checkInUserIpAddress,
+                ));
             }
 
             return new CheckInResultDTO(checkIn: $checkIn);

@@ -37,15 +37,29 @@ export const publicCheckInClient = {
         const response = await publicApi.get<GenericDataResponse<Attendee>>(`/check-in-lists/${checkInListShortId}/attendees/${attendeePublicId}`);
         return response.data;
     },
-    createCheckIn: async (checkInListShortId: IdParam, attendeePublicId: IdParam, action: 'check-in' | 'check-in-and-mark-order-as-paid') => {
-        const response = await publicApi.post<GenericDataResponse<PublicCheckIn[]>>(`/check-in-lists/${checkInListShortId}/check-ins`, {
-            "attendees": [
-                {
-                    "public_id": attendeePublicId,
-                    "action": action
-                }
-            ]
-        });
+    createCheckIn: async (
+        checkInListShortId: IdParam,
+        attendeePublicId: IdParam,
+        action: 'check-in' | 'check-in-and-mark-order-as-paid',
+        payment?: {
+            payment_method: string;
+            payment_reference?: string | null;
+            collected_amount?: number | null;
+        },
+    ) => {
+        const attendeePayload: Record<string, unknown> = {
+            public_id: attendeePublicId,
+            action,
+        };
+        if (action === 'check-in-and-mark-order-as-paid' && payment) {
+            attendeePayload.payment_method = payment.payment_method;
+            attendeePayload.payment_reference = payment.payment_reference ?? null;
+            attendeePayload.collected_amount = payment.collected_amount ?? null;
+        }
+        const response = await publicApi.post<GenericDataResponse<PublicCheckIn[]>>(
+            `/check-in-lists/${checkInListShortId}/check-ins`,
+            {attendees: [attendeePayload]},
+        );
         return response.data;
     },
     deleteCheckIn: async (checkInListShortId: IdParam, checkInShortId: IdParam) => {

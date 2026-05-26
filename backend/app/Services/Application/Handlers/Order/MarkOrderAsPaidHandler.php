@@ -26,11 +26,10 @@ class MarkOrderAsPaidHandler
         $this->logger->info(__('Marking order as paid'), [
             'orderId' => $dto->orderId,
             'eventId' => $dto->eventId,
+            'paymentMethod' => $dto->paymentMethod->value,
+            'collectedAmountProvided' => $dto->collectedAmount !== null,
         ]);
 
-        return $this->markOrderAsPaidService->markOrderAsPaid(
-            $dto->orderId,
-            $dto->eventId,
-        );
+        return $this->markOrderAsPaidService->markOrderAsPaid($dto);
     }
 }

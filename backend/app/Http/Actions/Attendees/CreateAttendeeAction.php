@@ -5,6 +5,7 @@ namespace HiEvents\Http\Actions\Attendees;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\Exceptions\InvalidProductPriceId;
 use HiEvents\Exceptions\NoTicketsAvailableException;
+use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\Request\Attendee\CreateAttendeeRequest;
 use HiEvents\Http\ResponseCodes;
@@ -44,6 +45,10 @@ class CreateAttendeeAction extends BaseAction
         } catch (InvalidProductPriceId $exception) {
             throw ValidationException::withMessages([
                 'product_price_id' => $exception->getMessage(),
+            ]);
+        } catch (ResourceConflictException $exception) {
+            throw ValidationException::withMessages([
+                'requires_offline_payment' => $exception->getMessage(),
             ]);
         }
 

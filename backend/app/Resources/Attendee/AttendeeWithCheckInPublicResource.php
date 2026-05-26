@@ -35,6 +35,8 @@ class AttendeeWithCheckInPublicResource extends JsonResource
             'buyer_first_name' => $order?->getFirstName(),
             'buyer_last_name' => $order?->getLastName(),
             'buyer_email' => $order?->getEmail(),
+            'order_total_gross' => $order?->getTotalGross(),
+            'order_currency' => $order?->getCurrency(),
             $this->mergeWhen($this->getCheckIn() !== null, [
                 'check_in' => new AttendeeCheckInPublicResource($this->getCheckIn()),
             ]),

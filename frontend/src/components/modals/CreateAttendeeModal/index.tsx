@@ -4,8 +4,10 @@ import {Button} from "../../common/Button";
 import {useNavigate, useParams} from "react-router";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {useForm} from "@mantine/form";
-import {LoadingOverlay, NumberInput, Select, Switch, TextInput} from "@mantine/core";
+import {Alert, LoadingOverlay, NumberInput, Select, Switch, TextInput} from "@mantine/core";
+import {IconCashRegister} from "@tabler/icons-react";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
+import {useGetEventSettings} from "../../../queries/useGetEventSettings.ts";
 import {CreateAttendeeRequest} from "../../../api/attendee.client.ts";
 import {useCreateAttendee} from "../../../mutations/useCreateAttendee.ts";
 import {showSuccess} from "../../../utilites/notifications.tsx";
@@ -26,6 +28,7 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
     const {eventId} = useParams();
     const errorHandler = useFormErrorResponseHandler();
     const {data: event, isFetched: isEventFetched} = useGetEvent(eventId);
+    const {data: eventSettings} = useGetEventSettings(eventId);
     const mutation = useCreateAttendee();
     const navigate = useNavigate();
     const eventProducts = getProductsFromEvent(event);
@@ -41,8 +44,25 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
             send_confirmation_email: true,
             taxes_and_fees: [],
             locale: getClientLocale() as SupportedLocales,
+            requires_offline_payment: false,
         },
     });
+
+    const canCollectAtCheckIn = Boolean(
+        eventSettings?.allow_orders_awaiting_offline_payment_to_check_in,
+    );
+    const isDeferred = form.values.requires_offline_payment === true;
+
+    useEffect(() => {
+        if (isDeferred) {
+            if (form.values.amount_paid !== 0) {
+                form.setFieldValue('amount_paid', 0);
+            }
+            form.values.taxes_and_fees?.forEach((_, index) => {
+                form.setFieldValue(`taxes_and_fees.${index}.amount`, 0);
+            });
+        }
+    }, [isDeferred]);
 
     useEffect(() => {
         if (event?.product_categories) {
@@ -168,34 +188,51 @@ export const CreateAttendeeModal = ({onClose}: GenericModalProps) => {
                     includedProductTypes={[ProductType.Ticket]}
                 />
 
-                <NumberInput
-                    required
-                    mt={20}
-                    fixedDecimalScale
-                    {...form.getInputProps('amount_paid')}
-                    label={<Trans>Amount paid ({event?.currency})</Trans>}
-                    placeholder="0.00"
-                    decimalScale={2}
-                    step={1}
-                    min={0}
-                    description={t`Enter an amount excluding taxes and fees.`}
-                />
+                {canCollectAtCheckIn && (
+                    <Switch
+                        mt={20}
+                        label={t`Collect payment at check-in (cash/check)`}
+                        description={t`Issues the ticket as unpaid. Staff collect payment and mark the order paid when the attendee checks in.`}
+                        {...form.getInputProps('requires_offline_payment', {type: 'checkbox'})}
+                    />
+                )}
 
-                {form.values.taxes_and_fees?.map((tax, index) => {
-                        return (
-                            <NumberInput
-                                required
-                                mt={20}
-                                fixedDecimalScale
-                                {...form.getInputProps(`taxes_and_fees.${index}.amount`)}
-                                label={tax.name + ' ' + t`paid` + ' (' + event?.currency + ')'}
-                                placeholder="0.00"
-                                decimalScale={2}
-                                step={1}
-                                min={0}
-                            />
-                        )
-                    }
+                {isDeferred ? (
+                    <Alert mt={20} icon={<IconCashRegister size={16}/>} color="blue">
+                        {t`Amount will be collected at check-in. The attendee will receive your event's offline payment instructions in their confirmation email.`}
+                    </Alert>
+                ) : (
+                    <>
+                        <NumberInput
+                            required
+                            mt={20}
+                            fixedDecimalScale
+                            {...form.getInputProps('amount_paid')}
+                            label={<Trans>Amount paid ({event?.currency})</Trans>}
+                            placeholder="0.00"
+                            decimalScale={2}
+                            step={1}
+                            min={0}
+                            description={t`Enter an amount excluding taxes and fees.`}
+                        />
+
+                        {form.values.taxes_and_fees?.map((tax, index) => {
+                                return (
+                                    <NumberInput
+                                        required
+                                        mt={20}
+                                        fixedDecimalScale
+                                        {...form.getInputProps(`taxes_and_fees.${index}.amount`)}
+                                        label={tax.name + ' ' + t`paid` + ' (' + event?.currency + ')'}
+                                        placeholder="0.00"
+                                        decimalScale={2}
+                                        step={1}
+                                        min={0}
+                                    />
+                                )
+                            }
+                        )}
+                    </>
                 )}
 
                 <Switch

@@ -83,12 +83,17 @@ const CheckIn = () => {
     );
 
     const products = checkInList?.products;
+    const allowOrdersAwaitingOfflinePaymentToCheckIn = Boolean(
+        eventSettings?.allow_orders_awaiting_offline_payment_to_check_in,
+    );
     const queryFilters: QueryFilters = {
         pageNumber: 1,
         query: searchQueryDebounced,
         perPage: 150,
         filterFields: {
-            status: {operator: QueryFilterOperator.Equals, value: 'ACTIVE'},
+            status: allowOrdersAwaitingOfflinePaymentToCheckIn
+                ? {operator: QueryFilterOperator.In, value: 'ACTIVE,AWAITING_PAYMENT'}
+                : {operator: QueryFilterOperator.Equals, value: 'ACTIVE'},
             ...(attendeeFilter?.type === 'group'
                 ? {order_id: {operator: QueryFilterOperator.Equals, value: attendeeFilter.orderId}}
                 : {}),
@@ -117,9 +122,6 @@ const CheckIn = () => {
     const hasOtherLists = siblings.some(s => s.short_id !== checkInListShortId);
     const checkInMutation = useCreateCheckInPublic(queryFilters);
     const deleteCheckInMutation = useDeleteCheckInPublic(queryFilters);
-    const areOfflinePaymentsEnabled = eventSettings?.payment_providers?.includes('OFFLINE');
-    const allowOrdersAwaitingOfflinePaymentToCheckIn = areOfflinePaymentsEnabled
-        && eventSettings?.allow_orders_awaiting_offline_payment_to_check_in;
 
     // Save sound preference to localStorage
     useEffect(() => {
@@ -155,11 +157,20 @@ const CheckIn = () => {
         }
     }, [isSoundOn]);
 
-    const handleCheckInAction = (attendee: Attendee, action: 'check-in' | 'check-in-and-mark-order-as-paid') => {
+    const handleCheckInAction = (
+        attendee: Attendee,
+        action: 'check-in' | 'check-in-and-mark-order-as-paid',
+        payment?: {
+            payment_method: string;
+            payment_reference?: string | null;
+            collected_amount?: number | null;
+        },
+    ) => {
         checkInMutation.mutate({
             checkInListShortId: checkInListShortId,
             attendeePublicId: attendee.public_id,
             action: action,
+            payment,
         }, {
             onSuccess: ({errors}) => {
                 if (errors && errors[attendee.public_id]) {
@@ -666,6 +677,9 @@ const CheckIn = () => {
                     setSelectedAttendee(null);
                 }}
                 onCheckIn={(action) => selectedAttendee && handleCheckInAction(selectedAttendee, action)}
+                onCheckInAndMarkAsPaid={(payment) =>
+                    selectedAttendee && handleCheckInAction(selectedAttendee, 'check-in-and-mark-order-as-paid', payment)
+                }
             />
             <AttendeeProfileModal
                 opened={profileModalOpen}

@@ -41,6 +41,8 @@ class OrderResource extends BaseResource
             'address' => $this->getAddress(),
             'notes' => $this->getNotes(),
             'payment_provider' => $this->getPaymentProvider(),
+            'offline_payment_method' => $this->getOfflinePaymentMethod(),
+            'offline_payment_reference' => $this->getOfflinePaymentReference(),
             'promo_code' => $this->getPromoCode(),
             'event_id' => $this->getEventId(),
             'order_items' => $this->when(
@@ -58,6 +60,10 @@ class OrderResource extends BaseResource
             'latest_invoice' => $this->when(
                 !is_null($this->getLatestInvoice()),
                 fn() => (new InvoiceResource($this->getLatestInvoice()))->toArray($request),
+            ),
+            'payment_adjustments' => $this->when(
+                !is_null($this->getOrderPaymentAdjustments()),
+                fn() => OrderPaymentAdjustmentResource::collection($this->getOrderPaymentAdjustments()),
             ),
         ];
     }
