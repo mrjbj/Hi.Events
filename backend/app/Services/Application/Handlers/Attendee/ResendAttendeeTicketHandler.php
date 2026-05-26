@@ -19,13 +19,11 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 readonly class ResendAttendeeTicketHandler
 {
     public function __construct(
-        private SendAttendeeTicketService   $sendAttendeeProductService,
+        private SendAttendeeTicketService $sendAttendeeProductService,
         private AttendeeRepositoryInterface $attendeeRepository,
-        private EventRepositoryInterface    $eventRepository,
-        private LoggerInterface             $logger,
-    )
-    {
-    }
+        private EventRepositoryInterface $eventRepository,
+        private LoggerInterface $logger,
+    ) {}
 
     /**
      * @throws ResourceConflictException
@@ -41,12 +39,12 @@ readonly class ResendAttendeeTicketHandler
                 'event_id' => $resendAttendeeProductDTO->eventId,
             ]);
 
-        if (!$attendee) {
-            throw new ResourceNotFoundException();
+        if (! $attendee) {
+            throw new ResourceNotFoundException;
         }
 
-        if ($attendee->getStatus() !== AttendeeStatus::ACTIVE->name) {
-            throw new ResourceConflictException('You cannot resend the ticket of an inactive attendee');
+        if ($attendee->getStatus() === AttendeeStatus::CANCELLED->name) {
+            throw new ResourceConflictException('You cannot resend the ticket of a cancelled attendee');
         }
 
         $event = $this->eventRepository
@@ -64,7 +62,7 @@ readonly class ResendAttendeeTicketHandler
 
         $this->logger->info('Attendee ticket resent', [
             'attendeeId' => $resendAttendeeProductDTO->attendeeId,
-            'eventId' => $resendAttendeeProductDTO->eventId
+            'eventId' => $resendAttendeeProductDTO->eventId,
         ]);
     }
 }

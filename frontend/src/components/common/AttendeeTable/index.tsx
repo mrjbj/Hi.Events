@@ -359,7 +359,7 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                             label: t`Resend ticket email`,
                                             icon: <IconMailForward size={14}/>,
                                             onClick: () => handleResendTicket(info.row.original),
-                                            visible: info.row.original.status === 'ACTIVE',
+                                            visible: info.row.original.status !== 'CANCELLED',
                                         },
                                     ],
                                 },
