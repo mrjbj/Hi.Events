@@ -4,6 +4,7 @@ namespace HiEvents\Services\Application\Handlers\Email\Ses;
 
 use HiEvents\Exceptions\SnsSignatureVerificationException;
 use HiEvents\Services\Application\Handlers\Email\Ses\DTO\SesWebhookDTO;
+use HiEvents\Services\Domain\Email\OutgoingMessageEventLogger;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\BounceHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\DeliveryHandler;
@@ -20,6 +21,7 @@ class IncomingSesWebhookHandler
         private readonly BounceHandler                    $bounceHandler,
         private readonly ComplaintHandler                 $complaintHandler,
         private readonly DeliveryHandler                  $deliveryHandler,
+        private readonly OutgoingMessageEventLogger       $eventLogger,
         private readonly SnsSignatureVerificationService  $signatureVerificationService,
         private readonly Logger                           $logger,
         private readonly Repository                       $cache,
@@ -77,6 +79,17 @@ class IncomingSesWebhookHandler
             // SES Notifications use 'notificationType', SES Event Destinations use 'eventType'
             $notificationType = $message['notificationType'] ?? $message['eventType'] ?? null;
 
+            if ($notificationType) {
+                $this->eventLogger->log(
+                    eventType: $notificationType,
+                    eventSubtype: $this->extractEventSubtype($notificationType, $message),
+                    providerMessageId: $message['mail']['messageId'] ?? null,
+                    snsMessageId: $snsMessageId,
+                    rawPayload: $payload,
+                    occurredAt: $this->extractOccurredAt($notificationType, $message),
+                );
+            }
+
             switch ($notificationType) {
                 case 'Bounce':
                     $this->bounceHandler->handle($message, $payload);
@@ -88,7 +101,7 @@ class IncomingSesWebhookHandler
                     $this->deliveryHandler->handle($message, $payload);
                     break;
                 default:
-                    $this->logger->debug('Unhandled SES notification type', [
+                    $this->logger->debug('Logged SES event with no dedicated handler', [
                         'notification_type' => $notificationType,
                     ]);
                     break;
@@ -115,6 +128,35 @@ class IncomingSesWebhookHandler
             ]);
             throw $exception;
         }
+    }
+
+    private function extractEventSubtype(string $notificationType, array $message): ?string
+    {
+        return match ($notificationType) {
+            'Bounce' => $message['bounce']['bounceType'] ?? null,
+            'Complaint' => $message['complaint']['complaintFeedbackType'] ?? null,
+            'DeliveryDelay' => $message['deliveryDelay']['delayType'] ?? null,
+            'Reject' => $message['reject']['reason'] ?? null,
+            'RenderingFailure' => $message['failure']['templateName'] ?? null,
+            default => null,
+        };
+    }
+
+    private function extractOccurredAt(string $notificationType, array $message): ?string
+    {
+        $key = match ($notificationType) {
+            'Bounce' => 'bounce',
+            'Complaint' => 'complaint',
+            'Delivery' => 'delivery',
+            'DeliveryDelay' => 'deliveryDelay',
+            default => null,
+        };
+
+        if ($key && isset($message[$key]['timestamp'])) {
+            return $message[$key]['timestamp'];
+        }
+
+        return $message['mail']['timestamp'] ?? null;
     }
 
     private function handleSubscriptionConfirmation(array $payload): void

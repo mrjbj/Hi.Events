@@ -93,6 +93,10 @@ msgstr "{1} címzett közül {0}-nek megoldatlan visszapattanása vagy hibája v
 msgid "{0} organizers"
 msgstr "{0} szervező"
 
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:122
+msgid "{0} pending migration(s):"
+msgstr ""
+
 #: src/components/modals/EditTaxOrFeeModal/index.tsx:42
 msgid "{0} updated successfully"
 msgstr "{0} sikeresen frissítve"
@@ -149,6 +153,14 @@ msgstr "{quantity} jegy, hozzárendelés most vagy később"
 #: src/components/common/EventCard/index.tsx:119
 msgid "{totalCount} ticket types"
 msgstr "{totalCount} jegytípus"
+
+#: src/components/common/SortableOptionsInput/index.tsx:63
+msgid "{usageCount} answers"
+msgstr ""
+
+#: src/components/modals/OptionMigrationModal/index.tsx:44
+msgid "{usageCount} stored answers reference this option."
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:382
 msgid "{used} of {capacity} used ({remaining} remaining)"
@@ -232,6 +244,10 @@ msgstr "0 perc és 0 másodperc"
 msgid "1 Active Webhook"
 msgstr "1 aktív webhook"
 
+#: src/components/common/SortableOptionsInput/index.tsx:63
+msgid "1 answer"
+msgstr ""
+
 #: src/components/modals/SendMessageModal/index.tsx:123
 msgid "1 day after end date"
 msgstr "1 nappal a befejezési dátum után"
@@ -247,6 +263,10 @@ msgstr "1 nappal az esemény előtt"
 #: src/components/modals/SendMessageModal/index.tsx:116
 msgid "1 hour before event"
 msgstr "1 órával az esemény előtt"
+
+#: src/components/modals/OptionMigrationModal/index.tsx:43
+msgid "1 stored answer references this option."
+msgstr ""
 
 #: src/components/routes/product-widget/CollectInformation/index.tsx:1045
 msgid "1 ticket"
@@ -283,7 +303,7 @@ msgstr "94103"
 msgid "A cancellation notice has been sent to"
 msgstr "Lemondási értesítés elküldve ide:"
 
-#: src/components/forms/QuestionForm/index.tsx:249
+#: src/components/forms/QuestionForm/index.tsx:251
 msgid "A date input. Perfect for asking for a date of birth etc."
 msgstr "Dátum beviteli mező. Tökéletes születési dátum stb. kérésére."
 
@@ -291,7 +311,7 @@ msgstr "Dátum beviteli mező. Tökéletes születési dátum stb. kérésére."
 msgid "A default {type} is automaticaly applied to all new products. You can override this on a per product basis."
 msgstr "Az összes új termékre automatikusan alkalmazásra kerül egy alapértelmezett {type} típus. Ezt termékenként felülírhatja."
 
-#: src/components/forms/QuestionForm/index.tsx:237
+#: src/components/forms/QuestionForm/index.tsx:239
 msgid "A Dropdown input allows only one selection"
 msgstr "A legördülő menü csak egy kiválasztást tesz lehetővé"
 
@@ -303,7 +323,7 @@ msgstr "Díj, például foglalási díj vagy szolgáltatási díj"
 msgid "A fixed amount per product. E.g, $0.50 per product"
 msgstr "Fix összeg termékenként. Pl. 0,50 dollár termékenként"
 
-#: src/components/forms/QuestionForm/index.tsx:219
+#: src/components/forms/QuestionForm/index.tsx:221
 msgid "A multi line text input"
 msgstr "Többsoros szövegbevitel"
 
@@ -319,11 +339,11 @@ msgstr "A termék árának százaléka. Pl. a termék árának 3,5%-a"
 msgid "A promo code with no discount can be used to reveal hidden products."
 msgstr "A kedvezmény nélküli promóciós kód elrejtett termékek felfedésére használható."
 
-#: src/components/forms/QuestionForm/index.tsx:231
+#: src/components/forms/QuestionForm/index.tsx:233
 msgid "A Radio option has multiple options but only one can be selected."
 msgstr "A rádió opció több lehetőséget kínál, de csak egy választható ki."
 
-#: src/components/forms/QuestionForm/index.tsx:365
+#: src/components/forms/QuestionForm/index.tsx:367
 msgid "A reusable contact attribute named <0>{0}</0> already exists. Linking to it keeps answers consistent across events."
 msgstr ""
 
@@ -340,15 +360,15 @@ msgstr "Az esemény rövid leírása, amely megjelenik a keresőmotorok találat
 msgid "A short description of your organizer that will be displayed to your users."
 msgstr "A szervező rövid leírása, amely megjelenik a felhasználók számára."
 
-#: src/components/forms/QuestionForm/index.tsx:213
+#: src/components/forms/QuestionForm/index.tsx:215
 msgid "A single line text input"
 msgstr "Egysoros szövegbevitel"
 
-#: src/components/forms/QuestionForm/index.tsx:198
+#: src/components/forms/QuestionForm/index.tsx:200
 msgid "A single question per order. E.g, What is your shipping address?"
 msgstr "Egyetlen kérdés megrendelésenként. Pl. Mi a szállítási címe?"
 
-#: src/components/forms/QuestionForm/index.tsx:204
+#: src/components/forms/QuestionForm/index.tsx:206
 msgid "A single question per product. E.g, What is your t-shirt size?"
 msgstr "Egyetlen kérdés termékenként. Pl. Mi a póló mérete?"
 
@@ -494,7 +514,7 @@ msgstr "Aktiválás dátuma"
 #: src/components/forms/AffiliateForm/index.tsx:21
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:19
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:83
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:90
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:133
 #: src/components/modals/EditUserModal/index.tsx:110
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:63
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:198
@@ -534,11 +554,11 @@ msgstr "Adjon hozzá bármilyen megjegyzést a résztvevőhöz. Ezek nem lesznek
 msgid "Add any notes about the attendee..."
 msgstr "Adjon hozzá bármilyen megjegyzést a résztvevőhöz..."
 
-#: src/components/modals/ManageOrderModal/index.tsx:229
+#: src/components/modals/ManageOrderModal/index.tsx:244
 msgid "Add any notes about the order. These will not be visible to the customer."
 msgstr "Adjon hozzá bármilyen megjegyzést a megrendeléshez. Ezek nem lesznek láthatók az ügyfél számára."
 
-#: src/components/modals/ManageOrderModal/index.tsx:233
+#: src/components/modals/ManageOrderModal/index.tsx:248
 msgid "Add any notes about the order..."
 msgstr "Adjon hozzá bármilyen megjegyzést a megrendeléshez..."
 
@@ -556,7 +576,7 @@ msgstr "Kapcsolat hozzáadása"
 msgid "Add custom questions to collect additional information during checkout"
 msgstr "Egyedi kérdések hozzáadása további információk gyűjtéséhez a pénztárnál"
 
-#: src/components/forms/QuestionForm/index.tsx:401
+#: src/components/forms/QuestionForm/index.tsx:403
 msgid "Add description"
 msgstr "Leírás hozzáadása"
 
@@ -584,11 +604,11 @@ msgstr "További jegyek hozzáadása"
 msgid "Add New"
 msgstr "Új hozzáadása"
 
-#: src/components/common/SortableOptionsInput/index.tsx:138
+#: src/components/common/SortableOptionsInput/index.tsx:181
 msgid "Add option"
 msgstr "Lehetőség hozzáadása"
 
-#: src/components/forms/QuestionForm/index.tsx:119
+#: src/components/forms/QuestionForm/index.tsx:120
 msgid "Add Option"
 msgstr "Opció hozzáadása"
 
@@ -660,8 +680,8 @@ msgstr "További díjak"
 msgid "Additional Information"
 msgstr "További információk"
 
-#: src/components/common/OrderDetails/index.tsx:96
-#: src/components/forms/QuestionForm/index.tsx:241
+#: src/components/common/OrderDetails/index.tsx:127
+#: src/components/forms/QuestionForm/index.tsx:243
 #: src/components/routes/organizer/Settings/index.tsx:41
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:67
 msgid "Address"
@@ -688,6 +708,10 @@ msgstr "Cím 2. sor"
 #: src/components/routes/product-widget/CollectInformation/index.tsx:866
 msgid "Address Line 2"
 msgstr "Cím 2. sor"
+
+#: src/components/common/PaymentAdjustmentList/index.tsx:41
+msgid "Adjusted to"
+msgstr ""
 
 #: src/components/layouts/Admin/index.tsx:12
 #: src/components/modals/EditUserModal/index.tsx:49
@@ -921,7 +945,7 @@ msgstr "Hirdetmény"
 msgid "Announcements"
 msgstr "Hirdetmények"
 
-#: src/components/forms/QuestionForm/index.tsx:357
+#: src/components/forms/QuestionForm/index.tsx:359
 msgid "Another {0} question on this event already uses this title. Having two questions with the same name can confuse buyers — consider renaming or removing the duplicate."
 msgstr ""
 
@@ -973,7 +997,7 @@ msgstr "Promóciós kód alkalmazása"
 msgid "Apply this {type} to all new products"
 msgstr "Alkalmazza ezt a {type} típust minden új termékre"
 
-#: src/components/modals/ManageOrderModal/index.tsx:193
+#: src/components/modals/ManageOrderModal/index.tsx:208
 msgid "Apply to All"
 msgstr "Alkalmaz mindegyikre"
 
@@ -1169,11 +1193,11 @@ msgstr "Mivel vállalkozása az EU-ban található, meg kell határoznunk a plat
 msgid "Ask for name and email for each ticket purchased"
 msgstr "Név és e-mail bekérése minden megvásárolt jegyhez"
 
-#: src/components/forms/QuestionForm/index.tsx:196
+#: src/components/forms/QuestionForm/index.tsx:198
 msgid "Ask once per order"
 msgstr "Kérdezze meg egyszer megrendelésenként"
 
-#: src/components/forms/QuestionForm/index.tsx:202
+#: src/components/forms/QuestionForm/index.tsx:204
 msgid "Ask once per product"
 msgstr "Kérdezze meg egyszer termékenként"
 
@@ -1181,7 +1205,7 @@ msgstr "Kérdezze meg egyszer termékenként"
 msgid "Assign attendee"
 msgstr "Résztvevő hozzárendelése"
 
-#: src/components/modals/ManageOrderModal/index.tsx:178
+#: src/components/modals/ManageOrderModal/index.tsx:193
 msgid "Assign the same table or seat label to every attendee on this order. Leave blank and save to clear all assignments."
 msgstr "Rendelje hozzá ugyanazt az asztal- vagy ülőhely-címkét a megrendelés minden résztvevőjéhez. Hagyja üresen és mentsen az összes hozzárendelés törléséhez."
 
@@ -1291,7 +1315,7 @@ msgstr "A résztvevő jegye nincs ebben a listában"
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:382
 #: src/components/common/StatBoxes/index.tsx:45
 #: src/components/layouts/Event/index.tsx:121
-#: src/components/modals/ManageOrderModal/index.tsx:159
+#: src/components/modals/ManageOrderModal/index.tsx:174
 #: src/components/routes/admin/Messages/index.tsx:90
 #: src/components/routes/admin/Messages/index.tsx:139
 #: src/components/routes/event/attendees.tsx:201
@@ -1345,7 +1369,7 @@ msgstr "Az attribútum definíció sikeresen létrehozva"
 msgid "Attribute definition deleted successfully"
 msgstr "Az attribútum definíció sikeresen törölve"
 
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:43
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:64
 msgid "Attribute definition updated successfully"
 msgstr "Az attribútum definíció sikeresen frissítve"
 
@@ -1495,6 +1519,8 @@ msgid "Background Type"
 msgstr "Háttér típusa"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
+#: src/components/common/OrderDetails/index.tsx:18
+#: src/components/common/PaymentAdjustmentList/index.tsx:12
 msgid "Bank transfer"
 msgstr ""
 
@@ -1640,9 +1666,10 @@ msgstr "Kampány"
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:97
 #: src/components/modals/CreateContactModal/index.tsx:62
 #: src/components/modals/CreateQuestionModal/index.tsx:139
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:104
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:147
 #: src/components/modals/EditContactModal/index.tsx:138
 #: src/components/modals/EditQuestionModal/index.tsx:205
+#: src/components/modals/OptionMigrationModal/index.tsx:99
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:98
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:99
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:72
@@ -1730,6 +1757,8 @@ msgid "Capacity Management"
 msgstr "Kapacitás kezelése"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:111
+#: src/components/common/OrderDetails/index.tsx:15
+#: src/components/common/PaymentAdjustmentList/index.tsx:9
 msgid "Cash"
 msgstr ""
 
@@ -1784,6 +1813,8 @@ msgid "Charity"
 msgstr "Jótékonyság"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:112
+#: src/components/common/OrderDetails/index.tsx:16
+#: src/components/common/PaymentAdjustmentList/index.tsx:10
 msgid "Check"
 msgstr ""
 
@@ -1894,11 +1925,11 @@ msgstr "Bejelentkezési URL a vágólapra másolva"
 msgid "Check-Ins"
 msgstr "Bejelentkezések"
 
-#: src/components/forms/QuestionForm/index.tsx:225
+#: src/components/forms/QuestionForm/index.tsx:227
 msgid "Checkbox options allow multiple selections"
 msgstr "A jelölőnégyzet opciók több kiválasztást is lehetővé tesznek"
 
-#: src/components/forms/QuestionForm/index.tsx:223
+#: src/components/forms/QuestionForm/index.tsx:225
 msgid "Checkboxes"
 msgstr "Jelölőnégyzetek"
 
@@ -1948,6 +1979,10 @@ msgstr "Naptár kiválasztása"
 #: src/components/routes/organizer/Settings/Sections/PlatformFeesSettings/index.tsx:45
 msgid "Choose the default setting for new events. This can be overridden for individual events."
 msgstr "Válassza ki az alapértelmezett beállítást az új eseményekhez. Ez felülírható az egyes eseményeknél."
+
+#: src/components/modals/OptionMigrationModal/index.tsx:45
+msgid "Choose what to do with them:"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/PlatformFeesSettings/index.tsx:49
 msgid "Choose who pays the platform fee. This does not affect additional fees you've configured in your account settings."
@@ -2588,7 +2623,7 @@ msgstr "{0} sablon létrehozása"
 msgid "Create a custom widget to sell tickets on your site."
 msgstr "Hozzon létre egyedi widgetet jegyek értékesítéséhez a webhelyén."
 
-#: src/components/forms/QuestionForm/index.tsx:274
+#: src/components/forms/QuestionForm/index.tsx:276
 msgid "Create a new question"
 msgstr ""
 
@@ -2770,9 +2805,9 @@ msgstr "Hozza létre saját eseményét"
 #: src/components/routes/admin/Messages/index.tsx:309
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:203
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:150
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:259
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:279
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:283
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:261
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:281
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:285
 msgid "Created"
 msgstr "Létrehozva"
 
@@ -2797,6 +2832,8 @@ msgid "Creating your organizer profile, please wait"
 msgstr "Szervezői profil létrehozása, kérjük, várjon."
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:113
+#: src/components/common/OrderDetails/index.tsx:17
+#: src/components/common/PaymentAdjustmentList/index.tsx:11
 msgid "Credit card"
 msgstr ""
 
@@ -2992,8 +3029,8 @@ msgid "Data Ownership"
 msgstr "Adattulajdonlás"
 
 #: src/components/common/AdminOrdersTable/index.tsx:94
-#: src/components/common/OrderDetails/index.tsx:39
-#: src/components/forms/QuestionForm/index.tsx:247
+#: src/components/common/OrderDetails/index.tsx:50
+#: src/components/forms/QuestionForm/index.tsx:249
 #: src/components/routes/admin/EmailSuppressions/index.tsx:184
 #: src/components/routes/event/DeliveryIssues/index.tsx:101
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:56
@@ -3060,6 +3097,10 @@ msgstr "törlés"
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:218
 msgid "Delete"
 msgstr "Törlés"
+
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:125
+msgid "delete \"{0}\""
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:87
 msgid "Delete \"{0}\" from the server? This cannot be undone."
@@ -3137,6 +3178,10 @@ msgstr ""
 msgid "Delete Template"
 msgstr "Sablon törlése"
 
+#: src/components/modals/OptionMigrationModal/index.tsx:86
+msgid "Delete the answers entirely"
+msgstr ""
+
 #: src/components/common/OrganizerWebhookTable/index.tsx:127
 #: src/components/common/WebhookTable/index.tsx:127
 msgid "Delete webhook"
@@ -3172,7 +3217,7 @@ msgstr "Tervezési elemek"
 msgid "Details"
 msgstr "Részletek"
 
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:71
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:102
 msgid "Determines the underlying data shape. Linked event questions can use any compatible widget: 'Text' supports single/multi-line text, date, address, phone. 'Single Select' supports radio buttons and dropdowns. 'Multi Select' supports checkboxes and multi-select dropdowns."
 msgstr ""
 
@@ -3189,7 +3234,7 @@ msgstr ""
 msgid "Different Answers"
 msgstr "Eltérő válaszok"
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:277
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:279
 msgid "Direction"
 msgstr "Irány"
 
@@ -3295,11 +3340,15 @@ msgstr "Számla letöltése"
 msgid "Draft"
 msgstr "Piszkozat"
 
-#: src/components/common/SortableOptionsInput/index.tsx:53
+#: src/components/common/SortableOptionsInput/index.tsx:56
 msgid "Drag to reorder"
 msgstr "Húzza az átrendezéshez"
 
-#: src/components/forms/QuestionForm/index.tsx:235
+#: src/components/modals/OptionMigrationModal/index.tsx:87
+msgid "Drop \"{optionBeingRemoved}\" from every answer and contact profile. For single-select answers this clears the field; for multi-select it removes just this value from the array."
+msgstr ""
+
+#: src/components/forms/QuestionForm/index.tsx:237
 msgid "Dropdown selection"
 msgstr "Legördülő menü kiválasztása"
 
@@ -3349,9 +3398,13 @@ msgstr "pl. 180 (3 óra)"
 msgid "e.g. check #1234, last 4 of card"
 msgstr ""
 
+#: src/components/modals/OptionMigrationModal/index.tsx:76
+msgid "e.g. Other"
+msgstr ""
+
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:315
 #: src/components/modals/ManageAttendeeModal/index.tsx:156
-#: src/components/modals/ManageOrderModal/index.tsx:184
+#: src/components/modals/ManageOrderModal/index.tsx:199
 msgid "e.g. Table 5"
 msgstr "pl. 5. asztal"
 
@@ -3363,12 +3416,12 @@ msgstr "pl. Jegyek beszerzése, Regisztráció most"
 msgid "e.g., Important update about your tickets"
 msgstr "pl. Fontos frissítés a jegyeiről"
 
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:64
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:95
 msgid "e.g., role"
 msgstr "pl. szerepkör"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:51
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:57
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:88
 msgid "e.g., Role"
 msgstr "pl. Szerepkör"
 
@@ -3384,6 +3437,10 @@ msgstr "pl. Alap, Prémium, Vállalati"
 msgid "Each person will receive an email with a reserved spot to complete their purchase."
 msgstr "Minden személy e-mailt kap egy foglalt hellyel a vásárlás befejezéséhez."
 
+#: src/components/common/PaymentAdjustmentList/index.tsx:32
+msgid "Each row records a moment where the order total was adjusted at mark-as-paid time."
+msgstr ""
+
 #: src/components/forms/ProductForm/index.tsx:87
 msgid "Early bird"
 msgstr "Korai madár"
@@ -3391,7 +3448,7 @@ msgstr "Korai madár"
 #: src/components/common/QuestionsTable/index.tsx:144
 #: src/components/common/TaxAndFeeList/index.tsx:70
 #: src/components/modals/ManageAttendeeModal/index.tsx:268
-#: src/components/modals/ManageOrderModal/index.tsx:267
+#: src/components/modals/ManageOrderModal/index.tsx:282
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:78
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:90
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:268
@@ -3445,7 +3502,7 @@ msgstr "Résztvevő adatainak szerkesztése"
 msgid "Edit attribute"
 msgstr "Attribútum szerkesztése"
 
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:54
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:85
 msgid "Edit Attribute Definition"
 msgstr "Attribútum definíció szerkesztése"
 
@@ -3564,7 +3621,7 @@ msgstr "Jogosult bejelentkezési listák"
 #: src/components/common/AttendeeDetails/index.tsx:22
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:125
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:307
-#: src/components/common/OrderDetails/index.tsx:31
+#: src/components/common/OrderDetails/index.tsx:42
 #: src/components/common/QuestionsTable/index.tsx:329
 #: src/components/forms/AffiliateForm/index.tsx:89
 #: src/components/modals/CreateContactModal/index.tsx:42
@@ -3601,7 +3658,7 @@ msgstr "E-mail és sablonok"
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:122
 #: src/components/modals/CreateAttendeeModal/index.tsx:163
 #: src/components/modals/ManageAttendeeModal/index.tsx:137
-#: src/components/modals/ManageOrderModal/index.tsx:221
+#: src/components/modals/ManageOrderModal/index.tsx:236
 msgid "Email address"
 msgstr "E-mail cím"
 
@@ -3688,8 +3745,8 @@ msgstr "E-mail letiltások"
 msgid "Email Templates"
 msgstr "E-mail sablonok"
 
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:209
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:279
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:211
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:281
 msgid "Email Type"
 msgstr "E-mail típusa"
 
@@ -4255,7 +4312,7 @@ msgstr "A letiltás hozzáadása sikertelen"
 msgid "Failed to assign configuration"
 msgstr "A konfiguráció hozzárendelése sikertelen"
 
-#: src/components/modals/ManageOrderModal/index.tsx:69
+#: src/components/modals/ManageOrderModal/index.tsx:70
 msgid "Failed to assign table / seat"
 msgstr "Asztal/ülőhely hozzárendelése sikertelen"
 
@@ -4362,9 +4419,13 @@ msgstr "A kapcsolattartók betöltése sikertelen"
 msgid "Failed to load delivery issues"
 msgstr "A kézbesítési problémák betöltése sikertelen"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:235
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:253
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:258
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:121
+msgid "Failed to load events."
+msgstr "Az események betöltése sikertelen."
+
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:237
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:255
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:260
 msgid "Failed to load messages"
 msgstr "Az üzenetek betöltése sikertelen"
 
@@ -4504,9 +4565,9 @@ msgid "Failed to update organizer status"
 msgstr "Nem sikerült frissíteni a szervező állapotát"
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:36
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:116
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:126
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:120
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:118
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:128
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:122
 msgid "Failed to update resolved status."
 msgstr "A megoldási állapot frissítése sikertelen."
 
@@ -4645,7 +4706,7 @@ msgstr "Első számla száma"
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:294
 #: src/components/modals/CreateAttendeeModal/index.tsx:149
 #: src/components/modals/ManageAttendeeModal/index.tsx:133
-#: src/components/modals/ManageOrderModal/index.tsx:208
+#: src/components/modals/ManageOrderModal/index.tsx:223
 #: src/components/routes/contact-profile/index.tsx:137
 #: src/components/routes/product-widget/CollectInformation/index.tsx:787
 #: src/components/routes/product-widget/CollectInformation/index.tsx:1010
@@ -4829,7 +4890,7 @@ msgid "GitHub"
 msgstr "GitHub"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:89
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:96
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:139
 msgid "Globally recommended"
 msgstr "Általánosan ajánlott"
 
@@ -4962,7 +5023,7 @@ msgstr "Rejtett a résztvevők elől - csak a szervezők látják"
 msgid "Hidden from public view"
 msgstr "Rejtett a nyilvánosság elől"
 
-#: src/components/forms/QuestionForm/index.tsx:419
+#: src/components/forms/QuestionForm/index.tsx:434
 msgid "Hidden questions are only visible to the event organizer and not to the customer."
 msgstr "A rejtett kérdések csak az eseményszervező számára láthatók, az ügyfél számára nem."
 
@@ -5011,7 +5072,7 @@ msgstr "Elrejti az első lépések oldalt az oldalsávról"
 msgid "Hide this product from customers"
 msgstr "Termék elrejtése az ügyfelek elől"
 
-#: src/components/forms/QuestionForm/index.tsx:420
+#: src/components/forms/QuestionForm/index.tsx:435
 msgid "Hide this question"
 msgstr "Kérdés elrejtése"
 
@@ -5072,7 +5133,7 @@ msgid "Homepage Preview"
 msgstr "Honlap előnézet"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:133
-#: src/components/modals/ManageOrderModal/index.tsx:209
+#: src/components/modals/ManageOrderModal/index.tsx:224
 msgid "Homer"
 msgstr "Homer"
 
@@ -5409,9 +5470,9 @@ msgstr "Ír ÁFA 23%-os mértékben kerül felszámításra a platform díjakra 
 msgid "Is this account VAT registered in the EU?"
 msgstr "Ez a fiók ÁFA-s az EU-ban?"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:221
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:239
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:244
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:223
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:241
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:246
 msgid "Issues"
 msgstr "Problémák"
 
@@ -5500,14 +5561,14 @@ msgstr "Tartsanak naprakészen a {0} híreivel és eseményeivel"
 
 #: src/components/forms/ProductForm/index.tsx:86
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:50
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:56
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:87
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:48
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:156
 msgid "Label"
 msgstr "Címke"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:27
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:31
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:45
 msgid "Label is required"
 msgstr "A felirat megadása kötelező"
 
@@ -5568,7 +5629,7 @@ msgstr "Utolsó bejelentkezés"
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:300
 #: src/components/modals/CreateAttendeeModal/index.tsx:156
 #: src/components/modals/ManageAttendeeModal/index.tsx:134
-#: src/components/modals/ManageOrderModal/index.tsx:214
+#: src/components/modals/ManageOrderModal/index.tsx:229
 #: src/components/routes/contact-profile/index.tsx:141
 #: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:144
 msgid "Last name"
@@ -5633,7 +5694,7 @@ msgstr "Világos"
 msgid "Link Expired or Invalid"
 msgstr "A link lejárt vagy érvénytelen"
 
-#: src/components/forms/QuestionForm/index.tsx:377
+#: src/components/forms/QuestionForm/index.tsx:379
 msgid "Link to existing"
 msgstr ""
 
@@ -5653,7 +5714,7 @@ msgstr "Linkelje Stripe fiókját, hogy jegyértékesítésből származó bevé
 msgid "Linked {0} question(s) to new attribute(s)."
 msgstr "{0} kérdés új attribútumokhoz kapcsolva."
 
-#: src/components/forms/QuestionForm/index.tsx:343
+#: src/components/forms/QuestionForm/index.tsx:345
 msgid "Linked to a reusable contact attribute"
 msgstr ""
 
@@ -5661,7 +5722,7 @@ msgstr ""
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
-#: src/components/forms/QuestionForm/index.tsx:269
+#: src/components/forms/QuestionForm/index.tsx:271
 msgid "Linking to a saved question keeps answers consistent across events and updates the attendee's contact profile."
 msgstr ""
 
@@ -5765,7 +5826,7 @@ msgstr "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam placerat el
 msgid "Make billing address mandatory during checkout"
 msgstr "Tegye kötelezővé a számlázási címet a fizetés során"
 
-#: src/components/forms/QuestionForm/index.tsx:413
+#: src/components/forms/QuestionForm/index.tsx:428
 msgid "Make this question mandatory"
 msgstr "Tegye kötelezővé ezt a kérdést"
 
@@ -5798,6 +5859,10 @@ msgstr "Kapcsolatok kezelése, amelyek az eseményei résztvevőihez kapcsolódn
 #: src/components/common/EventCard/index.tsx:136
 msgid "Manage event"
 msgstr "Esemény kezelése"
+
+#: src/components/forms/QuestionForm/index.tsx:418
+msgid "Manage options on \"{0}\""
+msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:153
 msgid "Manage order"
@@ -5835,7 +5900,7 @@ msgstr "Kezelje fizetésfeldolgozását és tekintse meg a platformdíjakat."
 msgid "Manage your users and their permissions"
 msgstr "Kezelje felhasználóit és engedélyeiket."
 
-#: src/components/forms/QuestionForm/index.tsx:412
+#: src/components/forms/QuestionForm/index.tsx:427
 msgid "Mandatory questions must be answered before the customer can checkout."
 msgstr "A kötelező kérdésekre válaszolni kell, mielőtt az ügyfél fizethetne."
 
@@ -5866,9 +5931,9 @@ msgid "Mark as paid"
 msgstr "Fizetettként jelölés"
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:109
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:129
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:139
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:143
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:131
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:141
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:145
 msgid "Mark as resolved"
 msgstr "Megoldottnak jelöl"
 
@@ -5975,6 +6040,10 @@ msgstr "Üzenetküldési szint"
 msgid "Messaging tier updated successfully"
 msgstr "Üzenetküldési szint sikeresen frissítve"
 
+#: src/components/common/PaymentAdjustmentList/index.tsx:38
+msgid "Method"
+msgstr ""
+
 #: src/components/forms/ProductForm/index.tsx:499
 msgid "Minimum Per Order"
 msgstr "Minimum megrendelésenként"
@@ -6028,12 +6097,16 @@ msgstr ""
 msgid "Most Viewed Events (Last 14 Days)"
 msgstr "Legnézettebb események (Elmúlt 14 nap)"
 
-#: src/components/forms/QuestionForm/index.tsx:217
+#: src/components/modals/OptionMigrationModal/index.tsx:52
+msgid "Move existing answers to another value"
+msgstr ""
+
+#: src/components/forms/QuestionForm/index.tsx:219
 msgid "Multi line text box"
 msgstr "Többsoros szövegdoboz"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:68
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:75
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:106
 msgid "Multi Select"
 msgstr "Több kiválasztás"
 
@@ -6073,7 +6146,7 @@ msgid "Nam placerat elementum..."
 msgstr "Nam placerat elementum..."
 
 #: src/components/common/AttendeeDetails/index.tsx:14
-#: src/components/common/OrderDetails/index.tsx:23
+#: src/components/common/OrderDetails/index.tsx:34
 #: src/components/forms/AffiliateForm/index.tsx:81
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:37
 #: src/components/forms/CheckInListForm/index.tsx:37
@@ -6081,7 +6154,7 @@ msgstr "Nam placerat elementum..."
 #: src/components/forms/TaxAndFeeForm/index.tsx:61
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:57
 #: src/components/modals/DuplicateEventModal/index.tsx:109
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:63
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:94
 #: src/components/routes/account/ManageAccount/sections/AccountSettings/index.tsx:63
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:49
 #: src/components/routes/admin/Configurations/index.tsx:219
@@ -6095,7 +6168,7 @@ msgstr "Név"
 #: src/components/modals/CreateAffiliateModal/index.tsx:28
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:26
 #: src/components/modals/EditAffiliateModal/index.tsx:33
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:30
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:44
 #: src/components/routes/admin/Configurations/index.tsx:168
 msgid "Name is required"
 msgstr "Név kötelező"
@@ -6141,11 +6214,11 @@ msgstr "Új Névjegyek"
 msgid "New Password"
 msgstr "Új jelszó"
 
-#: src/components/forms/QuestionForm/index.tsx:177
+#: src/components/forms/QuestionForm/index.tsx:179
 msgid "New Question (reusable on future events)"
 msgstr "Új kérdés (újrafelhasználható későbbi eseményeken)"
 
-#: src/components/forms/QuestionForm/index.tsx:178
+#: src/components/forms/QuestionForm/index.tsx:180
 msgid "New Question (this event only)"
 msgstr "Új kérdés (csak ehhez az eseményhez)"
 
@@ -6193,7 +6266,7 @@ msgstr "Nincsenek aktív webhookok"
 msgid "No Affiliates to show"
 msgstr "Nincs megjeleníthető partner"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:245
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:247
 msgid "No announcement messages found."
 msgstr "Nem található hirdetmény."
 
@@ -6209,7 +6282,7 @@ msgstr "Még nincsenek résztvevői kérdések"
 msgid "No attendees found for this order."
 msgstr "Nincsenek résztvevők ehhez a megrendeléshez."
 
-#: src/components/modals/ManageOrderModal/index.tsx:165
+#: src/components/modals/ManageOrderModal/index.tsx:180
 msgid "No attendees have been added to this order."
 msgstr "Ehhez a megrendeléshez nem adtak hozzá résztvevőket."
 
@@ -6259,7 +6332,7 @@ msgstr "Nem lettek hozzáadva kapcsolattribútum definíciók."
 msgid "No contacts found."
 msgstr "Nem találhatók kapcsolatok."
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:263
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:265
 msgid "No cross-event promotions involving this event yet."
 msgstr "Még nincsenek ezt az eseményt érintő, eseményközi népszerűsítések."
 
@@ -6276,9 +6349,9 @@ msgid "No data to show. Please select a date range"
 msgstr "Nincs megjeleníthető adat. Kérjük, válasszon dátumtartományt."
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:84
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:244
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:262
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:267
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:246
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:264
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:269
 msgid "No delivery issues found."
 msgstr "Nincs kézbesítési probléma."
 
@@ -6440,6 +6513,10 @@ msgstr "Még nincsenek termékek"
 msgid "No Promo Codes to show"
 msgstr "Nincs megjeleníthető promóciós kód"
 
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:127
+msgid "No provider events recorded yet."
+msgstr "Még nincsenek rögzített szolgáltatói események."
+
 #: src/components/modals/ManageAttendeeModal/index.tsx:223
 msgid "No questions answered by this attendee."
 msgstr "Ehhez a résztvevőhöz nem érkezett válasz."
@@ -6448,7 +6525,7 @@ msgstr "Ehhez a résztvevőhöz nem érkezett válasz."
 msgid "No questions are linked to this attribute."
 msgstr "Egyetlen kérdés sincs összekapcsolva ezzel az attribútummal."
 
-#: src/components/modals/ManageOrderModal/index.tsx:152
+#: src/components/modals/ManageOrderModal/index.tsx:167
 msgid "No questions have been asked for this order."
 msgstr "Ehhez a megrendeléshez nem tettek fel kérdéseket."
 
@@ -6478,7 +6555,7 @@ msgstr "Még nincsenek válaszok"
 msgid "No results"
 msgstr "Nincs találat"
 
-#: src/components/forms/QuestionForm/index.tsx:270
+#: src/components/forms/QuestionForm/index.tsx:272
 msgid "No saved questions yet — create one below and tick \"make reusable\" to save it for future events."
 msgstr ""
 
@@ -6502,7 +6579,7 @@ msgstr "Nem adtak hozzá adókat vagy díjakat."
 msgid "No Tickets Found"
 msgstr "Nem találhatók jegyek"
 
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:268
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:270
 msgid "No transaction messages found."
 msgstr "Nincs tranzakciós üzenet."
 
@@ -6593,7 +6670,7 @@ msgid "Not yet active"
 msgstr ""
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:160
-#: src/components/modals/ManageOrderModal/index.tsx:228
+#: src/components/modals/ManageOrderModal/index.tsx:243
 msgid "Notes"
 msgstr "Jegyzetek"
 
@@ -6679,6 +6756,10 @@ msgstr "Offline fizetés sikertelen. Kérjük, próbálja újra, vagy lépjen ka
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:160
 msgid "Offline Payment Instructions"
 msgstr "Offline fizetési utasítások"
+
+#: src/components/common/OrderDetails/index.tsx:97
+msgid "Offline payment method"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:90
 msgid "Offline Payments"
@@ -6776,7 +6857,7 @@ msgstr "Oldalsáv megnyitása"
 msgid "Open Stripe Dashboard"
 msgstr "Stripe irányítópult megnyitása"
 
-#: src/components/forms/QuestionForm/index.tsx:93
+#: src/components/forms/QuestionForm/index.tsx:94
 msgid "Option {i}"
 msgstr "Opció {i}"
 
@@ -6800,9 +6881,9 @@ msgstr "Opcionális szöveg jogi nyilatkozatokhoz, kapcsolattartási informáci�
 msgid "options"
 msgstr "opciók"
 
-#: src/components/forms/QuestionForm/index.tsx:77
+#: src/components/forms/QuestionForm/index.tsx:78
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:76
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:83
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:114
 msgid "Options"
 msgstr "Opciók"
 
@@ -6810,7 +6891,7 @@ msgstr "Opciók"
 msgid "or"
 msgstr "vagy"
 
-#: src/components/forms/QuestionForm/index.tsx:187
+#: src/components/forms/QuestionForm/index.tsx:189
 msgid "Or create a new question"
 msgstr ""
 
@@ -6878,7 +6959,7 @@ msgstr "Megrendelés dátuma"
 
 #: src/components/common/OrdersTable/index.tsx:277
 #: src/components/modals/ManageAttendeeModal/index.tsx:196
-#: src/components/modals/ManageOrderModal/index.tsx:119
+#: src/components/modals/ManageOrderModal/index.tsx:120
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:774
 msgid "Order Details"
 msgstr "Megrendelés részletei"
@@ -6949,7 +7030,7 @@ msgstr "Rendelés nem található"
 msgid "Order Not Found"
 msgstr "Rendelés nem található"
 
-#: src/components/modals/ManageOrderModal/index.tsx:125
+#: src/components/modals/ManageOrderModal/index.tsx:126
 msgid "Order Notes"
 msgstr "Megrendelés jegyzetek"
 
@@ -6996,7 +7077,7 @@ msgid "Order statuses"
 msgstr "Megrendelés állapotok"
 
 #: src/components/common/InlineOrderSummary/index.tsx:54
-#: src/components/modals/ManageOrderModal/index.tsx:138
+#: src/components/modals/ManageOrderModal/index.tsx:139
 msgid "Order Summary"
 msgstr "Megrendelés összefoglaló"
 
@@ -7183,13 +7264,19 @@ msgstr "A szervezők csak eseményeket és termékeket kezelhetnek. Nem kezelhet
 msgid "Original"
 msgstr "Eredeti"
 
+#: src/components/common/PaymentAdjustmentList/index.tsx:40
+msgid "Original total"
+msgstr ""
+
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:285
 msgid "Originally purchased by {0} {1}"
 msgstr "Eredetileg vásárolta: {0} {1}"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:115
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
+#: src/components/common/OrderDetails/index.tsx:19
 #: src/components/common/OrdersTable/index.tsx:394
+#: src/components/common/PaymentAdjustmentList/index.tsx:13
 #: src/constants/eventCategories.ts:22
 msgid "Other"
 msgstr "Egyéb"
@@ -7356,6 +7443,10 @@ msgstr "Fizetési és számlázási beállítások"
 msgid "Payment & Plan"
 msgstr "Fizetés és terv"
 
+#: src/components/modals/ManageOrderModal/index.tsx:145
+msgid "Payment Adjustments"
+msgstr ""
+
 #: src/components/routes/organizer/Reports/PlatformFeesReport/index.tsx:53
 msgid "Payment Date"
 msgstr "Fizetés dátuma"
@@ -7388,7 +7479,7 @@ msgstr "Fizetési módok"
 msgid "Payment Processing"
 msgstr "Fizetésfeldolgozás"
 
-#: src/components/common/OrderDetails/index.tsx:76
+#: src/components/common/OrderDetails/index.tsx:87
 msgid "Payment provider"
 msgstr "Fizetési szolgáltató"
 
@@ -7399,6 +7490,10 @@ msgstr "Fizetés megérkezett"
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:63
 msgid "Payment Received"
 msgstr "Fizetés beérkezett"
+
+#: src/components/common/OrderDetails/index.tsx:107
+msgid "Payment reference"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:816
 msgid "Payment Settings"
@@ -7511,7 +7606,7 @@ msgstr "Telefon"
 msgid "Pick a saved question or choose \"Create new\" to continue."
 msgstr ""
 
-#: src/components/forms/QuestionForm/index.tsx:274
+#: src/components/forms/QuestionForm/index.tsx:276
 msgid "Pick a saved question or create new"
 msgstr ""
 
@@ -7553,7 +7648,7 @@ msgstr "Platform díjak jelentés"
 msgid "Platform Revenue"
 msgstr "Platform bevétel"
 
-#: src/components/forms/QuestionForm/index.tsx:80
+#: src/components/forms/QuestionForm/index.tsx:81
 msgid "Please add at least one option"
 msgstr "Kérjük, adjon hozzá legalább egy opciót."
 
@@ -7891,7 +7986,7 @@ msgstr "Profil frissítve."
 msgid "Promo {promo_code} code applied"
 msgstr "Promóciós kód {promo_code} alkalmazva"
 
-#: src/components/common/OrderDetails/index.tsx:86
+#: src/components/common/OrderDetails/index.tsx:117
 msgid "Promo code"
 msgstr "Promóciós kód"
 
@@ -7926,12 +8021,12 @@ msgstr "Promóciós kódok jelentés"
 msgid "Promo Only"
 msgstr "Csak promócióval"
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:314
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:317
 msgid "Promoted by"
 msgstr "Népszerűsítette"
 
 #: src/components/routes/event/MessageTracking/index.tsx:56
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:308
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:311
 msgid "Promoting"
 msgstr "Népszerűsítés"
 
@@ -7939,13 +8034,17 @@ msgstr "Népszerűsítés"
 msgid "Promotional emails may result in account suspension"
 msgstr "A promóciós e-mailek fiók felfüggesztéshez vezethetnek"
 
-#: src/components/forms/QuestionForm/index.tsx:388
+#: src/components/forms/QuestionForm/index.tsx:390
 msgid ""
 "Provide additional context or instructions for this question. Use this field to add terms\n"
 "and conditions, guidelines, or any important information that attendees need to know before answering."
 msgstr ""
 "Adjon meg további kontextust vagy utasításokat ehhez a kérdéshez. Használja ezt a mezőt feltételek,\n"
 "irányelvek vagy bármilyen fontos információ hozzáadásához, amelyeket a résztvevőknek tudniuk kell válaszadás előtt."
+
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:108
+msgid "Provider Events"
+msgstr "Szolgáltatói események"
 
 #: src/components/common/StatusToggle/index.tsx:97
 msgid "Publish"
@@ -7996,7 +8095,7 @@ msgstr "Kérdés"
 msgid "Question deleted"
 msgstr "Kérdés törölve"
 
-#: src/components/forms/QuestionForm/index.tsx:387
+#: src/components/forms/QuestionForm/index.tsx:389
 msgid "Question Description"
 msgstr "Kérdés leírása"
 
@@ -8004,11 +8103,11 @@ msgstr "Kérdés leírása"
 msgid "Question hidden from checkout"
 msgstr ""
 
-#: src/components/forms/QuestionForm/index.tsx:349
+#: src/components/forms/QuestionForm/index.tsx:351
 msgid "Question Title"
 msgstr "Kérdés címe"
 
-#: src/components/forms/QuestionForm/index.tsx:304
+#: src/components/forms/QuestionForm/index.tsx:306
 msgid "Question will be added to the account library as a reusable contact attribute. Answers sync to the attendee's contact profile."
 msgstr ""
 
@@ -8017,7 +8116,7 @@ msgid "Questions"
 msgstr "Kérdések"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:214
-#: src/components/modals/ManageOrderModal/index.tsx:144
+#: src/components/modals/ManageOrderModal/index.tsx:159
 msgid "Questions & Answers"
 msgstr "Kérdések és válaszok"
 
@@ -8034,7 +8133,7 @@ msgstr "Kérdések átrendezve"
 msgid "Queue"
 msgstr "Várakozási sor"
 
-#: src/components/forms/QuestionForm/index.tsx:229
+#: src/components/forms/QuestionForm/index.tsx:231
 msgid "Radio Option"
 msgstr "Rádió opció"
 
@@ -8054,7 +8153,7 @@ msgstr "Túllépte a korlátot. Kérjük, próbálja újra később."
 msgid "Re-offer Spot"
 msgstr "Hely újbóli felajánlása"
 
-#: src/components/forms/QuestionForm/index.tsx:267
+#: src/components/forms/QuestionForm/index.tsx:269
 msgid "Re-use a saved question?"
 msgstr ""
 
@@ -8096,9 +8195,9 @@ msgstr "címzett"
 
 #: src/components/modals/SendMessageModal/index.tsx:64
 #: src/components/routes/event/DeliveryIssues/index.tsx:100
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:258
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:276
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:282
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:260
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:278
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:284
 msgid "Recipient"
 msgstr "Címzett"
 
@@ -8145,6 +8244,10 @@ msgstr "Reddit"
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:597
 msgid "Redirecting to Stripe..."
 msgstr "Átirányítás a Stripe-ra..."
+
+#: src/components/common/PaymentAdjustmentList/index.tsx:39
+msgid "Reference"
+msgstr ""
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:149
 msgid "Reference (optional)"
@@ -8238,7 +8341,7 @@ msgstr "Regisztrációs kérdések"
 msgid "Registration questions used on past events not marked as reusable. Select and click <0>Reuse</0> to create a new extended attribute (relevant to all contacts); click <1>Ignore</1> to keep it as an answer relevant only on that event."
 msgstr "Korábbi eseményeken használt regisztrációs kérdések, amelyek nincsenek újrafelhasználhatóként megjelölve. Válaszd ki és kattints az <0>Újrafelhasznál</0> gombra új kiterjesztett attribútum létrehozásához (minden kapcsolatra vonatkozóan); az <1>Ignorálás</1> gombbal meghagyhatod csak az adott eseményhez."
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:278
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:280
 msgid "Related event"
 msgstr "Kapcsolódó esemény"
 
@@ -8262,7 +8365,12 @@ msgstr "eltávolítás"
 msgid "Remove"
 msgstr "Eltávolítás"
 
-#: src/components/common/SortableOptionsInput/index.tsx:63
+#: src/components/modals/OptionMigrationModal/index.tsx:39
+msgid "Remove \"{optionBeingRemoved}\"?"
+msgstr ""
+
+#: src/components/common/SortableOptionsInput/index.tsx:69
+#: src/components/common/SortableOptionsInput/index.tsx:79
 msgid "Remove option"
 msgstr "Lehetőség eltávolítása"
 
@@ -8272,6 +8380,19 @@ msgstr "Letiltás eltávolítása"
 
 #: src/components/common/QuestionsTable/index.tsx:237
 msgid "Remove this question"
+msgstr ""
+
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:126
+msgid "rename \"{0}\" → \"{1}\""
+msgstr ""
+
+#: src/components/modals/OptionMigrationModal/index.tsx:53
+msgid "Replace \"{optionBeingRemoved}\" with a value you specify, in both event answers and contact profiles."
+msgstr ""
+
+#: src/components/modals/OptionMigrationModal/index.tsx:67
+#: src/components/modals/OptionMigrationModal/index.tsx:75
+msgid "Replace with"
 msgstr ""
 
 #: src/components/routes/organizer/Reports/ReportLayout/index.tsx:26
@@ -8377,9 +8498,9 @@ msgid "Resetting..."
 msgstr "Visszaállítás..."
 
 #: src/components/routes/event/DeliveryIssues/index.tsx:140
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:181
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:192
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:195
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:183
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:194
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:197
 msgid "Resolve"
 msgstr "Megoldás"
 
@@ -8391,9 +8512,9 @@ msgstr "Kézbesítési probléma megoldása"
 msgid "Resolved"
 msgstr "Megoldva"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:160
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:170
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:174
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:162
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:172
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:176
 msgid "RESOLVED"
 msgstr "MEGOLDVA"
 
@@ -8450,12 +8571,12 @@ msgstr "Újrapróbálva mint"
 
 #: src/components/routes/admin/FailedJobs/index.tsx:199
 #: src/components/routes/event/DeliveryIssues/index.tsx:44
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:181
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:273
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:192
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:299
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:133
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:195
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:183
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:276
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:194
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:302
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:135
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:197
 msgid "Retry"
 msgstr "Újrapróbálás"
 
@@ -8480,7 +8601,7 @@ msgstr "Vissza az eseményhez"
 msgid "Return to Event Page"
 msgstr "Vissza az esemény oldalára"
 
-#: src/components/forms/QuestionForm/index.tsx:288
+#: src/components/forms/QuestionForm/index.tsx:290
 msgid "Reusable"
 msgstr ""
 
@@ -8492,7 +8613,7 @@ msgstr "Újrahasznosítás"
 msgid "Reuse ({0})"
 msgstr "Újrahasznosítás ({0})"
 
-#: src/components/forms/QuestionForm/index.tsx:183
+#: src/components/forms/QuestionForm/index.tsx:185
 msgid "Reuse a contact attribute (recommended)"
 msgstr ""
 
@@ -8643,7 +8764,7 @@ msgid "Save changes"
 msgstr "Módosítások mentése"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:278
-#: src/components/modals/ManageOrderModal/index.tsx:239
+#: src/components/modals/ManageOrderModal/index.tsx:254
 #: src/components/routes/admin/Configurations/index.tsx:268
 #: src/components/routes/event/HomepageDesigner/index.tsx:272
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:283
@@ -8678,7 +8799,7 @@ msgstr "Sablon mentése"
 msgid "Save Ticket Design"
 msgstr "Jegytervezés mentése"
 
-#: src/components/forms/QuestionForm/index.tsx:303
+#: src/components/forms/QuestionForm/index.tsx:305
 msgid "Save to library for re-use on future events"
 msgstr ""
 
@@ -8695,7 +8816,7 @@ msgstr ""
 msgid "Saved attendee details, but couldn't save registration question answers."
 msgstr "A résztvevő adatai mentve, de a regisztrációs kérdésekre adott válaszokat nem sikerült menteni."
 
-#: src/components/modals/ManageOrderModal/index.tsx:193
+#: src/components/modals/ManageOrderModal/index.tsx:208
 msgid "Saving..."
 msgstr "Mentés..."
 
@@ -8799,9 +8920,9 @@ msgstr "Keresés kérdés vagy esemény címe szerint..."
 msgid "Search by question title..."
 msgstr "Keresés a kérdés címe szerint..."
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:205
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:223
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:228
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:207
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:225
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:230
 msgid "Search by recipient or subject..."
 msgstr "Keresés címzett vagy tárgy alapján..."
 
@@ -9297,7 +9418,7 @@ msgstr "Az ügyfélnek a fizetés után, a rendelésösszegző oldalon jelenik m
 msgid "Shown to the customer before they checkout"
 msgstr "Az ügyfélnek a fizetés előtt jelenik meg."
 
-#: src/components/forms/QuestionForm/index.tsx:243
+#: src/components/forms/QuestionForm/index.tsx:245
 msgid "Shows common address fields, including country"
 msgstr "Gyakori címmezőket mutat, beleértve az országot is."
 
@@ -9306,16 +9427,16 @@ msgid "Signed Up"
 msgstr "Regisztrált"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:134
-#: src/components/modals/ManageOrderModal/index.tsx:215
+#: src/components/modals/ManageOrderModal/index.tsx:230
 msgid "Simpson"
 msgstr "Simpson"
 
-#: src/components/forms/QuestionForm/index.tsx:211
+#: src/components/forms/QuestionForm/index.tsx:213
 msgid "Single line text box"
 msgstr "Egysoros szövegmező"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:67
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:74
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:105
 msgid "Single Select"
 msgstr "Egy kiválasztás"
 
@@ -9425,6 +9546,10 @@ msgstr "Forrás"
 msgid "Source Event"
 msgstr "Forrásesemény"
 
+#: src/components/common/PaymentAdjustmentList/index.tsx:42
+msgid "Source IP"
+msgstr ""
+
 #: src/components/common/LanguageSwitcher/index.tsx:20
 msgid "Spanish"
 msgstr "Spanyol"
@@ -9432,6 +9557,10 @@ msgstr "Spanyol"
 #: src/constants/eventCategories.ts:8
 msgid "Sports"
 msgstr "Sport"
+
+#: src/components/modals/OptionMigrationModal/index.tsx:101
+msgid "Stage removal"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:157
 msgid "Standard product with a fixed price"
@@ -9480,7 +9609,7 @@ msgstr "A statisztikák a fiók létrehozásának dátumán alapulnak"
 #: src/components/common/AdminOrdersTable/index.tsx:85
 #: src/components/common/AffiliateTable/index.tsx:83
 #: src/components/common/AttendeeTable/index.tsx:274
-#: src/components/common/OrderDetails/index.tsx:51
+#: src/components/common/OrderDetails/index.tsx:62
 #: src/components/common/OrdersTable/index.tsx:403
 #: src/components/common/OrganizerWebhookTable/index.tsx:238
 #: src/components/common/WaitlistTable/index.tsx:181
@@ -9501,12 +9630,12 @@ msgstr "A statisztikák a fiók létrehozásának dátumán alapulnak"
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:160
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:68
 #: src/components/routes/event/DeliveryIssues/index.tsx:98
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:195
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:256
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:213
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:274
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:218
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:280
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:197
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:258
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:215
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:276
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:220
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:282
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:88
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:62
 msgid "Status"
@@ -9555,9 +9684,9 @@ msgstr "A Stripe beállítás már kész."
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
 #: src/components/routes/event/DeliveryIssues/index.tsx:99
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:257
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:275
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:281
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:259
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:277
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:283
 msgid "Subject"
 msgstr "Tárgy"
 
@@ -9682,7 +9811,7 @@ msgstr "Helyszín sikeresen frissítve"
 msgid "Successfully Updated Misc Settings"
 msgstr "Egyéb beállítások sikeresen frissítve"
 
-#: src/components/modals/ManageOrderModal/index.tsx:107
+#: src/components/modals/ManageOrderModal/index.tsx:108
 msgid "Successfully updated order"
 msgstr "Megrendelés sikeresen frissítve"
 
@@ -9807,8 +9936,8 @@ msgstr ""
 
 #: src/components/common/AttendeeDetails/index.tsx:47
 #: src/components/modals/ManageAttendeeModal/index.tsx:154
-#: src/components/modals/ManageOrderModal/index.tsx:172
-#: src/components/modals/ManageOrderModal/index.tsx:183
+#: src/components/modals/ManageOrderModal/index.tsx:187
+#: src/components/modals/ManageOrderModal/index.tsx:198
 msgid "Table / Seat"
 msgstr "Asztal / Ülőhely"
 
@@ -9931,7 +10060,7 @@ msgid "Terms of Service"
 msgstr "Szolgáltatási feltételek"
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:66
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:73
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:104
 msgid "Text"
 msgstr "Szöveg"
 
@@ -9963,6 +10092,10 @@ msgstr "Az oldal háttérszíne. Borítókép használatakor ez átfedésként k
 #: src/components/routes/event/Settings/Sections/EventDetailsForm/index.tsx:113
 msgid "The brand this event is published under"
 msgstr "A márka, amely alatt az esemény közzétételre kerül"
+
+#: src/components/modals/OptionMigrationModal/index.tsx:93
+msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
+msgstr ""
 
 #: src/components/layouts/CheckIn/index.tsx:410
 msgid "The check-in list you are looking for does not exist."
@@ -10058,7 +10191,7 @@ msgstr "Az ügyfélnek megjelenő ár nem tartalmazza az adókat és díjakat. K
 msgid "The primary brand color used for buttons and highlights"
 msgstr "Az elsődleges márka szín a gombokhoz és kiemelésekhez"
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:312
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:315
 msgid "The related event promoted this event"
 msgstr "A kapcsolódó esemény népszerűsítette ezt az eseményt"
 
@@ -10197,7 +10330,7 @@ msgstr "Ez az esemény véget ért"
 msgid "This event is not published yet"
 msgstr "Ez az esemény még nem került közzétételre."
 
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:306
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:309
 msgid "This event promoted the related event"
 msgstr "Ez az esemény népszerűsítette a kapcsolódó eseményt"
 
@@ -10549,7 +10682,7 @@ msgstr "Időzóna"
 msgid "TIP"
 msgstr "TIPP"
 
-#: src/components/forms/QuestionForm/index.tsx:340
+#: src/components/forms/QuestionForm/index.tsx:342
 msgid "Title and options come from the linked contact attribute and can't be changed for this event."
 msgstr ""
 
@@ -10629,7 +10762,7 @@ msgstr "Összes díj"
 msgid "Total Gross Sales"
 msgstr "Összes bruttó értékesítés"
 
-#: src/components/common/OrderDetails/index.tsx:59
+#: src/components/common/OrderDetails/index.tsx:70
 msgid "Total order amount"
 msgstr "Teljes megrendelési összeg"
 
@@ -10637,7 +10770,7 @@ msgstr "Teljes megrendelési összeg"
 msgid "Total Orders"
 msgstr "Összes megrendelés"
 
-#: src/components/common/OrderDetails/index.tsx:67
+#: src/components/common/OrderDetails/index.tsx:78
 msgid "Total refunded"
 msgstr "Összes visszatérített"
 
@@ -10716,7 +10849,7 @@ msgstr "Twitch"
 
 #: src/components/forms/TaxAndFeeForm/index.tsx:44
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:64
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:70
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:101
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:50
 #: src/components/routes/admin/Attribution/index.tsx:109
 #: src/components/routes/admin/EmailSuppressions/index.tsx:181
@@ -10733,7 +10866,11 @@ msgstr "Típus"
 msgid "Type \"delete\" to confirm"
 msgstr "Írja be a \"törlés\" szót a megerősítéshez"
 
-#: src/components/common/SortableOptionsInput/index.tsx:126
+#: src/components/modals/OptionMigrationModal/index.tsx:61
+msgid "Type a new value"
+msgstr ""
+
+#: src/components/common/SortableOptionsInput/index.tsx:169
 msgid "Type an option and press Enter"
 msgstr "Írjon be egy lehetőséget és nyomjon Entert"
 
@@ -10883,7 +11020,7 @@ msgstr "Frissítés {0}"
 msgid "Update Affiliate"
 msgstr "Partner frissítése"
 
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:107
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:150
 msgid "Update Attribute"
 msgstr "Attribútum frissítése"
 
@@ -10904,9 +11041,9 @@ msgid "Update your details once here and they'll pre-fill the next time you regi
 msgstr "Frissítse adatait itt egyszer, és automatikusan kitöltődnek, amikor legközelebb regisztrál egyik eseményünkre."
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:214
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:260
-#: src/components/routes/event/MessageTracking/PromotingTab.tsx:280
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:284
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:262
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:282
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:286
 msgid "Updated"
 msgstr "Frissítve"
 
@@ -10914,7 +11051,7 @@ msgstr "Frissítve"
 msgid "Updated {0} answer(s)."
 msgstr "{0} válasz frissítve."
 
-#: src/components/modals/ManageOrderModal/index.tsx:66
+#: src/components/modals/ManageOrderModal/index.tsx:67
 msgid "Updated {0} attendees"
 msgstr "{0} résztvevő frissítve"
 
@@ -10998,6 +11135,10 @@ msgstr "Használjon <0>Liquid sablonokat</0> az e-mailek személyre szabásához
 msgid "Use a blurred version of the cover image as the background"
 msgstr "Használja a borítókép elmosódott változatát háttérként."
 
+#: src/components/modals/OptionMigrationModal/index.tsx:60
+msgid "Use another existing option"
+msgstr ""
+
 #: src/components/routes/event/HomepageDesigner/index.tsx:220
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:252
 msgid "Use cover image"
@@ -11011,6 +11152,10 @@ msgstr "Rendelési adatok használata minden résztvevőhöz. A résztvevők nev
 #: src/components/common/QuestionsTable/index.tsx:522
 msgid "Use the buyer's details for all attendees"
 msgstr "Vásárló adatainak használata minden résztvevőhöz"
+
+#: src/components/common/SortableOptionsInput/index.tsx:68
+msgid "Used by {usageCount} stored answer(s). Removing requires a migration plan."
+msgstr ""
 
 #: src/components/routes/event/TicketDesigner/index.tsx:130
 msgid "Used for borders, highlights, and QR code styling"
@@ -11192,7 +11337,7 @@ msgid "Vietnamese"
 msgstr "Vietnámi"
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:267
-#: src/components/modals/ManageOrderModal/index.tsx:264
+#: src/components/modals/ManageOrderModal/index.tsx:279
 msgid "View"
 msgstr "Megtekintés"
 
@@ -11272,6 +11417,12 @@ msgstr "Rendelési részletek megtekintése, visszatérítések kibocsátása é
 #: src/components/layouts/OrganizerLayout/index.tsx:252
 msgid "View Organizer Homepage"
 msgstr "Szervezői honlap megtekintése"
+
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:285
+#: src/components/routes/event/MessageTracking/PromotingTab.tsx:332
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:303
+msgid "View provider events"
+msgstr "Szolgáltatói események megtekintése"
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:57
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:69
@@ -11539,7 +11690,7 @@ msgstr "Mik azok a többszintű termékek?"
 msgid "What is a Category?"
 msgstr "Mi az a kategória?"
 
-#: src/components/forms/QuestionForm/index.tsx:323
+#: src/components/forms/QuestionForm/index.tsx:325
 msgid "What products does this code apply to?"
 msgstr "Mely termékekre vonatkozik ez a kód?"
 
@@ -11551,7 +11702,7 @@ msgstr "Mely termékekre vonatkozik ez a kód? (Alapértelmezés szerint mindenr
 msgid "What products should this capacity apply to?"
 msgstr "Mely termékekre kell vonatkoznia ennek a kapacitásnak?"
 
-#: src/components/forms/QuestionForm/index.tsx:351
+#: src/components/forms/QuestionForm/index.tsx:353
 msgid "What time will you be arriving?"
 msgstr "Mikor érkezik?"
 
@@ -11559,7 +11710,7 @@ msgstr "Mikor érkezik?"
 msgid "What type of event?"
 msgstr "Milyen típusú esemény?"
 
-#: src/components/forms/QuestionForm/index.tsx:334
+#: src/components/forms/QuestionForm/index.tsx:336
 msgid "What type of question is this?"
 msgstr "Milyen típusú kérdés ez?"
 
@@ -11571,6 +11722,7 @@ msgstr "Mit kell tennie:"
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
+#: src/components/common/PaymentAdjustmentList/index.tsx:37
 #: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:131
 msgid "When"
 msgstr "Mikor"
@@ -11672,7 +11824,7 @@ msgid "When enabled, no application fees will be charged on Stripe Connect trans
 msgstr "Ha engedélyezve van, a Stripe Connect tranzakciókra nem számítanak fel alkalmazási díjakat. Használja olyan országokban, ahol az alkalmazási díjak nem támogatottak."
 
 #: src/components/modals/CreateContactAttributeDefinitionModal/index.tsx:90
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:97
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:140
 msgid "When enabled, this attribute is auto-attached as an order-level question on newly created events."
 msgstr "Ha engedélyezve van, ez az attribútum automatikusan hozzáadódik rendelés szintű kérdésként az újonnan létrehozott eseményekhez."
 
@@ -11696,7 +11848,7 @@ msgstr "Mely jegyeket kell ehhez a bejelentkezési listához társítani?"
 msgid "Who is organizing this event?"
 msgstr "Ki szervezi ezt az eseményt?"
 
-#: src/components/forms/QuestionForm/index.tsx:315
+#: src/components/forms/QuestionForm/index.tsx:317
 msgid "Who should be asked this question?"
 msgstr "Kinek kell feltenni ezt a kérdést?"
 
@@ -11724,7 +11876,7 @@ msgstr "Dolgozik"
 #: src/components/modals/CreateQuestionModal/index.tsx:142
 #: src/components/modals/DuplicateEventModal/index.tsx:177
 #: src/components/modals/DuplicateProductModal/index.tsx:117
-#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:107
+#: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:150
 #: src/components/modals/EditContactModal/index.tsx:141
 #: src/components/modals/EditProductCategoryModal/index.tsx:70
 #: src/components/modals/EditProductModal/index.tsx:114
@@ -11732,7 +11884,7 @@ msgstr "Dolgozik"
 #: src/components/modals/EditQuestionModal/index.tsx:208
 #: src/components/modals/JoinWaitlistModal/index.tsx:188
 #: src/components/modals/ManageAttendeeModal/index.tsx:278
-#: src/components/modals/ManageOrderModal/index.tsx:239
+#: src/components/modals/ManageOrderModal/index.tsx:254
 #: src/components/routes/auth/Register/index.tsx:137
 msgid "Working..."
 msgstr "Dolgozik..."

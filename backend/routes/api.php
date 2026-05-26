@@ -121,6 +121,7 @@ use HiEvents\Http\Actions\Images\GetAccountImagesAction;
 use HiEvents\Http\Actions\Messages\CancelMessageAction;
 use HiEvents\Http\Actions\Messages\GetMessageRecipientsAction;
 use HiEvents\Http\Actions\Messages\GetMessagesAction;
+use HiEvents\Http\Actions\Messages\GetOutgoingMessageEventsAction;
 use HiEvents\Http\Actions\Messages\GetOutgoingMessagesAction;
 use HiEvents\Http\Actions\Messages\GetPromotingMessagesAction;
 use HiEvents\Http\Actions\Messages\PreflightSendMessageAction;
@@ -207,6 +208,7 @@ use HiEvents\Http\Actions\TaxesAndFees\EditTaxOrFeeAction;
 use HiEvents\Http\Actions\TaxesAndFees\GetTaxOrFeeAction;
 use HiEvents\Http\Actions\TicketLookup\GetOrdersByLookupTokenAction;
 use HiEvents\Http\Actions\TicketLookup\SendTicketLookupEmailAction;
+use HiEvents\Http\Actions\TransactionMessages\GetOutgoingTransactionMessageEventsAction;
 use HiEvents\Http\Actions\TransactionMessages\GetTransactionMessagesAction;
 use HiEvents\Http\Actions\TransactionMessages\ResendTransactionMessageAction;
 use HiEvents\Http\Actions\Users\CancelEmailChangeAction;
@@ -454,10 +456,12 @@ $router->middleware(['auth:api'])->group(
         $router->get('/events/{event_id}/outgoing-messages', GetOutgoingMessagesAction::class);
         $router->get('/events/{event_id}/promoting-messages', GetPromotingMessagesAction::class);
         $router->post('/events/{event_id}/outgoing-messages/{message_id}/resend', ResendOutgoingMessageAction::class);
+        $router->get('/events/{event_id}/outgoing-messages/{message_id}/events', GetOutgoingMessageEventsAction::class);
 
         // Transaction Messages
         $router->get('/events/{event_id}/transaction-messages', GetTransactionMessagesAction::class);
         $router->post('/events/{event_id}/transaction-messages/{message_id}/resend', ResendTransactionMessageAction::class);
+        $router->get('/events/{event_id}/transaction-messages/{message_id}/events', GetOutgoingTransactionMessageEventsAction::class);
 
         // Delivery Issues (union of transaction + announcement failures)
         $router->get('/events/{event_id}/delivery-issues', GetDeliveryIssuesAction::class);

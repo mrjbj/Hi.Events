@@ -31,6 +31,7 @@ class OutgoingMessageResource extends JsonResource
             'original_status' => $this->getOriginalStatus(),
             'created_at' => $this->getCreatedAt(),
             'updated_at' => $this->getUpdatedAt(),
+            'event_count' => $this->getEventCount(),
         ];
     }
 }

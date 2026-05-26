@@ -36,6 +36,7 @@ use HiEvents\Repository\Eloquent\OrderRefundRepository;
 use HiEvents\Repository\Eloquent\OrderRepository;
 use HiEvents\Repository\Eloquent\OrganizerRepository;
 use HiEvents\Repository\Eloquent\OrganizerSettingsRepository;
+use HiEvents\Repository\Eloquent\OutgoingMessageEventRepository;
 use HiEvents\Repository\Eloquent\OutgoingMessageRepository;
 use HiEvents\Repository\Eloquent\OutgoingTransactionMessageRepository;
 use HiEvents\Repository\Eloquent\PasswordResetRepository;
@@ -88,6 +89,7 @@ use HiEvents\Repository\Interfaces\OrderRefundRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrganizerRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrganizerSettingsRepositoryInterface;
+use HiEvents\Repository\Interfaces\OutgoingMessageEventRepositoryInterface;
 use HiEvents\Repository\Interfaces\OutgoingMessageRepositoryInterface;
 use HiEvents\Repository\Interfaces\OutgoingTransactionMessageRepositoryInterface;
 use HiEvents\Repository\Interfaces\PasswordResetRepositoryInterface;
@@ -166,6 +168,7 @@ class RepositoryServiceProvider extends ServiceProvider
         WaitlistEntryRepositoryInterface::class => WaitlistEntryRepository::class,
         EmailSuppressionRepositoryInterface::class => EmailSuppressionRepository::class,
         OutgoingTransactionMessageRepositoryInterface::class => OutgoingTransactionMessageRepository::class,
+        OutgoingMessageEventRepositoryInterface::class => OutgoingMessageEventRepository::class,
         ContactRepositoryInterface::class => ContactRepository::class,
         ContactAttributeDefinitionRepositoryInterface::class => ContactAttributeDefinitionRepository::class,
     ];

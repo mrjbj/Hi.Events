@@ -1,6 +1,6 @@
 # AWS SES/SNS Configuration for District11 Hi.Events
 
-Last updated: 2026-04-11
+Last updated: 2026-05-26
 
 ## Overview
 
@@ -18,12 +18,12 @@ SES Account (438157282334, us-east-1)
 ├── Configuration Set: District11-Transaction (used by Hi.Events)
 │   ├── District11-Hard  → Email-Hard-District11 (BOUNCE, COMPLAINT, SUBSCRIPTION)
 │   ├── District11-Soft  → Email-Soft-District11 (DELIVERY_DELAY, REJECT, RENDERING_FAILURE)
-│   └── HiEvents-Webhook → District11-HiEvents-Webhook (BOUNCE, COMPLAINT)
+│   └── HiEvents-Webhook → District11-HiEvents-Webhook (BOUNCE, COMPLAINT, DELIVERY, DELIVERY_DELAY, REJECT, RENDERING_FAILURE, SEND)
 │
 └── Configuration Set: District11-Marketing (used by Sendy)
     ├── District11-Hard  → Email-Hard-District11 (BOUNCE, COMPLAINT, SUBSCRIPTION)
     ├── District11-Soft  → Email-Soft-District11 (DELIVERY_DELAY, REJECT, RENDERING_FAILURE)
-    └── HiEvents-Webhook → District11-HiEvents-Webhook (BOUNCE, COMPLAINT)
+    └── HiEvents-Webhook → District11-HiEvents-Webhook (BOUNCE, COMPLAINT, DELIVERY, DELIVERY_DELAY, REJECT, RENDERING_FAILURE, SEND)
 
 SNS Topics:
 ├── Email-Hard-District11 (original, email notifications only)
@@ -49,15 +49,38 @@ muddied that convention. A dedicated `District11-HiEvents-Webhook` topic:
 - Makes it clear in the AWS console which topic feeds Hi.Events automation
 - Avoids any risk of breaking Sendy's setup
 
-### Why BOUNCE and COMPLAINT only (not soft events)?
+### Event types fanning out to the webhook
 
-The `Email-Soft` topic receives DELIVERY_DELAY, REJECT, and RENDERING_FAILURE. These are
-sender-side issues (SES config problems, still retrying) not recipient problems. Suppressing
-an email address because of a DELIVERY_DELAY would block emails that would have been delivered.
+The `HiEvents-Webhook` event destination forwards every SES event type that is useful for
+in-app visibility. Each event lands in the `outgoing_message_events` table (append-only)
+with the full SNS envelope captured in `raw_payload`. The UI exposes these via a per-row
+"Provider Events" drawer on the Message Tracking page.
 
-Our handler only processes:
-- **Bounce** (notificationType: "Bounce") — address doesn't exist or is permanently undeliverable
-- **Complaint** (notificationType: "Complaint") — recipient marked email as spam
+Event types and what the app does with them:
+
+| Event             | Suppression / status change?                              | Logged to events table? |
+|-------------------|-----------------------------------------------------------|-------------------------|
+| Bounce            | Yes — suppresses address + flips `outgoing_messages.status` | Yes |
+| Complaint         | Yes — suppresses marketing only                            | Yes |
+| Delivery          | Flips status SENT → DELIVERED                              | Yes |
+| DeliveryDelay     | No — transient, SES retries internally                     | Yes |
+| Reject            | No                                                         | Yes |
+| RenderingFailure  | No                                                         | Yes |
+| Send              | No (SENT status is set when the job dispatches, not here)  | Yes |
+
+### Why no Open / Click tracking?
+
+Enabling Open/Click on the Configuration Set would force SES to rewrite every link in
+every email through `r.us-east-1.awstrack.me/...`. For transactional emails (order
+confirmations, ticket links) this is disruptive — links look phishy, may trip spam
+filters, and the redirect adds latency. Open tracking is also unreliable now that Apple
+Mail Privacy Protection auto-fetches the tracking pixel. Not worth the trade-off.
+
+### Email-Soft topic kept as a safety net
+
+The `Email-Soft-District11` topic still emails the treasurer on DELIVERY_DELAY / REJECT /
+RENDERING_FAILURE. Once the in-app events drawer has been observed working for a week or
+two, that email subscription can be removed.
 
 ### Sendy bounces flow through the same path
 
@@ -106,6 +129,12 @@ aws sns list-subscriptions-by-topic \
 # Check event destinations for a config set
 aws sesv2 get-configuration-set-event-destinations \
   --configuration-set-name District11-Transaction --output json
+
+# Update the HiEvents-Webhook destination to include all event types
+aws sesv2 update-configuration-set-event-destination \
+  --configuration-set-name District11-Transaction \
+  --event-destination-name HiEvents-Webhook \
+  --event-destination '{"Enabled":true,"MatchingEventTypes":["BOUNCE","COMPLAINT","DELIVERY","DELIVERY_DELAY","REJECT","RENDERING_FAILURE","SEND"],"SnsDestination":{"TopicArn":"arn:aws:sns:us-east-1:438157282334:District11-HiEvents-Webhook"}}'
 
 # Subscribe a new endpoint
 aws sns subscribe \

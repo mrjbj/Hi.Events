@@ -9,6 +9,7 @@ class OutgoingTransactionMessageDomainObject extends Generated\OutgoingTransacti
     protected ?string $latest_retry_status = null;
     protected ?string $original_recipient = null;
     protected ?string $original_status = null;
+    protected int $event_count = 0;
 
     public function setRetryCount(int $retry_count): self
     {
@@ -63,5 +64,16 @@ class OutgoingTransactionMessageDomainObject extends Generated\OutgoingTransacti
     public function getOriginalStatus(): ?string
     {
         return $this->original_status;
+    }
+
+    public function setEventCount(int $event_count): self
+    {
+        $this->event_count = $event_count;
+        return $this;
+    }
+
+    public function getEventCount(): int
+    {
+        return $this->event_count;
     }
 }

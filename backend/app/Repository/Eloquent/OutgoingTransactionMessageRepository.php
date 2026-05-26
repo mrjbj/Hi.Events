@@ -59,7 +59,8 @@ class OutgoingTransactionMessageRepository extends BaseRepository implements Out
                 (SELECT r2.recipient FROM {$table} r2 WHERE r2.retry_for_id = {$table}.id ORDER BY r2.created_at DESC LIMIT 1) as latest_retry_recipient,
                 (SELECT r3.status FROM {$table} r3 WHERE r3.retry_for_id = {$table}.id ORDER BY r3.created_at DESC LIMIT 1) as latest_retry_status,
                 (SELECT o.recipient FROM {$table} o WHERE o.id = {$table}.retry_for_id) as original_recipient,
-                (SELECT o2.status FROM {$table} o2 WHERE o2.id = {$table}.retry_for_id) as original_status");
+                (SELECT o2.status FROM {$table} o2 WHERE o2.id = {$table}.retry_for_id) as original_status,
+                (SELECT COUNT(*) FROM outgoing_message_events e WHERE e.outgoing_transaction_message_id = {$table}.id) as event_count");
 
         if ($params->query) {
             $search = '%' . $params->query . '%';

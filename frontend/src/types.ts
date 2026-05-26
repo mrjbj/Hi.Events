@@ -821,6 +821,7 @@ export interface OutgoingMessage {
     original_status?: string | null;
     created_at?: string;
     updated_at?: string;
+    event_count?: number;
 }
 
 export interface OutgoingTransactionMessage {
@@ -842,6 +843,18 @@ export interface OutgoingTransactionMessage {
     original_status: string | null;
     created_at: string;
     updated_at: string;
+    event_count?: number;
+}
+
+export interface OutgoingMessageEvent {
+    id: number;
+    event_type: string;
+    event_subtype: string | null;
+    provider: string;
+    provider_message_id: string | null;
+    occurred_at: string | null;
+    created_at: string;
+    raw_payload: Record<string, unknown> | null;
 }
 
 export interface DeliveryIssue {

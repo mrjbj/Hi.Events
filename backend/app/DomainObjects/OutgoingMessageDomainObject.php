@@ -10,6 +10,7 @@ class OutgoingMessageDomainObject extends Generated\OutgoingMessageDomainObjectA
     protected ?string $original_recipient = null;
     protected ?string $original_status = null;
     protected ?int $promotes_event_id = null;
+    protected int $event_count = 0;
 
     public function setRetryCount(int $retry_count): self
     {
@@ -75,5 +76,16 @@ class OutgoingMessageDomainObject extends Generated\OutgoingMessageDomainObjectA
     public function getPromotesEventId(): ?int
     {
         return $this->promotes_event_id;
+    }
+
+    public function setEventCount(int $event_count): self
+    {
+        $this->event_count = $event_count;
+        return $this;
+    }
+
+    public function getEventCount(): int
+    {
+        return $this->event_count;
     }
 }

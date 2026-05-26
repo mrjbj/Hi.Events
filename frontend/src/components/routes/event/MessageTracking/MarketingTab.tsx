@@ -8,8 +8,9 @@ import {Pagination} from "../../../common/Pagination";
 import {useState} from "react";
 import {TableSkeleton} from "../../../common/TableSkeleton";
 import {DeliveryIssue, OutgoingMessage, QueryFilterOperator} from "../../../../types.ts";
-import {IconCheck, IconCircleDashed, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
+import {IconCheck, IconCircleDashed, IconListDetails, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
 import {statusColor, statusFilterOptions, dateRangeOptions, ResolvedHoverCard, RetryHoverCard} from "./shared.tsx";
+import {EventLogDrawer} from "./EventLogDrawer.tsx";
 import {useResolveDeliveryIssue} from "../../../../mutations/useResolveDeliveryIssue.ts";
 import {ResolveDeliveryIssueModal} from "../../../modals/ResolveDeliveryIssueModal";
 import {showError} from "../../../../utilites/notifications.tsx";
@@ -61,6 +62,7 @@ export const MarketingTab = () => {
     const [sortDir, setSortDir] = useState('desc');
     const [resolveModalMessage, setResolveModalMessage] = useState<DeliveryIssue | null>(null);
     const [resolvingId, setResolvingId] = useState<number | string | null>(null);
+    const [eventLogMessage, setEventLogMessage] = useState<OutgoingMessage | null>(null);
     const resolveMutation = useResolveDeliveryIssue();
     const queryClient = useQueryClient();
 
@@ -259,6 +261,7 @@ export const MarketingTab = () => {
                                         <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Updated`} field="updated_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <Table.Th></Table.Th>
+                                        <Table.Th style={{width: 40}}></Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
                                 <Table.Tbody>
@@ -278,6 +281,15 @@ export const MarketingTab = () => {
                                             <Table.Td>{relativeDate(msg.created_at || '')}</Table.Td>
                                             <Table.Td>{msg.updated_at ? relativeDate(msg.updated_at) : ''}</Table.Td>
                                             <Table.Td>{getActionButton(msg)}</Table.Td>
+                                            <Table.Td>
+                                                {(msg.event_count ?? 0) > 0 && (
+                                                    <Tooltip label={t`View provider events`}>
+                                                        <ActionIcon variant="subtle" size="sm" color="gray" onClick={() => setEventLogMessage(msg)}>
+                                                            <IconListDetails size={16}/>
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                )}
+                                            </Table.Td>
                                         </Table.Tr>
                                     ))}
                                 </Table.Tbody>
@@ -303,6 +315,16 @@ export const MarketingTab = () => {
                     message={resolveModalMessage}
                 />
             )}
+
+            <EventLogDrawer
+                eventId={eventId!}
+                messageId={eventLogMessage?.id ?? null}
+                source="announcement"
+                opened={!!eventLogMessage}
+                onClose={() => setEventLogMessage(null)}
+                recipient={eventLogMessage?.recipient}
+                subject={eventLogMessage?.subject}
+            />
         </>
     );
 };

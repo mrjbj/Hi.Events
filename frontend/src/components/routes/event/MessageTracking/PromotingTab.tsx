@@ -9,8 +9,9 @@ import {Pagination} from "../../../common/Pagination";
 import {useMemo, useState} from "react";
 import {TableSkeleton} from "../../../common/TableSkeleton";
 import {DeliveryIssue, OutgoingMessage, QueryFilterOperator} from "../../../../types.ts";
-import {IconArrowDownLeft, IconArrowUpRight, IconCheck, IconCircleDashed, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
+import {IconArrowDownLeft, IconArrowUpRight, IconCheck, IconCircleDashed, IconListDetails, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
 import {statusColor, statusFilterOptions, dateRangeOptions, ResolvedHoverCard, RetryHoverCard} from "./shared.tsx";
+import {EventLogDrawer} from "./EventLogDrawer.tsx";
 import {useResolveDeliveryIssue} from "../../../../mutations/useResolveDeliveryIssue.ts";
 import {ResolveDeliveryIssueModal} from "../../../modals/ResolveDeliveryIssueModal";
 import {showError} from "../../../../utilites/notifications.tsx";
@@ -62,6 +63,7 @@ export const PromotingTab = () => {
     const [sortDir, setSortDir] = useState('desc');
     const [resolveModalMessage, setResolveModalMessage] = useState<{ issue: DeliveryIssue, audienceEventId: number } | null>(null);
     const [resolvingId, setResolvingId] = useState<number | string | null>(null);
+    const [eventLogMessage, setEventLogMessage] = useState<{ msg: OutgoingMessage, audienceEventId: number } | null>(null);
     const resolveMutation = useResolveDeliveryIssue();
     const queryClient = useQueryClient();
     const {data: allEventsData} = useGetEvents({pageNumber: 1, perPage: 100});
@@ -279,6 +281,7 @@ export const PromotingTab = () => {
                                         <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Updated`} field="updated_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <Table.Th></Table.Th>
+                                        <Table.Th style={{width: 40}}></Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
                                 <Table.Tbody>
@@ -324,6 +327,15 @@ export const PromotingTab = () => {
                                                 <Table.Td>{relativeDate(msg.created_at || '')}</Table.Td>
                                                 <Table.Td>{msg.updated_at ? relativeDate(msg.updated_at) : ''}</Table.Td>
                                                 <Table.Td>{getActionButton(msg)}</Table.Td>
+                                                <Table.Td>
+                                                    {audienceEventId && (msg.event_count ?? 0) > 0 && (
+                                                        <Tooltip label={t`View provider events`}>
+                                                            <ActionIcon variant="subtle" size="sm" color="gray" onClick={() => setEventLogMessage({msg, audienceEventId})}>
+                                                                <IconListDetails size={16}/>
+                                                            </ActionIcon>
+                                                        </Tooltip>
+                                                    )}
+                                                </Table.Td>
                                             </Table.Tr>
                                         );
                                     })}
@@ -350,6 +362,16 @@ export const PromotingTab = () => {
                     message={resolveModalMessage.issue}
                 />
             )}
+
+            <EventLogDrawer
+                eventId={eventLogMessage?.audienceEventId ?? null}
+                messageId={eventLogMessage?.msg.id ?? null}
+                source="announcement"
+                opened={!!eventLogMessage}
+                onClose={() => setEventLogMessage(null)}
+                recipient={eventLogMessage?.msg.recipient}
+                subject={eventLogMessage?.msg.subject}
+            />
         </>
     );
 };

@@ -5,6 +5,7 @@ namespace Tests\Unit\Services\Application\Handlers\Email\Ses;
 use HiEvents\Exceptions\SnsSignatureVerificationException;
 use HiEvents\Services\Application\Handlers\Email\Ses\DTO\SesWebhookDTO;
 use HiEvents\Services\Application\Handlers\Email\Ses\IncomingSesWebhookHandler;
+use HiEvents\Services\Domain\Email\OutgoingMessageEventLogger;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\BounceHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\ComplaintHandler;
 use HiEvents\Services\Domain\Email\Ses\EventHandlers\DeliveryHandler;
@@ -20,6 +21,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
     private BounceHandler $bounceHandler;
     private ComplaintHandler $complaintHandler;
     private DeliveryHandler $deliveryHandler;
+    private OutgoingMessageEventLogger $eventLogger;
     private SnsSignatureVerificationService $signatureService;
     private Logger $logger;
     private Repository $cache;
@@ -31,6 +33,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
         $this->bounceHandler = m::mock(BounceHandler::class);
         $this->complaintHandler = m::mock(ComplaintHandler::class);
         $this->deliveryHandler = m::mock(DeliveryHandler::class);
+        $this->eventLogger = m::mock(OutgoingMessageEventLogger::class)->shouldIgnoreMissing();
         $this->signatureService = m::mock(SnsSignatureVerificationService::class);
         $this->logger = m::mock(Logger::class)->shouldIgnoreMissing();
         $this->cache = m::mock(Repository::class);
@@ -39,6 +42,7 @@ class IncomingSesWebhookHandlerTest extends TestCase
             $this->bounceHandler,
             $this->complaintHandler,
             $this->deliveryHandler,
+            $this->eventLogger,
             $this->signatureService,
             $this->logger,
             $this->cache,
@@ -239,5 +243,105 @@ class IncomingSesWebhookHandlerTest extends TestCase
         $this->handler->handle(new SesWebhookDTO(payload: $payload));
 
         \Illuminate\Support\Facades\Http::assertNothingSent();
+    }
+
+    public function testLogsDeliveryDelayWithoutInvokingSubHandlers(): void
+    {
+        $innerMessage = json_encode([
+            'eventType' => 'DeliveryDelay',
+            'mail' => ['messageId' => 'ses-delay-1', 'timestamp' => '2026-05-26T10:00:00.000Z'],
+            'deliveryDelay' => ['delayType' => 'Throttling', 'timestamp' => '2026-05-26T10:00:01.000Z'],
+        ]);
+
+        $payload = json_encode([
+            'Type' => 'Notification',
+            'MessageId' => 'msg-delay-1',
+            'Message' => $innerMessage,
+        ]);
+
+        $this->signatureService->shouldReceive('verify')->once();
+        $this->cache->shouldReceive('has')->with('ses_sns_message_msg-delay-1')->andReturn(false);
+        $this->cache->shouldReceive('put')->once();
+
+        $this->eventLogger->shouldReceive('log')
+            ->once()
+            ->withArgs(function (...$args) {
+                return $args[0] === 'DeliveryDelay' && $args[1] === 'Throttling' && $args[2] === 'ses-delay-1';
+            });
+
+        $this->bounceHandler->shouldNotReceive('handle');
+        $this->complaintHandler->shouldNotReceive('handle');
+        $this->deliveryHandler->shouldNotReceive('handle');
+
+        config(['services.ses.sns_topic_arn' => null]);
+
+        $this->handler->handle(new SesWebhookDTO(payload: $payload));
+    }
+
+    public function testLogsBeforeDispatchingBounce(): void
+    {
+        $innerMessage = json_encode([
+            'notificationType' => 'Bounce',
+            'mail' => ['messageId' => 'ses-bounce-1', 'timestamp' => '2026-05-26T10:00:00.000Z'],
+            'bounce' => [
+                'bounceType' => 'Permanent',
+                'timestamp' => '2026-05-26T10:00:02.000Z',
+                'bouncedRecipients' => [['emailAddress' => 'test@example.com']],
+            ],
+        ]);
+
+        $payload = json_encode([
+            'Type' => 'Notification',
+            'MessageId' => 'msg-bounce-1',
+            'Message' => $innerMessage,
+        ]);
+
+        $this->signatureService->shouldReceive('verify')->once();
+        $this->cache->shouldReceive('has')->with('ses_sns_message_msg-bounce-1')->andReturn(false);
+        $this->cache->shouldReceive('put')->once();
+
+        $this->eventLogger->shouldReceive('log')
+            ->once()
+            ->withArgs(function (...$args) {
+                return $args[0] === 'Bounce' && $args[1] === 'Permanent';
+            });
+
+        $this->bounceHandler->shouldReceive('handle')->once();
+
+        config(['services.ses.sns_topic_arn' => null]);
+
+        $this->handler->handle(new SesWebhookDTO(payload: $payload));
+    }
+
+    public function testLogsUnknownEventTypeWithoutDispatch(): void
+    {
+        $innerMessage = json_encode([
+            'eventType' => 'Open',
+            'mail' => ['messageId' => 'ses-open-1', 'timestamp' => '2026-05-26T10:00:00.000Z'],
+        ]);
+
+        $payload = json_encode([
+            'Type' => 'Notification',
+            'MessageId' => 'msg-open-1',
+            'Message' => $innerMessage,
+        ]);
+
+        $this->signatureService->shouldReceive('verify')->once();
+        $this->cache->shouldReceive('has')->with('ses_sns_message_msg-open-1')->andReturn(false);
+        $this->cache->shouldReceive('put')->once();
+
+        $this->eventLogger->shouldReceive('log')
+            ->once()
+            ->withArgs(function (...$args) {
+                return $args[0] === 'Open';
+            });
+
+        $this->bounceHandler->shouldNotReceive('handle');
+        $this->complaintHandler->shouldNotReceive('handle');
+        $this->deliveryHandler->shouldNotReceive('handle');
+
+        config(['services.ses.sns_topic_arn' => null]);
+
+        $this->handler->handle(new SesWebhookDTO(payload: $payload));
     }
 }

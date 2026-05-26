@@ -42,8 +42,16 @@ case "$CERTS_FLAG" in
     --certs=signed)
         generate_signed_certs
         ;;
-    *)
+    --certs=unsigned)
         generate_unsigned_certs
+        ;;
+    *)
+        if command -v mkcert &> /dev/null; then
+            echo -e "${GREEN}mkcert detected — using signed certs. Pass --certs=unsigned to override.${NC}"
+            generate_signed_certs
+        else
+            generate_unsigned_certs
+        fi
         ;;
 esac
 
