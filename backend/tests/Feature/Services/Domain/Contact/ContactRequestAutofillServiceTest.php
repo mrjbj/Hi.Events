@@ -36,6 +36,16 @@ class ContactRequestAutofillServiceTest extends TestCase
     private int $eventId;
     private int $orderQuestionId;
     private int $productQuestionId;
+    private int $orderCountyQuestionId;
+    private int $productCountyQuestionId;
+
+    /**
+     * Mirror of district11 prod's County dropdown options (8 choices). Used
+     * by the validity tests so they exercise the same option-list the real
+     * checkout uses, and so a future option-list edit here flags any test
+     * that assumes a now-retired value.
+     */
+    private const COUNTY_OPTIONS = ['Bartow', 'Cherokee', 'Cobb', 'Gordon', 'Hall', 'Paulding', 'Pickens', 'Other'];
 
     protected function setUp(): void
     {
@@ -155,6 +165,92 @@ class ContactRequestAutofillServiceTest extends TestCase
         );
     }
 
+    /**
+     * Regression for district11 prod (2026-05-26): contact attribute values
+     * that don't match the current dropdown option list (typos, casing,
+     * retired labels, freeform imports) were being autofilled into hidden
+     * question responses, then rejected by the checkout validator on a field
+     * the buyer can't see. Each case below is a real prod row.
+     *
+     * Autofill must SKIP these — that, combined with the matching skip in
+     * ContactPrefillService (which keeps the field visible), lets the buyer
+     * pick a valid value themselves instead of looping on a silent toast.
+     *
+     * @dataProvider invalidDropdownValuesProvider
+     */
+    public function testDoesNotAutofillDropdownWhenContactValueIsNotInOptionList(string $description, string $badValue): void
+    {
+        $email = 'stale-' . md5($badValue) . '@example.com';
+        $this->insertContact($email, ['county' => $badValue]);
+
+        $input = [
+            'order' => [
+                'email' => $email,
+                'questions' => [
+                    ['question_id' => $this->orderCountyQuestionId, 'response' => []],
+                ],
+            ],
+            'products' => [
+                [
+                    'product_id' => 1,
+                    'email' => $email,
+                    'questions' => [
+                        ['question_id' => $this->productCountyQuestionId, 'response' => []],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->service->fillRequestInput($input, $this->eventId);
+
+        $this->assertSame(
+            [],
+            $result['order']['questions'][0]['response'],
+            "Order-level dropdown must not be autofilled with invalid value ({$description}: '{$badValue}')."
+        );
+        $this->assertSame(
+            [],
+            $result['products'][0]['questions'][0]['response'],
+            "Product-level dropdown must not be autofilled with invalid value ({$description}: '{$badValue}')."
+        );
+    }
+
+    public static function invalidDropdownValuesProvider(): array
+    {
+        // Each row is a real district11 prod contact attribute value as of 2026-05-26.
+        return [
+            'typo' => ['typo', 'Cheerokee'],
+            'wrong case' => ['case mismatch (lowercase)', 'cherokee'],
+            'county not in list (Fulton)' => ['county outside list', 'Fulton'],
+            'state instead of county (GA Georgia)' => ['state instead of county', 'GA Georgia'],
+            'state instead of county (Georgia)' => ['state instead of county', 'Georgia'],
+            'zip instead of county' => ['zip code instead of county', '30188'],
+        ];
+    }
+
+    public function testStillAutofillsDropdownWhenContactValueIsValid(): void
+    {
+        $this->insertContact('valid@example.com', ['county' => 'Cherokee']);
+
+        $input = [
+            'order' => [
+                'email' => 'valid@example.com',
+                'questions' => [
+                    ['question_id' => $this->orderCountyQuestionId, 'response' => []],
+                ],
+            ],
+            'products' => [],
+        ];
+
+        $result = $this->service->fillRequestInput($input, $this->eventId);
+
+        $this->assertSame(
+            ['answer' => 'Cherokee'],
+            $result['order']['questions'][0]['response'],
+            'A valid dropdown value must still be autofilled — the validity check must not break the happy path.'
+        );
+    }
+
     public function testIsNoopWhenEventDoesNotExist(): void
     {
         $input = ['order' => ['email' => 'x@y.com', 'questions' => []], 'products' => []];
@@ -194,6 +290,26 @@ class ContactRequestAutofillServiceTest extends TestCase
             attributeId: $attributeId,
             belongsTo: QuestionBelongsTo::PRODUCT->name,
         );
+
+        $countyAttributeId = $this->insertAttributeDefinition($this->accountId, 'county');
+
+        $this->orderCountyQuestionId = $this->insertQuestion(
+            eventId: $this->eventId,
+            attributeId: $countyAttributeId,
+            belongsTo: QuestionBelongsTo::ORDER->name,
+            type: 'DROPDOWN',
+            options: self::COUNTY_OPTIONS,
+            title: 'County',
+        );
+
+        $this->productCountyQuestionId = $this->insertQuestion(
+            eventId: $this->eventId,
+            attributeId: $countyAttributeId,
+            belongsTo: QuestionBelongsTo::PRODUCT->name,
+            type: 'DROPDOWN',
+            options: self::COUNTY_OPTIONS,
+            title: 'County',
+        );
     }
 
     private function insertEvent(int $userId, int $accountId): int
@@ -225,14 +341,20 @@ class ContactRequestAutofillServiceTest extends TestCase
         ]);
     }
 
-    private function insertQuestion(int $eventId, int $attributeId, string $belongsTo): int
-    {
+    private function insertQuestion(
+        int $eventId,
+        int $attributeId,
+        string $belongsTo,
+        string $type = 'SINGLE_LINE_TEXT',
+        ?array $options = null,
+        string $title = 'Shirt Size',
+    ): int {
         return (int) DB::table('questions')->insertGetId([
             'event_id' => $eventId,
-            'title' => 'Shirt Size',
+            'title' => $title,
             'required' => true,
-            'type' => 'SINGLE_LINE_TEXT',
-            'options' => null,
+            'type' => $type,
+            'options' => $options === null ? null : json_encode($options),
             'belongs_to' => $belongsTo,
             'order' => 0,
             'is_hidden' => false,

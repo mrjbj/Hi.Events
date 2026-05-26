@@ -47,6 +47,8 @@ class ContactRequestAutofillService
             ->whereNull('contact_attribute_definitions.deleted_at')
             ->select([
                 'questions.id as question_id',
+                'questions.type as question_type',
+                'questions.options as question_options',
                 'questions.belongs_to',
                 'contact_attribute_definitions.name as attribute_name',
             ])
@@ -56,12 +58,13 @@ class ContactRequestAutofillService
             return $input;
         }
 
-        // Map: question_id => ['belongs_to' => string, 'attribute_name' => string]
         $questionMap = [];
         foreach ($linked as $row) {
             $questionMap[(int) $row->question_id] = [
                 'belongs_to' => $row->belongs_to,
                 'attribute_name' => $row->attribute_name,
+                'type' => $row->question_type,
+                'options' => $row->question_options,
             ];
         }
 
@@ -92,6 +95,7 @@ class ContactRequestAutofillService
                     if ($this->hasAnswer($q)) continue;
                     $value = $attrs[$questionMap[$qid]['attribute_name']] ?? null;
                     if ($value === null || $value === '') continue;
+                    if (!ContactPrefillService::acceptsValue($questionMap[$qid]['type'], $questionMap[$qid]['options'], $value)) continue;
                     $input['order']['questions'][$idx]['response'] = ['answer' => $this->normalizeValue($value)];
                 }
             }
@@ -112,6 +116,7 @@ class ContactRequestAutofillService
                     if ($this->hasAnswer($q)) continue;
                     $value = $attrs[$questionMap[$qid]['attribute_name']] ?? null;
                     if ($value === null || $value === '') continue;
+                    if (!ContactPrefillService::acceptsValue($questionMap[$qid]['type'], $questionMap[$qid]['options'], $value)) continue;
                     $input['products'][$pIdx]['questions'][$qIdx]['response'] = ['answer' => $this->normalizeValue($value)];
                 }
             }
