@@ -1,1 +1,10 @@
-[{"url": "postgresql://username:password@localhost:5432/backend", "name": "backend"}]
+[
+  {
+    "url": "postgresql://postgres:${DISTRICT11_POSTGRES_PASSWORD}@localhost:15432/backend",
+    "name": "backend"
+  },
+  {
+    "url": "postgresql://postgres:${DISTRICT11_POSTGRES_PASSWORD}@localhost:15432/hi-events",
+    "name": "district11-prod"
+  }
+]
