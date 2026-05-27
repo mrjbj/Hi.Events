@@ -43,6 +43,8 @@ const CheckIn = () => {
     const eventSettings = event?.settings;
     const [searchQuery, setSearchQuery] = useState('');
     const [searchQueryDebounced] = useDebouncedValue(searchQuery, 400);
+    const searchInputRef = useRef<HTMLInputElement | null>(null);
+    const focusSearch = useCallback(() => searchInputRef.current?.focus(), []);
     const [qrScannerOpen, setQrScannerOpen] = useState(false);
     const [scannerSelectionOpen, setScannerSelectionOpen] = useState(false);
     const [hidScannerMode, setHidScannerMode] = useState(false);
@@ -166,6 +168,42 @@ const CheckIn = () => {
             onConfirm: () => setAttendeeFilter(null),
         });
     }, [activeFilterKey, attendees, attendeesQuery.isFetching, searchQueryDebounced]);
+
+    // Focus the search box once the check-in list has loaded. This gives the
+    // search input the visual "home base" cue without fighting focus across
+    // re-renders.
+    useEffect(() => {
+        if (checkInList) {
+            searchInputRef.current?.focus();
+        }
+    }, [checkInList?.short_id]);
+
+    // Document-level Escape handler so the search-clear / filter-clear shortcut
+    // works regardless of which control on the page currently has focus. We
+    // bail when any modal is open so Mantine's modal-close-on-Escape behavior
+    // wins (the user expects Esc to close a modal first).
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape') return;
+            if (typeof document !== 'undefined' && document.querySelector('[role="dialog"]')) {
+                return;
+            }
+            if (searchQuery !== '') {
+                event.preventDefault();
+                setSearchQuery('');
+                focusSearch();
+                return;
+            }
+            if (attendeeFilter !== null) {
+                event.preventDefault();
+                setAttendeeFilter(null);
+                focusSearch();
+            }
+        };
+        if (typeof document === 'undefined') return;
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [searchQuery, attendeeFilter, focusSearch]);
 
     // Save sound preference to localStorage
     useEffect(() => {
@@ -576,17 +614,11 @@ const CheckIn = () => {
                         <SearchBar
                             className={classes.searchInput}
                             value={searchQuery}
+                            inputRef={searchInputRef}
                             onChange={(event) => setSearchQuery(event.target.value)}
-                            onClear={() => setSearchQuery('')}
-                            onKeyDown={(event) => {
-                                if (event.key !== 'Escape') return;
-                                if (searchQuery !== '') {
-                                    event.preventDefault();
-                                    setSearchQuery('');
-                                } else if (attendeeFilter !== null) {
-                                    event.preventDefault();
-                                    setAttendeeFilter(null);
-                                }
+                            onClear={() => {
+                                setSearchQuery('');
+                                focusSearch();
                             }}
                             placeholder={t`Search by name, order #, attendee # or email...`}
                         />
@@ -717,10 +749,12 @@ const CheckIn = () => {
                         orderId: attendee.order_id,
                         label: match?.label || buyer || attendee.buyer_email || t`Group purchase`,
                     });
+                    focusSearch();
                 }}
                 onFilterByTable={(seatInfo) => {
                     setSearchQuery('');
                     setAttendeeFilter({type: 'table', seatInfo});
+                    focusSearch();
                 }}
                 onClickSound={playClickSound}
             />

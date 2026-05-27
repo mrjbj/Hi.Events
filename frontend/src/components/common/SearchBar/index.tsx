@@ -10,6 +10,7 @@ import {PaginationData, QueryFilters} from "../../../types.ts";
 interface SearchBarProps extends TextInputProps {
     onClear: () => void;
     sortProps?: SortSelectorProps | undefined,
+    inputRef?: React.Ref<HTMLInputElement>,
 }
 
 interface SearchBarWrapperProps {
@@ -50,7 +51,7 @@ export const SearchBarWrapper = ({setSearchParams, searchParams, pagination, pla
     );
 }
 
-export const SearchBar = ({sortProps, onClear, value, onChange, ...props}: SearchBarProps) => {
+export const SearchBar = ({sortProps, onClear, value, onChange, inputRef, ...props}: SearchBarProps) => {
     const [searchValue, setSearchValue] = useState<typeof value>(value);
 
     useEffect(() => {
@@ -65,6 +66,7 @@ export const SearchBar = ({sortProps, onClear, value, onChange, ...props}: Searc
                 radius="sm"
                 size="md"
                 value={searchValue}
+                ref={inputRef}
                 {...props}
                 onChange={(event) => {
                     setSearchValue(event.currentTarget.value);
