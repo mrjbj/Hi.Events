@@ -42,7 +42,7 @@ const CheckIn = () => {
     const event = checkInList?.event;
     const eventSettings = event?.settings;
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchQueryDebounced] = useDebouncedValue(searchQuery, 200);
+    const [searchQueryDebounced] = useDebouncedValue(searchQuery, 400);
     const [qrScannerOpen, setQrScannerOpen] = useState(false);
     const [scannerSelectionOpen, setScannerSelectionOpen] = useState(false);
     const [hidScannerMode, setHidScannerMode] = useState(false);
@@ -578,6 +578,16 @@ const CheckIn = () => {
                             value={searchQuery}
                             onChange={(event) => setSearchQuery(event.target.value)}
                             onClear={() => setSearchQuery('')}
+                            onKeyDown={(event) => {
+                                if (event.key !== 'Escape') return;
+                                if (searchQuery !== '') {
+                                    event.preventDefault();
+                                    setSearchQuery('');
+                                } else if (attendeeFilter !== null) {
+                                    event.preventDefault();
+                                    setAttendeeFilter(null);
+                                }
+                            }}
                             placeholder={t`Search by name, order #, attendee # or email...`}
                         />
                         <Select
