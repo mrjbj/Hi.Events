@@ -1,4 +1,4 @@
-import { Event, GenericModalProps, IdParam, MessageType, ProductType } from "../../../types.ts";
+import { Event, EventLifecycleStatus, EventStatus, GenericModalProps, IdParam, MessageType, ProductType } from "../../../types.ts";
 import { useParams } from "react-router";
 import { useGetEvent } from "../../../queries/useGetEvent.ts";
 import { useGetEvents } from "../../../queries/useGetEvents.ts";
@@ -8,6 +8,7 @@ import {
   Alert,
   Button,
   Checkbox,
+  Collapse,
   ComboboxItemGroup,
   Group,
   LoadingOverlay,
@@ -15,7 +16,9 @@ import {
   MultiSelect,
   Select,
   SimpleGrid,
-  TextInput
+  Text,
+  TextInput,
+  UnstyledButton
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -103,6 +106,9 @@ const AttendeeField = ({ orderId, eventId, attendeeId, form }: {
   )
 }
 
+const isPromotableEvent = (e: Pick<Event, 'status' | 'lifecycle_status'>): boolean =>
+  e.status === EventStatus.LIVE && e.lifecycle_status !== EventLifecycleStatus.ENDED;
+
 const CUSTOM_PRESET = 'custom';
 
 const getSchedulePresets = (event: Event) => {
@@ -145,6 +151,20 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const { data: checkInListsData } = useGetEventCheckInLists(eventId);
   const { data: allEventsData } = useGetEvents({ pageNumber: 1, perPage: 100 });
+  const [isSourceInfoExpanded, setIsSourceInfoExpanded] = useState(false);
+
+  const sourceEventIsPromotable = !!event && isPromotableEvent(event);
+
+  const promotesEventOptions = useMemo(() => {
+    const list = (allEventsData?.data ?? []).filter(isPromotableEvent);
+    if (event && sourceEventIsPromotable && !list.some(e => e.id === event.id)) {
+      list.unshift(event);
+    }
+    return list.map(e => ({
+      value: String(e.id),
+      label: e.title,
+    }));
+  }, [allEventsData?.data, event, sourceEventIsPromotable]);
 
   const presets = useMemo(() => event ? getSchedulePresets(event) : [], [event]);
 
@@ -176,7 +196,7 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
       order_statuses: ['COMPLETED'],
       scheduled_at: '',
       check_in_list_id: '',
-      promotes_event_id: eventId ? String(eventId) : '',
+      promotes_event_id: '',
     },
     validate: {
       acknowledgement: (value) => value === true ? null : t`You must acknowledge that this email is not promotional`,
@@ -214,6 +234,10 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
 
   const handleSend = async (values: any, skipPreflight = false) => {
     setTierLimitError(null);
+    if (!sourceEventIsPromotable && !values.promotes_event_id) {
+      form.setFieldError('promotes_event_id', t`Select the active event this message is about.`);
+      return;
+    }
     const submitData = { ...values };
     submitData.promotes_event_id = values.promotes_event_id ? Number(values.promotes_event_id) : null;
     if (isScheduled) {
@@ -252,6 +276,16 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
     form.setFieldValue('product_ids', []);
     form.setFieldValue('check_in_list_id', '');
   }, [form.values.message_type]);
+
+  useEffect(() => {
+    if (!event || !eventId) return;
+    const sourceIdStr = String(event.id);
+    if (sourceEventIsPromotable && !form.values.promotes_event_id) {
+      form.setFieldValue('promotes_event_id', sourceIdStr);
+    } else if (!sourceEventIsPromotable && form.values.promotes_event_id === sourceIdStr) {
+      form.setFieldValue('promotes_event_id', '');
+    }
+  }, [event?.id, sourceEventIsPromotable]);
 
   if (!event || !me || !product_categories) {
     return <LoadingOverlay visible />;
@@ -321,6 +355,33 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
         {!formIsDisabled && (
           <fieldset disabled={formIsDisabled} style={{ border: 'none', padding: 0, margin: 0 }}>
             <div className={classes.formSection}>
+              {event && !sourceEventIsPromotable && (
+                <Alert
+                  variant="light"
+                  color="blue"
+                  icon={<IconInfoCircle size="1rem" />}
+                  p="sm"
+                >
+                  <UnstyledButton
+                    type="button"
+                    onClick={() => setIsSourceInfoExpanded(v => !v)}
+                    style={{ textAlign: 'left', width: '100%' }}
+                  >
+                    <Text size="sm" fw={500}>
+                      {t`This event isn't active, so you can't promote it directly. Choose a live event in "Relating to" — or reactivate this event to promote it again.`}
+                      {' '}
+                      <span className={classes.detailsToggle}>
+                        {isSourceInfoExpanded ? t`Hide details` : t`Why?`}
+                      </span>
+                    </Text>
+                  </UnstyledButton>
+                  <Collapse in={isSourceInfoExpanded}>
+                    <Text size="sm" c="dimmed" mt={8}>
+                      {t`Promotional messages need to point at an active event so recipients land on something they can act on. To send another message about this event, set its status back to "Live" first. To market a different event to this event's attendees, pick that live event in the "Relating to" dropdown.`}
+                    </Text>
+                  </Collapse>
+                </Alert>
+              )}
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                 <TextInput
                   label={t`Source Event`}
@@ -332,13 +393,11 @@ export const SendMessageModal = (props: EventMessageModalProps) => {
 
                 <Select
                   label={t`Relating to`}
-                  description={t`Which event this message promotes.`}
+                  description={t`Which active event this message promotes.`}
                   placeholder={t`Select event`}
                   searchable
-                  data={(allEventsData?.data ?? []).map(e => ({
-                    value: String(e.id),
-                    label: e.title,
-                  }))}
+                  required={!sourceEventIsPromotable}
+                  data={promotesEventOptions}
                   {...form.getInputProps('promotes_event_id')}
                 />
               </SimpleGrid>

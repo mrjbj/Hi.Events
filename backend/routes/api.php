@@ -71,6 +71,7 @@ use HiEvents\Http\Actions\CheckInLists\CreateCheckInListAction;
 use HiEvents\Http\Actions\CheckInLists\DeleteCheckInListAction;
 use HiEvents\Http\Actions\CheckInLists\GetCheckInListAction;
 use HiEvents\Http\Actions\CheckInLists\GetCheckInListsAction;
+use HiEvents\Http\Actions\CheckInLists\GetUncoveredProductsAction;
 use HiEvents\Http\Actions\CheckInLists\Public\CreateAttendeeCheckInPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\DeleteAttendeeCheckInPublicAction;
 use HiEvents\Http\Actions\CheckInLists\Public\GetCheckInListAttendeePublicAction;
@@ -224,6 +225,7 @@ use HiEvents\Http\Actions\Users\ResendEmailConfirmationAction;
 use HiEvents\Http\Actions\Users\ResendInvitationAction;
 use HiEvents\Http\Actions\Users\UpdateMeAction;
 use HiEvents\Http\Actions\Users\UpdateUserAction;
+use HiEvents\Http\Actions\Users\UpdateUserSuperAdminStatusAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\CancelWaitlistEntryAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\GetWaitlistEntriesAction;
 use HiEvents\Http\Actions\Waitlist\Organizer\GetWaitlistStatsAction;
@@ -275,6 +277,7 @@ $router->middleware(['auth:api'])->group(
         $router->get('/users', GetUsersAction::class);
         $router->get('/users/{user_id}', GetUserAction::class);
         $router->put('/users/{user_id}', UpdateUserAction::class);
+        $router->put('/users/{user_id}/super-admin-status', UpdateUserSuperAdminStatusAction::class);
         $router->post('/users/{user_id}/email-change/{changeToken}', ConfirmEmailChangeAction::class);
         $router->post('/users/{user_id}/invitation', ResendInvitationAction::class);
         $router->delete('/users/{user_id}/invitation', DeleteInvitationAction::class);
@@ -485,6 +488,7 @@ $router->middleware(['auth:api'])->group(
         // Check-In Lists
         $router->post('/events/{event_id}/check-in-lists', CreateCheckInListAction::class);
         $router->get('/events/{event_id}/check-in-lists', GetCheckInListsAction::class);
+        $router->get('/events/{event_id}/check-in-lists/uncovered-products', GetUncoveredProductsAction::class);
         $router->get('/events/{event_id}/check-in-lists/{check_in_list_id}', GetCheckInListAction::class);
         $router->put('/events/{event_id}/check-in-lists/{check_in_list_id}', UpdateCheckInListAction::class);
         $router->delete('/events/{event_id}/check-in-lists/{check_in_list_id}', DeleteCheckInListAction::class);

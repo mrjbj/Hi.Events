@@ -1,6 +1,7 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {CheckInListRequest, IdParam} from "../types.ts";
 import {GET_EVENT_CHECK_IN_LISTS_QUERY_KEY} from "../queries/useGetCheckInLists.ts";
+import {GET_UNCOVERED_CHECK_IN_LIST_PRODUCTS_QUERY_KEY} from "../queries/useGetUncoveredCheckInListProducts.ts";
 import {checkInListClient} from "../api/check-in-list.client.ts";
 import {GET_EVENT_CHECK_IN_LIST_QUERY_KEY} from "../queries/useGetCheckInList.ts";
 
@@ -26,6 +27,7 @@ export const useEditCheckInList = () => {
                     variables.checkInListId,
                 ]
             });
+            queryClient.invalidateQueries({queryKey: [GET_UNCOVERED_CHECK_IN_LIST_PRODUCTS_QUERY_KEY, variables.eventId]});
             return queryClient.invalidateQueries({queryKey: [GET_EVENT_CHECK_IN_LISTS_QUERY_KEY]});
         }
     });

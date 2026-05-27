@@ -1,7 +1,7 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
 import {Alert, Badge, Button, Checkbox, Group, Select, Switch, Table, Text, TextInput} from "@mantine/core";
-import {IconEyeOff, IconRotateClockwise, IconSearch, IconUserPlus} from "@tabler/icons-react";
+import {IconEyeOff, IconInfoCircle, IconRotateClockwise, IconSearch, IconUserPlus} from "@tabler/icons-react";
 import {Card} from "../../../../common/Card";
 import {Pagination} from "../../../../common/Pagination";
 import {SortableTh} from "../../../../common/SortableTh";
@@ -113,6 +113,12 @@ export const UnlinkedAttendeesSubTab = () => {
 
     return (
         <Card>
+            <Alert color="blue" variant="light" icon={<IconInfoCircle size={16}/>} mb="md">
+                <Text size="sm">
+                    {t`These are attendees who haven't been recorded as a contact yet. Adding them matches on email — if several attendees share an email address, only one contact is created and every attendee with that email is linked to it.`}
+                </Text>
+            </Alert>
+
             <Group gap="sm" wrap="wrap" mb="md" align="center">
                 <TextInput
                     placeholder={t`Search by name or email...`}

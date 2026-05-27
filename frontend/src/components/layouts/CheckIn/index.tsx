@@ -1,7 +1,8 @@
 import {useParams} from "react-router";
 import {useGetCheckInListPublic} from "../../../queries/useGetCheckInListPublic.ts";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDebouncedValue, useDisclosure, useNetwork} from "@mantine/hooks";
+import {modals} from "@mantine/modals";
 import {Attendee, QueryFilters, QueryFilterOperator} from "../../../types.ts";
 import {showError, showSuccess} from "../../../utilites/notifications.tsx";
 import {t, Trans} from "@lingui/macro";
@@ -122,6 +123,49 @@ const CheckIn = () => {
     const hasOtherLists = siblings.some(s => s.short_id !== checkInListShortId);
     const checkInMutation = useCreateCheckInPublic(queryFilters);
     const deleteCheckInMutation = useDeleteCheckInPublic(queryFilters);
+
+    // Stable identity for the active filter. Used to decide when we're in a
+    // new "filter cycle" for the clear-filter-on-empty-search prompt below.
+    const activeFilterKey = useMemo(() => {
+        if (!attendeeFilter) return null;
+        return attendeeFilter.type === 'group'
+            ? `group:${attendeeFilter.orderId}`
+            : `table:${attendeeFilter.seatInfo}`;
+    }, [attendeeFilter]);
+
+    // One-shot prompt: when the attendee list comes back empty AND a
+    // group/table filter is active AND the user has typed a search, offer to
+    // clear the filter. Show at most once per filter cycle so fast typing
+    // doesn't re-trigger the modal. The prompt resets when the filter changes
+    // or is cleared (so a fresh filter pick can re-trigger).
+    const clearFilterPromptShownRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        clearFilterPromptShownRef.current = null;
+    }, [activeFilterKey]);
+
+    useEffect(() => {
+        if (!activeFilterKey) return;
+        if (attendeesQuery.isFetching) return;
+        if (!Array.isArray(attendees) || attendees.length > 0) return;
+        const trimmed = searchQueryDebounced.trim();
+        if (!trimmed) return;
+        if (clearFilterPromptShownRef.current === activeFilterKey) return;
+
+        clearFilterPromptShownRef.current = activeFilterKey;
+
+        modals.openConfirmModal({
+            title: t`Clear filter to find attendees?`,
+            children: (
+                <Text size="sm">
+                    {t`No matches in this filter for "${trimmed}". Clear the filter and search across all attendees?`}
+                </Text>
+            ),
+            labels: {confirm: t`Clear filter & search`, cancel: t`Keep filter`},
+            confirmProps: {color: 'violet'},
+            onConfirm: () => setAttendeeFilter(null),
+        });
+    }, [activeFilterKey, attendees, attendeesQuery.isFetching, searchQueryDebounced]);
 
     // Save sound preference to localStorage
     useEffect(() => {
@@ -603,31 +647,30 @@ const CheckIn = () => {
                 </div>
             </div>
             {attendeeFilter && (
-                <Group justify="space-between" align="center" mb="sm" px="sm" py="xs"
+                <Group align="center" mb="sm" px="sm" py="xs" gap="xs"
                        style={{background: 'var(--mantine-color-violet-0)', borderRadius: 8}}>
-                    <Group gap="xs" align="center">
-                        {attendeeFilter.type === 'group' ? (
-                            <>
-                                <IconUsersGroup size={16}/>
-                                <Text size="sm">
-                                    {t`Showing group:`} <b>{attendeeFilter.label}</b>
-                                </Text>
-                            </>
-                        ) : (
-                            <>
-                                <IconArmchair size={16}/>
-                                <Text size="sm">
-                                    {t`Showing table:`} <b>{attendeeFilter.seatInfo}</b>
-                                </Text>
-                            </>
-                        )}
-                        <MantineBadge color="violet" variant="light" size="sm">
-                            {attendees?.length ?? 0}
-                        </MantineBadge>
-                    </Group>
+                    {attendeeFilter.type === 'group' ? (
+                        <>
+                            <IconUsersGroup size={16}/>
+                            <Text size="sm">
+                                {t`Showing group:`} <b>{attendeeFilter.label}</b>
+                            </Text>
+                        </>
+                    ) : (
+                        <>
+                            <IconArmchair size={16}/>
+                            <Text size="sm">
+                                {t`Showing table:`} <b>{attendeeFilter.seatInfo}</b>
+                            </Text>
+                        </>
+                    )}
+                    <MantineBadge color="violet" variant="light" size="sm">
+                        {attendees?.length ?? 0}
+                    </MantineBadge>
                     <ActionIcon
                         variant="subtle"
                         color="gray"
+                        size="sm"
                         aria-label={t`Clear filter`}
                         onClick={() => setAttendeeFilter(null)}
                     >
@@ -642,6 +685,9 @@ const CheckIn = () => {
                 isCheckInPending={checkInMutation.isPending}
                 isDeletePending={deleteCheckInMutation.isPending}
                 allowOrdersAwaitingOfflinePaymentToCheckIn={allowOrdersAwaitingOfflinePaymentToCheckIn || false}
+                hasActiveFilter={!!attendeeFilter}
+                searchQuery={searchQueryDebounced}
+                onClearFilter={() => setAttendeeFilter(null)}
                 onCheckInToggle={handleCheckInToggle}
                 onEditAttendee={(attendee) => {
                     setEditingAttendee(attendee);

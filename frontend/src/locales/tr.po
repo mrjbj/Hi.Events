@@ -27,7 +27,11 @@ msgstr "- Yayından Kaldırmak için Tıklayın"
 msgid "'There\\'s nothing to show yet'"
 msgstr "'Henüz gösterilecek bir şey yok'"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:145
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:216
+msgid "(clear value)"
+msgstr ""
+
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:151
 msgid "(deleted attribute)"
 msgstr "(silinmiş öznitelik)"
 
@@ -43,6 +47,14 @@ msgstr "({0} bilet içerir)"
 msgid "(includes {bundleSize} tickets)"
 msgstr ""
 
+#: src/components/routes/event/CheckInLists/index.tsx:72
+msgid "{0, plural, one {# attendee} other {# attendees}}"
+msgstr "{0, plural, one {# katılımcı} other {# katılımcı}}"
+
+#: src/components/routes/event/CheckInLists/index.tsx:55
+msgid "{0, plural, one {# ticket type has sold attendees but isn't on any check-in list — those attendees can't be checked in.} other {# ticket types have sold attendees but aren't on any check-in list — those attendees can't be checked in.}}"
+msgstr "{0, plural, one {# bilet türünün satılan katılımcıları var ancak hiçbir check-in listesinde değil — bu katılımcılar check-in yapamaz.} other {# bilet türünün satılan katılımcıları var ancak hiçbir check-in listesinde değil — bu katılımcılar check-in yapamaz.}}"
+
 #: src/components/common/ReportTable/index.tsx:303
 msgid "{0}"
 msgstr "{0}"
@@ -51,15 +63,15 @@ msgstr "{0}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: src/components/layouts/CheckIn/index.tsx:294
+#: src/components/layouts/CheckIn/index.tsx:338
 msgid "{0} {1} is already checked in"
 msgstr "{0} {1} zaten giriş yaptı"
 
-#: src/components/layouts/CheckIn/index.tsx:181
+#: src/components/layouts/CheckIn/index.tsx:225
 msgid "{0} <0>checked in</0> successfully"
 msgstr "{0} <0>başarıyla check-in yaptı</0>"
 
-#: src/components/layouts/CheckIn/index.tsx:207
+#: src/components/layouts/CheckIn/index.tsx:251
 msgid "{0} <0>checked out</0> successfully"
 msgstr "{0} <0>başarıyla check-out yaptı</0>"
 
@@ -68,7 +80,7 @@ msgstr "{0} <0>başarıyla check-out yaptı</0>"
 msgid "{0} Active Webhooks"
 msgstr "{0} Aktif Webhook"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:112
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:118
 msgid "{0} changes across {uniqueAttrs} attributes · since {1}"
 msgstr "{uniqueAttrs} öznitelikte {0} değişiklik · {1}'den beri"
 
@@ -85,7 +97,7 @@ msgstr "{0} kaldı"
 msgid "{0} logo"
 msgstr "{0} logosu"
 
-#: src/components/modals/SendMessageModal/index.tsx:583
+#: src/components/modals/SendMessageModal/index.tsx:642
 msgid "{0} of {1} recipients have an unresolved bounce or failure on a prior message. Sending now will likely fail again for those addresses."
 msgstr "{1} alıcıdan {0} tanesi önceki bir mesajda çözülmemiş bir geri dönüş veya başarısızlık var. Şimdi göndermek muhtemelen bu adresler için tekrar başarısız olacak."
 
@@ -170,6 +182,22 @@ msgstr ""
 msgid "{used} used (unlimited capacity)"
 msgstr ""
 
+#: src/components/modals/EditContactModal/index.tsx:146
+msgid "{v} (not in current options)"
+msgstr ""
+
+#: src/components/modals/EditContactModal/index.tsx:121
+msgid "{value} (not in current options)"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:211
+msgid "+ Add \"{0}\" to allowed options"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:212
+msgid "+ Add {0} stale values to allowed options"
+msgstr ""
+
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:98
 msgid "+1 234 567 890"
 msgstr "+1 234 567 890"
@@ -248,19 +276,19 @@ msgstr "1 Aktif Webhook"
 msgid "1 answer"
 msgstr ""
 
-#: src/components/modals/SendMessageModal/index.tsx:123
+#: src/components/modals/SendMessageModal/index.tsx:129
 msgid "1 day after end date"
 msgstr "Bitiş tarihinden 1 gün sonra"
 
-#: src/components/modals/SendMessageModal/index.tsx:117
+#: src/components/modals/SendMessageModal/index.tsx:123
 msgid "1 day after start date"
 msgstr "Başlangıç tarihinden 1 gün sonra"
 
-#: src/components/modals/SendMessageModal/index.tsx:115
+#: src/components/modals/SendMessageModal/index.tsx:121
 msgid "1 day before event"
 msgstr "Etkinlikten 1 gün önce"
 
-#: src/components/modals/SendMessageModal/index.tsx:116
+#: src/components/modals/SendMessageModal/index.tsx:122
 msgid "1 hour before event"
 msgstr "Etkinlikten 1 saat önce"
 
@@ -276,7 +304,7 @@ msgstr "1 bilet"
 msgid "1 ticket type"
 msgstr "1 bilet türü"
 
-#: src/components/modals/SendMessageModal/index.tsx:114
+#: src/components/modals/SendMessageModal/index.tsx:120
 msgid "1 week before event"
 msgstr "Etkinlikten 1 hafta önce"
 
@@ -530,11 +558,11 @@ msgstr "etkin — silmeyi engelliyor"
 msgid "Active Events"
 msgstr "Aktif Etkinlikler"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:155
 msgid "Add"
 msgstr "Ekle"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:155
 msgid "Add ({0})"
 msgstr "Ekle ({0})"
 
@@ -664,13 +692,17 @@ msgstr "Webhook Ekle"
 msgid "Add your social media handles and website URL. These will be displayed on your public organizer page."
 msgstr "Sosyal medya hesaplarınızı ve web sitesi URL'nizi ekleyin. Bunlar herkese açık organizatör sayfanızda görüntülenecektir."
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:230
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:236
 msgid "Added"
 msgstr "Eklendi"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:78
 msgid "Added {0} contact(s)."
 msgstr "{0} kişi eklendi."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:67
+msgid "Added {options_added} option(s) to allowed list."
+msgstr ""
 
 #: src/components/common/PlatformFeesSettings/index.tsx:257
 msgid "Additional Fees"
@@ -790,7 +822,7 @@ msgstr "Tüm Arşivlenmiş Etkinlikler"
 msgid "All attendees"
 msgstr "Tüm katılımcılar"
 
-#: src/components/modals/SendMessageModal/index.tsx:355
+#: src/components/modals/SendMessageModal/index.tsx:414
 msgid "All attendees of this event"
 msgstr "Bu etkinliğin tüm katılımcıları"
 
@@ -977,6 +1009,10 @@ msgstr "Uygulandı (bu satır için zaman damgası kaydedilmedi)"
 msgid "Applied {0}"
 msgstr "Uygulandı {0}"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:68
+msgid "Applied."
+msgstr ""
+
 #: src/components/common/CapacityAssignmentList/index.tsx:94
 msgid "Applies to {0} products"
 msgstr "{0} ürüne uygulanır"
@@ -986,8 +1022,13 @@ msgid "Applies to 1 product"
 msgstr "1 ürüne uygulanır"
 
 #: src/components/common/FilterModal/index.tsx:284
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:98
 msgid "Apply"
 msgstr "Uygula"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:98
+msgid "Apply ({0})"
+msgstr ""
 
 #: src/components/routes/product-widget/SelectProducts/index.tsx:637
 msgid "Apply Promo Code"
@@ -1279,7 +1320,7 @@ msgstr "Katılımcı bilgi toplama"
 msgid "Attendee Name"
 msgstr "Katılımcı Adı"
 
-#: src/components/layouts/CheckIn/index.tsx:285
+#: src/components/layouts/CheckIn/index.tsx:329
 msgid "Attendee not found"
 msgstr "Katılımcı bulunamadı"
 
@@ -1335,15 +1376,15 @@ msgstr "Kayıtlı katılımcılar"
 msgid "Attendees Registered"
 msgstr "Kayıtlı Katılımcılar"
 
-#: src/components/modals/SendMessageModal/index.tsx:363
+#: src/components/modals/SendMessageModal/index.tsx:422
 msgid "Attendees who checked in"
 msgstr "Giriş yapan katılımcılar"
 
-#: src/components/modals/SendMessageModal/index.tsx:367
+#: src/components/modals/SendMessageModal/index.tsx:426
 msgid "Attendees who did not check in"
 msgstr "Giriş yapmayan katılımcılar"
 
-#: src/components/modals/SendMessageModal/index.tsx:351
+#: src/components/modals/SendMessageModal/index.tsx:410
 msgid "Attendees with a specific ticket"
 msgstr "Belirli bir bilete sahip katılımcılar"
 
@@ -1355,8 +1396,9 @@ msgstr "E-postası henüz kişi kütüphanesinde bulunmayan katılımcılar. Sat
 msgid "Attendees:"
 msgstr "Katılımcılar:"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:127
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:133
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:177
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:125
 msgid "Attribute"
 msgstr "Öznitelik"
 
@@ -1373,7 +1415,7 @@ msgstr "Nitelik tanımı başarıyla silindi"
 msgid "Attribute definition updated successfully"
 msgstr "Nitelik tanımı başarıyla güncellendi"
 
-#: src/components/modals/EditContactModal/index.tsx:100
+#: src/components/modals/EditContactModal/index.tsx:103
 msgid "Attributes"
 msgstr "Nitelikler"
 
@@ -1442,7 +1484,7 @@ msgid "Awaiting 1 required answer"
 msgstr ""
 
 #: src/components/common/OrderStatusBadge/index.tsx:15
-#: src/components/modals/SendMessageModal/index.tsx:407
+#: src/components/modals/SendMessageModal/index.tsx:466
 msgid "Awaiting offline payment"
 msgstr "Çevrimdışı ödeme bekleniyor"
 
@@ -1455,7 +1497,7 @@ msgstr "Çevrimdışı Ödeme Bekleniyor"
 msgid "Awaiting Offline Pmt."
 msgstr "Çevrimdışı Ödeme Bekleniyor"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:153
+#: src/components/common/CheckIn/AttendeeList.tsx:176
 msgid "Awaiting payment"
 msgstr "Ödeme bekleniyor"
 
@@ -1537,7 +1579,7 @@ msgstr "Her cihazda güzel bir ödeme deneyimi"
 msgid "Before your event can go live, there are a few things you need to do. Complete all the steps below to get started."
 msgstr "Etkinliğiniz yayına girmeden önce yapmanız gereken birkaç şey var. Başlamak için aşağıdaki tüm adımları tamamlayın."
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:128
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:134
 msgid "Begin"
 msgstr "Önce"
 
@@ -1667,10 +1709,11 @@ msgstr "Kampanya"
 #: src/components/modals/CreateContactModal/index.tsx:62
 #: src/components/modals/CreateQuestionModal/index.tsx:139
 #: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:147
-#: src/components/modals/EditContactModal/index.tsx:138
+#: src/components/modals/EditContactModal/index.tsx:175
 #: src/components/modals/EditQuestionModal/index.tsx:205
 #: src/components/modals/OptionMigrationModal/index.tsx:99
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:98
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:84
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:99
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:72
 #: src/components/routes/event/messages.tsx:80
@@ -1682,7 +1725,7 @@ msgstr "Kampanya"
 msgid "Cancel"
 msgstr "İptal"
 
-#: src/components/modals/SendMessageModal/index.tsx:597
+#: src/components/modals/SendMessageModal/index.tsx:656
 msgid "Cancel & resolve first"
 msgstr "İptal et ve önce çöz"
 
@@ -1724,11 +1767,11 @@ msgstr "İptal etmek, bu siparişle ilişkili tüm katılımcıları iptal edece
 msgid "Cancelled"
 msgstr "İptal Edildi"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:36
+#: src/components/common/CheckIn/AttendeeList.tsx:42
 msgid "Cannot Check In"
 msgstr "Check-in Yapılamaz"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:40
+#: src/components/common/CheckIn/AttendeeList.tsx:46
 msgid "Cannot Check In (Cancelled)"
 msgstr "Giriş Yapılamaz (İptal Edildi)"
 
@@ -1804,7 +1847,7 @@ msgstr ""
 msgid "Change waitlist settings"
 msgstr "Bekleme listesi ayarlarını değiştir"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:130
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:136
 msgid "Changed by"
 msgstr "Değiştiren"
 
@@ -1818,7 +1861,7 @@ msgstr "Hayır Kurumu"
 msgid "Check"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:47
+#: src/components/common/CheckIn/AttendeeList.tsx:53
 msgid "Check In"
 msgstr "Check-in Yap"
 
@@ -1838,7 +1881,7 @@ msgstr ""
 msgid "Check in only"
 msgstr "Sadece check-in yap"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:44
+#: src/components/common/CheckIn/AttendeeList.tsx:50
 msgid "Check Out"
 msgstr "Check-out Yap"
 
@@ -1864,7 +1907,7 @@ msgstr "Giriş Oluşturuldu"
 msgid "Check-in Deleted"
 msgstr "Giriş Silindi"
 
-#: src/components/modals/SendMessageModal/index.tsx:416
+#: src/components/modals/SendMessageModal/index.tsx:475
 msgid "Check-in list"
 msgstr "Giriş listesi"
 
@@ -1876,15 +1919,15 @@ msgstr "Giriş Listesi Oluşturuldu"
 msgid "Check-In List deleted successfully"
 msgstr "Check-In Listesi başarıyla silindi"
 
-#: src/components/layouts/CheckIn/index.tsx:420
+#: src/components/layouts/CheckIn/index.tsx:464
 msgid "Check-in list has expired"
 msgstr "Check-in listesinin süresi doldu"
 
-#: src/components/layouts/CheckIn/index.tsx:437
+#: src/components/layouts/CheckIn/index.tsx:481
 msgid "Check-in list is not active"
 msgstr "Check-in listesi aktif değil"
 
-#: src/components/layouts/CheckIn/index.tsx:405
+#: src/components/layouts/CheckIn/index.tsx:449
 msgid "Check-in list not found"
 msgstr "Check-in listesi bulunamadı"
 
@@ -1894,7 +1937,7 @@ msgstr "Giriş Listeleri"
 
 #: src/components/layouts/Event/index.tsx:122
 #: src/components/modals/DuplicateEventModal/index.tsx:29
-#: src/components/routes/event/CheckInLists/index.tsx:34
+#: src/components/routes/event/CheckInLists/index.tsx:39
 msgid "Check-In Lists"
 msgstr "Check-In Listeleri"
 
@@ -1996,9 +2039,21 @@ msgstr "Platform ücretini kimin ödeyeceğini seçin. Bu, hesap ayarlarınızda
 msgid "City"
 msgstr "Şehir"
 
-#: src/components/layouts/CheckIn/index.tsx:631
+#: src/components/layouts/CheckIn/index.tsx:674
 msgid "Clear filter"
 msgstr "Filtreyi temizle"
+
+#: src/components/layouts/CheckIn/index.tsx:164
+msgid "Clear filter & search"
+msgstr "Filtreyi temizle ve ara"
+
+#: src/components/common/CheckIn/AttendeeList.tsx:87
+msgid "Clear filter & search all attendees"
+msgstr "Filtreyi temizle ve tüm katılımcılarda ara"
+
+#: src/components/layouts/CheckIn/index.tsx:158
+msgid "Clear filter to find attendees?"
+msgstr "Katılımcıları bulmak için filtreyi temizleyeyim mi?"
 
 #: src/components/common/SearchBar/index.tsx:75
 msgid "Clear Search Text"
@@ -2021,7 +2076,7 @@ msgid "close"
 msgstr "kapat"
 
 #: src/components/common/AttendeeCheckInTable/PermissionDeniedMessage.tsx:27
-#: src/components/modals/EditContactModal/index.tsx:150
+#: src/components/modals/EditContactModal/index.tsx:187
 #: src/components/modals/JoinWaitlistModal/index.tsx:103
 #: src/components/modals/JoinWaitlistModal/index.tsx:130
 #: src/components/modals/RefundOrderModal/index.tsx:169
@@ -2170,7 +2225,7 @@ msgid "Complete your profile to join the team."
 msgstr "Ekibe katılmak için profilinizi tamamlayın."
 
 #: src/components/common/OrdersTable/index.tsx:412
-#: src/components/modals/SendMessageModal/index.tsx:406
+#: src/components/modals/SendMessageModal/index.tsx:465
 #: src/components/routes/event/GettingStarted/index.tsx:75
 #: src/components/routes/event/orders.tsx:24
 #: src/components/routes/my-tickets/index.tsx:34
@@ -2324,7 +2379,7 @@ msgstr "Stripe'ı Bağla"
 msgid "Connect Stripe to enable email template editing"
 msgstr "E-posta şablon düzenlemesini etkinleştirmek için Stripe'ı bağlayın"
 
-#: src/components/modals/SendMessageModal/index.tsx:283
+#: src/components/modals/SendMessageModal/index.tsx:317
 msgid "Connect Stripe to enable messaging"
 msgstr "Mesajlaşmayı etkinleştirmek için Stripe'ı bağlayın"
 
@@ -2373,6 +2428,7 @@ msgstr "Bağlantı Detayları"
 #: src/components/layouts/EventHomepage/index.tsx:583
 #: src/components/layouts/OrganizerHomepage/index.tsx:245
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:176
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:124
 msgid "Contact"
 msgstr "İletişim"
 
@@ -2383,6 +2439,14 @@ msgstr "{0} ile İletişime Geç"
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:38
 msgid "Contact Attributes"
 msgstr "İletişim nitelikleri"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:104
+msgid "Contact attributes whose stored value isn't in the attribute's current dropdown options — usually because the option list was edited, or the value came from a typo or import. Pick a replacement for each row (or \"Clear\") then click Apply. Changes are recorded in each contact's attribute history."
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:67
+msgid "Contact attributes whose stored value isn't in the attribute's current dropdown options — usually because the option list was edited, or the value came from a typo or import. Pick a replacement for each row and click <0>Apply</0>. Unfixed stale values silently break checkout for the affected contact."
+msgstr ""
 
 #: src/components/modals/CreateContactModal/index.tsx:30
 msgid "Contact created successfully"
@@ -2406,7 +2470,7 @@ msgstr "İletişim E-postası"
 msgid "Contact email for support"
 msgstr "Destek için iletişim e-postası"
 
-#: src/components/modals/EditContactModal/index.tsx:59
+#: src/components/modals/EditContactModal/index.tsx:62
 msgid "Contact updated successfully"
 msgstr "Kişi başarıyla güncellendi"
 
@@ -2554,6 +2618,10 @@ msgstr "Kişiler eklenemedi."
 msgid "Could not apply decisions."
 msgstr "Kararlar uygulanamadı."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:71
+msgid "Could not apply remaps."
+msgstr ""
+
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:80
 msgid "Could not delete image. Please try again."
 msgstr "Görsel silinemedi. Lütfen tekrar deneyin."
@@ -2694,7 +2762,7 @@ msgstr "Kategori Oluştur"
 #: src/components/common/CheckInListList/index.tsx:59
 #: src/components/modals/CreateCheckInListModal/index.tsx:83
 #: src/components/modals/CreateCheckInListModal/index.tsx:99
-#: src/components/routes/event/CheckInLists/index.tsx:48
+#: src/components/routes/event/CheckInLists/index.tsx:98
 msgid "Create Check-In List"
 msgstr "Check-In Listesi Oluştur"
 
@@ -2803,7 +2871,7 @@ msgstr "Kendi etkinliğinizi oluşturun"
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:132
 #: src/components/routes/admin/Messages/index.tsx:169
 #: src/components/routes/admin/Messages/index.tsx:309
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:203
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:209
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:150
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:261
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:281
@@ -2865,6 +2933,10 @@ msgstr "Mevcut Şifre"
 msgid "Current payment processor"
 msgstr "Mevcut ödeme işlemcisi"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:126
+msgid "Current Value"
+msgstr ""
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:156
 msgid "Current VAT number is validated"
 msgstr "Mevcut KDV numarası doğrulandı"
@@ -2881,7 +2953,7 @@ msgstr "Şu anda satın alınabilir"
 msgid "Custom Branding"
 msgstr "Özel Markalama"
 
-#: src/components/modals/SendMessageModal/index.tsx:491
+#: src/components/modals/SendMessageModal/index.tsx:550
 msgid "Custom date and time"
 msgstr "Özel tarih ve saat"
 
@@ -3213,7 +3285,7 @@ msgstr "Tasarım Öğeleri"
 
 #: src/components/common/ProgressStepper/index.tsx:18
 #: src/components/common/ProgressStepper/index.tsx:23
-#: src/components/modals/EditContactModal/index.tsx:72
+#: src/components/modals/EditContactModal/index.tsx:75
 msgid "Details"
 msgstr "Detaylar"
 
@@ -3230,7 +3302,7 @@ msgid "Dietary needs · Shirt size · Phone · Job title · Date of birth · Pro
 msgstr ""
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:58
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:45
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:46
 msgid "Different Answers"
 msgstr "Farklı yanıtlar"
 
@@ -3356,7 +3428,7 @@ msgstr "Açılır seçim"
 msgid "Due to the high risk of spam, you must connect a Stripe account before you can modify email templates. This is to ensure that all event organizers are verified and accountable."
 msgstr "Yüksek spam riski nedeniyle, e-posta şablonlarını değiştirmeden önce bir Stripe hesabı bağlamanız gerekir. Bu, tüm etkinlik organizatörlerinin doğrulanmış ve sorumlu olmasını sağlamak içindir."
 
-#: src/components/modals/SendMessageModal/index.tsx:284
+#: src/components/modals/SendMessageModal/index.tsx:318
 msgid ""
 "Due to the high risk of spam, you must connect a Stripe account before you can send messages to attendees.\n"
 "This is to ensure that all event organizers are verified and accountable."
@@ -3412,7 +3484,7 @@ msgstr "ör. Masa 5"
 msgid "e.g., Get Tickets, Register Now"
 msgstr "örn., Bilet Al, Şimdi Kaydol"
 
-#: src/components/modals/SendMessageModal/index.tsx:434
+#: src/components/modals/SendMessageModal/index.tsx:493
 msgid "e.g., Important update about your tickets"
 msgstr "örn., Biletleriniz hakkında önemli güncelleme"
 
@@ -3467,6 +3539,10 @@ msgstr "{0} Düzenle"
 msgid "Edit {0} Template"
 msgstr "{0} Şablonunu Düzenle"
 
+#: src/components/routes/event/CheckInLists/index.tsx:81
+msgid "Edit a check-in list (or create a new one) and add these ticket types to it."
+msgstr "Bir check-in listesini düzenleyin (veya yeni bir tane oluşturun) ve bu bilet türlerini ekleyin."
+
 #: src/components/common/AffiliateTable/index.tsx:170
 #: src/components/modals/EditAffiliateModal/index.tsx:81
 #: src/components/modals/EditAffiliateModal/index.tsx:93
@@ -3481,7 +3557,7 @@ msgstr "Cevabı Düzenle"
 msgid "Edit Application Fees"
 msgstr "Uygulama Ücretlerini Düzenle"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:171
+#: src/components/common/CheckIn/AttendeeList.tsx:194
 msgid "Edit attendee"
 msgstr "Katılımcıyı düzenle"
 
@@ -3489,7 +3565,7 @@ msgstr "Katılımcıyı düzenle"
 msgid "Edit Attendee"
 msgstr "Katılımcıyı düzenle"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:166
+#: src/components/common/CheckIn/AttendeeList.tsx:189
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:96
 msgid "Edit attendee details"
 msgstr "Katılımcı bilgilerini düzenle"
@@ -3538,7 +3614,7 @@ msgstr "Yapılandırmayı Düzenle"
 msgid "Edit contact"
 msgstr "Kişiyi düzenle"
 
-#: src/components/modals/EditContactModal/index.tsx:68
+#: src/components/modals/EditContactModal/index.tsx:71
 msgid "Edit Contact"
 msgstr "Kişiyi düzenle"
 
@@ -3569,7 +3645,7 @@ msgstr "Promosyon Kodunu Düzenle"
 msgid "Edit Question"
 msgstr "Soruyu Düzenle"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:119
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:166
 msgid "Edit user"
 msgstr "Kullanıcıyı düzenle"
 
@@ -3625,7 +3701,7 @@ msgstr "Uygun Giriş Listeleri"
 #: src/components/common/QuestionsTable/index.tsx:329
 #: src/components/forms/AffiliateForm/index.tsx:89
 #: src/components/modals/CreateContactModal/index.tsx:42
-#: src/components/modals/EditContactModal/index.tsx:81
+#: src/components/modals/EditContactModal/index.tsx:84
 #: src/components/modals/EditUserModal/index.tsx:80
 #: src/components/modals/InviteUserModal/index.tsx:61
 #: src/components/modals/JoinWaitlistModal/index.tsx:171
@@ -3637,7 +3713,7 @@ msgstr "Uygun Giriş Listeleri"
 #: src/components/routes/auth/ForgotPassword/index.tsx:65
 #: src/components/routes/auth/Login/index.tsx:93
 #: src/components/routes/auth/Register/index.tsx:104
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:199
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:205
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:147
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:78
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:180
@@ -3807,7 +3883,7 @@ msgstr "Bekleme listesini etkinleştir"
 msgid "Enabled"
 msgstr "Etkin"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:129
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:135
 msgid "End"
 msgstr "Sonra"
 
@@ -3971,7 +4047,7 @@ msgstr "EUR"
 #: src/components/routes/admin/Messages/index.tsx:163
 #: src/components/routes/admin/Messages/index.tsx:277
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:180
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:202
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:208
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
 #: src/components/routes/event/EventDashboard/index.tsx:269
@@ -4219,7 +4295,7 @@ msgid "Expiration date"
 msgstr "Son kullanım tarihi"
 
 #: src/components/common/WaitlistTable/index.tsx:28
-#: src/components/layouts/CheckIn/index.tsx:516
+#: src/components/layouts/CheckIn/index.tsx:560
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:74
 msgid "Expired"
 msgstr "Süresi dolmuş"
@@ -4419,7 +4495,7 @@ msgstr "Kişiler yüklenemedi"
 msgid "Failed to load delivery issues"
 msgstr "Teslimat sorunları yüklenemedi"
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:121
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:238
 msgid "Failed to load events."
 msgstr "Olaylar yüklenemedi."
 
@@ -4433,7 +4509,11 @@ msgstr "Mesajlar yüklenemedi"
 msgid "Failed to load recipients"
 msgstr "Alıcılar yüklenemedi"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:177
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:110
+msgid "Failed to load stale values"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:183
 msgid "Failed to load unlinked attendees"
 msgstr "Bağlanmamış katılımcılar yüklenemedi"
 
@@ -4641,12 +4721,12 @@ msgstr "Önce yukarıdaki bilgilerinizi doldurun"
 msgid "Filter Attendees"
 msgstr "Katılımcıları Filtrele"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:115
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:121
 msgid "Filter by attribute"
 msgstr "Özniteliğe göre filtrele"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:104
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:126
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:132
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:123
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:116
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:122
@@ -4657,11 +4737,11 @@ msgstr "Etkinliğe göre filtrele"
 msgid "Filter by Event"
 msgstr "Etkinliğe göre filtrele"
 
-#: src/components/layouts/CheckIn/index.tsx:564
+#: src/components/layouts/CheckIn/index.tsx:608
 msgid "Filter by group purchase"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:583
+#: src/components/layouts/CheckIn/index.tsx:627
 msgid "Filter by table"
 msgstr ""
 
@@ -4669,11 +4749,11 @@ msgstr ""
 msgid "Filter Orders"
 msgstr "Siparişleri Filtrele"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:108
+#: src/components/common/CheckIn/AttendeeList.tsx:131
 msgid "Filter to this group"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:118
+#: src/components/common/CheckIn/AttendeeList.tsx:141
 msgid "Filter to this table"
 msgstr "Bu masaya filtrele"
 
@@ -4717,15 +4797,15 @@ msgstr "Ad"
 #: src/components/common/QuestionsTable/index.tsx:327
 #: src/components/modals/CreateContactModal/index.tsx:49
 #: src/components/modals/CreateContactModal/index.tsx:50
-#: src/components/modals/EditContactModal/index.tsx:87
-#: src/components/modals/EditContactModal/index.tsx:88
+#: src/components/modals/EditContactModal/index.tsx:90
+#: src/components/modals/EditContactModal/index.tsx:91
 #: src/components/modals/EditUserModal/index.tsx:71
 #: src/components/modals/InviteUserModal/index.tsx:57
 #: src/components/modals/JoinWaitlistModal/index.tsx:161
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:65
 #: src/components/routes/auth/AcceptInvitation/index.tsx:97
 #: src/components/routes/auth/Register/index.tsx:90
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:200
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:206
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:148
 #: src/components/routes/product-widget/CollectInformation/index.tsx:786
 #: src/components/routes/product-widget/CollectInformation/index.tsx:1009
@@ -4824,7 +4904,7 @@ msgstr "Ücretsiz ürün, ödeme bilgisi gerekli değil"
 msgid "French"
 msgstr "Fransızca"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:167
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:173
 msgid "From question answer"
 msgstr "Soru yanıtından"
 
@@ -4915,6 +4995,15 @@ msgstr "İyi okunabilirlik"
 msgid "Google Calendar"
 msgstr "Google Takvim"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:83
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:184
+msgid "Grant Super Admin"
+msgstr "Süper Yönetici Yetkisi Ver"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:73
+msgid "Grant Super Admin to {fullName}?"
+msgstr "{fullName} kullanıcısına Süper Yönetici yetkisi verilsin mi?"
+
 #: src/components/common/EventCard/index.tsx:230
 msgid "Gross revenue"
 msgstr "Brüt gelir"
@@ -4934,20 +5023,20 @@ msgstr "Brüt satışlar"
 msgid "Gross Sales"
 msgstr "Brüt Satışlar"
 
-#: src/components/layouts/CheckIn/index.tsx:542
+#: src/components/layouts/CheckIn/index.tsx:586
 #: src/components/routes/event/attendees.tsx:86
 msgid "Group"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:93
-#: src/components/layouts/CheckIn/index.tsx:546
-#: src/components/layouts/CheckIn/index.tsx:557
-#: src/components/layouts/CheckIn/index.tsx:662
+#: src/components/common/CheckIn/AttendeeList.tsx:116
+#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:601
+#: src/components/layouts/CheckIn/index.tsx:708
 #: src/components/routes/event/attendees.tsx:45
 msgid "Group purchase"
 msgstr "Grup satın alma"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:92
+#: src/components/common/CheckIn/AttendeeList.tsx:115
 msgid "Group: {buyerName}"
 msgstr "Grup: {buyerName}"
 
@@ -5036,6 +5125,10 @@ msgstr "Gizle"
 msgid "Hide Answers"
 msgstr "Cevapları Gizle"
 
+#: src/components/modals/SendMessageModal/index.tsx:374
+msgid "Hide details"
+msgstr "Detayları gizle"
+
 #: src/components/common/QuestionsTable/index.tsx:277
 msgid "Hide from checkout"
 msgstr ""
@@ -5080,6 +5173,10 @@ msgstr "Bu soruyu gizle"
 msgid "Hide this tier from users"
 msgstr "Bu katmanı kullanıcılardan gizle"
 
+#: src/components/routes/event/CheckInLists/index.tsx:62
+msgid "Hide tickets"
+msgstr "Biletleri gizle"
+
 #: src/components/forms/ProductForm/index.tsx:111
 msgid "Hiding a product will prevent users from seeing it on the event page."
 msgstr "Bir ürünü gizlemek, kullanıcıların onu etkinlik sayfasında görmesini engeller."
@@ -5109,11 +5206,11 @@ msgstr "Vurgulandı"
 msgid "Highlighted products will have a different background color to make them stand out on the event page."
 msgstr "Vurgulanan ürünler, etkinlik sayfasında öne çıkmaları için farklı bir arka plan rengine sahip olacaktır."
 
-#: src/components/modals/EditContactModal/index.tsx:75
+#: src/components/modals/EditContactModal/index.tsx:78
 msgid "History"
 msgstr "Geçmiş"
 
-#: src/components/modals/EditContactModal/index.tsx:75
+#: src/components/modals/EditContactModal/index.tsx:78
 msgid "History ({historyCount})"
 msgstr "Geçmiş ({historyCount})"
 
@@ -5182,7 +5279,7 @@ msgstr "Bu etkinlikle ilgili e-posta bildirimleri almayı kabul ediyorum"
 msgid "I agree to the <0>terms and conditions</0>"
 msgstr "<0>Şartlar ve koşulları</0> kabul ediyorum"
 
-#: src/components/modals/SendMessageModal/index.tsx:525
+#: src/components/modals/SendMessageModal/index.tsx:584
 msgid "I confirm this is a transactional message related to this event"
 msgstr "Bunun bu etkinlikle ilgili işlemsel bir mesaj olduğunu onaylıyorum"
 
@@ -5215,12 +5312,12 @@ msgid "If you have an account with us, you will receive an email with instructio
 msgstr "Bizimle bir hesabınız varsa, şifrenizi nasıl sıfırlayacağınıza dair talimatlar içeren bir e-posta alacaksınız."
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:137
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:159
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:165
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:156
 msgid "Ignore"
 msgstr "Yoksay"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:233
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:239
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:237
 msgid "Ignored"
 msgstr "Yok sayıldı"
@@ -5409,11 +5506,11 @@ msgstr "Geçersiz veya süresi dolmuş bağlantı"
 msgid "Invalid VAT number format"
 msgstr "Geçersiz KDV numarası formatı"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:39
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:46
 msgid "Invitation resent!"
 msgstr "Davet yeniden gönderildi!"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:53
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:60
 msgid "Invitation revoked!"
 msgstr "Davet iptal edildi!"
 
@@ -5433,7 +5530,7 @@ msgstr "Ekip Üyelerini Davet Et"
 msgid "Invite unlimited team members with custom roles"
 msgstr "Özel rollerle sınırsız takım üyesi davet edin"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:144
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:205
 msgid "Invite User"
 msgstr "Kullanıcı Davet Et"
 
@@ -5555,6 +5652,10 @@ msgstr "Sadece biletlerinizi mi arıyorsunuz?"
 msgid "Keep current type"
 msgstr ""
 
+#: src/components/layouts/CheckIn/index.tsx:164
+msgid "Keep filter"
+msgstr "Filtreyi koru"
+
 #: src/components/routes/product-widget/CollectInformation/index.tsx:846
 msgid "Keep me updated on news and events from {0}"
 msgstr "{0} adresinden haberler ve etkinlikler hakkında beni bilgilendirin"
@@ -5622,7 +5723,7 @@ msgstr "Son 7 gün"
 msgid "Last 90 days"
 msgstr "Son 90 gün"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:156
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:217
 msgid "Last login"
 msgstr "Son giriş"
 
@@ -5638,15 +5739,15 @@ msgstr "Soyad"
 #: src/components/common/QuestionsTable/index.tsx:328
 #: src/components/modals/CreateContactModal/index.tsx:55
 #: src/components/modals/CreateContactModal/index.tsx:56
-#: src/components/modals/EditContactModal/index.tsx:93
-#: src/components/modals/EditContactModal/index.tsx:94
+#: src/components/modals/EditContactModal/index.tsx:96
+#: src/components/modals/EditContactModal/index.tsx:97
 #: src/components/modals/EditUserModal/index.tsx:72
 #: src/components/modals/InviteUserModal/index.tsx:58
 #: src/components/modals/JoinWaitlistModal/index.tsx:166
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:66
 #: src/components/routes/auth/AcceptInvitation/index.tsx:102
 #: src/components/routes/auth/Register/index.tsx:96
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:201
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:207
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:149
 #: src/components/routes/product-widget/CollectInformation/index.tsx:792
 #: src/components/routes/product-widget/CollectInformation/index.tsx:793
@@ -5896,7 +5997,7 @@ msgstr "Etkinliğinizin bekleme listesini yönetin, istatistikleri görüntüley
 msgid "Manage your payment processing and view platform fees"
 msgstr "Ödeme işlemenizi yönetin ve platform ücretlerini görüntüleyin"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:143
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:204
 msgid "Manage your users and their permissions"
 msgstr "Kullanıcılarınızı ve izinlerini yönetin"
 
@@ -5909,7 +6010,7 @@ msgstr "Zorunlu sorular müşteri ödeme yapmadan önce cevaplanmalıdır."
 msgid "Manual"
 msgstr "Manuel"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:169
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:175
 msgid "Manual edit"
 msgstr "Manuel düzenleme"
 
@@ -5960,7 +6061,7 @@ msgstr "Ortam"
 #: src/components/common/AttendeeTable/index.tsx:188
 #: src/components/common/ContactOrganizerModal/index.tsx:88
 #: src/components/common/OrdersTable/index.tsx:254
-#: src/components/modals/SendMessageModal/index.tsx:439
+#: src/components/modals/SendMessageModal/index.tsx:498
 msgid "Message"
 msgstr "Mesaj"
 
@@ -5976,7 +6077,7 @@ msgstr "Katılımcıya mesaj gönder"
 msgid "Message Attendees"
 msgstr "Katılımcılara Mesaj"
 
-#: src/components/modals/SendMessageModal/index.tsx:383
+#: src/components/modals/SendMessageModal/index.tsx:442
 msgid "Message attendees with specific tickets"
 msgstr "Belirli biletlere sahip katılımcılara mesaj gönderin"
 
@@ -6000,7 +6101,7 @@ msgstr "Mesaj içeriği"
 msgid "Message Details"
 msgstr "Mesaj detayları"
 
-#: src/components/modals/SendMessageModal/index.tsx:98
+#: src/components/modals/SendMessageModal/index.tsx:101
 msgid "Message individual attendees"
 msgstr "Bireysel katılımcılara mesaj gönder"
 
@@ -6008,15 +6109,15 @@ msgstr "Bireysel katılımcılara mesaj gönder"
 msgid "Message is required"
 msgstr "Mesaj gerekli"
 
-#: src/components/modals/SendMessageModal/index.tsx:395
+#: src/components/modals/SendMessageModal/index.tsx:454
 msgid "Message order owners with specific products"
 msgstr "Belirli ürünlere sahip sipariş sahiplerine mesaj gönderin"
 
-#: src/components/modals/SendMessageModal/index.tsx:199
+#: src/components/modals/SendMessageModal/index.tsx:219
 msgid "Message Scheduled"
 msgstr "Mesaj zamanlandı"
 
-#: src/components/modals/SendMessageModal/index.tsx:199
+#: src/components/modals/SendMessageModal/index.tsx:219
 msgid "Message Sent"
 msgstr "Mesaj Gönderildi"
 
@@ -6200,12 +6301,12 @@ msgstr "Net Gelir"
 #: src/components/common/OrganizerWebhookTable/index.tsx:266
 #: src/components/common/PromoCodeTable/index.tsx:158
 #: src/components/common/WebhookTable/index.tsx:266
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:101
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:148
 msgid "Never"
 msgstr "Asla"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:44
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:31
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:32
 msgid "New Contacts"
 msgstr "Yeni Kişiler"
 
@@ -6223,7 +6324,7 @@ msgid "New Question (this event only)"
 msgstr "Yeni Soru (yalnızca bu etkinlik için)"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:51
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:38
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:39
 msgid "New Questions"
 msgstr "Yeni Sorular"
 
@@ -6235,7 +6336,7 @@ msgstr "Yeni Kayıtlar"
 msgid "Nightlife"
 msgstr "Gece Hayatı"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:203
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:209
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:250
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:277
 msgid "No"
@@ -6290,7 +6391,11 @@ msgstr "Bu siparişe katılımcı eklenmemiş."
 msgid "No Attendees to show"
 msgstr "Gösterilecek Katılımcı yok"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:97
+#: src/components/common/CheckIn/AttendeeList.tsx:94
+msgid "No attendees to show."
+msgstr "Gösterilecek katılımcı yok."
+
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:103
 msgid "No attribute changes yet."
 msgstr "Henüz öznitelik değişikliği yok."
 
@@ -6412,7 +6517,15 @@ msgstr "Fatura yok"
 msgid "No logs found"
 msgstr "Günlük bulunamadı"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+#: src/components/layouts/CheckIn/index.tsx:161
+msgid "No matches in this filter for \"{trimmed}\". Clear the filter and search across all attendees?"
+msgstr "Bu filtrede \"{trimmed}\" için eşleşme bulunamadı. Filtreyi kaldırıp tüm katılımcılarda arayalım mı?"
+
+#: src/components/common/CheckIn/AttendeeList.tsx:80
+msgid "No matches in this filter for \"{trimmedQuery}\"."
+msgstr "Bu filtrede \"{trimmedQuery}\" için eşleşme bulunamadı."
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:188
 msgid "No matching attendees."
 msgstr "Eşleşen katılımcı yok."
 
@@ -6513,7 +6626,7 @@ msgstr "Henüz Ürün Yok"
 msgid "No Promo Codes to show"
 msgstr "Gösterilecek Promosyon Kodu yok"
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:127
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:244
 msgid "No provider events recorded yet."
 msgstr "Henüz kaydedilmiş sağlayıcı olayı yok."
 
@@ -6567,6 +6680,10 @@ msgstr "Arama Sonucu Yok"
 msgid "No search results."
 msgstr "Arama sonucu yok."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:115
+msgid "No stale values. All contact attribute values match their current option lists."
+msgstr ""
+
 #: src/components/routes/admin/EmailSuppressions/index.tsx:171
 msgid "No suppressed emails found"
 msgstr "Engellenmiş e-posta bulunamadı"
@@ -6583,7 +6700,7 @@ msgstr "Bilet Bulunamadı"
 msgid "No transaction messages found."
 msgstr "İşlem mesajı bulunamadı."
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:188
 msgid "No unlinked attendees. All attendees already have a contact."
 msgstr "Bağlantısız katılımcı yok. Tüm katılımcıların zaten bir kişisi var."
 
@@ -6665,7 +6782,7 @@ msgstr "Uygun Değil"
 msgid "Not linked"
 msgstr "Bağlı değil"
 
-#: src/components/layouts/CheckIn/index.tsx:516
+#: src/components/layouts/CheckIn/index.tsx:560
 msgid "Not yet active"
 msgstr ""
 
@@ -6826,7 +6943,7 @@ msgstr "Yalnızca hesap yöneticileri etkinlikleri silebilir veya arşivleyebili
 msgid "Only account administrators can delete or archive organizers. Contact your account admin for assistance."
 msgstr "Yalnızca hesap yöneticileri organizatörleri silebilir veya arşivleyebilir. Yardım için hesap yöneticinizle iletişime geçin."
 
-#: src/components/modals/SendMessageModal/index.tsx:403
+#: src/components/modals/SendMessageModal/index.tsx:462
 msgid "Only send to orders with these statuses"
 msgstr "Yalnızca bu durumlara sahip siparişlere gönder"
 
@@ -7042,7 +7159,7 @@ msgstr "Sipariş Numarası"
 msgid "Order owner"
 msgstr "Sipariş sahibi"
 
-#: src/components/modals/SendMessageModal/index.tsx:359
+#: src/components/modals/SendMessageModal/index.tsx:418
 msgid "Order owners with a specific product"
 msgstr "Belirli bir ürüne sahip sipariş sahipleri"
 
@@ -7072,7 +7189,7 @@ msgstr "Sipariş İade Edildi"
 msgid "Order Status"
 msgstr "Sipariş Durumu"
 
-#: src/components/modals/SendMessageModal/index.tsx:404
+#: src/components/modals/SendMessageModal/index.tsx:463
 msgid "Order statuses"
 msgstr "Sipariş durumları"
 
@@ -7602,6 +7719,14 @@ msgstr "Kişisel Bilgiler"
 msgid "Phone"
 msgstr "Telefon"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:87
+msgid "Pick a replacement for at least one row first"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:149
+msgid "Pick a replacement..."
+msgstr ""
+
 #: src/components/modals/CreateQuestionModal/index.tsx:67
 msgid "Pick a saved question or choose \"Create new\" to continue."
 msgstr ""
@@ -8030,9 +8155,13 @@ msgstr "Tarafından tanıtıldı"
 msgid "Promoting"
 msgstr "Tanıtım"
 
-#: src/components/modals/SendMessageModal/index.tsx:569
+#: src/components/modals/SendMessageModal/index.tsx:628
 msgid "Promotional emails may result in account suspension"
 msgstr "Promosyon e-postaları hesap askıya alınmasına neden olabilir"
+
+#: src/components/modals/SendMessageModal/index.tsx:380
+msgid "Promotional messages need to point at an active event so recipients land on something they can act on. To send another message about this event, set its status back to \"Live\" first. To market a different event to this event's attendees, pick that live event in the \"Relating to\" dropdown."
+msgstr "Tanıtım mesajları aktif bir etkinliği işaret etmelidir; böylece alıcılar bir şeyler yapabilecekleri bir sayfaya ulaşır. Bu etkinlik hakkında başka bir mesaj göndermek için önce durumunu yeniden \"Canlı\" olarak ayarlayın. Bu etkinliğin katılımcılarına farklı bir etkinliği tanıtmak için, o aktif etkinliği \"İlgili\" açılır menüsünden seçin."
 
 #: src/components/forms/QuestionForm/index.tsx:390
 msgid ""
@@ -8042,7 +8171,7 @@ msgstr ""
 "Bu soru için ek bağlam veya talimatlar sağlayın. Bu alanı şartlar\n"
 "ve koşullar, yönergeler veya katılımcıların yanıtlamadan önce bilmesi gereken önemli bilgileri eklemek için kullanın."
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:108
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:225
 msgid "Provider Events"
 msgstr "Sağlayıcı Olayları"
 
@@ -8193,7 +8322,7 @@ msgstr "Son Siparişler"
 msgid "recipient"
 msgstr "alıcı"
 
-#: src/components/modals/SendMessageModal/index.tsx:64
+#: src/components/modals/SendMessageModal/index.tsx:67
 #: src/components/routes/event/DeliveryIssues/index.tsx:100
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:260
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:278
@@ -8210,7 +8339,7 @@ msgid "recipients"
 msgstr "alıcı"
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:44
-#: src/components/modals/SendMessageModal/index.tsx:370
+#: src/components/modals/SendMessageModal/index.tsx:429
 #: src/components/routes/admin/Messages/index.tsx:166
 #: src/components/routes/admin/Messages/index.tsx:299
 msgid "Recipients"
@@ -8220,7 +8349,7 @@ msgstr "Alıcılar"
 msgid "Recipients are available after the message is sent"
 msgstr "Alıcılar mesaj gönderildikten sonra görüntülenebilir"
 
-#: src/components/modals/SendMessageModal/index.tsx:578
+#: src/components/modals/SendMessageModal/index.tsx:637
 msgid "Recipients with unresolved delivery issues"
 msgstr "Çözülmemiş teslimat sorunları olan alıcılar"
 
@@ -8345,7 +8474,7 @@ msgstr "Geçmiş etkinliklerde kullanılmış ancak yeniden kullanılabilir olar
 msgid "Related event"
 msgstr "İlgili etkinlik"
 
-#: src/components/modals/SendMessageModal/index.tsx:334
+#: src/components/modals/SendMessageModal/index.tsx:395
 msgid "Relating to"
 msgstr "İlgili"
 
@@ -8393,6 +8522,10 @@ msgstr ""
 #: src/components/modals/OptionMigrationModal/index.tsx:67
 #: src/components/modals/OptionMigrationModal/index.tsx:75
 msgid "Replace with"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:127
+msgid "Replace With"
 msgstr ""
 
 #: src/components/routes/organizer/Reports/ReportLayout/index.tsx:26
@@ -8448,7 +8581,7 @@ msgstr "E-posta onayını tekrar gönder"
 msgid "Resend in {resendCooldown}s"
 msgstr "{resendCooldown}s içinde yeniden gönder"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:124
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:171
 msgid "Resend invitation"
 msgstr "Daveti tekrar gönder"
 
@@ -8633,7 +8766,7 @@ msgstr "Gelir"
 msgid "Revenue Summary"
 msgstr "Gelir Özeti"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:130
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:177
 msgid "Revoke invitation"
 msgstr "Daveti iptal et"
 
@@ -8641,9 +8774,18 @@ msgstr "Daveti iptal et"
 msgid "Revoke Offer"
 msgstr "Teklifi iptal et"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:83
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:191
+msgid "Revoke Super Admin"
+msgstr "Süper Yöneticiyi Geri Al"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:74
+msgid "Revoke Super Admin from {fullName}?"
+msgstr "{fullName} kullanıcısından Süper Yönetici yetkisi alınsın mı?"
+
 #: src/components/modals/EditUserModal/index.tsx:93
 #: src/components/modals/InviteUserModal/index.tsx:64
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:155
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:216
 msgid "Role"
 msgstr "Rol"
 
@@ -8725,7 +8867,7 @@ msgstr "Örnek bilet fiyatı"
 msgid "Sample Venue"
 msgstr "Örnek Mekan"
 
-#: src/components/modals/SendMessageModal/index.tsx:587
+#: src/components/modals/SendMessageModal/index.tsx:646
 msgid "Sample:"
 msgstr "Örnek:"
 
@@ -8820,16 +8962,16 @@ msgstr "Katılımcı bilgileri kaydedildi ancak kayıt soru yanıtları kaydedil
 msgid "Saving..."
 msgstr "Kaydediliyor..."
 
-#: src/components/layouts/CheckIn/index.tsx:587
-#: src/components/layouts/CheckIn/index.tsx:597
+#: src/components/layouts/CheckIn/index.tsx:631
+#: src/components/layouts/CheckIn/index.tsx:641
 msgid "Scan"
 msgstr "Tara"
 
-#: src/components/modals/SendMessageModal/index.tsx:467
+#: src/components/modals/SendMessageModal/index.tsx:526
 msgid "Schedule for later"
 msgstr "Daha sonra gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Schedule Message"
 msgstr "Mesajı zamanla"
 
@@ -8839,7 +8981,7 @@ msgstr "Mesajı zamanla"
 msgid "Scheduled"
 msgstr "Planlandı"
 
-#: src/components/modals/SendMessageModal/index.tsx:497
+#: src/components/modals/SendMessageModal/index.tsx:556
 msgid "Scheduled time"
 msgstr "Zamanlanmış saat"
 
@@ -8863,6 +9005,10 @@ msgstr "E-posta adresine göre ara..."
 msgid "Search by email or attribute..."
 msgstr "E-posta veya özniteliğe göre ara..."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:79
+msgid "Search by email, attribute, or value..."
+msgstr ""
+
 #: src/components/routes/events/Dashboard/index.tsx:150
 #: src/components/routes/organizer/Events/index.tsx:47
 msgid "Search by event name..."
@@ -8885,7 +9031,7 @@ msgid "Search by label, name, or type..."
 msgstr "Etiket, ad veya türe göre ara..."
 
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:51
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:118
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:124
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:108
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:56
 msgid "Search by name or email..."
@@ -8900,7 +9046,7 @@ msgstr "Ad, e-posta veya hesaba göre ara..."
 msgid "Search by name, email, or order #..."
 msgstr "Ad, e-posta veya sipariş #'a göre ara..."
 
-#: src/components/layouts/CheckIn/index.tsx:537
+#: src/components/layouts/CheckIn/index.tsx:581
 msgid "Search by name, order #, attendee # or email..."
 msgstr "Ad, sipariş #, katılımcı # veya e-postaya göre ara..."
 
@@ -8934,7 +9080,7 @@ msgstr "Konu, etkinlik veya hesaba göre ara..."
 msgid "Search capacity assignments..."
 msgstr "Kapasite atamalarını ara..."
 
-#: src/components/routes/event/CheckInLists/index.tsx:39
+#: src/components/routes/event/CheckInLists/index.tsx:89
 msgid "Search check-in lists..."
 msgstr "Check-in listelerini ara..."
 
@@ -8950,7 +9096,7 @@ msgstr "Ürünleri ara"
 msgid "Search..."
 msgstr "Ara..."
 
-#: src/components/common/CheckIn/AttendeeList.tsx:136
+#: src/components/common/CheckIn/AttendeeList.tsx:159
 msgid "Seat assignment"
 msgstr "Koltuk ataması"
 
@@ -8993,7 +9139,7 @@ msgid "Select Account"
 msgstr "Hesap Seç"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:166
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:193
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:199
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:190
 msgid "Select all"
 msgstr "Tümünü seç"
@@ -9010,7 +9156,7 @@ msgstr "Bir etkinlik seçin"
 msgid "Select an organizer"
 msgstr "Bir organizatör seçin"
 
-#: src/components/modals/SendMessageModal/index.tsx:372
+#: src/components/modals/SendMessageModal/index.tsx:431
 msgid "Select attendee group"
 msgstr "Katılımcı grubu seçin"
 
@@ -9022,7 +9168,7 @@ msgstr "Kamera Seç"
 msgid "Select category..."
 msgstr "Kategori seç..."
 
-#: src/components/modals/SendMessageModal/index.tsx:418
+#: src/components/modals/SendMessageModal/index.tsx:477
 msgid "Select check-in list"
 msgstr "Giriş listesi seç"
 
@@ -9042,7 +9188,7 @@ msgstr "Bitiş tarih ve saatini seçin"
 msgid "Select end time"
 msgstr "Bitiş saatini seçin"
 
-#: src/components/modals/SendMessageModal/index.tsx:336
+#: src/components/modals/SendMessageModal/index.tsx:397
 msgid "Select event"
 msgstr "Etkinlik seç"
 
@@ -9067,12 +9213,12 @@ msgid "Select Product Tier"
 msgstr "Ürün Katmanı Seç"
 
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:49
-#: src/components/modals/SendMessageModal/index.tsx:396
+#: src/components/modals/SendMessageModal/index.tsx:455
 msgid "Select products"
 msgstr "Ürünleri seç"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:192
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:215
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:221
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:213
 msgid "Select row"
 msgstr "Satır seç"
@@ -9093,6 +9239,10 @@ msgstr "Başlangıç saatini seçin"
 msgid "Select status"
 msgstr "Durum seç"
 
+#: src/components/modals/SendMessageModal/index.tsx:238
+msgid "Select the active event this message is about."
+msgstr "Bu mesajın ilgili olduğu aktif etkinliği seçin."
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:132
 msgid "Select the country where VAT is registered"
 msgstr "KDV'nin kayıtlı olduğu ülkeyi seçin"
@@ -9106,7 +9256,7 @@ msgid "Select Ticket"
 msgstr "Bilet Seç"
 
 #: src/components/forms/CheckInListForm/index.tsx:43
-#: src/components/modals/SendMessageModal/index.tsx:384
+#: src/components/modals/SendMessageModal/index.tsx:443
 msgid "Select tickets"
 msgstr "Biletleri seç"
 
@@ -9120,11 +9270,11 @@ msgstr "Zaman aralığı seç"
 msgid "Select timezone"
 msgstr "Saat dilimi seçin"
 
-#: src/components/modals/SendMessageModal/index.tsx:371
+#: src/components/modals/SendMessageModal/index.tsx:430
 msgid "Select which attendees should receive this message"
 msgstr "Bu mesajı hangi katılımcıların alacağını seçin"
 
-#: src/components/modals/SendMessageModal/index.tsx:417
+#: src/components/modals/SendMessageModal/index.tsx:476
 msgid "Select which check-in list to use"
 msgstr "Hangi giriş listesini kullanacağınızı seçin"
 
@@ -9154,15 +9304,15 @@ msgstr "Hızlı satılıyor 🔥"
 msgid "Send"
 msgstr "Gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:265
+#: src/components/modals/SendMessageModal/index.tsx:299
 msgid "Send a message"
 msgstr "Mesaj gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:604
+#: src/components/modals/SendMessageModal/index.tsx:663
 msgid "Send anyway"
 msgstr "Yine de gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:554
+#: src/components/modals/SendMessageModal/index.tsx:613
 msgid "Send as test"
 msgstr "Test olarak gönder"
 
@@ -9170,16 +9320,16 @@ msgstr "Test olarak gönder"
 msgid "Send emails to attendees, ticket holders, or order owners. Messages can be sent immediately or scheduled for later."
 msgstr "Katılımcılara, bilet sahiplerine veya sipariş sahiplerine e-posta gönderin. Mesajlar hemen gönderilebilir veya daha sonra için planlanabilir."
 
-#: src/components/modals/SendMessageModal/index.tsx:562
+#: src/components/modals/SendMessageModal/index.tsx:621
 msgid "Send me a copy"
 msgstr "Bana bir kopya gönder"
 
 #: src/components/common/ContactOrganizerModal/index.tsx:112
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Send Message"
 msgstr "Mesaj Gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:459
+#: src/components/modals/SendMessageModal/index.tsx:518
 msgid "Send now"
 msgstr "Şimdi gönder"
 
@@ -9199,7 +9349,7 @@ msgstr "İade bildirim e-postası gönder"
 msgid "Send reset link"
 msgstr "Sıfırlama bağlantısı gönder"
 
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Send Test"
 msgstr "Test Gönder"
 
@@ -9278,7 +9428,7 @@ msgstr "Bu organizatör altında oluşturulan yeni etkinlikler için varsayılan
 msgid "Set the starting number for invoice numbering. This cannot be changed once invoices have been generated."
 msgstr "Fatura numaralandırması için başlangıç numarasını ayarlayın. Faturalar oluşturulduktan sonra bu değiştirilemez."
 
-#: src/components/routes/event/CheckInLists/index.tsx:32
+#: src/components/routes/event/CheckInLists/index.tsx:37
 msgid "Set up check-in lists for different entrances, sessions, or days."
 msgstr "Farklı girişler, oturumlar veya günler için giriş listeleri oluşturun."
 
@@ -9351,7 +9501,7 @@ msgstr "Paylaşımlı Kapasite Yönetimi"
 msgid "Shipping address · Company name for invoice · How did you hear about us · Promo source"
 msgstr ""
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:180
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:186
 msgid "Show {hiddenCount} more"
 msgstr "{hiddenCount} tane daha göster"
 
@@ -9385,7 +9535,7 @@ msgid "Show more platforms"
 msgstr "Daha fazla platform göster"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:114
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:136
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:142
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:133
 msgid "Show processed"
 msgstr "İşlenmişleri göster"
@@ -9398,15 +9548,19 @@ msgstr "Çözülenleri göster"
 msgid "Show tax and fees separately"
 msgstr "Vergi ve ücretleri ayrı göster"
 
+#: src/components/routes/event/CheckInLists/index.tsx:62
+msgid "Show tickets"
+msgstr "Biletleri göster"
+
 #: src/components/common/OrganizerReportTable/index.tsx:355
 msgid "Showing {0} of {totalRows} records"
 msgstr "{totalRows} kayıttan {0} tanesi gösteriliyor"
 
-#: src/components/layouts/CheckIn/index.tsx:613
+#: src/components/layouts/CheckIn/index.tsx:656
 msgid "Showing group:"
 msgstr "Grup gösteriliyor:"
 
-#: src/components/layouts/CheckIn/index.tsx:620
+#: src/components/layouts/CheckIn/index.tsx:663
 msgid "Showing table:"
 msgstr "Masa gösteriliyor:"
 
@@ -9480,6 +9634,10 @@ msgstr "Tükendi"
 msgid "Sold Out"
 msgstr "Tükendi"
 
+#: src/components/modals/EditContactModal/index.tsx:157
+msgid "Some stored values aren't in the current option list. Replace them with valid options."
+msgstr ""
+
 #: src/components/common/ErrorDisplay/index.tsx:15
 #: src/components/routes/auth/AcceptInvitation/index.tsx:48
 #: src/components/routes/product-widget/CollectInformation/index.tsx:705
@@ -9505,8 +9663,9 @@ msgstr "Vergi veya Ücret silinirken bir şeyler yanlış gitti"
 msgid "Something went wrong, please try again, or contact support if the problem persists"
 msgstr "Bir şeyler ters gitti, lütfen tekrar deneyin veya sorun devam ederse destek ile iletişime geçin"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:43
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:57
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:50
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:64
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:100
 msgid "Something went wrong! Please try again"
 msgstr "Bir şeyler yanlış gitti! Lütfen tekrar deneyin"
 
@@ -9535,14 +9694,14 @@ msgstr "Rahatsızlık için özür dileriz."
 msgid "Sorry, this promo code is not recognized"
 msgstr "Üzgünüz, bu promosyon kodu tanınmıyor"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:132
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:138
 #: src/components/routes/admin/Attribution/index.tsx:106
 #: src/components/routes/admin/EmailSuppressions/index.tsx:151
 #: src/components/routes/admin/EmailSuppressions/index.tsx:182
 msgid "Source"
 msgstr "Kaynak"
 
-#: src/components/modals/SendMessageModal/index.tsx:326
+#: src/components/modals/SendMessageModal/index.tsx:387
 msgid "Source Event"
 msgstr "Kaynak etkinlik"
 
@@ -9560,6 +9719,11 @@ msgstr "Spor"
 
 #: src/components/modals/OptionMigrationModal/index.tsx:101
 msgid "Stage removal"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:65
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:53
+msgid "Stale Values"
 msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:157
@@ -9619,13 +9783,13 @@ msgstr "İstatistikler hesap oluşturma tarihine göre hesaplanır"
 #: src/components/forms/WebhookForm/index.tsx:157
 #: src/components/modals/EditUserModal/index.tsx:103
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:51
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:157
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:218
 #: src/components/routes/admin/Dashboard/index.tsx:405
 #: src/components/routes/admin/Messages/index.tsx:120
 #: src/components/routes/admin/Messages/index.tsx:167
 #: src/components/routes/admin/Messages/index.tsx:293
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:181
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:204
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:210
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:202
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:160
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:68
@@ -9648,6 +9812,10 @@ msgstr "Eski işlemleriniz için hala iadeleri işliyoruz."
 #: src/components/common/ImpersonationBanner/index.tsx:53
 msgid "Stop Impersonating"
 msgstr "Taklidi Durdur"
+
+#: src/components/modals/EditContactModal/index.tsx:136
+msgid "Stored value isn't in the current option list. Pick a valid option to replace it."
+msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:384
 #: src/components/routes/admin/Dashboard/index.tsx:424
@@ -9680,7 +9848,7 @@ msgid "Stripe setup is already complete."
 msgstr "Stripe kurulumu zaten tamamlandı."
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:127
-#: src/components/modals/SendMessageModal/index.tsx:433
+#: src/components/modals/SendMessageModal/index.tsx:492
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
 #: src/components/routes/event/DeliveryIssues/index.tsx:99
@@ -9865,6 +10033,10 @@ msgstr "Sosyal Bağlantılar Başarıyla Güncellendi"
 msgid "Successfully updated Webhook"
 msgstr "Webhook Başarıyla Güncellendi"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:149
+msgid "Suggested: {suggested}"
+msgstr ""
+
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:128
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:86
 msgid "Suite 100"
@@ -9885,6 +10057,18 @@ msgstr "Yaz Müzik Festivali {0}"
 msgid "Summer Music Festival 2025"
 msgstr "Yaz Müzik Festivali 2025"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:94
+msgid "Super Admin role granted"
+msgstr "Süper Yönetici rolü verildi"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:95
+msgid "Super Admin role revoked"
+msgstr "Süper Yönetici rolü alındı"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:78
+msgid "Super Admins have COMPLETE SYSTEM ACCESS across every account — they can view all data, impersonate any user, and change platform-wide configuration. Grant this only to people you fully trust."
+msgstr "Süper Yöneticiler tüm hesaplarda TAM SİSTEM ERİŞİMİNE sahiptir — tüm verileri görüntüleyebilir, herhangi bir kullanıcının kimliğine bürünebilir ve platform genelinde yapılandırmayı değiştirebilirler. Bu yetkiyi yalnızca tamamen güvendiğiniz kişilere verin."
+
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:48
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:81
 #: src/components/routes/event/Settings/Sections/EmailSettings/GeneralEmailSettings.tsx:63
@@ -9899,8 +10083,8 @@ msgstr "Engelleme başarıyla kaldırıldı"
 msgid "Swedish"
 msgstr "İsveççe"
 
-#: src/components/layouts/CheckIn/index.tsx:489
-#: src/components/layouts/CheckIn/index.tsx:498
+#: src/components/layouts/CheckIn/index.tsx:533
+#: src/components/layouts/CheckIn/index.tsx:542
 msgid "Switch check-in list"
 msgstr ""
 
@@ -9917,7 +10101,7 @@ msgstr ""
 msgid "Sync"
 msgstr "Senkronize et"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:157
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:163
 msgid "System"
 msgstr "Sistem"
 
@@ -9929,7 +10113,7 @@ msgstr "Sistem Varsayılanı"
 msgid "T-shirt"
 msgstr "Tişört"
 
-#: src/components/layouts/CheckIn/index.tsx:569
+#: src/components/layouts/CheckIn/index.tsx:613
 #: src/components/routes/event/attendees.tsx:92
 msgid "Table"
 msgstr ""
@@ -10081,7 +10265,7 @@ msgstr "Hi.Events'i büyütmeye ve geliştirmeye devam ederken desteğiniz için
 msgid "That promo code is invalid"
 msgstr "Bu promosyon kodu geçersiz"
 
-#: src/components/modals/SendMessageModal/index.tsx:327
+#: src/components/modals/SendMessageModal/index.tsx:388
 msgid "The audience for this message is drawn from this event."
 msgstr "Bu mesajın hedef kitlesi bu etkinlikten alınıyor."
 
@@ -10097,7 +10281,7 @@ msgstr "Bu etkinliğin yayınlandığı marka"
 msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:410
+#: src/components/layouts/CheckIn/index.tsx:454
 msgid "The check-in list you are looking for does not exist."
 msgstr "Aradığınız check-in listesi mevcut değil."
 
@@ -10195,11 +10379,11 @@ msgstr "Düğmeler ve vurgular için kullanılan birincil marka rengi"
 msgid "The related event promoted this event"
 msgstr "İlgili etkinlik bu etkinliği tanıttı"
 
-#: src/components/modals/SendMessageModal/index.tsx:186
+#: src/components/modals/SendMessageModal/index.tsx:206
 msgid "The scheduled time is required"
 msgstr "Zamanlanmış saat gereklidir"
 
-#: src/components/modals/SendMessageModal/index.tsx:187
+#: src/components/modals/SendMessageModal/index.tsx:207
 msgid "The scheduled time must be in the future"
 msgstr "Zamanlanmış saat gelecekte olmalıdır"
 
@@ -10254,6 +10438,10 @@ msgstr "İsteğiniz işlenirken bir hata oluştu. Lütfen tekrar deneyin."
 msgid "There was an error sending your message"
 msgstr "Mesajınız gönderilirken bir hata oluştu"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:118
+msgid "These are attendees who haven't been recorded as a contact yet. Adding them matches on email — if several attendees share an email address, only one contact is created and every attendee with that email is linked to it."
+msgstr "Bunlar henüz kişi olarak kaydedilmemiş katılımcılardır. Eklendiklerinde eşleştirme e-posta üzerinden yapılır — birden fazla katılımcı aynı e-posta adresini paylaşıyorsa yalnızca bir kişi oluşturulur ve bu e-postaya sahip tüm katılımcılar ona bağlanır."
+
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:105
 msgid "These details will only be shown if order is completed successfully. Orders awaiting payment will not show this message."
 msgstr "Bu detaylar yalnızca sipariş başarıyla tamamlanırsa gösterilecektir. Ödeme bekleyen siparişler bu mesajı göstermeyecektir."
@@ -10298,7 +10486,7 @@ msgstr "Bu kategori halktan gizli"
 msgid "This check-in list has expired"
 msgstr "Bu check-in listesi süresi doldu"
 
-#: src/components/layouts/CheckIn/index.tsx:425
+#: src/components/layouts/CheckIn/index.tsx:469
 msgid "This check-in list has expired and is no longer available for check-ins."
 msgstr "Bu check-in listesinin süresi doldu ve artık check-in için kullanılamıyor."
 
@@ -10310,7 +10498,7 @@ msgstr "Bu check-in listesi aktif"
 msgid "This check-in list is not active yet"
 msgstr "Bu check-in listesi henüz aktif değil"
 
-#: src/components/layouts/CheckIn/index.tsx:442
+#: src/components/layouts/CheckIn/index.tsx:486
 msgid "This check-in list is not yet active and is not available for check-ins."
 msgstr "Bu check-in listesi henüz aktif değil ve check-in yapılabilir durumda değil."
 
@@ -10329,6 +10517,10 @@ msgstr "Bu etkinlik sona erdi"
 #: src/components/common/StatusToggle/index.tsx:82
 msgid "This event is not published yet"
 msgstr "Bu etkinlik henüz yayınlanmadı"
+
+#: src/components/modals/SendMessageModal/index.tsx:371
+msgid "This event isn't active, so you can't promote it directly. Choose a live event in \"Relating to\" — or reactivate this event to promote it again."
+msgstr "Bu etkinlik aktif değil, bu yüzden doğrudan tanıtılamaz. \"İlgili\" alanında aktif bir etkinlik seçin veya tekrar tanıtmak için bu etkinliği yeniden aktif hale getirin."
 
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:309
 msgid "This event promoted the related event"
@@ -10467,7 +10659,7 @@ msgstr "Bu bilet henüz bir misafire atanmadı. Bileti göndermeden, yazdırmada
 msgid "This ticket hasn't been assigned to a guest yet. Confirm or correct the details below, then check them in."
 msgstr "Bu bilet henüz bir misafire atanmadı. Aşağıdaki bilgileri doğrulayın veya düzeltin, sonra girişlerini yapın."
 
-#: src/components/layouts/CheckIn/index.tsx:262
+#: src/components/layouts/CheckIn/index.tsx:306
 msgid "This ticket was just scanned. Please wait before scanning again."
 msgstr "Bu bilet az önce tarandı. Tekrar taramadan önce lütfen bekleyin."
 
@@ -10482,6 +10674,10 @@ msgstr ""
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:80
 msgid "This will be used for notifications and communication with your users."
 msgstr "Bu, kullanıcılarınızla bildirimler ve iletişim için kullanılacaktır."
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:79
+msgid "This will demote the user to Admin across every account they belong to. They will lose access to admin pages like Email Suppressions and Contacts."
+msgstr "Bu işlem, kullanıcıyı ait olduğu her hesapta Admin'e indirgeyecektir. E-posta Engellemeleri ve Kişiler gibi yönetici sayfalarına erişimini kaybedecektir."
 
 #: src/components/forms/AffiliateForm/index.tsx:82
 msgid "This will not be visible to customers, but helps you identify the affiliate."
@@ -10506,7 +10702,7 @@ msgstr "Bilet"
 msgid "Ticket {position}"
 msgstr "Bilet {position}"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:145
+#: src/components/common/CheckIn/AttendeeList.tsx:168
 msgid "Ticket Cancelled"
 msgstr "Bilet İptal Edildi"
 
@@ -10694,7 +10890,7 @@ msgstr "Kime"
 msgid "To edit configurations, go to the Configurations section in the admin menu."
 msgstr "Yapılandırmaları düzenlemek için yönetici menüsündeki Yapılandırmalar bölümüne gidin."
 
-#: src/components/modals/SendMessageModal/index.tsx:302
+#: src/components/modals/SendMessageModal/index.tsx:336
 msgid "To increase your limits, contact us at"
 msgstr "Limitinizi artırmak için bizimle iletişime geçin"
 
@@ -10835,11 +11031,11 @@ msgstr "Hi.Events'i Ücretsiz Deneyin"
 msgid "Turkish"
 msgstr "Türkçe"
 
-#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:634
 msgid "Turn sound off"
 msgstr "Sesi kapat"
 
-#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:634
 msgid "Turn sound on"
 msgstr "Sesi aç"
 
@@ -10878,12 +11074,12 @@ msgstr "Bir seçenek yazın ve Enter'a basın"
 msgid "Type of ticket"
 msgstr "Bilet türü"
 
-#: src/components/layouts/CheckIn/index.tsx:194
+#: src/components/layouts/CheckIn/index.tsx:238
 msgid "Unable to check in attendee"
 msgstr "Katılımcı girişi yapılamadı"
 
-#: src/components/layouts/CheckIn/index.tsx:218
-#: src/components/layouts/CheckIn/index.tsx:220
+#: src/components/layouts/CheckIn/index.tsx:262
+#: src/components/layouts/CheckIn/index.tsx:264
 msgid "Unable to check out attendee"
 msgstr "Katılımcı check-out'u yapılamadı"
 
@@ -10903,7 +11099,7 @@ msgstr ""
 msgid "Unable to duplicate product. Please check the your details"
 msgstr "Ürün çoğaltılamıyor. Lütfen bilgilerinizi kontrol edin"
 
-#: src/components/layouts/CheckIn/index.tsx:278
+#: src/components/layouts/CheckIn/index.tsx:322
 msgid "Unable to fetch attendee"
 msgstr "Katılımcı getirilemedi"
 
@@ -10935,7 +11131,7 @@ msgstr "Atıfsız Hesaplar"
 msgid "Undetermined"
 msgstr "Belirlenmemiş"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:169
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:175
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:166
 msgid "Unignore ({0})"
 msgstr "Yoksaymayı kaldır ({0})"
@@ -11024,7 +11220,7 @@ msgstr "Bağlı Kuruluşu Güncelle"
 msgid "Update Attribute"
 msgstr "Niteliği güncelle"
 
-#: src/components/modals/EditContactModal/index.tsx:141
+#: src/components/modals/EditContactModal/index.tsx:178
 msgid "Update Contact"
 msgstr "Kişiyi güncelle"
 
@@ -11054,6 +11250,10 @@ msgstr "{0} cevap güncellendi."
 #: src/components/modals/ManageOrderModal/index.tsx:67
 msgid "Updated {0} attendees"
 msgstr "{0} katılımcı güncellendi"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:66
+msgid "Updated {attributes_written} value(s)."
+msgstr ""
 
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:128
 msgid "Updates the ticket recipient address. Doesn't resend the ticket automatically."
@@ -11165,12 +11365,12 @@ msgstr "Kenarlıklar, vurgular ve QR kod stillemesi için kullanılır"
 msgid "Used in"
 msgstr "Kullanılan"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:154
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:215
 msgid "User"
 msgstr "Kullanıcı"
 
 #: src/components/common/GlobalMenu/index.tsx:59
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:142
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:203
 msgid "User Management"
 msgstr "Kullanıcı Yönetimi"
 
@@ -11418,9 +11618,9 @@ msgstr "Sipariş detaylarını görüntüleyin, iade yapın ve onayları yeniden
 msgid "View Organizer Homepage"
 msgstr "Organizatör Ana Sayfasını Görüntüle"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:285
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:286
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:332
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:303
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:304
 msgid "View provider events"
 msgstr "Sağlayıcı olaylarını görüntüle"
 
@@ -11723,7 +11923,7 @@ msgid "WhatsApp"
 msgstr "WhatsApp"
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:37
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:131
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:137
 msgid "When"
 msgstr "Ne zaman"
 
@@ -11836,9 +12036,9 @@ msgstr "Çevrimdışı ödemeler etkinleştirildiğinde, kullanıcılar sipariş
 msgid "Whenver an attendee's answer to a reusable question differs from the value stored on their contact, that discrepancy will appear here. Select <0>Update</0> to change the contact default; click <1>Ignore</1> to keep it the same."
 msgstr "Bir katılımcının yeniden kullanılabilir bir soruya verdiği yanıt, kişisinde kayıtlı değerden farklıysa bu fark burada görünür. Kişinin varsayılan değerini değiştirmek için <0>Güncelle</0>'yi seçin; aynı kalmasını istiyorsanız <1>Yoksay</1>'a tıklayın."
 
-#: src/components/modals/SendMessageModal/index.tsx:335
-msgid "Which event this message promotes."
-msgstr ""
+#: src/components/modals/SendMessageModal/index.tsx:396
+msgid "Which active event this message promotes."
+msgstr "Bu mesajın tanıttığı aktif etkinlik."
 
 #: src/components/forms/CheckInListForm/index.tsx:42
 msgid "Which tickets should be associated with this check-in list?"
@@ -11851,6 +12051,10 @@ msgstr "Bu etkinliği kim organize ediyor?"
 #: src/components/forms/QuestionForm/index.tsx:317
 msgid "Who should be asked this question?"
 msgstr "Bu soru kime sorulmalı?"
+
+#: src/components/modals/SendMessageModal/index.tsx:374
+msgid "Why?"
+msgstr "Neden?"
 
 #: src/components/layouts/Event/index.tsx:130
 msgid "Widget Embed"
@@ -11877,7 +12081,7 @@ msgstr "Çalışıyor"
 #: src/components/modals/DuplicateEventModal/index.tsx:177
 #: src/components/modals/DuplicateProductModal/index.tsx:117
 #: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:150
-#: src/components/modals/EditContactModal/index.tsx:141
+#: src/components/modals/EditContactModal/index.tsx:178
 #: src/components/modals/EditProductCategoryModal/index.tsx:70
 #: src/components/modals/EditProductModal/index.tsx:114
 #: src/components/modals/EditPromoCodeModal/index.tsx:84
@@ -11910,7 +12114,7 @@ msgstr "Yıl"
 msgid "Year to date"
 msgstr "Yıl başından beri"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:203
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:209
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:250
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:277
 msgid "Yes"
@@ -11944,8 +12148,8 @@ msgstr "<0>{0}</0> ({1}) rolünü üstleniyorsunuz"
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "Kısmi iade yapıyorsunuz. Müşteriye {0} {1} iade edilecek."
 
-#: src/components/layouts/CheckIn/index.tsx:189
-#: src/components/layouts/CheckIn/index.tsx:213
+#: src/components/layouts/CheckIn/index.tsx:233
+#: src/components/layouts/CheckIn/index.tsx:257
 msgid "You are offline"
 msgstr "Çevrimdışısınız"
 
@@ -11973,8 +12177,8 @@ msgstr "Hesabınızdaki son aktif organizatörü arşivleyemezsiniz."
 msgid "You cannot change the product type as there are attendees associated with this product."
 msgstr "Bu ürünle ilişkili katılımcılar olduğu için ürün türünü değiştiremezsiniz."
 
-#: src/components/layouts/CheckIn/index.tsx:236
-#: src/components/layouts/CheckIn/index.tsx:311
+#: src/components/layouts/CheckIn/index.tsx:280
+#: src/components/layouts/CheckIn/index.tsx:355
 msgid "You cannot check in attendees with unpaid orders. This setting can be changed in the event settings."
 msgstr "Ödenmemiş siparişleri olan katılımcıları check-in yaptıramazsınız. Bu ayar etkinlik ayarlarından değiştirilebilir."
 
@@ -12006,7 +12210,7 @@ msgstr "Bu daveti zaten kabul ettiniz. Devam etmek için lütfen giriş yapın."
 msgid "You have no pending email change."
 msgstr "Bekleyen e-posta değişikliğiniz yok."
 
-#: src/components/modals/SendMessageModal/index.tsx:206
+#: src/components/modals/SendMessageModal/index.tsx:226
 msgid "You have reached your messaging limit."
 msgstr "Mesajlaşma limitinize ulaştınız."
 
@@ -12018,7 +12222,7 @@ msgstr "Siparişinizi tamamlamak için zamanınız doldu."
 msgid "You have taxes and fees added to a Free Product. Would you like to remove them?"
 msgstr "Ücretsiz Bir Ürüne eklenen vergiler ve ücretleriniz var. Bunları kaldırmak ister misiniz?"
 
-#: src/components/modals/SendMessageModal/index.tsx:182
+#: src/components/modals/SendMessageModal/index.tsx:202
 msgid "You must acknowledge that this email is not promotional"
 msgstr "Bu e-postanın tanıtım amaçlı olmadığını kabul etmelisiniz"
 
@@ -12046,7 +12250,7 @@ msgstr "Organizatör durumunu güncelleyebilmek için e-posta adresinizi doğrul
 msgid "You need to verify your account email before you can modify email templates."
 msgstr "E-posta şablonlarını değiştirebilmek için hesap e-postanızı doğrulamanız gerekir."
 
-#: src/components/modals/SendMessageModal/index.tsx:277
+#: src/components/modals/SendMessageModal/index.tsx:311
 msgid "You need to verify your account email before you can send messages."
 msgstr "Mesaj göndermeden önce hesap e-postanızı doğrulamanız gerekir."
 
@@ -12090,7 +12294,7 @@ msgstr "Bekleme listesine eklendi!"
 msgid "You've been offered a spot!"
 msgstr "Size bir yer teklif edildi!"
 
-#: src/components/modals/SendMessageModal/index.tsx:316
+#: src/components/modals/SendMessageModal/index.tsx:350
 msgid "Your account has messaging limits. To increase your limits, contact us at"
 msgstr "Hesabınızın mesajlaşma limitleri var. Limitinizi artırmak için bizimle iletişime geçin"
 

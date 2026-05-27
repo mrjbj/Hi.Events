@@ -1,5 +1,5 @@
 import {ActionIcon, Badge, Button, Loader, Tooltip, UnstyledButton} from "@mantine/core";
-import {IconArmchair, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
+import {IconArmchair, IconFilterOff, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -11,6 +11,9 @@ interface AttendeeListProps {
     isCheckInPending: boolean;
     isDeletePending: boolean;
     allowOrdersAwaitingOfflinePaymentToCheckIn: boolean;
+    hasActiveFilter?: boolean;
+    searchQuery?: string;
+    onClearFilter?: () => void;
     onCheckInToggle: (attendee: Attendee) => void;
     onEditAttendee?: (attendee: Attendee) => void;
     onFilterByGroup?: (attendee: Attendee) => void;
@@ -25,6 +28,9 @@ export const AttendeeList = ({
                                  isCheckInPending,
                                  isDeletePending,
                                  allowOrdersAwaitingOfflinePaymentToCheckIn,
+                                 hasActiveFilter,
+                                 searchQuery,
+                                 onClearFilter,
                                  onCheckInToggle,
                                  onEditAttendee,
                                  onFilterByGroup,
@@ -66,9 +72,26 @@ export const AttendeeList = ({
     }
 
     if (attendees.length === 0) {
+        const trimmedQuery = searchQuery?.trim();
+        if (hasActiveFilter && trimmedQuery && onClearFilter) {
+            return (
+                <div className={classes.noResults}>
+                    <div style={{marginBottom: 12}}>
+                        {t`No matches in this filter for "${trimmedQuery}".`}
+                    </div>
+                    <Button
+                        variant="light"
+                        leftSection={<IconFilterOff size={16}/>}
+                        onClick={onClearFilter}
+                    >
+                        {t`Clear filter & search all attendees`}
+                    </Button>
+                </div>
+            );
+        }
         return (
             <div className={classes.noResults}>
-                No attendees to show.
+                {t`No attendees to show.`}
             </div>
         );
     }

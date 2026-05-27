@@ -8,10 +8,12 @@ use HiEvents\DomainObjects\Generated\CheckInListDomainObjectAbstract;
 use HiEvents\Http\DTO\QueryParamsDTO;
 use HiEvents\Models\CheckInList;
 use HiEvents\Repository\DTO\CheckedInAttendeesCountDTO;
+use HiEvents\Repository\DTO\UncoveredProductDTO;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @extends BaseRepository<CheckInListDomainObject>
@@ -30,7 +32,7 @@ class CheckInListRepository extends BaseRepository implements CheckInListReposit
 
     public function getCheckedInAttendeeCountById(int $checkInListId): CheckedInAttendeesCountDTO
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             WITH valid_check_ins AS (
                 SELECT attendee_id, check_in_list_id
                 FROM attendee_check_ins
@@ -118,7 +120,7 @@ class CheckInListRepository extends BaseRepository implements CheckInListReposit
         $query = $this->db->select($sql, array_merge($checkInListIds, $checkInListIds, $checkInListIds));
 
         return collect($query)->map(
-            static fn($item) => new CheckedInAttendeesCountDTO(
+            static fn ($item) => new CheckedInAttendeesCountDTO(
                 checkInListId: $item->check_in_list_id,
                 checkedInCount: $item->checked_in_attendees,
                 totalAttendeesCount: $item->total_attendees,
@@ -129,13 +131,13 @@ class CheckInListRepository extends BaseRepository implements CheckInListReposit
     public function findByEventId(int $eventId, QueryParamsDTO $params): LengthAwarePaginator
     {
         $where = [
-            [CheckInListDomainObjectAbstract::EVENT_ID, '=', $eventId]
+            [CheckInListDomainObjectAbstract::EVENT_ID, '=', $eventId],
         ];
 
-        if (!empty($params->query)) {
+        if (! empty($params->query)) {
             $where[] = static function (Builder $builder) use ($params) {
                 $builder
-                    ->where(CapacityAssignmentDomainObjectAbstract::NAME, 'ilike', '%' . $params->query . '%');
+                    ->where(CapacityAssignmentDomainObjectAbstract::NAME, 'ilike', '%'.$params->query.'%');
             };
         }
 
@@ -149,5 +151,43 @@ class CheckInListRepository extends BaseRepository implements CheckInListReposit
             limit: $params->per_page,
             page: $params->page,
         );
+    }
+
+    public function getProductsWithoutCheckInListCoverage(int $eventId): Collection
+    {
+        $sql = <<<'SQL'
+            SELECT p.id AS product_id,
+                   p.title AS title,
+                   COUNT(DISTINCT a.id) AS attendee_count
+            FROM products p
+            INNER JOIN attendees a
+                ON a.product_id = p.id
+                AND a.deleted_at IS NULL
+                AND a.status IN ('ACTIVE', 'AWAITING_PAYMENT')
+            WHERE p.event_id = :event_id
+              AND p.deleted_at IS NULL
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM product_check_in_lists pcil
+                  INNER JOIN check_in_lists cil ON pcil.check_in_list_id = cil.id
+                  WHERE pcil.product_id = p.id
+                    AND pcil.deleted_at IS NULL
+                    AND cil.deleted_at IS NULL
+                    AND cil.event_id = :event_id_filter
+              )
+            GROUP BY p.id, p.title
+            ORDER BY p.title ASC
+        SQL;
+
+        $rows = DB::select($sql, [
+            'event_id' => $eventId,
+            'event_id_filter' => $eventId,
+        ]);
+
+        return collect($rows)->map(static fn ($row) => new UncoveredProductDTO(
+            product_id: (int) $row->product_id,
+            title: (string) $row->title,
+            attendee_count: (int) $row->attendee_count,
+        ));
     }
 }

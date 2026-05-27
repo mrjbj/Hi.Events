@@ -27,7 +27,11 @@ msgstr "- 點擊取消發布"
 msgid "'There\\'s nothing to show yet'"
 msgstr "'暫時沒有內容可顯示'"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:145
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:216
+msgid "(clear value)"
+msgstr ""
+
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:151
 msgid "(deleted attribute)"
 msgstr "（已刪除的屬性）"
 
@@ -43,6 +47,14 @@ msgstr "(包含 {0} 張票)"
 msgid "(includes {bundleSize} tickets)"
 msgstr ""
 
+#: src/components/routes/event/CheckInLists/index.tsx:72
+msgid "{0, plural, one {# attendee} other {# attendees}}"
+msgstr "{0, plural, other {# 位參與者}}"
+
+#: src/components/routes/event/CheckInLists/index.tsx:55
+msgid "{0, plural, one {# ticket type has sold attendees but isn't on any check-in list — those attendees can't be checked in.} other {# ticket types have sold attendees but aren't on any check-in list — those attendees can't be checked in.}}"
+msgstr "{0, plural, other {# 種票類有已售出的參與者，但不在任何簽到清單中——這些參與者無法簽到。}}"
+
 #: src/components/common/ReportTable/index.tsx:303
 msgid "{0}"
 msgstr "{0}"
@@ -51,15 +63,15 @@ msgstr "{0}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: src/components/layouts/CheckIn/index.tsx:294
+#: src/components/layouts/CheckIn/index.tsx:338
 msgid "{0} {1} is already checked in"
 msgstr "{0} {1} 已簽到"
 
-#: src/components/layouts/CheckIn/index.tsx:181
+#: src/components/layouts/CheckIn/index.tsx:225
 msgid "{0} <0>checked in</0> successfully"
 msgstr "{0} <0>簽到</0>成功"
 
-#: src/components/layouts/CheckIn/index.tsx:207
+#: src/components/layouts/CheckIn/index.tsx:251
 msgid "{0} <0>checked out</0> successfully"
 msgstr "{0} <0>簽退</0>成功"
 
@@ -68,7 +80,7 @@ msgstr "{0} <0>簽退</0>成功"
 msgid "{0} Active Webhooks"
 msgstr "{0} 個活動的 Webhook"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:112
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:118
 msgid "{0} changes across {uniqueAttrs} attributes · since {1}"
 msgstr "{uniqueAttrs} 個屬性共 {0} 次變更 · 自 {1}"
 
@@ -85,7 +97,7 @@ msgstr "剩餘 {0}"
 msgid "{0} logo"
 msgstr "{0} 標誌"
 
-#: src/components/modals/SendMessageModal/index.tsx:583
+#: src/components/modals/SendMessageModal/index.tsx:642
 msgid "{0} of {1} recipients have an unresolved bounce or failure on a prior message. Sending now will likely fail again for those addresses."
 msgstr "{1} 位收件人中有 {0} 位在之前的訊息中存在未解決的退信或失敗。現在發送很可能再次對這些地址失敗。"
 
@@ -170,6 +182,22 @@ msgstr ""
 msgid "{used} used (unlimited capacity)"
 msgstr ""
 
+#: src/components/modals/EditContactModal/index.tsx:146
+msgid "{v} (not in current options)"
+msgstr ""
+
+#: src/components/modals/EditContactModal/index.tsx:121
+msgid "{value} (not in current options)"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:211
+msgid "+ Add \"{0}\" to allowed options"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:212
+msgid "+ Add {0} stale values to allowed options"
+msgstr ""
+
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:98
 msgid "+1 234 567 890"
 msgstr "+1 234 567 890"
@@ -248,19 +276,19 @@ msgstr "1 個活動的 Webhook"
 msgid "1 answer"
 msgstr ""
 
-#: src/components/modals/SendMessageModal/index.tsx:123
+#: src/components/modals/SendMessageModal/index.tsx:129
 msgid "1 day after end date"
 msgstr "結束日期後1天"
 
-#: src/components/modals/SendMessageModal/index.tsx:117
+#: src/components/modals/SendMessageModal/index.tsx:123
 msgid "1 day after start date"
 msgstr "開始日期後1天"
 
-#: src/components/modals/SendMessageModal/index.tsx:115
+#: src/components/modals/SendMessageModal/index.tsx:121
 msgid "1 day before event"
 msgstr "活動前1天"
 
-#: src/components/modals/SendMessageModal/index.tsx:116
+#: src/components/modals/SendMessageModal/index.tsx:122
 msgid "1 hour before event"
 msgstr "活動前1小時"
 
@@ -276,7 +304,7 @@ msgstr "1張門票"
 msgid "1 ticket type"
 msgstr "1 種門票類型"
 
-#: src/components/modals/SendMessageModal/index.tsx:114
+#: src/components/modals/SendMessageModal/index.tsx:120
 msgid "1 week before event"
 msgstr "活動前1週"
 
@@ -530,11 +558,11 @@ msgstr "使用中 — 阻止刪除"
 msgid "Active Events"
 msgstr "活躍活動"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:155
 msgid "Add"
 msgstr "新增"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:149
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:155
 msgid "Add ({0})"
 msgstr "新增 ({0})"
 
@@ -664,13 +692,17 @@ msgstr "添加 Webhook"
 msgid "Add your social media handles and website URL. These will be displayed on your public organizer page."
 msgstr "新增您的社交媒體帳號及網站網址。這些資訊將會顯示在您的公開主辦單位頁面。"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:230
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:236
 msgid "Added"
 msgstr "已新增"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:78
 msgid "Added {0} contact(s)."
 msgstr "已新增 {0} 個聯絡人。"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:67
+msgid "Added {options_added} option(s) to allowed list."
+msgstr ""
 
 #: src/components/common/PlatformFeesSettings/index.tsx:257
 msgid "Additional Fees"
@@ -790,7 +822,7 @@ msgstr "所有已封存活動"
 msgid "All attendees"
 msgstr "所有參與者"
 
-#: src/components/modals/SendMessageModal/index.tsx:355
+#: src/components/modals/SendMessageModal/index.tsx:414
 msgid "All attendees of this event"
 msgstr "本次活動的所有與會者"
 
@@ -977,6 +1009,10 @@ msgstr "已套用（此列未記錄時間戳）"
 msgid "Applied {0}"
 msgstr "已套用 {0}"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:68
+msgid "Applied."
+msgstr ""
+
 #: src/components/common/CapacityAssignmentList/index.tsx:94
 msgid "Applies to {0} products"
 msgstr "適用於{0}個產品"
@@ -986,8 +1022,13 @@ msgid "Applies to 1 product"
 msgstr "適用於1個產品"
 
 #: src/components/common/FilterModal/index.tsx:284
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:98
 msgid "Apply"
 msgstr "應用"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:98
+msgid "Apply ({0})"
+msgstr ""
 
 #: src/components/routes/product-widget/SelectProducts/index.tsx:637
 msgid "Apply Promo Code"
@@ -1279,7 +1320,7 @@ msgstr "參加者資料收集"
 msgid "Attendee Name"
 msgstr "參會者姓名"
 
-#: src/components/layouts/CheckIn/index.tsx:285
+#: src/components/layouts/CheckIn/index.tsx:329
 msgid "Attendee not found"
 msgstr "未找到參與者"
 
@@ -1335,15 +1376,15 @@ msgstr "已註冊參加者"
 msgid "Attendees Registered"
 msgstr "註冊的參會者"
 
-#: src/components/modals/SendMessageModal/index.tsx:363
+#: src/components/modals/SendMessageModal/index.tsx:422
 msgid "Attendees who checked in"
 msgstr "已簽到的參加者"
 
-#: src/components/modals/SendMessageModal/index.tsx:367
+#: src/components/modals/SendMessageModal/index.tsx:426
 msgid "Attendees who did not check in"
 msgstr "未簽到的參加者"
 
-#: src/components/modals/SendMessageModal/index.tsx:351
+#: src/components/modals/SendMessageModal/index.tsx:410
 msgid "Attendees with a specific ticket"
 msgstr "持有特定門票的與會者"
 
@@ -1355,8 +1396,9 @@ msgstr "電郵尚未在聯絡人資料庫中的參加者。選擇列並按<0>新
 msgid "Attendees:"
 msgstr "參與者："
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:127
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:133
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:177
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:125
 msgid "Attribute"
 msgstr "屬性"
 
@@ -1373,7 +1415,7 @@ msgstr "屬性定義刪除成功"
 msgid "Attribute definition updated successfully"
 msgstr "屬性定義更新成功"
 
-#: src/components/modals/EditContactModal/index.tsx:100
+#: src/components/modals/EditContactModal/index.tsx:103
 msgid "Attributes"
 msgstr "屬性"
 
@@ -1442,7 +1484,7 @@ msgid "Awaiting 1 required answer"
 msgstr ""
 
 #: src/components/common/OrderStatusBadge/index.tsx:15
-#: src/components/modals/SendMessageModal/index.tsx:407
+#: src/components/modals/SendMessageModal/index.tsx:466
 msgid "Awaiting offline payment"
 msgstr "等待線下付款"
 
@@ -1455,7 +1497,7 @@ msgstr "等待線下付款"
 msgid "Awaiting Offline Pmt."
 msgstr "等待線下付款"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:153
+#: src/components/common/CheckIn/AttendeeList.tsx:176
 msgid "Awaiting payment"
 msgstr "等待付款"
 
@@ -1537,7 +1579,7 @@ msgstr "在任何裝置上都有美觀的結帳體驗"
 msgid "Before your event can go live, there are a few things you need to do. Complete all the steps below to get started."
 msgstr "在活動上線之前，您需要完成以下幾項步驟。請完成以下所有步驟以開始。"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:128
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:134
 msgid "Begin"
 msgstr "變更前"
 
@@ -1667,10 +1709,11 @@ msgstr "活動"
 #: src/components/modals/CreateContactModal/index.tsx:62
 #: src/components/modals/CreateQuestionModal/index.tsx:139
 #: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:147
-#: src/components/modals/EditContactModal/index.tsx:138
+#: src/components/modals/EditContactModal/index.tsx:175
 #: src/components/modals/EditQuestionModal/index.tsx:205
 #: src/components/modals/OptionMigrationModal/index.tsx:99
 #: src/components/modals/ResolveDeliveryIssueModal/index.tsx:98
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:84
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:99
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:72
 #: src/components/routes/event/messages.tsx:80
@@ -1682,7 +1725,7 @@ msgstr "活動"
 msgid "Cancel"
 msgstr "取消"
 
-#: src/components/modals/SendMessageModal/index.tsx:597
+#: src/components/modals/SendMessageModal/index.tsx:656
 msgid "Cancel & resolve first"
 msgstr "取消並先解決"
 
@@ -1724,11 +1767,11 @@ msgstr "取消將取消與此訂單關聯的所有參與者，並將門票釋放
 msgid "Cancelled"
 msgstr "已取消"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:36
+#: src/components/common/CheckIn/AttendeeList.tsx:42
 msgid "Cannot Check In"
 msgstr "無法簽到"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:40
+#: src/components/common/CheckIn/AttendeeList.tsx:46
 msgid "Cannot Check In (Cancelled)"
 msgstr "無法簽到（已取消）"
 
@@ -1804,7 +1847,7 @@ msgstr ""
 msgid "Change waitlist settings"
 msgstr "更改等候名單設定"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:130
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:136
 msgid "Changed by"
 msgstr "變更人"
 
@@ -1818,7 +1861,7 @@ msgstr "慈善"
 msgid "Check"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:47
+#: src/components/common/CheckIn/AttendeeList.tsx:53
 msgid "Check In"
 msgstr "簽到"
 
@@ -1838,7 +1881,7 @@ msgstr ""
 msgid "Check in only"
 msgstr "僅簽到"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:44
+#: src/components/common/CheckIn/AttendeeList.tsx:50
 msgid "Check Out"
 msgstr "簽出"
 
@@ -1864,7 +1907,7 @@ msgstr "簽到已創建"
 msgid "Check-in Deleted"
 msgstr "簽到已刪除"
 
-#: src/components/modals/SendMessageModal/index.tsx:416
+#: src/components/modals/SendMessageModal/index.tsx:475
 msgid "Check-in list"
 msgstr "簽到清單"
 
@@ -1876,15 +1919,15 @@ msgstr "簽到名單已建立！"
 msgid "Check-In List deleted successfully"
 msgstr "簽到列表刪除成功"
 
-#: src/components/layouts/CheckIn/index.tsx:420
+#: src/components/layouts/CheckIn/index.tsx:464
 msgid "Check-in list has expired"
 msgstr "簽到列表已過期"
 
-#: src/components/layouts/CheckIn/index.tsx:437
+#: src/components/layouts/CheckIn/index.tsx:481
 msgid "Check-in list is not active"
 msgstr "簽到列表未激活"
 
-#: src/components/layouts/CheckIn/index.tsx:405
+#: src/components/layouts/CheckIn/index.tsx:449
 msgid "Check-in list not found"
 msgstr "未找到簽到列表"
 
@@ -1894,7 +1937,7 @@ msgstr "簽到列表"
 
 #: src/components/layouts/Event/index.tsx:122
 #: src/components/modals/DuplicateEventModal/index.tsx:29
-#: src/components/routes/event/CheckInLists/index.tsx:34
+#: src/components/routes/event/CheckInLists/index.tsx:39
 msgid "Check-In Lists"
 msgstr "簽到列表"
 
@@ -1996,9 +2039,21 @@ msgstr "選擇誰支付平台費用。這不會影響您在帳戶設置中配置
 msgid "City"
 msgstr "城市"
 
-#: src/components/layouts/CheckIn/index.tsx:631
+#: src/components/layouts/CheckIn/index.tsx:674
 msgid "Clear filter"
 msgstr "清除篩選"
+
+#: src/components/layouts/CheckIn/index.tsx:164
+msgid "Clear filter & search"
+msgstr "清除篩選並搜尋"
+
+#: src/components/common/CheckIn/AttendeeList.tsx:87
+msgid "Clear filter & search all attendees"
+msgstr "清除篩選並搜尋所有參與者"
+
+#: src/components/layouts/CheckIn/index.tsx:158
+msgid "Clear filter to find attendees?"
+msgstr "清除篩選以查找參與者？"
 
 #: src/components/common/SearchBar/index.tsx:75
 msgid "Clear Search Text"
@@ -2021,7 +2076,7 @@ msgid "close"
 msgstr "關閉"
 
 #: src/components/common/AttendeeCheckInTable/PermissionDeniedMessage.tsx:27
-#: src/components/modals/EditContactModal/index.tsx:150
+#: src/components/modals/EditContactModal/index.tsx:187
 #: src/components/modals/JoinWaitlistModal/index.tsx:103
 #: src/components/modals/JoinWaitlistModal/index.tsx:130
 #: src/components/modals/RefundOrderModal/index.tsx:169
@@ -2170,7 +2225,7 @@ msgid "Complete your profile to join the team."
 msgstr "完成您的個人資料以加入團隊。"
 
 #: src/components/common/OrdersTable/index.tsx:412
-#: src/components/modals/SendMessageModal/index.tsx:406
+#: src/components/modals/SendMessageModal/index.tsx:465
 #: src/components/routes/event/GettingStarted/index.tsx:75
 #: src/components/routes/event/orders.tsx:24
 #: src/components/routes/my-tickets/index.tsx:34
@@ -2324,7 +2379,7 @@ msgstr "連接條紋"
 msgid "Connect Stripe to enable email template editing"
 msgstr "連接 Stripe 以啟用電子郵件範本編輯"
 
-#: src/components/modals/SendMessageModal/index.tsx:283
+#: src/components/modals/SendMessageModal/index.tsx:317
 msgid "Connect Stripe to enable messaging"
 msgstr "連接 Stripe 以啟用消息功能"
 
@@ -2373,6 +2428,7 @@ msgstr "連接詳情"
 #: src/components/layouts/EventHomepage/index.tsx:583
 #: src/components/layouts/OrganizerHomepage/index.tsx:245
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:176
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:124
 msgid "Contact"
 msgstr "聯絡"
 
@@ -2383,6 +2439,14 @@ msgstr "聯絡 {0}"
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:38
 msgid "Contact Attributes"
 msgstr "聯絡人屬性"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:104
+msgid "Contact attributes whose stored value isn't in the attribute's current dropdown options — usually because the option list was edited, or the value came from a typo or import. Pick a replacement for each row (or \"Clear\") then click Apply. Changes are recorded in each contact's attribute history."
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:67
+msgid "Contact attributes whose stored value isn't in the attribute's current dropdown options — usually because the option list was edited, or the value came from a typo or import. Pick a replacement for each row and click <0>Apply</0>. Unfixed stale values silently break checkout for the affected contact."
+msgstr ""
 
 #: src/components/modals/CreateContactModal/index.tsx:30
 msgid "Contact created successfully"
@@ -2406,7 +2470,7 @@ msgstr "聯絡電郵"
 msgid "Contact email for support"
 msgstr "支援聯絡電郵"
 
-#: src/components/modals/EditContactModal/index.tsx:59
+#: src/components/modals/EditContactModal/index.tsx:62
 msgid "Contact updated successfully"
 msgstr "聯絡人更新成功"
 
@@ -2554,6 +2618,10 @@ msgstr "無法新增聯絡人。"
 msgid "Could not apply decisions."
 msgstr "無法套用決定。"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:71
+msgid "Could not apply remaps."
+msgstr ""
+
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:80
 msgid "Could not delete image. Please try again."
 msgstr "無法刪除圖片，請重試。"
@@ -2694,7 +2762,7 @@ msgstr "創建類別"
 #: src/components/common/CheckInListList/index.tsx:59
 #: src/components/modals/CreateCheckInListModal/index.tsx:83
 #: src/components/modals/CreateCheckInListModal/index.tsx:99
-#: src/components/routes/event/CheckInLists/index.tsx:48
+#: src/components/routes/event/CheckInLists/index.tsx:98
 msgid "Create Check-In List"
 msgstr "創建簽到列表"
 
@@ -2803,7 +2871,7 @@ msgstr "建立您自己的活動"
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:132
 #: src/components/routes/admin/Messages/index.tsx:169
 #: src/components/routes/admin/Messages/index.tsx:309
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:203
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:209
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:150
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:261
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:281
@@ -2865,6 +2933,10 @@ msgstr "當前密碼"
 msgid "Current payment processor"
 msgstr "當前付款處理器"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:126
+msgid "Current Value"
+msgstr ""
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:156
 msgid "Current VAT number is validated"
 msgstr "目前增值稅號碼已驗證"
@@ -2881,7 +2953,7 @@ msgstr "目前可供購買"
 msgid "Custom Branding"
 msgstr "自訂品牌"
 
-#: src/components/modals/SendMessageModal/index.tsx:491
+#: src/components/modals/SendMessageModal/index.tsx:550
 msgid "Custom date and time"
 msgstr "自訂日期和時間"
 
@@ -3213,7 +3285,7 @@ msgstr "設計元素"
 
 #: src/components/common/ProgressStepper/index.tsx:18
 #: src/components/common/ProgressStepper/index.tsx:23
-#: src/components/modals/EditContactModal/index.tsx:72
+#: src/components/modals/EditContactModal/index.tsx:75
 msgid "Details"
 msgstr "詳細信息"
 
@@ -3230,7 +3302,7 @@ msgid "Dietary needs · Shirt size · Phone · Job title · Date of birth · Pro
 msgstr ""
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:58
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:45
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:46
 msgid "Different Answers"
 msgstr "不同答案"
 
@@ -3356,7 +3428,7 @@ msgstr "下拉選擇"
 msgid "Due to the high risk of spam, you must connect a Stripe account before you can modify email templates. This is to ensure that all event organizers are verified and accountable."
 msgstr "由於垃圾郵件風險高，您必須先連接 Stripe 帳戶才能修改電子郵件範本。這是為了確保所有活動主辦方都經過驗證並負責。"
 
-#: src/components/modals/SendMessageModal/index.tsx:284
+#: src/components/modals/SendMessageModal/index.tsx:318
 msgid ""
 "Due to the high risk of spam, you must connect a Stripe account before you can send messages to attendees.\n"
 "This is to ensure that all event organizers are verified and accountable."
@@ -3412,7 +3484,7 @@ msgstr "例如：桌位 5"
 msgid "e.g., Get Tickets, Register Now"
 msgstr "例如：取得門票，立即註冊"
 
-#: src/components/modals/SendMessageModal/index.tsx:434
+#: src/components/modals/SendMessageModal/index.tsx:493
 msgid "e.g., Important update about your tickets"
 msgstr "例如：關於您門票的重要更新"
 
@@ -3467,6 +3539,10 @@ msgstr "編輯 {0}"
 msgid "Edit {0} Template"
 msgstr "編輯{0}範本"
 
+#: src/components/routes/event/CheckInLists/index.tsx:81
+msgid "Edit a check-in list (or create a new one) and add these ticket types to it."
+msgstr "編輯一個簽到清單（或新建一個），並將這些票種加入其中。"
+
 #: src/components/common/AffiliateTable/index.tsx:170
 #: src/components/modals/EditAffiliateModal/index.tsx:81
 #: src/components/modals/EditAffiliateModal/index.tsx:93
@@ -3481,7 +3557,7 @@ msgstr "編輯答案"
 msgid "Edit Application Fees"
 msgstr "編輯應用費用"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:171
+#: src/components/common/CheckIn/AttendeeList.tsx:194
 msgid "Edit attendee"
 msgstr "編輯參加者"
 
@@ -3489,7 +3565,7 @@ msgstr "編輯參加者"
 msgid "Edit Attendee"
 msgstr "編輯參與者"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:166
+#: src/components/common/CheckIn/AttendeeList.tsx:189
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:96
 msgid "Edit attendee details"
 msgstr "編輯參加者詳情"
@@ -3538,7 +3614,7 @@ msgstr "編輯配置"
 msgid "Edit contact"
 msgstr "編輯聯絡人"
 
-#: src/components/modals/EditContactModal/index.tsx:68
+#: src/components/modals/EditContactModal/index.tsx:71
 msgid "Edit Contact"
 msgstr "編輯聯絡人"
 
@@ -3569,7 +3645,7 @@ msgstr "編輯促銷代碼"
 msgid "Edit Question"
 msgstr "編輯問題"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:119
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:166
 msgid "Edit user"
 msgstr "編輯用户"
 
@@ -3625,7 +3701,7 @@ msgstr "符合條件的簽到列表"
 #: src/components/common/QuestionsTable/index.tsx:329
 #: src/components/forms/AffiliateForm/index.tsx:89
 #: src/components/modals/CreateContactModal/index.tsx:42
-#: src/components/modals/EditContactModal/index.tsx:81
+#: src/components/modals/EditContactModal/index.tsx:84
 #: src/components/modals/EditUserModal/index.tsx:80
 #: src/components/modals/InviteUserModal/index.tsx:61
 #: src/components/modals/JoinWaitlistModal/index.tsx:171
@@ -3637,7 +3713,7 @@ msgstr "符合條件的簽到列表"
 #: src/components/routes/auth/ForgotPassword/index.tsx:65
 #: src/components/routes/auth/Login/index.tsx:93
 #: src/components/routes/auth/Register/index.tsx:104
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:199
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:205
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:147
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:78
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:180
@@ -3807,7 +3883,7 @@ msgstr "啟用候補名單"
 msgid "Enabled"
 msgstr "已啟用"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:129
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:135
 msgid "End"
 msgstr "變更後"
 
@@ -3971,7 +4047,7 @@ msgstr "歐元"
 #: src/components/routes/admin/Messages/index.tsx:163
 #: src/components/routes/admin/Messages/index.tsx:277
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:180
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:202
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:208
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
 #: src/components/routes/event/EventDashboard/index.tsx:269
@@ -4219,7 +4295,7 @@ msgid "Expiration date"
 msgstr "過期日期"
 
 #: src/components/common/WaitlistTable/index.tsx:28
-#: src/components/layouts/CheckIn/index.tsx:516
+#: src/components/layouts/CheckIn/index.tsx:560
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:74
 msgid "Expired"
 msgstr "已過期"
@@ -4419,7 +4495,7 @@ msgstr "載入聯絡人失敗"
 msgid "Failed to load delivery issues"
 msgstr "無法載入送達問題"
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:121
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:238
 msgid "Failed to load events."
 msgstr "載入事件失敗。"
 
@@ -4433,7 +4509,11 @@ msgstr "無法載入訊息"
 msgid "Failed to load recipients"
 msgstr "載入收件人失敗"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:177
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:110
+msgid "Failed to load stale values"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:183
 msgid "Failed to load unlinked attendees"
 msgstr "載入未連結參與者失敗"
 
@@ -4641,12 +4721,12 @@ msgstr "請先在上方填寫您的詳細信息"
 msgid "Filter Attendees"
 msgstr "篩選參與者"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:115
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:121
 msgid "Filter by attribute"
 msgstr "按屬性篩選"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:104
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:126
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:132
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:123
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:116
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:122
@@ -4657,11 +4737,11 @@ msgstr "按活動篩選"
 msgid "Filter by Event"
 msgstr "按活動篩選"
 
-#: src/components/layouts/CheckIn/index.tsx:564
+#: src/components/layouts/CheckIn/index.tsx:608
 msgid "Filter by group purchase"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:583
+#: src/components/layouts/CheckIn/index.tsx:627
 msgid "Filter by table"
 msgstr ""
 
@@ -4669,11 +4749,11 @@ msgstr ""
 msgid "Filter Orders"
 msgstr "篩選訂單"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:108
+#: src/components/common/CheckIn/AttendeeList.tsx:131
 msgid "Filter to this group"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:118
+#: src/components/common/CheckIn/AttendeeList.tsx:141
 msgid "Filter to this table"
 msgstr "篩選此桌"
 
@@ -4717,15 +4797,15 @@ msgstr "姓名"
 #: src/components/common/QuestionsTable/index.tsx:327
 #: src/components/modals/CreateContactModal/index.tsx:49
 #: src/components/modals/CreateContactModal/index.tsx:50
-#: src/components/modals/EditContactModal/index.tsx:87
-#: src/components/modals/EditContactModal/index.tsx:88
+#: src/components/modals/EditContactModal/index.tsx:90
+#: src/components/modals/EditContactModal/index.tsx:91
 #: src/components/modals/EditUserModal/index.tsx:71
 #: src/components/modals/InviteUserModal/index.tsx:57
 #: src/components/modals/JoinWaitlistModal/index.tsx:161
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:65
 #: src/components/routes/auth/AcceptInvitation/index.tsx:97
 #: src/components/routes/auth/Register/index.tsx:90
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:200
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:206
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:148
 #: src/components/routes/product-widget/CollectInformation/index.tsx:786
 #: src/components/routes/product-widget/CollectInformation/index.tsx:1009
@@ -4824,7 +4904,7 @@ msgstr "免費產品，無需付款信息"
 msgid "French"
 msgstr "法語"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:167
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:173
 msgid "From question answer"
 msgstr "來自問題答案"
 
@@ -4915,6 +4995,15 @@ msgstr "良好的可讀性"
 msgid "Google Calendar"
 msgstr "谷歌日曆"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:83
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:184
+msgid "Grant Super Admin"
+msgstr "授予超級管理員"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:73
+msgid "Grant Super Admin to {fullName}?"
+msgstr "授予 {fullName} 超級管理員權限？"
+
 #: src/components/common/EventCard/index.tsx:230
 msgid "Gross revenue"
 msgstr "總收入"
@@ -4934,20 +5023,20 @@ msgstr "銷售總額"
 msgid "Gross Sales"
 msgstr "總銷售額"
 
-#: src/components/layouts/CheckIn/index.tsx:542
+#: src/components/layouts/CheckIn/index.tsx:586
 #: src/components/routes/event/attendees.tsx:86
 msgid "Group"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeList.tsx:93
-#: src/components/layouts/CheckIn/index.tsx:546
-#: src/components/layouts/CheckIn/index.tsx:557
-#: src/components/layouts/CheckIn/index.tsx:662
+#: src/components/common/CheckIn/AttendeeList.tsx:116
+#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:601
+#: src/components/layouts/CheckIn/index.tsx:708
 #: src/components/routes/event/attendees.tsx:45
 msgid "Group purchase"
 msgstr "團體購買"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:92
+#: src/components/common/CheckIn/AttendeeList.tsx:115
 msgid "Group: {buyerName}"
 msgstr "團體：{buyerName}"
 
@@ -5036,6 +5125,10 @@ msgstr "隱藏"
 msgid "Hide Answers"
 msgstr "隱藏答案"
 
+#: src/components/modals/SendMessageModal/index.tsx:374
+msgid "Hide details"
+msgstr "隱藏詳情"
+
 #: src/components/common/QuestionsTable/index.tsx:277
 msgid "Hide from checkout"
 msgstr ""
@@ -5080,6 +5173,10 @@ msgstr "隱藏此問題"
 msgid "Hide this tier from users"
 msgstr "向用户隱藏此層級"
 
+#: src/components/routes/event/CheckInLists/index.tsx:62
+msgid "Hide tickets"
+msgstr "隱藏票種"
+
 #: src/components/forms/ProductForm/index.tsx:111
 msgid "Hiding a product will prevent users from seeing it on the event page."
 msgstr "隱藏產品將防止用户在活動頁面上看到它。"
@@ -5109,11 +5206,11 @@ msgstr "已突出顯示"
 msgid "Highlighted products will have a different background color to make them stand out on the event page."
 msgstr "突出顯示的產品將具有不同的背景色，使其在活動頁面上脫穎而出。"
 
-#: src/components/modals/EditContactModal/index.tsx:75
+#: src/components/modals/EditContactModal/index.tsx:78
 msgid "History"
 msgstr "歷史"
 
-#: src/components/modals/EditContactModal/index.tsx:75
+#: src/components/modals/EditContactModal/index.tsx:78
 msgid "History ({historyCount})"
 msgstr "歷史 ({historyCount})"
 
@@ -5182,7 +5279,7 @@ msgstr "我同意接收與此活動相關的電子郵件通知"
 msgid "I agree to the <0>terms and conditions</0>"
 msgstr "我同意<0>條款和條件</0>。"
 
-#: src/components/modals/SendMessageModal/index.tsx:525
+#: src/components/modals/SendMessageModal/index.tsx:584
 msgid "I confirm this is a transactional message related to this event"
 msgstr "我確認這是與此活動相關的交易訊息"
 
@@ -5215,12 +5312,12 @@ msgid "If you have an account with us, you will receive an email with instructio
 msgstr "如果您在我們這裡有帳戶，您將收到一封電子郵件，其中包含如何重置密碼的說明。"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:137
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:159
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:165
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:156
 msgid "Ignore"
 msgstr "忽略"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:233
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:239
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:237
 msgid "Ignored"
 msgstr "已忽略"
@@ -5409,11 +5506,11 @@ msgstr "無效或已過期的連結"
 msgid "Invalid VAT number format"
 msgstr "無效的增值稅號碼格式"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:39
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:46
 msgid "Invitation resent!"
 msgstr "再次發出邀請！"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:53
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:60
 msgid "Invitation revoked!"
 msgstr "撤銷邀請！"
 
@@ -5433,7 +5530,7 @@ msgstr "邀請團隊成員"
 msgid "Invite unlimited team members with custom roles"
 msgstr "邀請無限團隊成員並自訂角色"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:144
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:205
 msgid "Invite User"
 msgstr "邀請用户"
 
@@ -5555,6 +5652,10 @@ msgstr "只是在找您的票？"
 msgid "Keep current type"
 msgstr ""
 
+#: src/components/layouts/CheckIn/index.tsx:164
+msgid "Keep filter"
+msgstr "保留篩選"
+
 #: src/components/routes/product-widget/CollectInformation/index.tsx:846
 msgid "Keep me updated on news and events from {0}"
 msgstr "讓我隨時了解來自 {0} 的新聞和活動"
@@ -5622,7 +5723,7 @@ msgstr "過去 7 天"
 msgid "Last 90 days"
 msgstr "過去 90 天"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:156
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:217
 msgid "Last login"
 msgstr "最後登錄"
 
@@ -5638,15 +5739,15 @@ msgstr "姓氏"
 #: src/components/common/QuestionsTable/index.tsx:328
 #: src/components/modals/CreateContactModal/index.tsx:55
 #: src/components/modals/CreateContactModal/index.tsx:56
-#: src/components/modals/EditContactModal/index.tsx:93
-#: src/components/modals/EditContactModal/index.tsx:94
+#: src/components/modals/EditContactModal/index.tsx:96
+#: src/components/modals/EditContactModal/index.tsx:97
 #: src/components/modals/EditUserModal/index.tsx:72
 #: src/components/modals/InviteUserModal/index.tsx:58
 #: src/components/modals/JoinWaitlistModal/index.tsx:166
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:66
 #: src/components/routes/auth/AcceptInvitation/index.tsx:102
 #: src/components/routes/auth/Register/index.tsx:96
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:201
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:207
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:149
 #: src/components/routes/product-widget/CollectInformation/index.tsx:792
 #: src/components/routes/product-widget/CollectInformation/index.tsx:793
@@ -5896,7 +5997,7 @@ msgstr "管理活動候補名單、查看統計數據並向參與者提供票務
 msgid "Manage your payment processing and view platform fees"
 msgstr "管理您的支付處理並查看平台費用"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:143
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:204
 msgid "Manage your users and their permissions"
 msgstr "管理用户及其權限"
 
@@ -5909,7 +6010,7 @@ msgstr "在顧客結賬前，必須回答必填問題。"
 msgid "Manual"
 msgstr "手動"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:169
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:175
 msgid "Manual edit"
 msgstr "手動編輯"
 
@@ -5960,7 +6061,7 @@ msgstr "媒介"
 #: src/components/common/AttendeeTable/index.tsx:188
 #: src/components/common/ContactOrganizerModal/index.tsx:88
 #: src/components/common/OrdersTable/index.tsx:254
-#: src/components/modals/SendMessageModal/index.tsx:439
+#: src/components/modals/SendMessageModal/index.tsx:498
 msgid "Message"
 msgstr "訊息"
 
@@ -5976,7 +6077,7 @@ msgstr "與會者留言"
 msgid "Message Attendees"
 msgstr "留言參與者"
 
-#: src/components/modals/SendMessageModal/index.tsx:383
+#: src/components/modals/SendMessageModal/index.tsx:442
 msgid "Message attendees with specific tickets"
 msgstr "向與會者發送特定門票的信息"
 
@@ -6000,7 +6101,7 @@ msgstr "訊息內容"
 msgid "Message Details"
 msgstr "訊息詳情"
 
-#: src/components/modals/SendMessageModal/index.tsx:98
+#: src/components/modals/SendMessageModal/index.tsx:101
 msgid "Message individual attendees"
 msgstr "給個別與會者留言"
 
@@ -6008,15 +6109,15 @@ msgstr "給個別與會者留言"
 msgid "Message is required"
 msgstr "必須填寫訊息"
 
-#: src/components/modals/SendMessageModal/index.tsx:395
+#: src/components/modals/SendMessageModal/index.tsx:454
 msgid "Message order owners with specific products"
 msgstr "向具有特定產品的訂單所有者發送消息"
 
-#: src/components/modals/SendMessageModal/index.tsx:199
+#: src/components/modals/SendMessageModal/index.tsx:219
 msgid "Message Scheduled"
 msgstr "訊息已排程"
 
-#: src/components/modals/SendMessageModal/index.tsx:199
+#: src/components/modals/SendMessageModal/index.tsx:219
 msgid "Message Sent"
 msgstr "發送的信息"
 
@@ -6200,12 +6301,12 @@ msgstr "淨收入"
 #: src/components/common/OrganizerWebhookTable/index.tsx:266
 #: src/components/common/PromoCodeTable/index.tsx:158
 #: src/components/common/WebhookTable/index.tsx:266
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:101
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:148
 msgid "Never"
 msgstr "從不"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:44
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:31
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:32
 msgid "New Contacts"
 msgstr "新聯絡人"
 
@@ -6223,7 +6324,7 @@ msgid "New Question (this event only)"
 msgstr "新問題（僅限本活動）"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:51
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:38
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:39
 msgid "New Questions"
 msgstr "新問題"
 
@@ -6235,7 +6336,7 @@ msgstr "新註冊"
 msgid "Nightlife"
 msgstr "夜生活"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:203
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:209
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:250
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:277
 msgid "No"
@@ -6290,7 +6391,11 @@ msgstr "尚未向此訂單添加參會者。"
 msgid "No Attendees to show"
 msgstr "無與會者"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:97
+#: src/components/common/CheckIn/AttendeeList.tsx:94
+msgid "No attendees to show."
+msgstr "沒有可顯示的參與者。"
+
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:103
 msgid "No attribute changes yet."
 msgstr "暫無屬性變更。"
 
@@ -6412,7 +6517,15 @@ msgstr "無發票"
 msgid "No logs found"
 msgstr "未找到日誌"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+#: src/components/layouts/CheckIn/index.tsx:161
+msgid "No matches in this filter for \"{trimmed}\". Clear the filter and search across all attendees?"
+msgstr "在此篩選中找不到與「{trimmed}」相符的結果。是否清除篩選並搜尋所有參與者？"
+
+#: src/components/common/CheckIn/AttendeeList.tsx:80
+msgid "No matches in this filter for \"{trimmedQuery}\"."
+msgstr "在此篩選中找不到與「{trimmedQuery}」相符的結果。"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:188
 msgid "No matching attendees."
 msgstr "沒有匹配的參與者。"
 
@@ -6513,7 +6626,7 @@ msgstr "尚無產品"
 msgid "No Promo Codes to show"
 msgstr "無促銷代碼顯示"
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:127
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:244
 msgid "No provider events recorded yet."
 msgstr "尚未記錄任何供應商事件。"
 
@@ -6567,6 +6680,10 @@ msgstr "沒有搜索結果"
 msgid "No search results."
 msgstr "沒有搜索結果。"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:115
+msgid "No stale values. All contact attribute values match their current option lists."
+msgstr ""
+
 #: src/components/routes/admin/EmailSuppressions/index.tsx:171
 msgid "No suppressed emails found"
 msgstr "未找到被封鎖的電郵"
@@ -6583,7 +6700,7 @@ msgstr "未找到票"
 msgid "No transaction messages found."
 msgstr "未找到事務訊息。"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:182
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:188
 msgid "No unlinked attendees. All attendees already have a contact."
 msgstr "沒有未連結的參與者。所有參與者均已有聯絡人。"
 
@@ -6665,7 +6782,7 @@ msgstr "不符合條件"
 msgid "Not linked"
 msgstr "未連結"
 
-#: src/components/layouts/CheckIn/index.tsx:516
+#: src/components/layouts/CheckIn/index.tsx:560
 msgid "Not yet active"
 msgstr ""
 
@@ -6826,7 +6943,7 @@ msgstr "只有帳戶管理員可以刪除或封存活動。請聯絡您的帳戶
 msgid "Only account administrators can delete or archive organizers. Contact your account admin for assistance."
 msgstr "只有帳戶管理員可以刪除或封存主辦方。請聯絡您的帳戶管理員尋求協助。"
 
-#: src/components/modals/SendMessageModal/index.tsx:403
+#: src/components/modals/SendMessageModal/index.tsx:462
 msgid "Only send to orders with these statuses"
 msgstr "僅發送給具有這些狀態的訂單"
 
@@ -7042,7 +7159,7 @@ msgstr "訂單號"
 msgid "Order owner"
 msgstr "訂單所有者"
 
-#: src/components/modals/SendMessageModal/index.tsx:359
+#: src/components/modals/SendMessageModal/index.tsx:418
 msgid "Order owners with a specific product"
 msgstr "具有特定產品的訂單所有者"
 
@@ -7072,7 +7189,7 @@ msgstr "訂單已退款"
 msgid "Order Status"
 msgstr "訂單狀態"
 
-#: src/components/modals/SendMessageModal/index.tsx:404
+#: src/components/modals/SendMessageModal/index.tsx:463
 msgid "Order statuses"
 msgstr "訂單狀態"
 
@@ -7602,6 +7719,14 @@ msgstr "個人資料"
 msgid "Phone"
 msgstr "電話"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:87
+msgid "Pick a replacement for at least one row first"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:149
+msgid "Pick a replacement..."
+msgstr ""
+
 #: src/components/modals/CreateQuestionModal/index.tsx:67
 msgid "Pick a saved question or choose \"Create new\" to continue."
 msgstr ""
@@ -8030,9 +8155,13 @@ msgstr "推廣方"
 msgid "Promoting"
 msgstr "推廣"
 
-#: src/components/modals/SendMessageModal/index.tsx:569
+#: src/components/modals/SendMessageModal/index.tsx:628
 msgid "Promotional emails may result in account suspension"
 msgstr "促銷電子郵件可能導致帳戶被暫停"
+
+#: src/components/modals/SendMessageModal/index.tsx:380
+msgid "Promotional messages need to point at an active event so recipients land on something they can act on. To send another message about this event, set its status back to \"Live\" first. To market a different event to this event's attendees, pick that live event in the \"Relating to\" dropdown."
+msgstr "推廣類訊息必須指向一個進行中的活動，這樣收件人打開後才有可操作的內容。如果你想再次發送關於此活動的訊息，請先將其狀態改回「進行中」。如果你想向此活動的參與者推廣其他活動，請在「關聯到」下拉式選單中選擇那個進行中的活動。"
 
 #: src/components/forms/QuestionForm/index.tsx:390
 msgid ""
@@ -8042,7 +8171,7 @@ msgstr ""
 "為此問題提供額外的背景資訊或說明。使用此欄位新增條款\n"
 "和條件、指引或參與者在回答之前需要了解的任何重要資訊。"
 
-#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:108
+#: src/components/routes/event/MessageTracking/EventLogDrawer.tsx:225
 msgid "Provider Events"
 msgstr "供應商事件"
 
@@ -8193,7 +8322,7 @@ msgstr "最近訂單"
 msgid "recipient"
 msgstr "位收件人"
 
-#: src/components/modals/SendMessageModal/index.tsx:64
+#: src/components/modals/SendMessageModal/index.tsx:67
 #: src/components/routes/event/DeliveryIssues/index.tsx:100
 #: src/components/routes/event/MessageTracking/MarketingTab.tsx:260
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:278
@@ -8210,7 +8339,7 @@ msgid "recipients"
 msgstr "位收件人"
 
 #: src/components/modals/MessageRecipientsModal/index.tsx:44
-#: src/components/modals/SendMessageModal/index.tsx:370
+#: src/components/modals/SendMessageModal/index.tsx:429
 #: src/components/routes/admin/Messages/index.tsx:166
 #: src/components/routes/admin/Messages/index.tsx:299
 msgid "Recipients"
@@ -8220,7 +8349,7 @@ msgstr "收件人"
 msgid "Recipients are available after the message is sent"
 msgstr "收件人在訊息發送後可用"
 
-#: src/components/modals/SendMessageModal/index.tsx:578
+#: src/components/modals/SendMessageModal/index.tsx:637
 msgid "Recipients with unresolved delivery issues"
 msgstr "存在未解決的投遞問題的收件人"
 
@@ -8345,7 +8474,7 @@ msgstr "在過往活動中使用但未標記為可重複使用的報名問題。
 msgid "Related event"
 msgstr "相關活動"
 
-#: src/components/modals/SendMessageModal/index.tsx:334
+#: src/components/modals/SendMessageModal/index.tsx:395
 msgid "Relating to"
 msgstr "關聯到"
 
@@ -8393,6 +8522,10 @@ msgstr ""
 #: src/components/modals/OptionMigrationModal/index.tsx:67
 #: src/components/modals/OptionMigrationModal/index.tsx:75
 msgid "Replace with"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:127
+msgid "Replace With"
 msgstr ""
 
 #: src/components/routes/organizer/Reports/ReportLayout/index.tsx:26
@@ -8448,7 +8581,7 @@ msgstr "重新發送電子郵件確認"
 msgid "Resend in {resendCooldown}s"
 msgstr "{resendCooldown}秒後重新發送"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:124
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:171
 msgid "Resend invitation"
 msgstr "重新發送邀請"
 
@@ -8633,7 +8766,7 @@ msgstr "收入"
 msgid "Revenue Summary"
 msgstr "收入摘要"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:130
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:177
 msgid "Revoke invitation"
 msgstr "撤銷邀請"
 
@@ -8641,9 +8774,18 @@ msgstr "撤銷邀請"
 msgid "Revoke Offer"
 msgstr "撤銷邀請"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:83
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:191
+msgid "Revoke Super Admin"
+msgstr "撤銷超級管理員"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:74
+msgid "Revoke Super Admin from {fullName}?"
+msgstr "撤銷 {fullName} 的超級管理員權限？"
+
 #: src/components/modals/EditUserModal/index.tsx:93
 #: src/components/modals/InviteUserModal/index.tsx:64
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:155
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:216
 msgid "Role"
 msgstr "角色"
 
@@ -8725,7 +8867,7 @@ msgstr "示例票價"
 msgid "Sample Venue"
 msgstr "示例場地"
 
-#: src/components/modals/SendMessageModal/index.tsx:587
+#: src/components/modals/SendMessageModal/index.tsx:646
 msgid "Sample:"
 msgstr "範例:"
 
@@ -8820,16 +8962,16 @@ msgstr "已儲存參加者詳情，但無法儲存註冊問題答案。"
 msgid "Saving..."
 msgstr "儲存中..."
 
-#: src/components/layouts/CheckIn/index.tsx:587
-#: src/components/layouts/CheckIn/index.tsx:597
+#: src/components/layouts/CheckIn/index.tsx:631
+#: src/components/layouts/CheckIn/index.tsx:641
 msgid "Scan"
 msgstr "掃描"
 
-#: src/components/modals/SendMessageModal/index.tsx:467
+#: src/components/modals/SendMessageModal/index.tsx:526
 msgid "Schedule for later"
 msgstr "稍後發送"
 
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Schedule Message"
 msgstr "排程訊息"
 
@@ -8839,7 +8981,7 @@ msgstr "排程訊息"
 msgid "Scheduled"
 msgstr "已排程"
 
-#: src/components/modals/SendMessageModal/index.tsx:497
+#: src/components/modals/SendMessageModal/index.tsx:556
 msgid "Scheduled time"
 msgstr "排程時間"
 
@@ -8863,6 +9005,10 @@ msgstr "按電郵地址搜尋..."
 msgid "Search by email or attribute..."
 msgstr "按電郵或屬性搜尋..."
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:79
+msgid "Search by email, attribute, or value..."
+msgstr ""
+
 #: src/components/routes/events/Dashboard/index.tsx:150
 #: src/components/routes/organizer/Events/index.tsx:47
 msgid "Search by event name..."
@@ -8885,7 +9031,7 @@ msgid "Search by label, name, or type..."
 msgstr "按標籤、名稱或類型搜尋..."
 
 #: src/components/routes/account/ManageAccount/sections/Contacts/index.tsx:51
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:118
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:124
 #: src/components/routes/contacts/ContactsAdmin/ContactsTab.tsx:108
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:56
 msgid "Search by name or email..."
@@ -8900,7 +9046,7 @@ msgstr "按姓名、電子郵件或帳戶搜索..."
 msgid "Search by name, email, or order #..."
 msgstr "按姓名、電子郵件或訂單號搜索..."
 
-#: src/components/layouts/CheckIn/index.tsx:537
+#: src/components/layouts/CheckIn/index.tsx:581
 msgid "Search by name, order #, attendee # or email..."
 msgstr "按姓名、訂單號、參與者號或電子郵件搜索..."
 
@@ -8934,7 +9080,7 @@ msgstr "按主題、活動或賬戶搜索..."
 msgid "Search capacity assignments..."
 msgstr "搜索容量分配..."
 
-#: src/components/routes/event/CheckInLists/index.tsx:39
+#: src/components/routes/event/CheckInLists/index.tsx:89
 msgid "Search check-in lists..."
 msgstr "搜索簽到列表..."
 
@@ -8950,7 +9096,7 @@ msgstr "搜索產品"
 msgid "Search..."
 msgstr "搜索..."
 
-#: src/components/common/CheckIn/AttendeeList.tsx:136
+#: src/components/common/CheckIn/AttendeeList.tsx:159
 msgid "Seat assignment"
 msgstr "座位指派"
 
@@ -8993,7 +9139,7 @@ msgid "Select Account"
 msgstr "選擇帳戶"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:166
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:193
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:199
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:190
 msgid "Select all"
 msgstr "全選"
@@ -9010,7 +9156,7 @@ msgstr "選擇活動"
 msgid "Select an organizer"
 msgstr "選擇一個主辦方"
 
-#: src/components/modals/SendMessageModal/index.tsx:372
+#: src/components/modals/SendMessageModal/index.tsx:431
 msgid "Select attendee group"
 msgstr "選擇參加者群組"
 
@@ -9022,7 +9168,7 @@ msgstr "選擇相機"
 msgid "Select category..."
 msgstr "選擇類別..."
 
-#: src/components/modals/SendMessageModal/index.tsx:418
+#: src/components/modals/SendMessageModal/index.tsx:477
 msgid "Select check-in list"
 msgstr "選擇簽到清單"
 
@@ -9042,7 +9188,7 @@ msgstr "選擇結束日期與時間"
 msgid "Select end time"
 msgstr "選擇結束時間"
 
-#: src/components/modals/SendMessageModal/index.tsx:336
+#: src/components/modals/SendMessageModal/index.tsx:397
 msgid "Select event"
 msgstr "選擇活動"
 
@@ -9067,12 +9213,12 @@ msgid "Select Product Tier"
 msgstr "選擇產品等級"
 
 #: src/components/forms/CapaciyAssigmentForm/index.tsx:49
-#: src/components/modals/SendMessageModal/index.tsx:396
+#: src/components/modals/SendMessageModal/index.tsx:455
 msgid "Select products"
 msgstr "選擇產品"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:192
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:215
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:221
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:213
 msgid "Select row"
 msgstr "選擇列"
@@ -9093,6 +9239,10 @@ msgstr "選擇開始時間"
 msgid "Select status"
 msgstr "選擇狀態"
 
+#: src/components/modals/SendMessageModal/index.tsx:238
+msgid "Select the active event this message is about."
+msgstr "請選擇此訊息關聯的進行中活動。"
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:132
 msgid "Select the country where VAT is registered"
 msgstr "選擇註冊增值稅的國家"
@@ -9106,7 +9256,7 @@ msgid "Select Ticket"
 msgstr "選擇機票"
 
 #: src/components/forms/CheckInListForm/index.tsx:43
-#: src/components/modals/SendMessageModal/index.tsx:384
+#: src/components/modals/SendMessageModal/index.tsx:443
 msgid "Select tickets"
 msgstr "選擇票"
 
@@ -9120,11 +9270,11 @@ msgstr "選擇時間段"
 msgid "Select timezone"
 msgstr "選擇時區"
 
-#: src/components/modals/SendMessageModal/index.tsx:371
+#: src/components/modals/SendMessageModal/index.tsx:430
 msgid "Select which attendees should receive this message"
 msgstr "選擇哪些參加者應該收到此訊息"
 
-#: src/components/modals/SendMessageModal/index.tsx:417
+#: src/components/modals/SendMessageModal/index.tsx:476
 msgid "Select which check-in list to use"
 msgstr "選擇要使用的簽到清單"
 
@@ -9154,15 +9304,15 @@ msgstr "熱賣中 🔥"
 msgid "Send"
 msgstr "發送"
 
-#: src/components/modals/SendMessageModal/index.tsx:265
+#: src/components/modals/SendMessageModal/index.tsx:299
 msgid "Send a message"
 msgstr "發送信息"
 
-#: src/components/modals/SendMessageModal/index.tsx:604
+#: src/components/modals/SendMessageModal/index.tsx:663
 msgid "Send anyway"
 msgstr "仍然發送"
 
-#: src/components/modals/SendMessageModal/index.tsx:554
+#: src/components/modals/SendMessageModal/index.tsx:613
 msgid "Send as test"
 msgstr "作為測試發送"
 
@@ -9170,16 +9320,16 @@ msgstr "作為測試發送"
 msgid "Send emails to attendees, ticket holders, or order owners. Messages can be sent immediately or scheduled for later."
 msgstr "向參與者、持票人或訂單擁有者發送電子郵件。訊息可以立即發送或安排稍後發送。"
 
-#: src/components/modals/SendMessageModal/index.tsx:562
+#: src/components/modals/SendMessageModal/index.tsx:621
 msgid "Send me a copy"
 msgstr "發送副本給我"
 
 #: src/components/common/ContactOrganizerModal/index.tsx:112
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Send Message"
 msgstr "發送消息"
 
-#: src/components/modals/SendMessageModal/index.tsx:459
+#: src/components/modals/SendMessageModal/index.tsx:518
 msgid "Send now"
 msgstr "立即發送"
 
@@ -9199,7 +9349,7 @@ msgstr "發送退款通知郵件"
 msgid "Send reset link"
 msgstr "發送重置連結"
 
-#: src/components/modals/SendMessageModal/index.tsx:536
+#: src/components/modals/SendMessageModal/index.tsx:595
 msgid "Send Test"
 msgstr "發送測試"
 
@@ -9278,7 +9428,7 @@ msgstr "為此主辦單位下創建的新活動設定預設設定。"
 msgid "Set the starting number for invoice numbering. This cannot be changed once invoices have been generated."
 msgstr "設置發票編號的起始編號。一旦發票生成，就無法更改。"
 
-#: src/components/routes/event/CheckInLists/index.tsx:32
+#: src/components/routes/event/CheckInLists/index.tsx:37
 msgid "Set up check-in lists for different entrances, sessions, or days."
 msgstr "為不同的入口、場次或日期設定簽到列表。"
 
@@ -9351,7 +9501,7 @@ msgstr "共享容量管理"
 msgid "Shipping address · Company name for invoice · How did you hear about us · Promo source"
 msgstr ""
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:180
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:186
 msgid "Show {hiddenCount} more"
 msgstr "再顯示 {hiddenCount} 條"
 
@@ -9385,7 +9535,7 @@ msgid "Show more platforms"
 msgstr "顯示更多平台"
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:114
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:136
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:142
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:133
 msgid "Show processed"
 msgstr "顯示已處理"
@@ -9398,15 +9548,19 @@ msgstr "顯示已解決"
 msgid "Show tax and fees separately"
 msgstr "單獨顯示税費"
 
+#: src/components/routes/event/CheckInLists/index.tsx:62
+msgid "Show tickets"
+msgstr "顯示票種"
+
 #: src/components/common/OrganizerReportTable/index.tsx:355
 msgid "Showing {0} of {totalRows} records"
 msgstr "顯示 {0} / {totalRows} 條記錄"
 
-#: src/components/layouts/CheckIn/index.tsx:613
+#: src/components/layouts/CheckIn/index.tsx:656
 msgid "Showing group:"
 msgstr "顯示團體："
 
-#: src/components/layouts/CheckIn/index.tsx:620
+#: src/components/layouts/CheckIn/index.tsx:663
 msgid "Showing table:"
 msgstr "顯示桌位："
 
@@ -9480,6 +9634,10 @@ msgstr "售罄"
 msgid "Sold Out"
 msgstr "售罄"
 
+#: src/components/modals/EditContactModal/index.tsx:157
+msgid "Some stored values aren't in the current option list. Replace them with valid options."
+msgstr ""
+
 #: src/components/common/ErrorDisplay/index.tsx:15
 #: src/components/routes/auth/AcceptInvitation/index.tsx:48
 #: src/components/routes/product-widget/CollectInformation/index.tsx:705
@@ -9505,8 +9663,9 @@ msgstr "刪除税費時出了問題"
 msgid "Something went wrong, please try again, or contact support if the problem persists"
 msgstr "出現問題，請重試，或在問題持續時聯繫客服"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:43
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:57
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:50
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:64
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:100
 msgid "Something went wrong! Please try again"
 msgstr "出錯了！請重試"
 
@@ -9535,14 +9694,14 @@ msgstr "對於給您帶來的不便，我們深表歉意。"
 msgid "Sorry, this promo code is not recognized"
 msgstr "對不起，此優惠代碼不可用"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:132
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:138
 #: src/components/routes/admin/Attribution/index.tsx:106
 #: src/components/routes/admin/EmailSuppressions/index.tsx:151
 #: src/components/routes/admin/EmailSuppressions/index.tsx:182
 msgid "Source"
 msgstr "來源"
 
-#: src/components/modals/SendMessageModal/index.tsx:326
+#: src/components/modals/SendMessageModal/index.tsx:387
 msgid "Source Event"
 msgstr "源活動"
 
@@ -9560,6 +9719,11 @@ msgstr "體育"
 
 #: src/components/modals/OptionMigrationModal/index.tsx:101
 msgid "Stage removal"
+msgstr ""
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/BackfillHelpPanel.tsx:65
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/index.tsx:53
+msgid "Stale Values"
 msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:157
@@ -9619,13 +9783,13 @@ msgstr "統計數據基於帳戶創建日期"
 #: src/components/forms/WebhookForm/index.tsx:157
 #: src/components/modals/EditUserModal/index.tsx:103
 #: src/components/routes/account/ManageAccount/sections/ContactAttributes/index.tsx:51
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:157
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:218
 #: src/components/routes/admin/Dashboard/index.tsx:405
 #: src/components/routes/admin/Messages/index.tsx:120
 #: src/components/routes/admin/Messages/index.tsx:167
 #: src/components/routes/admin/Messages/index.tsx:293
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/ConflictsSubTab.tsx:181
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:204
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:210
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:202
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/index.tsx:160
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:68
@@ -9648,6 +9812,10 @@ msgstr "仍在處理您舊交易的退款。"
 #: src/components/common/ImpersonationBanner/index.tsx:53
 msgid "Stop Impersonating"
 msgstr "停止模擬"
+
+#: src/components/modals/EditContactModal/index.tsx:136
+msgid "Stored value isn't in the current option list. Pick a valid option to replace it."
+msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:384
 #: src/components/routes/admin/Dashboard/index.tsx:424
@@ -9680,7 +9848,7 @@ msgid "Stripe setup is already complete."
 msgstr "Stripe設置已完成。"
 
 #: src/components/common/EmailTemplateEditor/EmailTemplateEditor.tsx:127
-#: src/components/modals/SendMessageModal/index.tsx:433
+#: src/components/modals/SendMessageModal/index.tsx:492
 #: src/components/routes/admin/Messages/index.tsx:162
 #: src/components/routes/admin/Messages/index.tsx:272
 #: src/components/routes/event/DeliveryIssues/index.tsx:99
@@ -9865,6 +10033,10 @@ msgstr "社交連結更新成功"
 msgid "Successfully updated Webhook"
 msgstr "Webhook 更新成功"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:149
+msgid "Suggested: {suggested}"
+msgstr ""
+
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:128
 #: src/components/routes/organizer/Settings/Sections/AddressSettings/index.tsx:86
 msgid "Suite 100"
@@ -9885,6 +10057,18 @@ msgstr "夏日音樂節 {0}"
 msgid "Summer Music Festival 2025"
 msgstr "2025夏季音樂節"
 
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:94
+msgid "Super Admin role granted"
+msgstr "已授予超級管理員角色"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:95
+msgid "Super Admin role revoked"
+msgstr "已撤銷超級管理員角色"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:78
+msgid "Super Admins have COMPLETE SYSTEM ACCESS across every account — they can view all data, impersonate any user, and change platform-wide configuration. Grant this only to people you fully trust."
+msgstr "超級管理員對所有帳號擁有完全的系統存取權限——他們可以查看所有資料、以任何使用者身份登入，並更改整個平台的設定。請僅授予完全信任的人員。"
+
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:48
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:81
 #: src/components/routes/event/Settings/Sections/EmailSettings/GeneralEmailSettings.tsx:63
@@ -9899,8 +10083,8 @@ msgstr "已成功移除封鎖"
 msgid "Swedish"
 msgstr "瑞典語"
 
-#: src/components/layouts/CheckIn/index.tsx:489
-#: src/components/layouts/CheckIn/index.tsx:498
+#: src/components/layouts/CheckIn/index.tsx:533
+#: src/components/layouts/CheckIn/index.tsx:542
 msgid "Switch check-in list"
 msgstr ""
 
@@ -9917,7 +10101,7 @@ msgstr ""
 msgid "Sync"
 msgstr "同步"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:157
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:163
 msgid "System"
 msgstr "系統"
 
@@ -9929,7 +10113,7 @@ msgstr "系統預設"
 msgid "T-shirt"
 msgstr "T恤衫"
 
-#: src/components/layouts/CheckIn/index.tsx:569
+#: src/components/layouts/CheckIn/index.tsx:613
 #: src/components/routes/event/attendees.tsx:92
 msgid "Table"
 msgstr ""
@@ -10081,7 +10265,7 @@ msgstr "感謝您的支持，我們將繼續發展和改進 Hi.Events！"
 msgid "That promo code is invalid"
 msgstr "促銷代碼無效"
 
-#: src/components/modals/SendMessageModal/index.tsx:327
+#: src/components/modals/SendMessageModal/index.tsx:388
 msgid "The audience for this message is drawn from this event."
 msgstr "此訊息的觀眾來自此活動。"
 
@@ -10097,7 +10281,7 @@ msgstr "此活動發布所使用的品牌"
 msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:410
+#: src/components/layouts/CheckIn/index.tsx:454
 msgid "The check-in list you are looking for does not exist."
 msgstr "您查找的簽到列表不存在。"
 
@@ -10195,11 +10379,11 @@ msgstr "用於按鈕和突出顯示的主要品牌顏色"
 msgid "The related event promoted this event"
 msgstr "相關活動推廣了此活動"
 
-#: src/components/modals/SendMessageModal/index.tsx:186
+#: src/components/modals/SendMessageModal/index.tsx:206
 msgid "The scheduled time is required"
 msgstr "排程時間為必填項"
 
-#: src/components/modals/SendMessageModal/index.tsx:187
+#: src/components/modals/SendMessageModal/index.tsx:207
 msgid "The scheduled time must be in the future"
 msgstr "排程時間必須是將來的時間"
 
@@ -10254,6 +10438,10 @@ msgstr "處理您的請求時出現錯誤。請重試。"
 msgid "There was an error sending your message"
 msgstr "發送信息時出現錯誤"
 
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:118
+msgid "These are attendees who haven't been recorded as a contact yet. Adding them matches on email — if several attendees share an email address, only one contact is created and every attendee with that email is linked to it."
+msgstr "這些是尚未記錄為聯絡人的參加者。新增時按電郵地址比對 — 如果多位參加者使用相同的電郵地址，則只會建立一個聯絡人，並將所有使用該電郵的參加者連結到這個聯絡人。"
+
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:105
 msgid "These details will only be shown if order is completed successfully. Orders awaiting payment will not show this message."
 msgstr "這些詳細信息僅在訂單成功完成後顯示。等待付款的訂單不會顯示此消息。"
@@ -10298,7 +10486,7 @@ msgstr "此類別對公眾隱藏"
 msgid "This check-in list has expired"
 msgstr "此簽到列表已過期"
 
-#: src/components/layouts/CheckIn/index.tsx:425
+#: src/components/layouts/CheckIn/index.tsx:469
 msgid "This check-in list has expired and is no longer available for check-ins."
 msgstr "此簽到列表已過期，不再可用於簽到。"
 
@@ -10310,7 +10498,7 @@ msgstr "此簽到列表已激活"
 msgid "This check-in list is not active yet"
 msgstr "此簽到列表尚未激活"
 
-#: src/components/layouts/CheckIn/index.tsx:442
+#: src/components/layouts/CheckIn/index.tsx:486
 msgid "This check-in list is not yet active and is not available for check-ins."
 msgstr "此簽到列表尚未激活，不能用於簽到。"
 
@@ -10329,6 +10517,10 @@ msgstr "此活動已結束"
 #: src/components/common/StatusToggle/index.tsx:82
 msgid "This event is not published yet"
 msgstr "呢個活動未發佈"
+
+#: src/components/modals/SendMessageModal/index.tsx:371
+msgid "This event isn't active, so you can't promote it directly. Choose a live event in \"Relating to\" — or reactivate this event to promote it again."
+msgstr "此活動未啟用，因此無法直接推廣。請在「關聯到」中選擇一個進行中的活動，或重新啟用此活動後再推廣。"
 
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:309
 msgid "This event promoted the related event"
@@ -10467,7 +10659,7 @@ msgstr "此票券尚未指派給客人。點擊 \"指派參加者\" 新增姓名
 msgid "This ticket hasn't been assigned to a guest yet. Confirm or correct the details below, then check them in."
 msgstr "此票券尚未指派給客人。請確認或修正以下詳情，然後為其簽到。"
 
-#: src/components/layouts/CheckIn/index.tsx:262
+#: src/components/layouts/CheckIn/index.tsx:306
 msgid "This ticket was just scanned. Please wait before scanning again."
 msgstr "此門票剛剛被掃描。請等待後再次掃描。"
 
@@ -10482,6 +10674,10 @@ msgstr ""
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:80
 msgid "This will be used for notifications and communication with your users."
 msgstr "這將用於通知和與使用者的溝通。"
+
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:79
+msgid "This will demote the user to Admin across every account they belong to. They will lose access to admin pages like Email Suppressions and Contacts."
+msgstr "此操作會將該使用者在其所屬的每個帳號中降級為 Admin。他們將失去對郵件抑制和聯絡人等管理員頁面的存取權限。"
 
 #: src/components/forms/AffiliateForm/index.tsx:82
 msgid "This will not be visible to customers, but helps you identify the affiliate."
@@ -10506,7 +10702,7 @@ msgstr "門票"
 msgid "Ticket {position}"
 msgstr "票券 {position}"
 
-#: src/components/common/CheckIn/AttendeeList.tsx:145
+#: src/components/common/CheckIn/AttendeeList.tsx:168
 msgid "Ticket Cancelled"
 msgstr "門票已取消"
 
@@ -10694,7 +10890,7 @@ msgstr "收件人"
 msgid "To edit configurations, go to the Configurations section in the admin menu."
 msgstr "要編輯配置，請前往管理選單中的配置部分。"
 
-#: src/components/modals/SendMessageModal/index.tsx:302
+#: src/components/modals/SendMessageModal/index.tsx:336
 msgid "To increase your limits, contact us at"
 msgstr "要提高您的限制，請聯繫我們"
 
@@ -10835,11 +11031,11 @@ msgstr "免費試用Hi.Events"
 msgid "Turkish"
 msgstr "土耳其語"
 
-#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:634
 msgid "Turn sound off"
 msgstr "關閉聲音"
 
-#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:634
 msgid "Turn sound on"
 msgstr "開啟聲音"
 
@@ -10878,12 +11074,12 @@ msgstr "輸入選項並按 Enter"
 msgid "Type of ticket"
 msgstr "門票類型"
 
-#: src/components/layouts/CheckIn/index.tsx:194
+#: src/components/layouts/CheckIn/index.tsx:238
 msgid "Unable to check in attendee"
 msgstr "無法簽到參與者"
 
-#: src/components/layouts/CheckIn/index.tsx:218
-#: src/components/layouts/CheckIn/index.tsx:220
+#: src/components/layouts/CheckIn/index.tsx:262
+#: src/components/layouts/CheckIn/index.tsx:264
 msgid "Unable to check out attendee"
 msgstr "無法簽退參與者"
 
@@ -10903,7 +11099,7 @@ msgstr ""
 msgid "Unable to duplicate product. Please check the your details"
 msgstr "無法複製產品。請檢查您的詳細信息"
 
-#: src/components/layouts/CheckIn/index.tsx:278
+#: src/components/layouts/CheckIn/index.tsx:322
 msgid "Unable to fetch attendee"
 msgstr "無法擷取參與者資料"
 
@@ -10935,7 +11131,7 @@ msgstr "未歸因帳戶"
 msgid "Undetermined"
 msgstr "未定"
 
-#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:169
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:175
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:166
 msgid "Unignore ({0})"
 msgstr "取消忽略 ({0})"
@@ -11024,7 +11220,7 @@ msgstr "更新推廣夥伴"
 msgid "Update Attribute"
 msgstr "更新屬性"
 
-#: src/components/modals/EditContactModal/index.tsx:141
+#: src/components/modals/EditContactModal/index.tsx:178
 msgid "Update Contact"
 msgstr "更新聯絡人"
 
@@ -11054,6 +11250,10 @@ msgstr "已更新 {0} 個答案。"
 #: src/components/modals/ManageOrderModal/index.tsx:67
 msgid "Updated {0} attendees"
 msgstr "已更新 {0} 位參加者"
+
+#: src/components/routes/contacts/ContactsAdmin/BackfillTab/StaleValuesSubTab.tsx:66
+msgid "Updated {attributes_written} value(s)."
+msgstr ""
 
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:128
 msgid "Updates the ticket recipient address. Doesn't resend the ticket automatically."
@@ -11165,12 +11365,12 @@ msgstr "用於邊框、高亮和二維碼樣式"
 msgid "Used in"
 msgstr "用於"
 
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:154
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:215
 msgid "User"
 msgstr "用户"
 
 #: src/components/common/GlobalMenu/index.tsx:59
-#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:142
+#: src/components/routes/account/ManageAccount/sections/Users/index.tsx:203
 msgid "User Management"
 msgstr "用户管理"
 
@@ -11418,9 +11618,9 @@ msgstr "查看訂單詳情、退款和重新傳送確認。"
 msgid "View Organizer Homepage"
 msgstr "查看主辦單位主頁"
 
-#: src/components/routes/event/MessageTracking/MarketingTab.tsx:285
+#: src/components/routes/event/MessageTracking/MarketingTab.tsx:286
 #: src/components/routes/event/MessageTracking/PromotingTab.tsx:332
-#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:303
+#: src/components/routes/event/MessageTracking/TransactionsTab.tsx:304
 msgid "View provider events"
 msgstr "查看供應商事件"
 
@@ -11723,7 +11923,7 @@ msgid "WhatsApp"
 msgstr "WhatsApp"
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:37
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:131
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:137
 msgid "When"
 msgstr "時間"
 
@@ -11836,9 +12036,9 @@ msgstr "啟用線下支付後，用户可以完成訂單並收到門票。他們
 msgid "Whenver an attendee's answer to a reusable question differs from the value stored on their contact, that discrepancy will appear here. Select <0>Update</0> to change the contact default; click <1>Ignore</1> to keep it the same."
 msgstr "當參加者對可重複使用問題的答案與其聯絡人上儲存的值不同時，差異會顯示在此處。選擇<0>更新</0>以變更聯絡人的預設值；按<1>忽略</1>以保持不變。"
 
-#: src/components/modals/SendMessageModal/index.tsx:335
-msgid "Which event this message promotes."
-msgstr ""
+#: src/components/modals/SendMessageModal/index.tsx:396
+msgid "Which active event this message promotes."
+msgstr "此訊息推廣的進行中活動。"
 
 #: src/components/forms/CheckInListForm/index.tsx:42
 msgid "Which tickets should be associated with this check-in list?"
@@ -11851,6 +12051,10 @@ msgstr "這項活動由誰組織？"
 #: src/components/forms/QuestionForm/index.tsx:317
 msgid "Who should be asked this question?"
 msgstr "這個問題應該問誰？"
+
+#: src/components/modals/SendMessageModal/index.tsx:374
+msgid "Why?"
+msgstr "為什麼？"
 
 #: src/components/layouts/Event/index.tsx:130
 msgid "Widget Embed"
@@ -11877,7 +12081,7 @@ msgstr "工作"
 #: src/components/modals/DuplicateEventModal/index.tsx:177
 #: src/components/modals/DuplicateProductModal/index.tsx:117
 #: src/components/modals/EditContactAttributeDefinitionModal/index.tsx:150
-#: src/components/modals/EditContactModal/index.tsx:141
+#: src/components/modals/EditContactModal/index.tsx:178
 #: src/components/modals/EditProductCategoryModal/index.tsx:70
 #: src/components/modals/EditProductModal/index.tsx:114
 #: src/components/modals/EditPromoCodeModal/index.tsx:84
@@ -11910,7 +12114,7 @@ msgstr "年"
 msgid "Year to date"
 msgstr "年度至今"
 
-#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:203
+#: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:209
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:250
 #: src/components/routes/admin/Accounts/AccountDetail/index.tsx:277
 msgid "Yes"
@@ -11944,8 +12148,8 @@ msgstr "您正在模擬 <0>{0}</0> ({1})"
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "您正在發出部分退款。客戶將獲得 {0} {1} 的退款。"
 
-#: src/components/layouts/CheckIn/index.tsx:189
-#: src/components/layouts/CheckIn/index.tsx:213
+#: src/components/layouts/CheckIn/index.tsx:233
+#: src/components/layouts/CheckIn/index.tsx:257
 msgid "You are offline"
 msgstr "您處於離線狀態"
 
@@ -11973,8 +12177,8 @@ msgstr "您無法封存帳戶中最後一個活躍的主辦方。"
 msgid "You cannot change the product type as there are attendees associated with this product."
 msgstr "您無法更改產品類型，因為有與該產品關聯的參會者。"
 
-#: src/components/layouts/CheckIn/index.tsx:236
-#: src/components/layouts/CheckIn/index.tsx:311
+#: src/components/layouts/CheckIn/index.tsx:280
+#: src/components/layouts/CheckIn/index.tsx:355
 msgid "You cannot check in attendees with unpaid orders. This setting can be changed in the event settings."
 msgstr "您無法為未支付訂單的與會者簽到。此設置可在活動設置中更改。"
 
@@ -12006,7 +12210,7 @@ msgstr "您已接受此邀請。請登錄以繼續。"
 msgid "You have no pending email change."
 msgstr "您沒有待處理的電子郵件更改。"
 
-#: src/components/modals/SendMessageModal/index.tsx:206
+#: src/components/modals/SendMessageModal/index.tsx:226
 msgid "You have reached your messaging limit."
 msgstr "您已達到訊息限制。"
 
@@ -12018,7 +12222,7 @@ msgstr "您已超時，未能完成訂單。"
 msgid "You have taxes and fees added to a Free Product. Would you like to remove them?"
 msgstr "您已向免費產品添加了税費。您想要刪除它們嗎？"
 
-#: src/components/modals/SendMessageModal/index.tsx:182
+#: src/components/modals/SendMessageModal/index.tsx:202
 msgid "You must acknowledge that this email is not promotional"
 msgstr "您必須確認此電子郵件並非促銷郵件"
 
@@ -12046,7 +12250,7 @@ msgstr "在更新主辦單位狀態之前，您必須先驗證您的電郵地址
 msgid "You need to verify your account email before you can modify email templates."
 msgstr "您需要驗證您的帳戶電子郵件才能修改電子郵件範本。"
 
-#: src/components/modals/SendMessageModal/index.tsx:277
+#: src/components/modals/SendMessageModal/index.tsx:311
 msgid "You need to verify your account email before you can send messages."
 msgstr "您需要驗證您的帳户電子郵件才能發送消息。"
 
@@ -12090,7 +12294,7 @@ msgstr "您已加入候補名單！"
 msgid "You've been offered a spot!"
 msgstr "您已獲得一個名額！"
 
-#: src/components/modals/SendMessageModal/index.tsx:316
+#: src/components/modals/SendMessageModal/index.tsx:350
 msgid "Your account has messaging limits. To increase your limits, contact us at"
 msgstr "您的帳戶有訊息限制。要提高您的限制，請聯繫我們"
 

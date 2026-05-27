@@ -31,4 +31,14 @@ export const checkInListClient = {
         const response = await api.delete<GenericDataResponse<CheckInList>>(`events/${eventId}/check-in-lists/${checkInListId}`);
         return response.data;
     },
+    uncoveredProducts: async (eventId: IdParam) => {
+        const response = await api.get<{ data: UncoveredProduct[] }>(`events/${eventId}/check-in-lists/uncovered-products`);
+        return response.data;
+    },
+}
+
+export interface UncoveredProduct {
+    product_id: number;
+    title: string;
+    attendee_count: number;
 }

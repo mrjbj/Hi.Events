@@ -41,6 +41,13 @@ export const userClient = {
         const response = await api.put<GenericDataResponse<User>>(`users/${userId}`, updateParams);
         return response.data;
     },
+    updateSuperAdminStatus: async (userId: IdParam, isSuperAdmin: boolean) => {
+        const response = await api.put<GenericDataResponse<User>>(
+            `users/${userId}/super-admin-status`,
+            { is_super_admin: isSuperAdmin }
+        );
+        return response.data;
+    },
     all: async () => {
         const response = await api.get<GenericDataResponse<User[]>>('users');
         return response.data;

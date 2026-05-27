@@ -1,13 +1,14 @@
 import {useGetUsers} from "../../../../../../queries/useGetUsers.ts";
 import {Avatar, Badge, Button, Group, Menu, Table, Text} from "@mantine/core";
 import classes from "./Users.module.scss";
-import {IconDotsVertical, IconEye, IconSend, IconUser, IconUserShield} from "@tabler/icons-react";
+import {IconDotsVertical, IconEye, IconSend, IconShieldOff, IconUser, IconUserShield} from "@tabler/icons-react";
 import {getInitials} from "../../../../../../utilites/helpers.ts";
 import {t} from "@lingui/macro";
 import {Card} from "../../../../../common/Card";
 import {HeadingCard} from "../../../../../common/HeadingCard";
 import {relativeDate} from "../../../../../../utilites/dates.ts";
 import {useDisclosure} from "@mantine/hooks";
+import {modals} from "@mantine/modals";
 import {InviteUserModal} from "../../../../../modals/InviteUserModal";
 import {EditUserModal} from "../../../../../modals/EditUserModal";
 import {User} from "../../../../../../types.ts";
@@ -15,12 +16,18 @@ import {useState} from "react";
 import {useResendUserInvitation} from "../../../../../../mutations/useResendUserInvitation.ts";
 import {showError, showSuccess} from "../../../../../../utilites/notifications.tsx";
 import {useDeleteUserInvitation} from "../../../../../../mutations/useDeleteUserInvitation.ts";
+import {useUpdateUserSuperAdminStatus} from "../../../../../../mutations/useUpdateUserSuperAdminStatus.ts";
+import {useIsCurrentUserSuperAdmin} from "../../../../../../hooks/useIsCurrentUserAdmin.ts";
+import {useGetMe} from "../../../../../../queries/useGetMe.ts";
 import {LoadingMask} from "../../../../../common/LoadingMask";
 
 const Users = () => {
     const usersQuery = useGetUsers();
     const resendInvitationMutation = useResendUserInvitation();
     const revokeInvitationMutation = useDeleteUserInvitation();
+    const superAdminStatusMutation = useUpdateUserSuperAdminStatus();
+    const isCurrentUserSuperAdmin = useIsCurrentUserSuperAdmin();
+    const {data: me} = useGetMe();
     const users = usersQuery.data?.data;
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
     const [editModalOpen, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
@@ -59,6 +66,45 @@ const Users = () => {
         });
     }
 
+    const handleSuperAdminToggle = (user: User, makeSuperAdmin: boolean) => {
+        const fullName = user.first_name + ' ' + user.last_name;
+        modals.openConfirmModal({
+            title: makeSuperAdmin
+                ? t`Grant Super Admin to ${fullName}?`
+                : t`Revoke Super Admin from ${fullName}?`,
+            children: (
+                <div style={{fontSize: 14}}>
+                    {makeSuperAdmin
+                        ? t`Super Admins have COMPLETE SYSTEM ACCESS across every account — they can view all data, impersonate any user, and change platform-wide configuration. Grant this only to people you fully trust.`
+                        : t`This will demote the user to Admin across every account they belong to. They will lose access to admin pages like Email Suppressions and Contacts.`}
+                </div>
+            ),
+            labels: {
+                confirm: makeSuperAdmin ? t`Grant Super Admin` : t`Revoke Super Admin`,
+                cancel: t`Cancel`,
+            },
+            confirmProps: {color: 'red'},
+            onConfirm: () => {
+                superAdminStatusMutation.mutate({
+                    userId: user.id,
+                    isSuperAdmin: makeSuperAdmin,
+                }, {
+                    onSuccess: () => {
+                        showSuccess(makeSuperAdmin
+                            ? t`Super Admin role granted`
+                            : t`Super Admin role revoked`);
+                    },
+                    onError: (error: any) => {
+                        const message = error?.response?.data?.errors?.is_super_admin?.[0]
+                            ?? error?.response?.data?.message
+                            ?? t`Something went wrong! Please try again`;
+                        showError(message);
+                    },
+                });
+            },
+        });
+    }
+
     const statusColor = (status: string) => {
         switch (status) {
             case 'ACTIVE':
@@ -90,10 +136,11 @@ const Users = () => {
             </Table.Td>
 
             <Table.Td>
-                <Badge variant="outline">
+                <Badge variant="outline" color={user.role === 'SUPERADMIN' ? 'red' : undefined}>
                     <Group gap={5}>
                         {user.role === 'ORGANIZER' && <IconUser size={14}/>}
-                        {user.role === 'ADMIN' && <IconUserShield size={14}/>} {user.role}
+                        {user.role === 'ADMIN' && <IconUserShield size={14}/>}
+                        {user.role === 'SUPERADMIN' && <IconUserShield size={14}/>} {user.role}
                     </Group>
                 </Badge>
             </Table.Td>
@@ -128,6 +175,20 @@ const Users = () => {
                             <Menu.Item color={'red'} onClick={() => handleRevokeInvitation(user)}
                                        leftSection={<IconSend size={14}/>}>
                                 {t`Revoke invitation`}
+                            </Menu.Item>
+                        )}
+                        {isCurrentUserSuperAdmin && me?.id !== user.id && user.role !== 'SUPERADMIN' && (
+                            <Menu.Item color={'red'}
+                                       onClick={() => handleSuperAdminToggle(user, true)}
+                                       leftSection={<IconUserShield size={14}/>}>
+                                {t`Grant Super Admin`}
+                            </Menu.Item>
+                        )}
+                        {isCurrentUserSuperAdmin && me?.id !== user.id && user.role === 'SUPERADMIN' && (
+                            <Menu.Item color={'red'}
+                                       onClick={() => handleSuperAdminToggle(user, false)}
+                                       leftSection={<IconShieldOff size={14}/>}>
+                                {t`Revoke Super Admin`}
                             </Menu.Item>
                         )}
                     </Menu.Dropdown>
