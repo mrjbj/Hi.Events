@@ -162,7 +162,7 @@ const CheckIn = () => {
                 </Text>
             ),
             labels: {confirm: t`Clear filter & search`, cancel: t`Keep filter`},
-            confirmProps: {color: 'violet'},
+            confirmProps: {color: 'violet', 'data-autofocus': true},
             onConfirm: () => setAttendeeFilter(null),
         });
     }, [activeFilterKey, attendees, attendeesQuery.isFetching, searchQueryDebounced]);

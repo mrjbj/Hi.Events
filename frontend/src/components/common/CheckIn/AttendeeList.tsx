@@ -75,8 +75,8 @@ export const AttendeeList = ({
         const trimmedQuery = searchQuery?.trim();
         if (hasActiveFilter && trimmedQuery && onClearFilter) {
             return (
-                <div className={classes.noResults}>
-                    <div style={{marginBottom: 12}}>
+                <div className={classes.noResults} style={{flexDirection: 'column', gap: 12}}>
+                    <div>
                         {t`No matches in this filter for "${trimmedQuery}".`}
                     </div>
                     <Button
@@ -86,6 +86,13 @@ export const AttendeeList = ({
                     >
                         {t`Clear filter & search all attendees`}
                     </Button>
+                </div>
+            );
+        }
+        if (trimmedQuery) {
+            return (
+                <div className={classes.noResults}>
+                    {t`"${trimmedQuery}" not found.`}
                 </div>
             );
         }
