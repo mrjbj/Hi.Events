@@ -16,9 +16,7 @@ readonly class EventStatsFetchService
     public function __construct(
         private DatabaseManager $db,
         private EventRepositoryInterface $eventRepository,
-    )
-    {
-    }
+    ) {}
 
     public function getEventStats(EventStatsRequestDTO $requestData): EventStatsResponseDTO
     {
@@ -34,7 +32,7 @@ readonly class EventStatsFetchService
         $eventId = $requestData->event_id;
 
         // Aggregate total statistics for the event for all time
-        $totalsQuery = <<<SQL
+        $totalsQuery = <<<'SQL'
         SELECT
             SUM(es.products_sold) AS total_products_sold,
             SUM(es.orders_created) AS total_orders,
@@ -76,7 +74,7 @@ readonly class EventStatsFetchService
         $startDate = $requestData->start_date;
         $endDate = $requestData->end_date;
 
-        $query = <<<SQL
+        $query = <<<'SQL'
             WITH date_series AS (
               SELECT date::date
               FROM generate_series(
@@ -109,7 +107,7 @@ readonly class EventStatsFetchService
         $currentTime = Carbon::now('UTC')->toTimeString();
 
         return collect($results)->map(function (object $result) use ($currentTime) {
-            $dateTimeWithCurrentTime = (new Carbon($result->date))->setTimezone('UTC')->format('Y-m-d') . ' ' . $currentTime;
+            $dateTimeWithCurrentTime = (new Carbon($result->date))->setTimezone('UTC')->format('Y-m-d').' '.$currentTime;
 
             return new EventDailyStatsResponseDTO(
                 date: $dateTimeWithCurrentTime,
@@ -145,6 +143,9 @@ readonly class EventStatsFetchService
             case 'week':
                 $endDate = (clone $adjustedStart)->addDays(7);
                 break;
+            case 'month':
+                $endDate = (clone $adjustedStart)->addDays(30);
+                break;
             case 'quarter':
                 $endDate = (clone $adjustedStart)->addDays(90);
                 break;
@@ -153,12 +154,13 @@ readonly class EventStatsFetchService
                 $endCandidates = array_filter([
                     $eventEnd,
                     $bounds?->max_date ? Carbon::parse($bounds->max_date) : null,
-                    (!$eventEnd || $eventEnd->isFuture()) ? Carbon::now() : null,
+                    (! $eventEnd || $eventEnd->isFuture()) ? Carbon::now() : null,
                 ]);
                 $endDate = $endCandidates ? max($endCandidates) : Carbon::now();
                 break;
-            default: // 'month'
-                $endDate = (clone $adjustedStart)->addDays(30);
+            default: // 'last_30_days'
+                $adjustedStart = Carbon::now()->subDays(30);
+                $endDate = Carbon::now();
         }
 
         return [

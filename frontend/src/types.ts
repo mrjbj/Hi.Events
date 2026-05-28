@@ -22,7 +22,9 @@ export type ConfigKeys =
     | 'VITE_STRIPE_PUBLISHABLE_KEY'
     | 'VITE_I_HAVE_PURCHASED_A_LICENCE'
     | 'VITE_DEFAULT_IMAGE_URL'
-    | 'VITE_TURNSTILE_SITE_KEY';
+    | 'VITE_TURNSTILE_SITE_KEY'
+    | 'VITE_COOKIE_CONSENT_ENABLED'
+    | 'VITE_COOKIE_CONSENT_TEXT';
 
 export enum StripePlatform {
     Canada = 'ca',
@@ -74,6 +76,7 @@ export interface HomepageThemeSettings {
     background: string;
     mode: 'light' | 'dark';
     background_type: 'COLOR' | 'MIRROR_COVER_IMAGE';
+    font_family?: string;
 }
 
 export interface LoginResponse {
@@ -434,6 +437,14 @@ export interface OrganizerSettings {
     seo_description?: string;
     seo_title?: string;
     allow_search_engine_indexing?: boolean;
+    tracking_pixels?: TrackingPixelConfig[];
+    tracking_consent_acknowledged?: boolean;
+}
+
+export interface TrackingPixelConfig {
+    provider: string;
+    pixel_id: string;
+    enabled: boolean;
 }
 
 export interface SortDirectionLabel {
