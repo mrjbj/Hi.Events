@@ -844,6 +844,7 @@ export interface OutgoingTransactionMessage {
     created_at: string;
     updated_at: string;
     event_count?: number;
+    cta_url: string | null;
 }
 
 export interface OutgoingMessageEvent {

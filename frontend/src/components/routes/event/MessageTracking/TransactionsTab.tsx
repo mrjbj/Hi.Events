@@ -1,5 +1,5 @@
 import {t} from "@lingui/macro";
-import {ActionIcon, Alert, Badge, Button, Group, SegmentedControl, Select, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
+import {ActionIcon, Alert, Anchor, Badge, Button, Group, HoverCard, SegmentedControl, Select, Stack, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
 import {Card} from "../../../common/Card";
 import {useParams} from "react-router";
 import {useGetTransactionMessages, GET_TRANSACTION_MESSAGES_QUERY_KEY} from "../../../../queries/useGetTransactionMessages.ts";
@@ -8,7 +8,8 @@ import {Pagination} from "../../../common/Pagination";
 import {useState} from "react";
 import {TableSkeleton} from "../../../common/TableSkeleton";
 import {DeliveryIssue, OutgoingTransactionMessage, QueryFilterOperator} from "../../../../types.ts";
-import {IconCheck, IconCircleDashed, IconListDetails, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
+import {CopyButton} from "../../../common/CopyButton";
+import {IconCheck, IconCircleDashed, IconExternalLink, IconLink, IconListDetails, IconSearch, IconSortAscending, IconSortDescending, IconUserCheck} from "@tabler/icons-react";
 import {statusColor, emailTypeLabel, statusFilterOptions, emailTypeFilterOptions, dateRangeOptions, ResolvedHoverCard, RetryHoverCard} from "./shared.tsx";
 import {EventLogDrawer} from "./EventLogDrawer.tsx";
 import {useResolveDeliveryIssue} from "../../../../mutations/useResolveDeliveryIssue.ts";
@@ -284,6 +285,7 @@ export const TransactionsTab = () => {
                                         <SortableTh label={t`Recipient`} field="recipient" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                         <SortableTh label={t`Updated`} field="updated_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
+                                        <Table.Th style={{width: 40}}>{t`Link`}</Table.Th>
                                         <Table.Th></Table.Th>
                                         <Table.Th style={{width: 40}}></Table.Th>
                                     </Table.Tr>
@@ -298,6 +300,31 @@ export const TransactionsTab = () => {
                                             <Table.Td>{msg.recipient}</Table.Td>
                                             <Table.Td>{relativeDate(msg.created_at)}</Table.Td>
                                             <Table.Td>{msg.updated_at ? relativeDate(msg.updated_at) : ''}</Table.Td>
+                                            <Table.Td>
+                                                {msg.cta_url && (
+                                                    <HoverCard width={420} shadow="md" withArrow position="bottom" openDelay={150} closeDelay={150}>
+                                                        <HoverCard.Target>
+                                                            <ActionIcon variant="subtle" size="sm" color="gray" aria-label={t`View link from this email`}>
+                                                                <IconLink size={16}/>
+                                                            </ActionIcon>
+                                                        </HoverCard.Target>
+                                                        <HoverCard.Dropdown>
+                                                            <Stack gap="xs">
+                                                                <Text size="xs" c="dimmed">{t`Link sent in this email`}</Text>
+                                                                <Text size="sm" style={{wordBreak: 'break-all', fontFamily: 'var(--mantine-font-family-monospace)'}}>
+                                                                    {msg.cta_url}
+                                                                </Text>
+                                                                <Group gap="xs" justify="flex-end">
+                                                                    <Anchor href={msg.cta_url} target="_blank" rel="noopener noreferrer" size="xs">
+                                                                        <Group gap={4}><IconExternalLink size={12}/>{t`Open`}</Group>
+                                                                    </Anchor>
+                                                                    <CopyButton value={msg.cta_url}/>
+                                                                </Group>
+                                                            </Stack>
+                                                        </HoverCard.Dropdown>
+                                                    </HoverCard>
+                                                )}
+                                            </Table.Td>
                                             <Table.Td>{getActionButton(msg)}</Table.Td>
                                             <Table.Td>
                                                 {(msg.event_count ?? 0) > 0 && (

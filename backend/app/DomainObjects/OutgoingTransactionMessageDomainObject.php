@@ -10,6 +10,8 @@ class OutgoingTransactionMessageDomainObject extends Generated\OutgoingTransacti
     protected ?string $original_recipient = null;
     protected ?string $original_status = null;
     protected int $event_count = 0;
+    protected ?string $order_short_id = null;
+    protected ?string $attendee_short_id = null;
 
     public function setRetryCount(int $retry_count): self
     {
@@ -75,5 +77,27 @@ class OutgoingTransactionMessageDomainObject extends Generated\OutgoingTransacti
     public function getEventCount(): int
     {
         return $this->event_count;
+    }
+
+    public function setOrderShortId(?string $order_short_id): self
+    {
+        $this->order_short_id = $order_short_id;
+        return $this;
+    }
+
+    public function getOrderShortId(): ?string
+    {
+        return $this->order_short_id;
+    }
+
+    public function setAttendeeShortId(?string $attendee_short_id): self
+    {
+        $this->attendee_short_id = $attendee_short_id;
+        return $this;
+    }
+
+    public function getAttendeeShortId(): ?string
+    {
+        return $this->attendee_short_id;
     }
 }
