@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git -C * status:*)",
+      "Bash(git -C * log:*)",
+      "Bash(git -C * diff:*)",
+      "Bash(git -C * show:*)",
+      "Bash(docker compose -f * ps:*)",
+      "Bash(docker compose -f * logs:*)",
+      "Bash(aws sesv2 get-configuration-set:*)"
+    ]
+  }
+}
