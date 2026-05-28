@@ -59,7 +59,7 @@ class TransitionOrderToOfflinePaymentHandler
                 'event_id' => $order->getEventId(),
             ]);
 
-            $this->validateOfflinePayment($order, $eventSettings);
+            $this->validateOfflinePayment($order, $eventSettings, $dto->skipOfflineProviderCheck);
 
             $this->updateOrderStatuses($order->getId());
 
@@ -102,6 +102,7 @@ class TransitionOrderToOfflinePaymentHandler
     public function validateOfflinePayment(
         OrderDomainObject        $order,
         EventSettingDomainObject $settings,
+        bool                     $skipOfflineProviderCheck = false,
     ): void
     {
         if (!$order->isOrderReserved()) {
@@ -110,6 +111,10 @@ class TransitionOrderToOfflinePaymentHandler
 
         if ($order->isReservedOrderExpired()) {
             throw new ResourceConflictException(__('Order reservation has expired'));
+        }
+
+        if ($skipOfflineProviderCheck) {
+            return;
         }
 
         if (collect($settings->getPaymentProviders())->contains(PaymentProviders::OFFLINE->value) === false) {

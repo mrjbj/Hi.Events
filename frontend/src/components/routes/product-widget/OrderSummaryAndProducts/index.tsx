@@ -11,6 +11,7 @@ import {
     IconChevronDown,
     IconChevronUp,
     IconClock,
+    IconCreditCard,
     IconEdit,
     IconId,
     IconMail,
@@ -683,7 +684,25 @@ export const OrderSummaryAndProducts = () => {
                     defaultExpanded={false}
                 />
 
-                {order?.status === 'AWAITING_OFFLINE_PAYMENT' && <OfflinePaymentInstructions event={event}/>}
+                {order?.status === 'AWAITING_OFFLINE_PAYMENT' && event?.settings?.payment_providers?.includes('STRIPE') && (
+                    <Card style={{marginTop: '20px', marginBottom: '20px'}}>
+                        <Group justify="space-between" align="center" wrap="wrap" gap="md">
+                            <div style={{flex: 1, minWidth: 200}}>
+                                <Text fw={600} size="md">{t`Want to pay by card now?`}</Text>
+                                <Text size="sm" c="dimmed">{t`Complete payment online so you don't have to handle it at the door.`}</Text>
+                            </div>
+                            <Button
+                                size="md"
+                                leftSection={<IconCreditCard size={18}/>}
+                                onClick={() => navigate(eventCheckoutPath(eventId, orderShortId, 'payment'))}
+                            >
+                                {t`Pay by card now`}
+                            </Button>
+                        </Group>
+                    </Card>
+                )}
+
+                {order?.status === 'AWAITING_OFFLINE_PAYMENT' && event?.settings?.payment_providers?.includes('OFFLINE') && <OfflinePaymentInstructions event={event}/>}
 
                 {(order?.attendees && order.attendees.length > 0) && (
                     <>

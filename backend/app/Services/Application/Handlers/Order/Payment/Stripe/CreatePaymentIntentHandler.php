@@ -65,11 +65,26 @@ readonly class CreatePaymentIntentHandler
             ->loadRelation(new Relationship(EventDomainObject::class, name: 'event'))
             ->findByShortId($orderShortId);
 
-        if (!$order || !$this->sessionIdentifierService->verifySession($order->getSessionId())) {
+        if (!$order) {
             throw new UnauthorizedException(__('Sorry, we could not verify your session. Please create a new order.'));
         }
 
-        if ($order->getStatus() !== OrderStatus::RESERVED->name || $order->isReservedOrderExpired()) {
+        $isAwaitingOfflinePayment = $order->getStatus() === OrderStatus::AWAITING_OFFLINE_PAYMENT->name;
+
+        // Session verification applies only to the in-flight RESERVED checkout. An
+        // AWAITING_OFFLINE_PAYMENT order may return for card payment from any browser
+        // days later; the short_id in the emailed URL is the bearer credential there.
+        if (!$isAwaitingOfflinePayment && !$this->sessionIdentifierService->verifySession($order->getSessionId())) {
+            throw new UnauthorizedException(__('Sorry, we could not verify your session. Please create a new order.'));
+        }
+
+        $isReserved = $order->getStatus() === OrderStatus::RESERVED->name;
+
+        if (!$isReserved && !$isAwaitingOfflinePayment) {
+            throw new ResourceConflictException(__('Sorry, is expired or not in a valid state.'));
+        }
+
+        if ($isReserved && $order->isReservedOrderExpired()) {
             throw new ResourceConflictException(__('Sorry, is expired or not in a valid state.'));
         }
 

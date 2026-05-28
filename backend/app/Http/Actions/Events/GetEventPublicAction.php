@@ -2,6 +2,7 @@
 
 namespace HiEvents\Http\Actions\Events;
 
+use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\Status\EventStatus;
@@ -40,7 +41,33 @@ class GetEventPublicAction extends BaseAction
             return $this->notFoundResponse();
         }
 
+        if ($this->isAuthorizedAdminViewer($event->getAccountId())) {
+            $this->injectAdminPaymentProviders($event);
+        }
+
         return $this->resourceResponse(EventResourcePublic::class, $event);
+    }
+
+    /**
+     * Admins viewing the public checkout see OFFLINE as an available payment
+     * provider even if the event hasn't enabled it for customers — lets them
+     * create awaiting-offline orders on behalf of someone without temporarily
+     * toggling the event-wide setting.
+     */
+    private function injectAdminPaymentProviders(EventDomainObject $event): void
+    {
+        $settings = $event->getEventSettings();
+        if ($settings === null) {
+            return;
+        }
+
+        $providers = $settings->getPaymentProviders();
+        $providers = is_array($providers) ? $providers : [];
+
+        if (!in_array(PaymentProviders::OFFLINE->value, $providers, true)) {
+            $providers[] = PaymentProviders::OFFLINE->value;
+            $settings->setPaymentProviders($providers);
+        }
     }
 
     private function canUserViewEvent(EventDomainObject $event): bool

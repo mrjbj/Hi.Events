@@ -99,7 +99,8 @@ export default function StripeCheckoutForm({setSubmitHandler}: {
         );
     }
 
-    if (order?.payment_status !== 'AWAITING_PAYMENT' && order?.payment_status !== 'PAYMENT_FAILED') {
+    const allowedPaymentStatuses = ['AWAITING_PAYMENT', 'PAYMENT_FAILED', 'AWAITING_OFFLINE_PAYMENT'];
+    if (!allowedPaymentStatuses.includes(order?.payment_status ?? '')) {
         return (
             <HomepageInfoMessage
                 status="expired"

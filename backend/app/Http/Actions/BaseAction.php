@@ -225,6 +225,29 @@ abstract class BaseAction extends Controller
         return Auth::check();
     }
 
+    /**
+     * True when the current request is authenticated as a user with admin access to the
+     * given event's account (account match or SUPERADMIN). Lets public endpoints
+     * grant admin-only affordances (e.g. exposing offline payment on a Stripe-only
+     * event while creating an order on behalf of a customer).
+     */
+    protected function isAuthorizedAdminViewer(int $eventAccountId): bool
+    {
+        if (!$this->isUserAuthenticated()) {
+            return false;
+        }
+
+        try {
+            if ($this->getAuthenticatedAccountId() === $eventAccountId) {
+                return true;
+            }
+
+            return $this->getAuthenticatedUserRole() === Role::SUPERADMIN;
+        } catch (UnauthorizedException) {
+            return false;
+        }
+    }
+
     protected function minimumAllowedRole(Role $minimumRole): void
     {
         /** @var IsAuthorizedService $authService */

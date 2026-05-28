@@ -8,6 +8,7 @@ class TransitionOrderToOfflinePaymentPublicDTO extends BaseDTO
 {
     public function __construct(
         public readonly string $orderShortId,
+        public readonly bool   $skipOfflineProviderCheck = false,
     )
     {
     }
