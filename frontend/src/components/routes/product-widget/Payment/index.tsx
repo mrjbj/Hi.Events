@@ -32,7 +32,15 @@ const Payment = () => {
     const transitionOrderToOfflinePaymentMutation = useTransitionOrderToOfflinePaymentPublic();
 
     const isStripeEnabled = event?.settings?.payment_providers?.includes('STRIPE');
-    const isOfflineEnabled = event?.settings?.payment_providers?.includes('OFFLINE');
+    const isAwaitingOfflinePayment = order?.status === 'AWAITING_OFFLINE_PAYMENT';
+    const isOfflineEnabled = event?.settings?.payment_providers?.includes('OFFLINE') && !isAwaitingOfflinePayment;
+
+    React.useEffect(() => {
+        if (!isOrderFetched || !order) return;
+        if (order.status !== 'RESERVED' && order.status !== 'AWAITING_OFFLINE_PAYMENT') {
+            navigate(`/checkout/${eventId}/${orderShortId}/summary`, {replace: true});
+        }
+    }, [isOrderFetched, order?.status, eventId, orderShortId, navigate]);
 
     React.useEffect(() => {
         // Automatically set the first available payment method
