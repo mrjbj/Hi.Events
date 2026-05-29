@@ -1,14 +1,15 @@
 import {t} from "@lingui/macro";
-import {Button, Divider, Group, Loader, Modal, TextInput} from "@mantine/core";
+import {Button, Divider, Group, Loader, Modal, Switch, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useQuery} from "@tanstack/react-query";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {Attendee} from "../../../types.ts";
 import {contactPortalClientPublic, MyContactResult} from "../../../api/contact-portal.client.ts";
 import {AttendeeProfileCard} from "../../routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles";
 import {usePatchCheckInListAttendee} from "../../../mutations/usePatchCheckInListAttendee.ts";
 import {showError, showSuccess} from "../../../utilites/notifications.tsx";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
+import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
 
 interface AttendeeProfileModalProps {
     opened: boolean;
@@ -20,14 +21,16 @@ interface AttendeeProfileModalProps {
 
 /**
  * Check-in app's "edit attendee details" surface. Two save paths:
- *  - Name + registration questions go through the contact portal
- *    (AttendeeProfileCard → PATCH /contacts/me) and update the contact record.
+ *  - Name + registration questions + the confirm-at-check-in flag are committed
+ *    together by "Save changes": the contact portal (PATCH /contacts/me) updates
+ *    the contact record, and — when the flag was toggled — a check-in-list PATCH
+ *    persists confirm_at_checkin on the attendee row. The switch is deferred (it
+ *    does NOT write on toggle); it only persists on "Save changes". Saving closes
+ *    the modal.
  *  - Email goes through the check-in-list-scoped PATCH endpoint
- *    (PATCH /check-in-lists/{shortId}/attendees/{publicId}) and updates
- *    the attendee row directly. The contact portal doesn't touch
- *    attendees.email, so this split is intentional.
- *
- * Each section has its own Save button to keep the trust boundary visible.
+ *    (PATCH /check-in-lists/{shortId}/attendees/{publicId}). "Save email" asks
+ *    for confirmation (the previous address is emailed a "details changed"
+ *    notice), then saves, surfaces a toast, and closes the modal.
  */
 export const AttendeeProfileModal = ({
                                          opened,
@@ -50,7 +53,40 @@ export const AttendeeProfileModal = ({
     const emailMutation = usePatchCheckInListAttendee({
         checkInListShortId: checkInListShortId ?? '',
     });
+    const confirmMutation = usePatchCheckInListAttendee({
+        checkInListShortId: checkInListShortId ?? '',
+    });
     const formErrorHandler = useFormErrorResponseHandler();
+
+    const [confirmAtCheckin, setConfirmAtCheckin] = useState<boolean>(!!attendee?.confirm_at_checkin);
+
+    useEffect(() => {
+        setConfirmAtCheckin(!!attendee?.confirm_at_checkin);
+    }, [attendee?.public_id, attendee?.confirm_at_checkin]);
+
+    // The flag is deferred: toggling only updates local state. It persists when
+    // "Save changes" is clicked (alongside the contact update), or via the
+    // standalone Save button shown when there's no editable contact profile.
+    const confirmDirty = !!attendee && confirmAtCheckin !== !!attendee.confirm_at_checkin;
+
+    const persistConfirmIfChanged = async () => {
+        if (!attendee || !checkInListShortId || !confirmDirty) return;
+        await confirmMutation.mutateAsync({
+            attendeePublicId: attendee.public_id,
+            payload: {confirm_at_checkin: confirmAtCheckin},
+        });
+    };
+
+    const handleConfirmOnlySave = async () => {
+        if (!attendee || !checkInListShortId) return;
+        try {
+            await persistConfirmIfChanged();
+            showSuccess(t`Changes saved`);
+            onClose();
+        } catch {
+            showError(t`Couldn't save changes`);
+        }
+    };
 
     const emailForm = useForm({
         initialValues: {email: ''},
@@ -73,20 +109,34 @@ export const AttendeeProfileModal = ({
         if (!attendee || !checkInListShortId) return;
 
         const trimmed = values.email.trim();
-        if (trimmed === (attendee.email ?? '').trim()) {
+        const oldEmail = (attendee.email ?? '').trim();
+        if (trimmed === oldEmail) {
             showError(t`Email is unchanged`);
             return;
         }
 
-        emailMutation.mutate(
-            {attendeePublicId: attendee.public_id, payload: {email: trimmed}},
+        const saveEmail = () => emailMutation.mutate(
+            {attendeePublicId: attendee.public_id, payload: {email: trimmed, notify_email_change: !!oldEmail}},
             {
                 onSuccess: () => {
-                    showSuccess(t`Email updated`);
+                    showSuccess(oldEmail
+                        ? t`Email updated. A notification was sent to ${oldEmail}.`
+                        : t`Email updated`);
+                    onClose();
                 },
                 onError: (error) => formErrorHandler(emailForm, error),
             },
         );
+
+        if (oldEmail) {
+            confirmationDialog(
+                t`The current address (${oldEmail}) will be emailed to let them know the ticket's email address has changed. Continue?`,
+                saveEmail,
+                {confirm: t`Yes, save and notify`, cancel: t`Cancel`},
+            );
+        } else {
+            saveEmail();
+        }
     });
 
     return (
@@ -96,10 +146,33 @@ export const AttendeeProfileModal = ({
             title={t`Edit attendee details`}
             size="lg"
         >
+            {attendee && checkInListShortId && (
+                <Switch
+                    mb="md"
+                    checked={confirmAtCheckin}
+                    disabled={confirmMutation.isPending}
+                    onChange={(event) => setConfirmAtCheckin(event.currentTarget.checked)}
+                    label={t`Confirm details at check-in`}
+                    description={t`When on, this attendee is flagged for check-in staff to confirm their details. Turn it off once their details are confirmed — saved when you click "Save changes".`}
+                />
+            )}
+
             {!contactToken && (
                 <div style={{padding: '1rem', color: '#666'}}>
                     {t`This attendee isn't linked to a contact yet, so profile editing isn't available here.`}
                 </div>
+            )}
+
+            {!contactToken && attendee && checkInListShortId && (
+                <Group justify="flex-end" mb="md">
+                    <Button
+                        loading={confirmMutation.isPending}
+                        disabled={!confirmDirty}
+                        onClick={handleConfirmOnlySave}
+                    >
+                        {t`Save changes`}
+                    </Button>
+                </Group>
             )}
 
             {contactToken && profileQuery.isLoading && (
@@ -114,6 +187,8 @@ export const AttendeeProfileModal = ({
                     data={profileQuery.data}
                     contactId={contactId}
                     eventId={eventId}
+                    additionalSaveAsync={persistConfirmIfChanged}
+                    onSaved={onClose}
                 />
             )}
 

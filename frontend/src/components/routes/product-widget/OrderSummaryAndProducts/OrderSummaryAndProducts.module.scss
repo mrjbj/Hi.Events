@@ -206,6 +206,26 @@ $font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
   }
 }
 
+.needsInfoBadge {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: #1e40af;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba(59, 130, 246, 0.25);
+  }
+}
+
 .guestInfo {
   flex: 1;
   min-width: 0;

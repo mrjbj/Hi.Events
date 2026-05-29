@@ -44,7 +44,8 @@ class SelfServiceEditAttendeeService
         ?string $email,
         string $ipAddress,
         ?string $userAgent,
-        ?string $seatInfo = null
+        ?string $seatInfo = null,
+        ?bool $confirmAtCheckin = null
     ): EditAttendeeResultDTO {
         $oldValues = [];
         $newValues = [];
@@ -161,6 +162,24 @@ class SelfServiceEditAttendeeService
                 attendee: $attendee,
                 oldValues: ['seat_info' => $previousSeatInfo],
                 newValues: ['seat_info' => $seatInfo],
+                ipAddress: $ipAddress,
+                userAgent: $userAgent,
+            );
+        }
+
+        // The confirm-at-check-in flag is an operational toggle, not an
+        // identity change, so it runs on its own track like seat_info: persist
+        // and audit-log it, but skip the "your details changed" email.
+        if ($confirmAtCheckin !== null && $confirmAtCheckin !== $attendee->getConfirmAtCheckin()) {
+            $previousConfirmAtCheckin = $attendee->getConfirmAtCheckin();
+            $this->attendeeRepository->updateWhere(
+                attributes: ['confirm_at_checkin' => $confirmAtCheckin],
+                where: ['id' => $attendee->getId()],
+            );
+            $this->orderAuditLogService->logAttendeeUpdate(
+                attendee: $attendee,
+                oldValues: ['confirm_at_checkin' => $previousConfirmAtCheckin],
+                newValues: ['confirm_at_checkin' => $confirmAtCheckin],
                 ipAddress: $ipAddress,
                 userAgent: $userAgent,
             );

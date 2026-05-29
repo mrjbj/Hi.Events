@@ -13,6 +13,8 @@ class PatchCheckInListAttendeePublicRequest extends BaseRequest
             'last_name' => ['sometimes', 'string', 'max:100', 'min:1'],
             'email' => ['sometimes', 'email', 'max:100'],
             'seat_info' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'confirm_at_checkin' => ['sometimes', 'boolean'],
+            'notify_email_change' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -29,8 +31,8 @@ class PatchCheckInListAttendeePublicRequest extends BaseRequest
                     ],
                     fn ($v) => $v !== null && $v !== ''
                 );
-                if (empty($present)) {
-                    $validator->errors()->add('first_name', __('At least one of first_name, last_name, email, or seat_info is required.'));
+                if (empty($present) && ! $this->has('confirm_at_checkin')) {
+                    $validator->errors()->add('first_name', __('At least one of first_name, last_name, email, seat_info, or confirm_at_checkin is required.'));
                 }
             },
         ];

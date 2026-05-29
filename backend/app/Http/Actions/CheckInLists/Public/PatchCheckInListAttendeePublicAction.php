@@ -25,7 +25,15 @@ class PatchCheckInListAttendeePublicAction extends BaseAction
             $attendee = $this->handler->handle(
                 shortId: $shortId,
                 attendeePublicId: $attendeePublicId,
-                fields: $request->only(['first_name', 'last_name', 'email', 'seat_info']),
+                fields: array_merge(
+                    $request->only(['first_name', 'last_name', 'email', 'seat_info']),
+                    $request->has('confirm_at_checkin')
+                        ? ['confirm_at_checkin' => $request->boolean('confirm_at_checkin')]
+                        : [],
+                    $request->has('notify_email_change')
+                        ? ['notify_email_change' => $request->boolean('notify_email_change')]
+                        : [],
+                ),
             );
         } catch (CannotCheckInException $e) {
             return $this->errorResponse(

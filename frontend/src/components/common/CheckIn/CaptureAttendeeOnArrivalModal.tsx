@@ -165,6 +165,7 @@ export const CaptureAttendeeOnArrivalModal = ({
                     last_name: values.last_name.trim(),
                     email: values.email.trim(),
                     seat_info: trimmedSeat === '' ? null : trimmedSeat,
+                    confirm_at_checkin: false,
                 },
             });
 

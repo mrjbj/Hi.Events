@@ -34,6 +34,9 @@ class EditAttendeePublicAction extends BaseAction
                 'ipAddress' => $this->getClientIp($request),
                 'userAgent' => $request->userAgent(),
                 'seatInfo' => $request->input('seat_info'),
+                'confirmAtCheckin' => $request->has('confirm_at_checkin')
+                    ? $request->boolean('confirm_at_checkin')
+                    : null,
             ]));
 
             $response = [

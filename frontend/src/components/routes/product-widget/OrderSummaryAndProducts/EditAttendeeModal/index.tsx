@@ -1,5 +1,5 @@
 import {t} from "@lingui/macro";
-import {Button, Divider, Group, Modal, MultiSelect, Select, SimpleGrid, TextInput} from "@mantine/core";
+import {Button, Divider, Group, Modal, MultiSelect, Select, SimpleGrid, Switch, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useEffect, useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
@@ -49,7 +49,7 @@ interface EditAttendeeModalProps {
      * to a different contact due to an email change). The modal then uses that
      * token to save registration-question attributes against the new contact.
      */
-    editAttendeeAsync: (data: { first_name?: string; last_name?: string; email?: string }) => Promise<SelfServiceUpdateResult>;
+    editAttendeeAsync: (data: { first_name?: string; last_name?: string; email?: string; confirm_at_checkin?: boolean }) => Promise<SelfServiceUpdateResult>;
 }
 
 /**
@@ -81,6 +81,7 @@ export const EditAttendeeModal = ({
             first_name: attendee.first_name,
             last_name: attendee.last_name,
             email: attendee.email,
+            confirm_at_checkin: attendee.confirm_at_checkin ?? false,
         },
         validate: {
             first_name: (value) => !value ? t`First name is required` : null,
@@ -117,6 +118,7 @@ export const EditAttendeeModal = ({
                 first_name: values.first_name,
                 last_name: values.last_name,
                 email: values.email,
+                confirm_at_checkin: values.confirm_at_checkin,
             });
 
             // 2. If we have any contact token (the new one from the response,
@@ -182,6 +184,13 @@ export const EditAttendeeModal = ({
                         required
                         type="email"
                         {...form.getInputProps('email')}
+                    />
+
+                    <Switch
+                        mt="md"
+                        label={t`Confirm details at check-in`}
+                        description={t`When on, check-in staff are prompted to confirm this attendee's details at the door.`}
+                        {...form.getInputProps('confirm_at_checkin', {type: 'checkbox'})}
                     />
 
                     {profileEntry && attributeDefinitions.length > 0 && (

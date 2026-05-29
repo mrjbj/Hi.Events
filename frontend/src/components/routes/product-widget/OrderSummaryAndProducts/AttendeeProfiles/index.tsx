@@ -92,9 +92,15 @@ interface AttendeeProfileCardProps {
      *  single-attendee order) refetches fresh values. */
     contactId?: number;
     eventId?: number;
+    /** Optional extra persistence run as part of "Save changes" (e.g. the
+     *  check-in modal saving the confirm-at-check-in flag on the attendee row).
+     *  Awaited alongside the contact update; a rejection fails the whole save. */
+    additionalSaveAsync?: () => Promise<void>;
+    /** Called after a successful save — e.g. to close the containing modal. */
+    onSaved?: () => void;
 }
 
-export const AttendeeProfileCard = ({token, data, contactId, eventId}: AttendeeProfileCardProps) => {
+export const AttendeeProfileCard = ({token, data, contactId, eventId, additionalSaveAsync, onSaved}: AttendeeProfileCardProps) => {
     const queryClient = useQueryClient();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -108,17 +114,23 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId}: AttendeeP
     }, [data?.found, data?.first_name, data?.last_name, data?.attribute_definitions]);
 
     const mutation = useMutation({
-        mutationFn: () => contactPortalClientPublic.updateMyContact({
-            token,
-            first_name: firstName,
-            last_name: lastName,
-            attributes: attrs,
-        }),
+        mutationFn: async () => {
+            await contactPortalClientPublic.updateMyContact({
+                token,
+                first_name: firstName,
+                last_name: lastName,
+                attributes: attrs,
+            });
+            if (additionalSaveAsync) {
+                await additionalSaveAsync();
+            }
+        },
         onSuccess: () => {
             showSuccess(t`Profile updated.`);
             if (typeof contactId === 'number' && typeof eventId === 'number') {
                 void queryClient.invalidateQueries({queryKey: ['attendee-profile', contactId, eventId]});
             }
+            onSaved?.();
         },
         onError: () => showError(t`We couldn't save your changes. Please try again.`),
     });

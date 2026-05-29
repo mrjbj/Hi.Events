@@ -83,6 +83,8 @@ export interface PatchCheckInListAttendeePayload {
     last_name?: string;
     email?: string;
     seat_info?: string | null;
+    confirm_at_checkin?: boolean;
+    notify_email_change?: boolean;
 }
 
 export const attendeeClientPublic = {

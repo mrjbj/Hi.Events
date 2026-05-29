@@ -50,6 +50,7 @@ class EditAttendeePublicHandler
             ipAddress: $dto->ipAddress,
             userAgent: $dto->userAgent,
             seatInfo: $dto->seatInfo,
+            confirmAtCheckin: $dto->confirmAtCheckin,
         );
     }
 }

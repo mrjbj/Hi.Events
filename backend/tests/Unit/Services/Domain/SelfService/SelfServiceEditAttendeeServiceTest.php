@@ -407,6 +407,80 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         });
     }
 
+    public function test_confirm_at_checkin_toggle_persists_and_audits_without_email(): void
+    {
+        $attendee = Mockery::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getId')->andReturn(456);
+        $attendee->shouldReceive('getFirstName')->andReturn('John');
+        $attendee->shouldReceive('getLastName')->andReturn('Doe');
+        $attendee->shouldReceive('getEmail')->andReturn('same@example.com');
+        $attendee->shouldReceive('getSeatInfo')->andReturn(null);
+        $attendee->shouldReceive('getConfirmAtCheckin')->andReturn(false);
+
+        $this->attendeeRepository
+            ->shouldReceive('updateWhere')
+            ->once()
+            ->withArgs(function ($attributes, $where) {
+                return $attributes === ['confirm_at_checkin' => true]
+                    && $where === ['id' => 456];
+            })
+            ->andReturn(1);
+
+        $this->orderAuditLogService
+            ->shouldReceive('logAttendeeUpdate')
+            ->once()
+            ->withArgs(function ($att, $oldValues, $newValues, $ip, $ua) use ($attendee) {
+                return $att === $attendee
+                    && $oldValues === ['confirm_at_checkin' => false]
+                    && $newValues === ['confirm_at_checkin' => true]
+                    && $ip === '192.168.1.1'
+                    && $ua === 'Mozilla/5.0';
+            });
+
+        $result = $this->service->editAttendee(
+            attendee: $attendee,
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'same@example.com',
+            ipAddress: '192.168.1.1',
+            userAgent: 'Mozilla/5.0',
+            confirmAtCheckin: true,
+        );
+
+        $this->assertTrue($result->success);
+        $this->assertFalse($result->emailChanged);
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_confirm_at_checkin_unchanged_is_skipped(): void
+    {
+        $attendee = Mockery::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getId')->andReturn(456);
+        $attendee->shouldReceive('getFirstName')->andReturn('John');
+        $attendee->shouldReceive('getLastName')->andReturn('Doe');
+        $attendee->shouldReceive('getEmail')->andReturn('same@example.com');
+        $attendee->shouldReceive('getSeatInfo')->andReturn(null);
+        $attendee->shouldReceive('getConfirmAtCheckin')->andReturn(true);
+
+        $this->attendeeRepository->shouldReceive('updateWhere')->never();
+        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->never();
+
+        $result = $this->service->editAttendee(
+            attendee: $attendee,
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'same@example.com',
+            ipAddress: '192.168.1.1',
+            userAgent: 'Mozilla/5.0',
+            confirmAtCheckin: true,
+        );
+
+        $this->assertTrue($result->success);
+
+        Mail::assertNothingSent();
+    }
+
     protected function tearDown(): void
     {
         Mockery::close();

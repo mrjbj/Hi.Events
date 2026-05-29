@@ -15,6 +15,7 @@ export interface EditAttendeeData {
     first_name?: string;
     last_name?: string;
     email?: string;
+    confirm_at_checkin?: boolean;
 }
 
 export interface EditOrderData {
