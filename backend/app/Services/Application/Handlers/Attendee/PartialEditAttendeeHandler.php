@@ -23,17 +23,15 @@ use Throwable;
 class PartialEditAttendeeHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface        $attendeeRepository,
-        private readonly OrderRepositoryInterface           $orderRepository,
-        private readonly ProductQuantityUpdateService       $productQuantityService,
-        private readonly DatabaseManager                    $databaseManager,
-        private readonly DomainEventDispatcherService       $domainEventDispatcherService,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly ProductQuantityUpdateService $productQuantityService,
+        private readonly DatabaseManager $databaseManager,
+        private readonly DomainEventDispatcherService $domainEventDispatcherService,
         private readonly EventStatisticsCancellationService $eventStatisticsCancellationService,
         private readonly EventStatisticsReactivationService $eventStatisticsReactivationService,
-        private readonly LoggerInterface                    $logger,
-    )
-    {
-    }
+        private readonly LoggerInterface $logger,
+    ) {}
 
     /**
      * @throws Throwable|ResourceNotFoundException
@@ -52,8 +50,8 @@ class PartialEditAttendeeHandler
             'event_id' => $data->event_id,
         ]);
 
-        if (!$attendee) {
-            throw new ResourceNotFoundException();
+        if (! $attendee) {
+            throw new ResourceNotFoundException;
         }
 
         $statusIsUpdated = $data->status && $data->status !== $attendee->getStatus();
@@ -81,6 +79,7 @@ class PartialEditAttendeeHandler
                 'first_name' => $data->first_name ?? $attendee->getFirstName(),
                 'last_name' => $data->last_name ?? $attendee->getLastName(),
                 'email' => $data->email ?? $attendee->getEmail(),
+                'confirm_at_checkin' => $data->confirm_at_checkin ?? $attendee->getConfirmAtCheckin(),
             ],
             where: [
                 'event_id' => $data->event_id,
@@ -131,6 +130,7 @@ class PartialEditAttendeeHandler
                 'order_id' => $attendee->getOrderId(),
                 'event_id' => $attendee->getEventId(),
             ]);
+
             return;
         }
 

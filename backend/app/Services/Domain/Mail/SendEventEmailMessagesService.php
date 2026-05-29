@@ -7,16 +7,16 @@ use HiEvents\DomainObjects\ContactDomainObject;
 use HiEvents\DomainObjects\Enums\MessageTypeEnum;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
+use HiEvents\DomainObjects\Generated\OutgoingMessageDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\Status\AttendeeStatus;
 use HiEvents\DomainObjects\Status\MessageStatus;
+use HiEvents\DomainObjects\Status\OutgoingMessageStatus;
 use HiEvents\Exceptions\UnableToSendMessageException;
 use HiEvents\Jobs\Event\SendEventEmailJob;
 use HiEvents\Mail\Event\EventMessage;
 use HiEvents\Repository\Eloquent\Value\Relationship;
-use HiEvents\DomainObjects\Generated\OutgoingMessageDomainObjectAbstract;
-use HiEvents\DomainObjects\Status\OutgoingMessageStatus;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\MessageRepositoryInterface;
@@ -34,18 +34,16 @@ class SendEventEmailMessagesService
     private array $sentEmails = [];
 
     public function __construct(
-        private readonly OrderRepositoryInterface    $orderRepository,
+        private readonly OrderRepositoryInterface $orderRepository,
         private readonly AttendeeRepositoryInterface $attendeeRepository,
-        private readonly EventRepositoryInterface    $eventRepository,
-        private readonly MessageRepositoryInterface  $messageRepository,
-        private readonly UserRepositoryInterface     $userRepository,
-        private readonly Logger                      $logger,
-        private readonly Dispatcher                          $dispatcher,
-        private readonly EmailSuppressionService             $emailSuppressionService,
-        private readonly OutgoingMessageRepositoryInterface  $outgoingMessageRepository,
-    )
-    {
-    }
+        private readonly EventRepositoryInterface $eventRepository,
+        private readonly MessageRepositoryInterface $messageRepository,
+        private readonly UserRepositoryInterface $userRepository,
+        private readonly Logger $logger,
+        private readonly Dispatcher $dispatcher,
+        private readonly EmailSuppressionService $emailSuppressionService,
+        private readonly OutgoingMessageRepositoryInterface $outgoingMessageRepository,
+    ) {}
 
     /**
      * @throws UnableToSendMessageException
@@ -65,7 +63,7 @@ class SendEventEmailMessagesService
             'event_id' => $messageData->event_id,
         ]);
 
-        if ((!$order && $messageData->type === MessageTypeEnum::ORDER_OWNER) || !$messageData->id) {
+        if ((! $order && $messageData->type === MessageTypeEnum::ORDER_OWNER) || ! $messageData->id) {
             $message = 'Unable to send message. Order or message ID not present.';
             $this->logger->error($message, $messageData->toArray());
             $this->updateMessageStatus($messageData, MessageStatus::FAILED);
@@ -130,11 +128,10 @@ class SendEventEmailMessagesService
     }
 
     private function sendOrderMessages(
-        SendMessageDTO    $messageData,
+        SendMessageDTO $messageData,
         EventDomainObject $event,
         OrderDomainObject $order,
-    ): void
-    {
+    ): void {
         $this->sendEmailToMessageSender($messageData, $event);
 
         $this->sendMessage(
@@ -146,11 +143,10 @@ class SendEventEmailMessagesService
     }
 
     private function emailAttendees(
-        Collection        $attendees,
-        SendMessageDTO    $messageData,
+        Collection $attendees,
+        SendMessageDTO $messageData,
         EventDomainObject $event,
-    ): void
-    {
+    ): void {
         $this->sendEmailToMessageSender($messageData, $event);
 
         if ($messageData->is_test) {
@@ -160,6 +156,10 @@ class SendEventEmailMessagesService
         $sentEmails = [];
         $attendees->each(function (AttendeeDomainObject $attendee) use (&$sentEmails, $event, $messageData) {
             $email = $this->resolveAttendeeEmail($attendee, $messageData);
+            // Guests awaiting detail capture have no email yet — skip them.
+            if ($email === null || $email === '') {
+                return;
+            }
             if (in_array($email, $sentEmails, true)) {
                 return;
             }
@@ -181,11 +181,11 @@ class SendEventEmailMessagesService
      * across all future sends. Same-event and transactional sends use the
      * attendee's email verbatim.
      */
-    private function resolveAttendeeEmail(AttendeeDomainObject $attendee, SendMessageDTO $messageData): string
+    private function resolveAttendeeEmail(AttendeeDomainObject $attendee, SendMessageDTO $messageData): ?string
     {
         $promotes = $messageData->promotes_event_id;
-        $isCrossEvent = $promotes !== null && (int)$promotes !== (int)$messageData->event_id;
-        if (!$isCrossEvent) {
+        $isCrossEvent = $promotes !== null && (int) $promotes !== (int) $messageData->event_id;
+        if (! $isCrossEvent) {
             return $attendee->getEmail();
         }
 
@@ -194,6 +194,7 @@ class SendEventEmailMessagesService
         }
 
         $contact = $attendee->getContact();
+
         return $contact?->getEmail() ?? $attendee->getEmail();
     }
 
@@ -270,7 +271,7 @@ class SendEventEmailMessagesService
 
     private function sendEmailToMessageSender(SendMessageDTO $messageData, EventDomainObject $event): void
     {
-        if (!$messageData->send_copy_to_current_user && !$messageData->is_test) {
+        if (! $messageData->send_copy_to_current_user && ! $messageData->is_test) {
             return;
         }
 
@@ -386,23 +387,24 @@ class SendEventEmailMessagesService
     }
 
     /**
-     * @param Collection<AttendeeDomainObject> $attendees
+     * @param  Collection<AttendeeDomainObject>  $attendees
      * @return string[]
      */
     private function emailsFromAttendees(Collection $attendees, SendMessageDTO $messageData): array
     {
         return $attendees
             ->map(fn (AttendeeDomainObject $attendee) => $this->resolveAttendeeEmail($attendee, $messageData))
+            ->filter(fn (?string $email) => $email !== null && $email !== '')
+            ->values()
             ->all();
     }
 
     private function sendMessage(
-        string            $emailAddress,
-        string            $fullName,
-        SendMessageDTO    $messageData,
+        string $emailAddress,
+        string $fullName,
+        SendMessageDTO $messageData,
         EventDomainObject $event,
-    ): void
-    {
+    ): void {
         if (in_array($emailAddress, $this->sentEmails, true)) {
             return;
         }
@@ -422,6 +424,7 @@ class SendEventEmailMessagesService
             ]);
 
             $this->sentEmails[] = $emailAddress;
+
             return;
         }
 

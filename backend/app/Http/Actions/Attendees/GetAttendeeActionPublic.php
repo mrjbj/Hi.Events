@@ -18,11 +18,9 @@ class GetAttendeeActionPublic extends BaseAction
 {
     public function __construct(
         private readonly AttendeeRepositoryInterface $attendeeRepository,
-        private readonly EventRepositoryInterface    $eventRepository,
-        private readonly ContactSignedTokenService   $contactTokenService,
-    )
-    {
-    }
+        private readonly EventRepositoryInterface $eventRepository,
+        private readonly ContactSignedTokenService $contactTokenService,
+    ) {}
 
     /**
      * @todo move to handler
@@ -38,10 +36,10 @@ class GetAttendeeActionPublic extends BaseAction
                     ),
                 ], name: 'product'))
             ->findFirstWhere([
-                AttendeeDomainObjectAbstract::SHORT_ID => $attendeeShortId
+                AttendeeDomainObjectAbstract::SHORT_ID => $attendeeShortId,
             ]);
 
-        if (!$attendee) {
+        if (! $attendee) {
             return $this->notFoundResponse();
         }
 

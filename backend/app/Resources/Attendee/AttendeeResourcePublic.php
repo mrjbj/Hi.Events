@@ -29,19 +29,21 @@ class AttendeeResourcePublic extends JsonResource
             'contact_id' => $this->getContactId(),
             'contact_token' => $this->getContactToken(),
             'seat_info' => $this->getSeatInfo(),
+            'confirm_at_checkin' => $this->getConfirmAtCheckin(),
             'profile_completion_recommended' => $this->profileCompletionRecommended(),
         ];
     }
 
     /**
-     * True when this attendee's name fields look like a placeholder — usually
-     * because the buyer purchased multiple seats and left the guest details
-     * blank. The public ticket page uses this to surface a "please confirm
-     * your details" prompt and pre-open the profile panel.
+     * True when the ticket page should surface a "please confirm your details"
+     * prompt and pre-open the profile panel. Driven by the stored
+     * confirm_at_checkin flag, with a fallback to the legacy heuristic (blank
+     * first/last name) for rows created before the flag existed.
      */
     private function profileCompletionRecommended(): bool
     {
-        return trim((string) $this->getFirstName()) === ''
+        return $this->getConfirmAtCheckin()
+            || trim((string) $this->getFirstName()) === ''
             || trim((string) $this->getLastName()) === '';
     }
 }

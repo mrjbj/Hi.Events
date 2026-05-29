@@ -32,6 +32,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     final public const NOTES = 'notes';
     final public const CONTACT_LINK_IGNORED_AT = 'contact_link_ignored_at';
     final public const SEAT_INFO = 'seat_info';
+    final public const CONFIRM_AT_CHECKIN = 'confirm_at_checkin';
 
     protected int $id;
     protected int $order_id;
@@ -44,7 +45,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     protected string $short_id;
     protected string $first_name = '';
     protected string $last_name = '';
-    protected string $email;
+    protected ?string $email = null;
     protected string $public_id;
     protected string $status;
     protected ?string $checked_in_at = null;
@@ -55,6 +56,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     protected ?string $notes = null;
     protected ?string $contact_link_ignored_at = null;
     protected ?string $seat_info = null;
+    protected bool $confirm_at_checkin = false;
 
     public function toArray(): array
     {
@@ -81,6 +83,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
                     'notes' => $this->notes ?? null,
                     'contact_link_ignored_at' => $this->contact_link_ignored_at ?? null,
                     'seat_info' => $this->seat_info ?? null,
+                    'confirm_at_checkin' => $this->confirm_at_checkin ?? null,
                 ];
     }
 
@@ -205,13 +208,13 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
         return $this->last_name;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
         return $this;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -324,5 +327,16 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     public function getSeatInfo(): ?string
     {
         return $this->seat_info;
+    }
+
+    public function setConfirmAtCheckin(bool $confirm_at_checkin): self
+    {
+        $this->confirm_at_checkin = $confirm_at_checkin;
+        return $this;
+    }
+
+    public function getConfirmAtCheckin(): bool
+    {
+        return $this->confirm_at_checkin;
     }
 }

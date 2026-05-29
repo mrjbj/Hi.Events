@@ -10,7 +10,8 @@ class EditAttendeeRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'email' => RulesHelper::REQUIRED_EMAIL,
+            'email' => ['nullable', 'required_unless:confirm_at_checkin,true,1', 'email', 'max:100'],
+            'confirm_at_checkin' => ['sometimes', 'boolean'],
             'first_name' => RulesHelper::REQUIRED_STRING,
             'last_name' => RulesHelper::REQUIRED_STRING,
             'product_id' => RulesHelper::REQUIRED_NUMERIC,

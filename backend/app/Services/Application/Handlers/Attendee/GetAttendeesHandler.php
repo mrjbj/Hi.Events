@@ -13,9 +13,7 @@ class GetAttendeesHandler
 {
     public function __construct(
         private readonly AttendeeRepositoryInterface $attendeeRepository,
-    )
-    {
-    }
+    ) {}
 
     public function handle(int $eventId, QueryParamsDTO $queryParams): LengthAwarePaginator
     {

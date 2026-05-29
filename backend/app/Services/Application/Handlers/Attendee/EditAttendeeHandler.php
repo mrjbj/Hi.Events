@@ -83,6 +83,7 @@ class EditAttendeeHandler
             'product_price_id' => $editAttendeeDTO->product_price_id,
             'notes' => $editAttendeeDTO->notes,
             'seat_info' => $editAttendeeDTO->seat_info,
+            'confirm_at_checkin' => $editAttendeeDTO->confirm_at_checkin,
         ], [
             'event_id' => $editAttendeeDTO->event_id,
         ]);

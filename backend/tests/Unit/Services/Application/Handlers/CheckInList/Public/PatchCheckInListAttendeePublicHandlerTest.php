@@ -94,6 +94,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
         $existingAttendee = m::mock(AttendeeDomainObject::class);
         $existingAttendee->shouldReceive('getId')->andReturn(42);
         $existingAttendee->shouldReceive('getSeatInfo')->andReturn(null);
+        $existingAttendee->shouldReceive('getConfirmAtCheckin')->andReturn(false);
 
         $refreshedAttendee = m::mock(AttendeeDomainObject::class);
 
@@ -165,5 +166,53 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
         ]);
 
         $this->assertSame($existingAttendee, $result);
+    }
+
+    public function testClearsConfirmAtCheckinWhenDetailsCaptured(): void
+    {
+        $checkInList = m::mock(CheckInListDomainObject::class);
+        $checkInList->shouldReceive('getExpiresAt')->once()->andReturn(null);
+        $checkInList->shouldReceive('getActivatesAt')->once()->andReturn(null);
+
+        $existingAttendee = m::mock(AttendeeDomainObject::class);
+        $existingAttendee->shouldReceive('getId')->andReturn(42);
+        $existingAttendee->shouldReceive('getSeatInfo')->andReturn(null);
+        $existingAttendee->shouldReceive('getConfirmAtCheckin')->andReturn(true);
+
+        $refreshedAttendee = m::mock(AttendeeDomainObject::class);
+
+        $this->checkInListRepository
+            ->shouldReceive('findFirstWhere')
+            ->once()
+            ->andReturn($checkInList);
+
+        $this->attendeeRepository
+            ->shouldReceive('findAttendeeOnCheckInList')
+            ->once()
+            ->andReturn($existingAttendee);
+
+        $this->attendeeRepository
+            ->shouldReceive('updateFromArray')
+            ->once()
+            ->with(42, [
+                'first_name' => 'Alice',
+                'last_name' => 'Walker',
+                'email' => 'alice@example.com',
+                'confirm_at_checkin' => false,
+            ]);
+
+        $this->attendeeRepository
+            ->shouldReceive('findById')
+            ->once()
+            ->with(42)
+            ->andReturn($refreshedAttendee);
+
+        $result = $this->handler->handle('short-id', 'attendee-public-id', [
+            'first_name' => 'Alice',
+            'last_name' => 'Walker',
+            'email' => 'alice@example.com',
+        ]);
+
+        $this->assertSame($refreshedAttendee, $result);
     }
 }

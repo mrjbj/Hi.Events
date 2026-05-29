@@ -16,9 +16,7 @@ use Throwable;
 class EditAttendeeAction extends BaseAction
 {
     public function __construct(
-        private readonly EditAttendeeHandler $handler)
-    {
-    }
+        private readonly EditAttendeeHandler $handler) {}
 
     /**
      * @throws ValidationException
@@ -39,6 +37,7 @@ class EditAttendeeAction extends BaseAction
                 'attendee_id' => $attendeeId,
                 'notes' => $request->input('notes'),
                 'seat_info' => $request->input('seat_info'),
+                'confirm_at_checkin' => $request->boolean('confirm_at_checkin'),
             ]));
         } catch (NoTicketsAvailableException $exception) {
             throw ValidationException::withMessages([

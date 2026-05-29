@@ -42,9 +42,9 @@ class OrderCancelService
     /**
      * @throws Throwable
      */
-    public function cancelOrder(OrderDomainObject $order): void
+    public function cancelOrder(OrderDomainObject $order, bool $notifyBuyer = false): void
     {
-        $this->databaseManager->transaction(function () use ($order) {
+        $this->databaseManager->transaction(function () use ($order, $notifyBuyer) {
             // Order of operations matters here. We must decrement the stats first.
             $this->eventStatisticsCancellationService->decrementForCancelledOrder($order);
 
@@ -52,20 +52,22 @@ class OrderCancelService
             $this->cancelAttendees($order);
             $this->updateOrderStatus($order);
 
-            $event = $this->eventRepository
-                ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
-                ->loadRelation(EventSettingDomainObject::class)
-                ->findById($order->getEventId());
+            if ($notifyBuyer) {
+                $event = $this->eventRepository
+                    ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
+                    ->loadRelation(EventSettingDomainObject::class)
+                    ->findById($order->getEventId());
 
-            $this->mailer
-                ->to($order->getEmail())
-                ->locale($order->getLocale())
-                ->send(new OrderCancelled(
-                    order: $order,
-                    event: $event,
-                    organizer: $event->getOrganizer(),
-                    eventSettings: $event->getEventSettings(),
-                ));
+                $this->mailer
+                    ->to($order->getEmail())
+                    ->locale($order->getLocale())
+                    ->send(new OrderCancelled(
+                        order: $order,
+                        event: $event,
+                        organizer: $event->getOrganizer(),
+                        eventSettings: $event->getEventSettings(),
+                    ));
+            }
 
             $this->domainEventDispatcherService->dispatch(
                 new OrderEvent(

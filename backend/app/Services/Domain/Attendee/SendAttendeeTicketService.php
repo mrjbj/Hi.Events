@@ -16,23 +16,25 @@ use Illuminate\Support\Collection;
 class SendAttendeeTicketService
 {
     public function __construct(
-        private readonly Mailer                             $mailer,
-        private readonly MailBuilderService                 $mailBuilderService,
-        private readonly TransactionalEmailTrackingService  $trackingService,
-    )
-    {
-    }
+        private readonly Mailer $mailer,
+        private readonly MailBuilderService $mailBuilderService,
+        private readonly TransactionalEmailTrackingService $trackingService,
+    ) {}
 
     public function send(
-        OrderDomainObject        $order,
-        AttendeeDomainObject     $attendee,
-        EventDomainObject        $event,
+        OrderDomainObject $order,
+        AttendeeDomainObject $attendee,
+        EventDomainObject $event,
         EventSettingDomainObject $eventSettings,
-        OrganizerDomainObject    $organizer,
-        ?string                  $retryForSesMessageId = null,
-        ?int                     $retryForId = null,
-    ): void
-    {
+        OrganizerDomainObject $organizer,
+        ?string $retryForSesMessageId = null,
+        ?int $retryForId = null,
+    ): void {
+        // Guests awaiting detail capture have no email yet — nothing to send.
+        if (trim((string) $attendee->getEmail()) === '') {
+            return;
+        }
+
         $mail = $this->mailBuilderService->buildAttendeeTicketMail(
             $attendee,
             $order,
@@ -62,22 +64,26 @@ class SendAttendeeTicketService
      * when several attendees share the same email — typical of bundle/sponsor-table
      * purchases where the buyer holds tickets for guests who'll provide details later.
      *
-     * @param Collection<int, AttendeeDomainObject> $attendees Must all share the same recipient email.
+     * @param  Collection<int, AttendeeDomainObject>  $attendees  Must all share the same recipient email.
      */
     public function sendCombined(
-        OrderDomainObject        $order,
-        Collection               $attendees,
-        EventDomainObject        $event,
+        OrderDomainObject $order,
+        Collection $attendees,
+        EventDomainObject $event,
         EventSettingDomainObject $eventSettings,
-        OrganizerDomainObject    $organizer,
-    ): void
-    {
+        OrganizerDomainObject $organizer,
+    ): void {
         if ($attendees->isEmpty()) {
             return;
         }
 
         $recipient = $attendees->first()->getEmail();
         $locale = $attendees->first()->getLocale();
+
+        // Guests awaiting detail capture have no email yet — nothing to send.
+        if (trim((string) $recipient) === '') {
+            return;
+        }
 
         $mail = $this->mailBuilderService->buildAttendeeTicketsMail(
             $attendees,

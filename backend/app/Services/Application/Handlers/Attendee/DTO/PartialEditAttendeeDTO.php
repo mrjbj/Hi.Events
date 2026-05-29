@@ -14,7 +14,6 @@ class PartialEditAttendeeDTO extends BaseDTO
         public ?string $last_name,
         public ?string $email,
         public ?string $status,
-    )
-    {
-    }
+        public ?bool $confirm_at_checkin = null,
+    ) {}
 }

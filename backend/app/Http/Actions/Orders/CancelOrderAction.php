@@ -38,7 +38,9 @@ class CancelOrderAction extends BaseAction
             $order = $this->cancelOrderHandler->handle(new CancelOrderDTO(
                 eventId: $eventId,
                 orderId: $orderId,
-                refund: $request->boolean('refund')
+                refund: $request->boolean('refund'),
+                notifyBuyer: $request->boolean('notify_buyer'),
+                notifyRefund: $request->boolean('notify_refund'),
             ));
         } catch (ResourceConflictException $e) {
             return $this->errorResponse($e->getMessage(), HttpResponse::HTTP_CONFLICT);

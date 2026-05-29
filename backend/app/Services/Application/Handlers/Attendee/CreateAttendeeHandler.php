@@ -22,6 +22,7 @@ use HiEvents\Events\OrderStatusChangedEvent;
 use HiEvents\Exceptions\InvalidProductPriceId;
 use HiEvents\Exceptions\NoTicketsAvailableException;
 use HiEvents\Exceptions\ResourceConflictException;
+use HiEvents\Helper\ConfirmAtCheckinResolver;
 use HiEvents\Helper\IdHelper;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
@@ -45,20 +46,18 @@ use Throwable;
 class CreateAttendeeHandler
 {
     public function __construct(
-        private readonly AttendeeRepositoryInterface       $attendeeRepository,
-        private readonly OrderRepositoryInterface          $orderRepository,
-        private readonly ProductRepositoryInterface        $productRepository,
-        private readonly EventRepositoryInterface          $eventRepository,
-        private readonly ProductQuantityUpdateService      $productQuantityAdjustmentService,
-        private readonly DatabaseManager                   $databaseManager,
-        private readonly TaxAndFeeRepositoryInterface      $taxAndFeeRepository,
-        private readonly TaxAndFeeRollupService            $taxAndFeeRollupService,
-        private readonly OrderManagementService            $orderManagementService,
-        private readonly DomainEventDispatcherService      $domainEventDispatcherService,
-        private readonly EventSettingsRepositoryInterface  $eventSettingsRepository,
-    )
-    {
-    }
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly EventRepositoryInterface $eventRepository,
+        private readonly ProductQuantityUpdateService $productQuantityAdjustmentService,
+        private readonly DatabaseManager $databaseManager,
+        private readonly TaxAndFeeRepositoryInterface $taxAndFeeRepository,
+        private readonly TaxAndFeeRollupService $taxAndFeeRollupService,
+        private readonly OrderManagementService $orderManagementService,
+        private readonly DomainEventDispatcherService $domainEventDispatcherService,
+        private readonly EventSettingsRepositoryInterface $eventSettingsRepository,
+    ) {}
 
     /**
      * @throws NoTicketsAvailableException
@@ -85,7 +84,7 @@ class CreateAttendeeHandler
                     ProductDomainObjectAbstract::PRODUCT_TYPE => ProductType::TICKET->name,
                 ]);
 
-            if (!$product) {
+            if (! $product) {
                 throw new NoTicketsAvailableException(__('This ticket is invalid'));
             }
 
@@ -97,8 +96,8 @@ class CreateAttendeeHandler
             );
 
             if ($availableQuantity <= 0) {
-                throw new NoTicketsAvailableException(__('There are no tickets available. ' .
-                    'If you would like to assign a product to this attendee,' .
+                throw new NoTicketsAvailableException(__('There are no tickets available. '.
+                    'If you would like to assign a product to this attendee,'.
                     ' please adjust the product\'s available quantity.'));
             }
 
@@ -162,7 +161,7 @@ class CreateAttendeeHandler
             'event_id' => $eventId,
         ]);
 
-        if (!$eventSettings->getAllowOrdersAwaitingOfflinePaymentToCheckIn()) {
+        if (! $eventSettings->getAllowOrdersAwaitingOfflinePaymentToCheckIn()) {
             throw new ResourceConflictException(
                 __('"Allow attendees associated with unpaid orders to check in" must be enabled in event payment settings before issuing tickets that collect payment at check-in.')
             );
@@ -174,12 +173,13 @@ class CreateAttendeeHandler
      */
     private function getProductPriceId(CreateAttendeeDTO $attendeeDTO, ProductDomainObject $product): int
     {
-        $priceIds = $product->getProductPrices()->map(fn(ProductPriceDomainObject $productPrice) => $productPrice->getId());
+        $priceIds = $product->getProductPrices()->map(fn (ProductPriceDomainObject $productPrice) => $productPrice->getId());
 
         if ($attendeeDTO->product_price_id) {
-            if (!$priceIds->contains($attendeeDTO->product_price_id)) {
+            if (! $priceIds->contains($attendeeDTO->product_price_id)) {
                 throw new InvalidProductPriceId(__('The product price ID is invalid.'));
             }
+
             return $attendeeDTO->product_price_id;
         }
 
@@ -195,7 +195,7 @@ class CreateAttendeeHandler
 
     private function calculateTaxesAndFees(CreateAttendeeDTO $attendeeDTO): ?Collection
     {
-        if (!$attendeeDTO->taxes_and_fees) {
+        if (! $attendeeDTO->taxes_and_fees) {
             return null;
         }
 
@@ -203,15 +203,15 @@ class CreateAttendeeHandler
             'id',
             $attendeeDTO
                 ->taxes_and_fees
-                ->map(fn(CreateAttendeeTaxAndFeeDTO $taxAndFee) => $taxAndFee->tax_or_fee_id)
+                ->map(fn (CreateAttendeeTaxAndFeeDTO $taxAndFee) => $taxAndFee->tax_or_fee_id)
                 ->toArray()
         );
 
         $validatedTaxesAndFees = collect();
         $attendeeDTO->taxes_and_fees->each(function (CreateAttendeeTaxAndFeeDTO $taxAndFee) use ($validatedTaxesAndFees, $taxesAndFees) {
-            $taxOrFee = $taxesAndFees->first(fn($taxOrFee) => $taxOrFee->getId() === $taxAndFee->tax_or_fee_id);
+            $taxOrFee = $taxesAndFees->first(fn ($taxOrFee) => $taxOrFee->getId() === $taxAndFee->tax_or_fee_id);
 
-            if (!$taxOrFee) {
+            if (! $taxOrFee) {
                 throw new RuntimeException('Tax or fee not found.');
             }
 
@@ -224,12 +224,12 @@ class CreateAttendeeHandler
     private function processTaxesAndFees(CreateAttendeeDTO $attendeeDTO): void
     {
         $this->calculateTaxesAndFees($attendeeDTO)
-            ?->each(fn($taxOrFee) => $this->taxAndFeeRollupService
+            ?->each(fn ($taxOrFee) => $this->taxAndFeeRollupService
                 ->addToRollUp(
                     $taxOrFee,
                     $attendeeDTO
                         ->taxes_and_fees
-                        ->first(fn($taxOrFeeDTO) => $taxOrFeeDTO->tax_or_fee_id === $taxOrFee->getId())
+                        ->first(fn ($taxOrFeeDTO) => $taxOrFeeDTO->tax_or_fee_id === $taxOrFee->getId())
                         ->amount)
             );
     }
@@ -269,6 +269,11 @@ class CreateAttendeeHandler
             AttendeeDomainObjectAbstract::PUBLIC_ID => IdHelper::publicId(IdHelper::ATTENDEE_PREFIX),
             AttendeeDomainObjectAbstract::SHORT_ID => IdHelper::shortId(IdHelper::ATTENDEE_PREFIX),
             AttendeeDomainObjectAbstract::LOCALE => $attendeeDTO->locale,
+            AttendeeDomainObjectAbstract::CONFIRM_AT_CHECKIN => ConfirmAtCheckinResolver::resolve(
+                $attendeeDTO->confirm_at_checkin,
+                $attendeeDTO->first_name,
+                $attendeeDTO->last_name,
+            ),
         ]);
     }
 

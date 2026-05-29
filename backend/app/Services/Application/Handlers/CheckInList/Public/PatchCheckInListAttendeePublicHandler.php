@@ -48,6 +48,12 @@ class PatchCheckInListAttendeePublicHandler
             'email' => $fields['email'] ?? null,
         ], fn ($v) => $v !== null && $v !== '');
 
+        // Capturing details at the door confirms the attendee — clear the flag
+        // so they stop prompting and become eligible for the contacts table.
+        if (! empty($updates) && $attendee->getConfirmAtCheckin()) {
+            $updates['confirm_at_checkin'] = false;
+        }
+
         // seat_info has its own rules: empty string clears the field (sets to
         // null); explicit null leaves it alone. We track changes separately so
         // we can fan out to bundle siblings after the row update lands.

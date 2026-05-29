@@ -14,7 +14,8 @@ class PartialEditAttendeeRequest extends BaseRequest
             'status' => ['sometimes', new InsensitiveIn(AttendeeStatus::valuesArray())],
             'first_name' => ['sometimes', 'string', 'max:100', 'min:1'],
             'last_name' => ['sometimes', 'string', 'max:100', 'min:1'],
-            'email' => ['sometimes', 'email', 'max:100'],
+            'email' => ['sometimes', 'nullable', 'email', 'max:100'],
+            'confirm_at_checkin' => ['sometimes', 'boolean'],
         ];
     }
 }

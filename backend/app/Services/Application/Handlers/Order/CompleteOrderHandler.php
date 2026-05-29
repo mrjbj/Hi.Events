@@ -174,15 +174,27 @@ class CompleteOrderHandler
             // validation relaxation may carry blank or missing values; coerce them
             // to empty strings here so the explicit insert doesn't violate
             // NOT NULL (the column default only fires when the column is omitted).
-            // Email is NOT NULL with no default; fall back to the buyer's email
-            // for the same reason — that's the buyer's intent for unassigned
-            // bundle seats and matches PER_ORDER behavior.
-            $attendeeEmail = $isPerOrderCollection ? $orderDTO->email : $attendee->email;
-            if ($attendeeEmail === null || $attendeeEmail === '') {
-                $attendeeEmail = $orderDTO->email;
-            }
             $attendeeFirstName = $isPerOrderCollection ? $orderDTO->first_name : $attendee->first_name;
             $attendeeLastName = $isPerOrderCollection ? $orderDTO->last_name : $attendee->last_name;
+            $rawAttendeeEmail = $isPerOrderCollection ? $orderDTO->email : $attendee->email;
+
+            // A genuine unassigned guest seat (PER_TICKET with no name and no
+            // email) gets a null email and is flagged for detail capture at
+            // check-in instead of inheriting the buyer's email. Named PER_TICKET
+            // rows and all PER_ORDER rows keep their email (falling back to the
+            // buyer's email for blank-but-named bundle seats, as before).
+            $isGuestSeat = ! $isPerOrderCollection
+                && trim((string) $rawAttendeeEmail) === ''
+                && trim((string) $attendeeFirstName) === ''
+                && trim((string) $attendeeLastName) === '';
+
+            if ($isGuestSeat) {
+                $attendeeEmail = null;
+                $confirmAtCheckin = true;
+            } else {
+                $attendeeEmail = trim((string) $rawAttendeeEmail) === '' ? $orderDTO->email : $rawAttendeeEmail;
+                $confirmAtCheckin = false;
+            }
 
             $inserts[] = [
                 AttendeeDomainObjectAbstract::EVENT_ID => $order->getEventId(),
@@ -198,6 +210,7 @@ class CompleteOrderHandler
                 AttendeeDomainObjectAbstract::PUBLIC_ID => IdHelper::publicId(IdHelper::ATTENDEE_PREFIX),
                 AttendeeDomainObjectAbstract::SHORT_ID => $shortId,
                 AttendeeDomainObjectAbstract::LOCALE => $order->getLocale(),
+                AttendeeDomainObjectAbstract::CONFIRM_AT_CHECKIN => $confirmAtCheckin,
             ];
 
             $createdProductData->push(new CreatedProductDataDTO(
@@ -266,6 +279,12 @@ class CompleteOrderHandler
             ]);
 
             foreach ($attendees as $attendee) {
+                // Guests awaiting detail capture have no real email — don't
+                // promote them into the contacts table until confirmed.
+                if ($attendee->getConfirmAtCheckin() || trim((string) $attendee->getEmail()) === '') {
+                    continue;
+                }
+
                 $contact = $this->contactUpsertService->findOrCreateContact(
                     accountId: $accountId,
                     email: $attendee->getEmail(),

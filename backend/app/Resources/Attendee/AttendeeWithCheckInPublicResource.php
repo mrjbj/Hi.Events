@@ -31,6 +31,7 @@ class AttendeeWithCheckInPublicResource extends JsonResource
             'contact_token' => $this->getContactToken(),
             'from_group_purchase' => $this->getFromGroupPurchase(),
             'seat_info' => $this->getSeatInfo(),
+            'confirm_at_checkin' => $this->getConfirmAtCheckin(),
             'profile_completion_recommended' => $this->profileCompletionRecommended(),
             'buyer_first_name' => $order?->getFirstName(),
             'buyer_last_name' => $order?->getLastName(),
@@ -44,14 +45,15 @@ class AttendeeWithCheckInPublicResource extends JsonResource
     }
 
     /**
-     * True when this attendee's name fields look like a placeholder — usually
-     * because the buyer purchased multiple seats and left the guest details
-     * blank. Check-in staff use this to know which attendees still need their
-     * details captured at the door.
+     * True when check-in staff should be prompted to capture this attendee's
+     * details at the door. Driven by the stored confirm_at_checkin flag, with a
+     * fallback to the legacy heuristic (blank first/last name) for rows created
+     * before the flag existed.
      */
     private function profileCompletionRecommended(): bool
     {
-        return trim((string) $this->getFirstName()) === ''
+        return $this->getConfirmAtCheckin()
+            || trim((string) $this->getFirstName()) === ''
             || trim((string) $this->getLastName()) === '';
     }
 }

@@ -142,7 +142,7 @@ class OrderCancelServiceTest extends TestCase
         });
 
         try {
-            $this->service->cancelOrder($order);
+            $this->service->cancelOrder($order, notifyBuyer: true);
         } catch (Throwable $e) {
             $this->fail("Failed to cancel order: " . $e->getMessage());
         }
@@ -233,7 +233,7 @@ class OrderCancelServiceTest extends TestCase
         });
 
         try {
-            $this->service->cancelOrder($order);
+            $this->service->cancelOrder($order, notifyBuyer: true);
         } catch (Throwable $e) {
             $this->fail("Failed to cancel order: " . $e->getMessage());
         }

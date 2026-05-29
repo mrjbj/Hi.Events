@@ -172,6 +172,8 @@ class ContactBackfillService
             ->whereNull('attendees.contact_id')
             ->whereNull('attendees.deleted_at')
             ->whereNull('attendees.contact_link_ignored_at')
+            // Never promote a guest still flagged for check-in confirmation.
+            ->where('attendees.confirm_at_checkin', false)
             ->where('events.account_id', $accountId)
             ->select('attendees.id', 'attendees.email', 'attendees.first_name', 'attendees.last_name')
             ->get();
@@ -812,6 +814,7 @@ class ContactBackfillService
                 'attendees.created_at',
                 'attendees.contact_id',
                 'attendees.contact_link_ignored_at',
+                'attendees.confirm_at_checkin',
             );
 
         if (! $includeProcessed) {

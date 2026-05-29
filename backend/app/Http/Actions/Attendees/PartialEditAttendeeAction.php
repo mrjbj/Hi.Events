@@ -14,9 +14,7 @@ class PartialEditAttendeeAction extends BaseAction
 {
     public function __construct(
         private readonly PartialEditAttendeeHandler $partialEditAttendeeHandler,
-    )
-    {
-    }
+    ) {}
 
     public function __invoke(PartialEditAttendeeRequest $request, int $eventId, int $attendeeId): JsonResponse
     {
@@ -27,6 +25,9 @@ class PartialEditAttendeeAction extends BaseAction
             'last_name' => $request->input('last_name'),
             'email' => $request->input('email'),
             'status' => $request->input('status'),
+            'confirm_at_checkin' => $request->has('confirm_at_checkin')
+                ? $request->boolean('confirm_at_checkin')
+                : null,
             'event_id' => $eventId,
             'attendee_id' => $attendeeId,
         ]));

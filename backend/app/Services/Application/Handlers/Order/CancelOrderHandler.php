@@ -46,14 +46,14 @@ class CancelOrderHandler
                 throw new ResourceConflictException(__('Order already cancelled'));
             }
 
-            $this->orderCancelService->cancelOrder($order);
+            $this->orderCancelService->cancelOrder($order, $cancelOrderDTO->notifyBuyer);
 
             if ($cancelOrderDTO->refund && $order->isRefundable()) {
                 $refundDTO = new RefundOrderDTO(
                     event_id: $cancelOrderDTO->eventId,
                     order_id: $cancelOrderDTO->orderId,
                     amount: $order->getTotalGross() - $order->getTotalRefunded(),
-                    notify_buyer: true,
+                    notify_buyer: $cancelOrderDTO->notifyRefund,
                     cancel_order: false,
                 );
 
