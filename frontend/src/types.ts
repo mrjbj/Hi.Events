@@ -592,6 +592,7 @@ export interface Attendee {
     contact_id?: number | null;
     contact_token?: string | null;
     profile_completion_recommended?: boolean;
+    confirm_at_checkin?: boolean;
     buyer_first_name?: string | null;
     buyer_last_name?: string | null;
     buyer_email?: string | null;

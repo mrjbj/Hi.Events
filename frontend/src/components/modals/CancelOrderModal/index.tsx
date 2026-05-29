@@ -23,22 +23,28 @@ export const CancelOrderModal = ({onClose, orderId}: RefundOrderModalProps) => {
     const {data: event, data: {products} = {}} = useGetEvent(eventId);
     const cancelOrderMutation = useCancelOrder();
     const [shouldRefund, setShouldRefund] = useState(true);
+    const [notifyBuyer, setNotifyBuyer] = useState(false);
+    const [notifyRefund, setNotifyRefund] = useState(false);
 
     const isRefundable = order && !order.is_free_order
         && order.status !== 'AWAITING_OFFLINE_PAYMENT'
         && order.payment_provider === 'STRIPE'
         && order.refund_status !== 'REFUNDED';
 
+    const willRefund = shouldRefund && isRefundable;
+
     const handleCancelOrder = () => {
         cancelOrderMutation.mutate({
-            eventId, 
+            eventId,
             orderId,
-            refund: shouldRefund && isRefundable
+            refund: willRefund,
+            notifyBuyer,
+            notifyRefund: willRefund && notifyRefund,
         }, {
             onSuccess: () => {
-                const message = shouldRefund && isRefundable 
-                    ? t`Order has been canceled and refunded. The order owner has been notified.`
-                    : t`Order has been canceled and the order owner has been notified.`;
+                const message = willRefund
+                    ? t`Order has been canceled and refunded.`
+                    : t`Order has been canceled.`;
                 showSuccess(message);
                 onClose();
             },
@@ -70,7 +76,6 @@ export const CancelOrderModal = ({onClose, orderId}: RefundOrderModalProps) => {
             {isRefundable && (
                 <Checkbox
                     mt={20}
-                    mb={20}
                     checked={shouldRefund}
                     onChange={(event) => setShouldRefund(event.currentTarget.checked)}
                     label={t`Also refund this order`}
@@ -78,7 +83,26 @@ export const CancelOrderModal = ({onClose, orderId}: RefundOrderModalProps) => {
                 />
             )}
 
-            <Button loading={cancelOrderMutation.isPending} className={'mb20'} color={'red'} fullWidth
+            <Checkbox
+                mt={20}
+                checked={notifyBuyer}
+                onChange={(event) => setNotifyBuyer(event.currentTarget.checked)}
+                label={t`Send cancellation email`}
+                description={t`Email the order owner to let them know their order was cancelled. Off by default to avoid surprise emails.`}
+            />
+
+            {willRefund && (
+                <Checkbox
+                    mt={20}
+                    mb={20}
+                    checked={notifyRefund}
+                    onChange={(event) => setNotifyRefund(event.currentTarget.checked)}
+                    label={t`Send refund email`}
+                    description={t`Email the order owner a refund notification. Off by default to avoid surprise emails.`}
+                />
+            )}
+
+            <Button loading={cancelOrderMutation.isPending} className={'mb20 mt20'} color={'red'} fullWidth
                     onClick={handleCancelOrder}>
                 {t`Cancel Order`}
             </Button>

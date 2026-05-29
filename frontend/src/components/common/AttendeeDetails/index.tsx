@@ -51,6 +51,14 @@ export const AttendeeDetails = ({attendee}: { attendee: Attendee }) => {
                     </div>
                 </div>
             )}
+            <div className={classes.block}>
+                <div className={classes.title}>
+                    {t`Confirm details at check-in`}
+                </div>
+                <div className={classes.amount}>
+                    {attendee.confirm_at_checkin ? t`Yes` : t`No`}
+                </div>
+            </div>
             {attendee.check_ins && attendee.check_ins.length > 0 && (
                 <div className={classes.block}>
                     <div className={classes.title}>

@@ -13,6 +13,7 @@ export interface EditAttendeeRequest {
     product_id?: IdParam;
     product_price_id?: IdParam;
     status?: string;
+    confirm_at_checkin?: boolean;
 }
 
 export interface CreateAttendeeRequest extends EditAttendeeRequest {

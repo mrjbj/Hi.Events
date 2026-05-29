@@ -8,7 +8,7 @@ import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHa
 import {useForm} from "@mantine/form";
 import {Accordion} from "../../common/Accordion";
 import {Button} from "../../common/Button";
-import {Alert, Avatar, Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
+import {Alert, Avatar, Box, Group, Stack, Switch, Tabs, Text, Textarea, TextInput} from "@mantine/core";
 import {IconAlertTriangle, IconEdit, IconNotebook, IconQuestionMark, IconReceipt, IconTicket, IconUser} from "@tabler/icons-react";
 import {LoadingMask} from "../../common/LoadingMask";
 import {AttendeeDetails} from "../../common/AttendeeDetails";
@@ -51,6 +51,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
             seat_info: "",
             product_id: "",
             product_price_id: "",
+            confirm_at_checkin: false,
         },
     });
 
@@ -66,6 +67,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                 seat_info: attendee.seat_info || "",
                 product_id: String(attendee.product_id),
                 product_price_id: attendee.product_price_id ? String(attendee.product_price_id) : "",
+                confirm_at_checkin: attendee.confirm_at_checkin ?? false,
             });
         }
     }, [attendee]);
@@ -135,7 +137,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
             </InputGroup>
             <InputGroup>
                 <TextInput {...form.getInputProps("email")} label={t`Email address`} placeholder="homer@simpson.com"
-                           required/>
+                           required={!form.values.confirm_at_checkin}/>
                 {event?.product_categories && event.product_categories.length > 0 && (
                     <ProductSelector
                         placeholder={t`Select Product`}
@@ -164,6 +166,12 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                 minRows={3}
                 maxRows={6}
                 autosize
+            />
+            <Switch
+                mt="md"
+                {...form.getInputProps("confirm_at_checkin", {type: "checkbox"})}
+                label={<InputLabelWithHelp label={t`Confirm details at check-in`}
+                                           helpText={t`When enabled, check-in staff are prompted to capture this attendee's details at the door. Email is optional while this is on, and the attendee is kept out of the contacts list until it is cleared.`}/>}
             />
         </div>
     );

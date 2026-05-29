@@ -79,9 +79,11 @@ export const orderClient = {
         return response.data;
     },
 
-    cancel: async (eventId: IdParam, orderId: IdParam, refund?: boolean) => {
+    cancel: async (eventId: IdParam, orderId: IdParam, refund?: boolean, notifyBuyer?: boolean, notifyRefund?: boolean) => {
         const response = await api.post<GenericDataResponse<Order>>('events/' + eventId + '/orders/' + orderId + '/cancel', {
-            refund: refund ?? false
+            refund: refund ?? false,
+            notify_buyer: notifyBuyer ?? false,
+            notify_refund: notifyRefund ?? false,
         });
         return response.data;
     },

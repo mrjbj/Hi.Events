@@ -319,10 +319,10 @@ const CheckIn = () => {
             return;
         }
 
-        // Gate: when an attendee was bundled and never had their details
-        // captured, door staff must fill in name + email + required questions
-        // before the check-in lands.
-        if (attendee.profile_completion_recommended) {
+        // Gate: when an attendee is flagged for confirmation at check-in (or was
+        // bundled and never had their details captured), door staff must fill in
+        // name + email + required questions before the check-in lands.
+        if (attendee.confirm_at_checkin || attendee.profile_completion_recommended) {
             setCaptureAttendee(attendee);
             captureModalHandlers.open();
             return;
@@ -396,6 +396,16 @@ const CheckIn = () => {
             return;
         }
 
+        // Gate: a scanned attendee flagged for confirmation (or missing details)
+        // must have their details captured before the check-in lands — same as
+        // the manual tap path.
+        if (attendee.confirm_at_checkin || attendee.profile_completion_recommended) {
+            setCaptureAttendee(attendee);
+            captureModalHandlers.open();
+            isProcessingRef.current = false;
+            return;
+        }
+
         // Add to processed set before making the request
         processedBarcodesRef.current.add(attendeePublicId);
 
@@ -406,7 +416,7 @@ const CheckIn = () => {
 
         await handleCheckInAction(attendee, 'check-in');
         isProcessingRef.current = false;
-    }, [attendees, checkInListShortId, allowOrdersAwaitingOfflinePaymentToCheckIn, checkInModalHandlers, handleCheckInAction, playErrorSound]);
+    }, [attendees, checkInListShortId, allowOrdersAwaitingOfflinePaymentToCheckIn, checkInModalHandlers, captureModalHandlers, handleCheckInAction, playErrorSound]);
 
 
     // Process completed barcode
