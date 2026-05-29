@@ -1,4 +1,4 @@
-import {Anchor} from "@mantine/core";
+import {Anchor, Switch} from "@mantine/core";
 import {Attendee, Product} from "../../../types.ts";
 import classes from "./AttendeeDetails.module.scss";
 import {t} from "@lingui/macro";
@@ -6,7 +6,11 @@ import {getAttendeeProductTitle} from "../../../utilites/products.ts";
 import {getLocaleName, SupportedLocales} from "../../../locales.ts";
 import {relativeDate} from "../../../utilites/dates.ts";
 
-export const AttendeeDetails = ({attendee}: { attendee: Attendee }) => {
+export const AttendeeDetails = ({attendee, onToggleConfirmAtCheckin, confirmTogglePending}: {
+    attendee: Attendee;
+    onToggleConfirmAtCheckin?: (value: boolean) => void;
+    confirmTogglePending?: boolean;
+}) => {
     return (
         <div className={classes.orderDetails}>
             <div className={classes.block}>
@@ -56,7 +60,15 @@ export const AttendeeDetails = ({attendee}: { attendee: Attendee }) => {
                     {t`Confirm details at check-in`}
                 </div>
                 <div className={classes.amount}>
-                    {attendee.confirm_at_checkin ? t`Yes` : t`No`}
+                    <Switch
+                        checked={!!attendee.confirm_at_checkin}
+                        readOnly={!onToggleConfirmAtCheckin}
+                        disabled={confirmTogglePending}
+                        onChange={onToggleConfirmAtCheckin
+                            ? (event) => onToggleConfirmAtCheckin(event.currentTarget.checked)
+                            : undefined}
+                        label={attendee.confirm_at_checkin ? t`On` : t`Off`}
+                    />
                 </div>
             </div>
             {attendee.check_ins && attendee.check_ins.length > 0 && (

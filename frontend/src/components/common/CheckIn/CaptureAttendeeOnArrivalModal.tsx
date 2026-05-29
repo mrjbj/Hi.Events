@@ -278,8 +278,18 @@ export const CaptureAttendeeOnArrivalModal = ({
                 radius="md"
             >
                 <Text size="sm">
-                    {t`This ticket hasn't been assigned to a guest yet. Confirm or correct the details below, then check them in.`}
+                    {t`Please confirm this attendee's check-in details below, then check them in.`}
                 </Text>
+                {!attendee?.email && (
+                    <Text size="sm" fw={500} mt={4}>
+                        {t`No email is on file — please add one so this attendee can receive their ticket and confirmations.`}
+                    </Text>
+                )}
+                {attendee?.confirm_at_checkin && (
+                    <Text size="xs" c="dimmed" mt={4}>
+                        {t`This attendee is flagged "Confirm details at check-in." Saving these details will clear that flag.`}
+                    </Text>
+                )}
                 {attendee?.buyer_first_name && (
                     <Text size="xs" c="dimmed" mt={4}>
                         {t`Originally purchased by ${attendee.buyer_first_name} ${attendee.buyer_last_name ?? ''}`}{attendee.buyer_email ? ` (${attendee.buyer_email})` : ''}

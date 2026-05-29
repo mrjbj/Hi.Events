@@ -107,6 +107,26 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
         );
     };
 
+    const handleToggleConfirmAtCheckin = (value: boolean) => {
+        mutation.mutate(
+            {
+                attendeeId,
+                eventId,
+                attendeeData: {...form.values, confirm_at_checkin: value},
+            },
+            {
+                onSuccess: () => {
+                    form.setFieldValue("confirm_at_checkin", value);
+                    showSuccess(value
+                        ? t`Attendee will be confirmed at check-in`
+                        : t`Confirm at check-in turned off`);
+                    void refetchAttendee();
+                },
+                onError: (error) => errorHandler(form, error),
+            }
+        );
+    };
+
     const fullName = `${attendee.first_name} ${attendee.last_name}`;
     const hasQuestions = attendee.question_answers && attendee.question_answers.length > 0;
 
@@ -183,7 +203,11 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                     value: "details",
                     icon: IconUser,
                     title: t`Attendee Details`,
-                    content: <AttendeeDetails attendee={attendee}/>,
+                    content: <AttendeeDetails
+                        attendee={attendee}
+                        onToggleConfirmAtCheckin={handleToggleConfirmAtCheckin}
+                        confirmTogglePending={mutation.isPending}
+                    />,
                 },
                 {
                     value: "notes",
