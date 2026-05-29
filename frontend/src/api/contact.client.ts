@@ -179,6 +179,7 @@ export interface ContactBackfillUnlinkedAttendee {
     created_at: string | null;
     contact_id: number | null;
     contact_link_ignored_at: string | null;
+    confirm_at_checkin: boolean;
     status: 'added' | 'ignored' | null;
 }
 
