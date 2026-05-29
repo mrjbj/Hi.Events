@@ -68,13 +68,19 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
     }
 
     const handleResendTicket = (attendee: Attendee) => {
-        resendTicketMutation.mutate({
-            attendeeId: attendee.id,
-            eventId: eventId,
-        }, {
-            onSuccess: () => showSuccess(t`Ticket email has been resent to attendee`),
-            onError: (error: any) => showError(error.response.data.message || t`Failed to resend ticket email`)
-        });
+        confirmationDialog(
+            t`Resend the ticket email to ${attendee.email}?`,
+            () => {
+                resendTicketMutation.mutate({
+                    attendeeId: attendee.id,
+                    eventId: eventId,
+                }, {
+                    onSuccess: () => showSuccess(t`Ticket email has been resent to attendee`),
+                    onError: (error: any) => showError(error.response.data.message || t`Failed to resend ticket email`)
+                });
+            },
+            {confirm: t`Resend email`},
+        );
     }
 
     const handleCancel = (attendee: Attendee) => {
@@ -359,7 +365,8 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                             label: t`Resend ticket email`,
                                             icon: <IconMailForward size={14}/>,
                                             onClick: () => handleResendTicket(info.row.original),
-                                            visible: info.row.original.status !== 'CANCELLED',
+                                            visible: info.row.original.status !== 'CANCELLED'
+                                                && !!info.row.original.email,
                                         },
                                     ],
                                 },

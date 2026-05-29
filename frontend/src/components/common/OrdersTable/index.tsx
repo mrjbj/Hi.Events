@@ -45,6 +45,7 @@ import {ColumnVisibilityToggle} from "../ColumnVisibilityToggle";
 import {CellContext} from "@tanstack/react-table";
 import {formatCurrency} from "../../../utilites/currency.ts";
 import {eventCheckoutUrl} from "../../../utilites/urlHelper.ts";
+import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
 
 interface OrdersTableProps {
     event: Event,
@@ -81,10 +82,16 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
     }
 
     const handleResendConfirmation = (eventId: IdParam, orderId: IdParam) => {
-        resendConfirmationMutation.mutate({eventId, orderId}, {
-            onSuccess: () => showSuccess(t`Your message has been sent`),
-            onError: () => showError(t`There was an error sending your message`)
-        });
+        confirmationDialog(
+            t`Resend the order confirmation email to the order owner?`,
+            () => {
+                resendConfirmationMutation.mutate({eventId, orderId}, {
+                    onSuccess: () => showSuccess(t`Your message has been sent`),
+                    onError: () => showError(t`There was an error sending your message`)
+                });
+            },
+            {confirm: t`Resend email`},
+        );
     }
 
     const handleInvoiceDownload = async (invoice: Invoice) => {

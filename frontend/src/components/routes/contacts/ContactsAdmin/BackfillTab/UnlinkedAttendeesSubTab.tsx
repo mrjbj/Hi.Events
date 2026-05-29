@@ -1,17 +1,19 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
-import {Alert, Badge, Button, Checkbox, Group, Select, Switch, Table, Text, TextInput} from "@mantine/core";
-import {IconEyeOff, IconInfoCircle, IconRotateClockwise, IconSearch, IconUserPlus} from "@tabler/icons-react";
+import {ActionIcon, Alert, Badge, Button, Checkbox, Group, Modal, Select, Stack, Switch, Table, Text, TextInput, Tooltip} from "@mantine/core";
+import {IconEdit, IconEyeOff, IconInfoCircle, IconRotateClockwise, IconSearch, IconUserPlus} from "@tabler/icons-react";
 import {Card} from "../../../../common/Card";
 import {Pagination} from "../../../../common/Pagination";
 import {SortableTh} from "../../../../common/SortableTh";
 import {TableSkeleton} from "../../../../common/TableSkeleton";
 import {QueryFilterOperator, QueryFilters} from "../../../../../types.ts";
+import {ContactBackfillUnlinkedAttendee} from "../../../../../api/contact.client.ts";
 import {useGetEvents} from "../../../../../queries/useGetEvents.ts";
 import {useGetBackfillUnlinkedAttendees} from "../../../../../queries/useGetBackfillUnlinkedAttendees.ts";
 import {useAddContactsFromAttendees} from "../../../../../mutations/useAddContactsFromAttendees.ts";
 import {useIgnoreAttendees} from "../../../../../mutations/useIgnoreAttendees.ts";
 import {useUnignoreAttendees} from "../../../../../mutations/useUnignoreAttendees.ts";
+import {useModifyAttendee} from "../../../../../mutations/useModifyAttendee.ts";
 import {useRowSelection} from "../../../../../hooks/useRowSelection.ts";
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
 
@@ -32,6 +34,40 @@ export const UnlinkedAttendeesSubTab = () => {
     const addMutation = useAddContactsFromAttendees();
     const ignoreMutation = useIgnoreAttendees();
     const unignoreMutation = useUnignoreAttendees();
+    const modifyMutation = useModifyAttendee();
+
+    const [editRow, setEditRow] = useState<ContactBackfillUnlinkedAttendee | null>(null);
+    const [editForm, setEditForm] = useState({first_name: '', last_name: '', email: ''});
+
+    const openEdit = (row: ContactBackfillUnlinkedAttendee) => {
+        setEditForm({
+            first_name: row.first_name ?? '',
+            last_name: row.last_name ?? '',
+            email: row.email ?? '',
+        });
+        setEditRow(row);
+    };
+
+    const handleEditSave = () => {
+        if (!editRow) return;
+        modifyMutation.mutate({
+            eventId: editRow.event_id,
+            attendeeId: editRow.id,
+            attendeeData: {
+                first_name: editForm.first_name,
+                last_name: editForm.last_name,
+                email: editForm.email,
+                confirm_at_checkin: false,
+            },
+        }, {
+            onSuccess: () => {
+                showSuccess(t`Attendee updated and cleared for contact sync.`);
+                setEditRow(null);
+                result.refetch();
+            },
+            onError: (error: any) => showError(error?.response?.data?.message || t`Could not update attendee.`),
+        });
+    };
 
     const handleSort = (field: string) => {
         if (sortBy === field) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
@@ -58,8 +94,11 @@ export const UnlinkedAttendeesSubTab = () => {
     const idsInOrder = useMemo(() => (rows ?? []).map((r) => r.id), [rows]);
     const selection = useRowSelection<number>(idsInOrder);
 
+    // Attendees still flagged for check-in confirmation can't be promoted into
+    // contacts until cleared — exclude them from the "Add" selection even if the
+    // row is checked (the backend rejects them too).
     const selectedActive = useMemo(
-        () => (rows ?? []).filter((r) => selection.isSelected(r.id) && r.status === null),
+        () => (rows ?? []).filter((r) => selection.isSelected(r.id) && r.status === null && !r.confirm_at_checkin),
         [rows, selection],
     );
     const selectedIgnored = useMemo(
@@ -207,7 +246,8 @@ export const UnlinkedAttendeesSubTab = () => {
                                 <SortableTh label={t`Last Name`} field="last_name" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                 <SortableTh label={t`Event`} field="event_title" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                 <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
-                                <Table.Th style={{width: 110}}>{t`Status`}</Table.Th>
+                                <Table.Th style={{width: 150}}>{t`Status`}</Table.Th>
+                                <Table.Th style={{width: 50}}/>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -216,7 +256,7 @@ export const UnlinkedAttendeesSubTab = () => {
                                 return (
                                     <Table.Tr key={row.id} style={rowStyle}>
                                         <Table.Td>
-                                            {(row.status === null || row.status === 'ignored') && (
+                                            {(row.status === null || row.status === 'ignored') && !row.confirm_at_checkin && (
                                                 <Checkbox
                                                     aria-label={t`Select row`}
                                                     checked={selection.isSelected(row.id)}
@@ -232,11 +272,25 @@ export const UnlinkedAttendeesSubTab = () => {
                                         <Table.Td>{row.event_title}</Table.Td>
                                         <Table.Td>{row.created_at ? new Date(row.created_at).toLocaleDateString() : '-'}</Table.Td>
                                         <Table.Td>
-                                            {row.status === 'added' && (
+                                            {row.confirm_at_checkin && (
+                                                <Tooltip label={t`This attendee is awaiting detail confirmation at check-in and can't be added as a contact until that's cleared. Edit to confirm.`} multiline w={260}>
+                                                    <Badge size="sm" variant="light" color="orange">{t`Needs confirmation`}</Badge>
+                                                </Tooltip>
+                                            )}
+                                            {!row.confirm_at_checkin && row.status === 'added' && (
                                                 <Badge size="sm" variant="light" color="green">{t`Added`}</Badge>
                                             )}
-                                            {row.status === 'ignored' && (
+                                            {!row.confirm_at_checkin && row.status === 'ignored' && (
                                                 <Badge size="sm" variant="light" color="gray">{t`Ignored`}</Badge>
+                                            )}
+                                        </Table.Td>
+                                        <Table.Td>
+                                            {row.confirm_at_checkin && (
+                                                <Tooltip label={t`Edit details & clear confirmation`}>
+                                                    <ActionIcon variant="subtle" color="gray" onClick={() => openEdit(row)}>
+                                                        <IconEdit size={16}/>
+                                                    </ActionIcon>
+                                                </Tooltip>
                                             )}
                                         </Table.Td>
                                     </Table.Tr>
@@ -250,6 +304,39 @@ export const UnlinkedAttendeesSubTab = () => {
                     )}
                 </>
             )}
+
+            <Modal opened={editRow !== null} onClose={() => setEditRow(null)} title={t`Confirm attendee details`}>
+                <Stack gap="sm">
+                    <Text size="sm" c="dimmed">
+                        {t`Update this attendee's details and clear the check-in confirmation flag so they can be added as a contact.`}
+                    </Text>
+                    <TextInput
+                        label={t`First name`}
+                        value={editForm.first_name}
+                        onChange={(e) => setEditForm({...editForm, first_name: e.currentTarget.value})}
+                        required
+                    />
+                    <TextInput
+                        label={t`Last name`}
+                        value={editForm.last_name}
+                        onChange={(e) => setEditForm({...editForm, last_name: e.currentTarget.value})}
+                        required
+                    />
+                    <TextInput
+                        label={t`Email address`}
+                        type="email"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm({...editForm, email: e.currentTarget.value})}
+                        required
+                    />
+                    <Group justify="flex-end" mt="sm">
+                        <Button variant="default" onClick={() => setEditRow(null)}>{t`Cancel`}</Button>
+                        <Button loading={modifyMutation.isPending} onClick={handleEditSave}>
+                            {t`Save & clear`}
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </Card>
     );
 };
