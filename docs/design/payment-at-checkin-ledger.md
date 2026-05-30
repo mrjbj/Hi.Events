@@ -97,8 +97,8 @@ changes** — the moment we stop rewriting the order, the aggregate is right by 
 ```
 id                  bigint identity
 order_id            bigint     not null  -- FK orders
-type                varchar(20) not null -- CASH|CHECK|CARD|BANK_TRANSFER|OTHER|COMP|WRITE_OFF|DONATION|REFUND
-amount              numeric(14,2) not null -- credit against balance; REFUND negative
+type                varchar(20) not null -- CASH|CHECK|CARD|BANK_TRANSFER|OTHER|COMP|WRITE_OFF|DONATION
+amount              numeric(14,2) not null -- positive credit against the balance
 currency            varchar(3)  not null
 reference           varchar(255)          -- check #, txn id, free-form
 note                text
@@ -113,7 +113,10 @@ deleted_at          timestamptz
 
 - `stripe_payments` — **online receipts**, read as confirmed only (`amount_received > 0`). Stays the
   Stripe source of truth in Phase 1 (not duplicated into `order_payments`).
-- `order_refunds` — **refunds**, stays as-is; read as negative credits.
+- `order_refunds` — **refund detail** (per-transaction), stays as-is. The balance does NOT read this
+  table directly; it reads `orders.total_refunded` — the cached running sum the refund flow
+  **increments** per refund (`ChargeRefundUpdatedHandler::updateOrderRefundedAmount`). They are the
+  same money in two forms; reading both would double-count.
 - `order_payment_adjustments` — **deprecate its rewrite role.** Its data is migrated/retired;
   going forward, comps/write-offs are `order_payments` rows. (Keep the table read-only for history,
   or drop after backfill — see §8.)
@@ -125,8 +128,7 @@ owed       = order.total_gross
 receipts   = Σ(order_payments where type in CASH,CHECK,CARD,BANK_TRANSFER,OTHER,DONATION)
            + Σ(stripe_payments.amount_received)/100        -- confirmed online
 comps      = Σ(order_payments where type in COMP,WRITE_OFF)
-refunds    = Σ(order_refunds where status='succeeded')
-           + |Σ(order_payments where type=REFUND)|
+refunds    = order.total_refunded                          -- cached rollup ONLY; do NOT also sum order_refunds (double-count)
 collected  = receipts − refunds                            -- cash report
 balance    = owed − receipts − comps + refunds
 overpaid   = max(0, receipts − refunds − owed)             -- donation surfaced
