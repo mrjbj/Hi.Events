@@ -61,6 +61,14 @@ class OrderResource extends BaseResource
                 !is_null($this->getLatestInvoice()),
                 fn() => (new InvoiceResource($this->getLatestInvoice()))->toArray($request),
             ),
+            'payments' => $this->when(
+                !is_null($this->getOrderPayments()),
+                fn() => OrderPaymentResource::collection($this->getOrderPayments()),
+            ),
+            'payment_balance' => $this->when(
+                !is_null($this->getPaymentBalance()),
+                fn() => $this->getPaymentBalance()->toArray(),
+            ),
         ];
     }
 }

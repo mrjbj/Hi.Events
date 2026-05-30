@@ -257,7 +257,24 @@ already corrected).
      record-payment (happy/not-found/bad-status), mark-as-paid ledger row. Full Unit suite 610 green.
    - **Not yet:** `MarkOrderAsPaid` still also sets COMPLETED directly (belt-and-suspenders alongside
      the ledger row); fully routing it through `ApplyOrderBalanceStatusService` is a later cleanup.
-3. **Check-in UX** — entered-amount → receipt; short-payment prompt (outstanding vs comp); overpay
-   surfacing.
-4. **Backfill + data fix** — §8 steps; retire `order_payment_adjustments` rewrite.
-5. **Reporting** — collected/outstanding in exports; optional dashboard "cash collected" card.
+3. **Payment-management UX** — **re-scoped (2026-05-30).** The public check-in routes live under
+   `prefix('/public')` with **no `auth:api`** (the check-in-list link is the only credential). So the
+   rich UX — partial, **comp/write-off**, donation, arbitrary amounts — must NOT live at the door:
+   comping a receivable is a financial decision that can't be exposed via an unauthenticated link.
+   Phase 1 also already removed the dangerous free-text amount footgun (the door's "mark paid" now
+   records the correct full amount via the ledger automatically). So the door stays simple
+   (check-in / mark-paid-in-full), and the rich payment management belongs in the **authenticated
+   Manage-Order surface** (uses the Phase 2 `POST .../payments` endpoint).
+   - **DONE (2026-05-30) — backend enablers:** `OrderBalanceService` wired into `GetOrderAction`
+     so `OrderResource` now exposes `payment_balance` (owed/collected/comps/refunded/balance/overpaid/
+     isSettled) + the `payments` ledger list. Fixed the `stripe_payment` relation name on the new load
+     sites. Verified end-to-end; 125 Order tests green across unit+feature. Receipts backfill is an
+     **optional manual `ops/sql/backfill_order_payments.sql`** (idempotent) — **migrations stay
+     schema-only**; data backfill is run by hand.
+   - **Next — frontend:** Manage-Order "Payments" panel + "Record payment / comp remainder" form
+     posting to `POST .../payments`, showing the live balance.
+4. **Backfill + data fix** — handled **manually** (operator preference): run
+   `ops/sql/backfill_order_payments.sql` by hand on prod (only a handful of pay-at-check-in orders),
+   and drop the `order_payment_adjustments` DB table manually (§8.1). No data migrations.
+5. **Reporting** — collected/outstanding in `orders_export.sql`; optional dashboard "cash collected"
+   card; auto `DONATION` rows + donations-in-excess reporting.

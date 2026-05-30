@@ -4,6 +4,7 @@ namespace HiEvents\DomainObjects;
 
 use Exception;
 use HiEvents\DataTransferObjects\AddressDTO;
+use HiEvents\DataTransferObjects\OrderBalanceDTO;
 use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\Enums\ProductType;
 use HiEvents\DomainObjects\Interfaces\IsFilterable;
@@ -31,6 +32,11 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
     public ?Collection $questionAndAnswerViews = null;
 
     public ?Collection $invoices = null;
+
+    /** @var Collection<OrderPaymentDomainObject>|null */
+    public ?Collection $orderPayments = null;
+
+    public ?OrderBalanceDTO $paymentBalance = null;
 
     public ?EventDomainObject $event = null;
 
@@ -274,6 +280,28 @@ class OrderDomainObject extends Generated\OrderDomainObjectAbstract implements I
     public function getInvoices(): ?Collection
     {
         return $this->invoices;
+    }
+
+    public function setOrderPayments(?Collection $orderPayments): OrderDomainObject
+    {
+        $this->orderPayments = $orderPayments;
+        return $this;
+    }
+
+    public function getOrderPayments(): ?Collection
+    {
+        return $this->orderPayments;
+    }
+
+    public function setPaymentBalance(?OrderBalanceDTO $paymentBalance): OrderDomainObject
+    {
+        $this->paymentBalance = $paymentBalance;
+        return $this;
+    }
+
+    public function getPaymentBalance(): ?OrderBalanceDTO
+    {
+        return $this->paymentBalance;
     }
 
     public function setSessionIdentifier(?string $sessionIdentifier): OrderDomainObject

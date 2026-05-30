@@ -11,6 +11,7 @@ use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\DomainObjects\StripePaymentDomainObject;
 use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Exceptions\ResourceNotFoundException;
+use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\OrderPaymentRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\RecordOrderPaymentDTO;
@@ -42,7 +43,7 @@ class RecordOrderPaymentService
         return $this->databaseManager->transaction(function () use ($dto) {
             /** @var OrderDomainObject|null $order */
             $order = $this->orderRepository
-                ->loadRelation(StripePaymentDomainObject::class)
+                ->loadRelation(new Relationship(StripePaymentDomainObject::class, name: 'stripe_payment'))
                 ->findFirstWhere([
                     OrderDomainObjectAbstract::ID => $dto->orderId,
                     OrderDomainObjectAbstract::EVENT_ID => $dto->eventId,
