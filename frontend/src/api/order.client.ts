@@ -56,6 +56,13 @@ export interface RefundOrderPayload {
     cancel_order: boolean;
 }
 
+export interface RecordOrderPaymentPayload {
+    type: string;
+    amount: number;
+    reference?: string | null;
+    note?: string | null;
+}
+
 export const orderClient = {
     all: async (eventId: IdParam, pagination: QueryFilters) => {
         const response = await api.get<GenericPaginatedResponse<Order>>(
@@ -98,6 +105,11 @@ export const orderClient = {
 
     markAsPaid: async (eventId: IdParam, orderId: IdParam) => {
         const response = await api.post<GenericDataResponse<Order>>('events/' + eventId + '/orders/' + orderId + '/mark-as-paid');
+        return response.data;
+    },
+
+    recordPayment: async (eventId: IdParam, orderId: IdParam, payload: RecordOrderPaymentPayload) => {
+        const response = await api.post<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}/payments`, payload);
         return response.data;
     },
 

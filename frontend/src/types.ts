@@ -678,6 +678,31 @@ export interface Order {
     session_identifier?: string;
     attendee_contact_tokens?: AttendeeContactToken[];
     buyer_contact_token?: AttendeeContactToken | null;
+    payments?: OrderPayment[];
+    payment_balance?: OrderBalance;
+}
+
+export type OrderPaymentType =
+    'CASH' | 'CHECK' | 'CARD' | 'BANK_TRANSFER' | 'OTHER' | 'DONATION' | 'COMP' | 'WRITE_OFF';
+
+export interface OrderPayment {
+    id: number;
+    type: OrderPaymentType;
+    amount: number;
+    currency: string;
+    reference?: string | null;
+    note?: string | null;
+    created_at: string;
+}
+
+export interface OrderBalance {
+    amountOwed: number;
+    amountCollected: number;
+    totalComps: number;
+    totalRefunded: number;
+    balance: number;
+    overpaid: number;
+    isSettled: boolean;
 }
 
 export interface AttendeeContactToken {

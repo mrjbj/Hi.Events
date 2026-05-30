@@ -5,10 +5,11 @@ import {useGetOrder} from "../../../queries/useGetOrder.ts";
 import {OrderSummary} from "../../common/OrderSummary";
 import {AttendeeList} from "../../common/AttendeeList";
 import {OrderDetails} from "../../common/OrderDetails";
+import {OrderPaymentManagement} from "../../common/OrderPaymentManagement";
 import {t} from "@lingui/macro";
 import {QuestionAndAnswerList} from "../../common/QuestionAndAnswerList";
 import {Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
-import {IconArmchair, IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
+import {IconArmchair, IconCoin, IconEdit, IconInfoCircle, IconNotebook, IconQuestionMark, IconReceipt, IconUsers} from "@tabler/icons-react";
 import {OrderStatusBadge} from "../../common/OrderStatusBadge";
 import {Accordion, AccordionItem} from "../../common/Accordion";
 import {useForm} from "@mantine/form";
@@ -137,6 +138,20 @@ export const ManageOrderModal = ({onClose, orderId}: GenericModalProps & ManageO
             icon: IconReceipt,
             title: t`Order Summary`,
             content: <OrderSummary event={event} order={order}/>
+        },
+        {
+            value: 'payments',
+            icon: IconCoin,
+            title: t`Payments`,
+            hidden: order.is_free_order,
+            count: order.payments?.length,
+            content: (
+                <OrderPaymentManagement
+                    order={order}
+                    timezone={event.timezone}
+                    onUpdated={refetchOrder}
+                />
+            ),
         },
         {
             value: 'questions',

@@ -68,15 +68,15 @@ msgstr "{0}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: src/components/layouts/CheckIn/index.tsx:376
+#: src/components/layouts/CheckIn/index.tsx:383
 msgid "{0} {1} is already checked in"
 msgstr "{0} {1} is al ingecheckt"
 
-#: src/components/layouts/CheckIn/index.tsx:263
+#: src/components/layouts/CheckIn/index.tsx:267
 msgid "{0} <0>checked in</0> successfully"
 msgstr "{0} <0>ingecheckt</0> succesvol"
 
-#: src/components/layouts/CheckIn/index.tsx:289
+#: src/components/layouts/CheckIn/index.tsx:296
 msgid "{0} <0>checked out</0> successfully"
 msgstr "{0} <0>uitgevinkt</0> succesvol"
 
@@ -126,7 +126,7 @@ msgstr "{0}/{1} ingecheckt"
 msgid "{availableCount} of {totalCount} available"
 msgstr "{availableCount} van {totalCount} beschikbaar"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:300
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:317
 msgid "{buyerName} placed this order and these tickets share their email. Is this a new email address for them, or a different person taking this seat?"
 msgstr ""
 
@@ -348,7 +348,7 @@ msgstr "Een datuminvoer. Perfect voor het vragen naar een geboortedatum enz."
 msgid "A default {type} is automaticaly applied to all new products. You can override this on a per product basis."
 msgstr "Een standaard {type} wordt automatisch toegepast op alle nieuwe producten. Je kunt dit opheffen per product."
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:315
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:332
 msgid "A different person taking this seat"
 msgstr ""
 
@@ -768,8 +768,8 @@ msgid "Address Line 2"
 msgstr "Adresregel 2"
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:41
-msgid "Adjusted to"
-msgstr ""
+#~ msgid "Adjusted to"
+#~ msgstr ""
 
 #: src/components/layouts/Admin/index.tsx:12
 #: src/components/modals/EditUserModal/index.tsx:49
@@ -954,9 +954,13 @@ msgstr "Verbazingwekkend, evenement, trefwoorden..."
 msgid "Amount"
 msgstr "Bedrag"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:122
-msgid "Amount collected ({currency})"
+#: src/components/common/OrderPaymentManagement/index.tsx:146
+msgid "Amount ({currency})"
 msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:122
+#~ msgid "Amount collected ({currency})"
+#~ msgstr ""
 
 #: src/components/routes/organizer/Reports/PlatformFeesReport/index.tsx:69
 msgid "Amount Paid"
@@ -1309,7 +1313,7 @@ msgstr "Deelnemer"
 msgid "Attendee Cancelled"
 msgstr "Deelnemer geannuleerd"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:210
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:221
 msgid "Attendee captured and checked in."
 msgstr "Bezoeker geregistreerd en ingecheckt."
 
@@ -1346,7 +1350,7 @@ msgstr "Verzameling deelnemersinformatie"
 msgid "Attendee Name"
 msgstr "Deelnemer Naam"
 
-#: src/components/layouts/CheckIn/index.tsx:367
+#: src/components/layouts/CheckIn/index.tsx:374
 msgid "Attendee not found"
 msgstr "Deelnemer niet gevonden"
 
@@ -1551,7 +1555,7 @@ msgstr "Awesome Events B.V."
 msgid "Awesome Organizer Ltd."
 msgstr "Awesome Organizer Ltd."
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:169
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:134
 msgid "Back"
 msgstr ""
 
@@ -1594,9 +1598,10 @@ msgstr "Achtergrondkleur"
 msgid "Background Type"
 msgstr "Achtergrond Type"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:106
 #: src/components/common/OrderDetails/index.tsx:18
-#: src/components/common/PaymentAdjustmentList/index.tsx:12
+#: src/components/common/OrderPaymentManagement/index.tsx:23
+#: src/components/common/OrderPaymentManagement/index.tsx:138
 msgid "Bank transfer"
 msgstr ""
 
@@ -1731,10 +1736,10 @@ msgid "Campaign"
 msgstr "Campagne"
 
 #: src/components/common/AttendeeTable/index.tsx:377
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:219
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:318
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:349
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:102
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:236
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:335
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:360
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:94
 #: src/components/common/CheckIn/ScannerSelectionModal.tsx:57
 #: src/components/common/ContactOrganizerModal/index.tsx:104
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:211
@@ -1841,9 +1846,15 @@ msgstr "Capaciteitstoewijzingen"
 msgid "Capacity Management"
 msgstr "Capaciteitsbeheer"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:111
+#: src/components/common/OrderPaymentManagement/index.tsx:22
+#: src/components/common/OrderPaymentManagement/index.tsx:137
+msgid "Card"
+msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:103
 #: src/components/common/OrderDetails/index.tsx:15
-#: src/components/common/PaymentAdjustmentList/index.tsx:9
+#: src/components/common/OrderPaymentManagement/index.tsx:20
+#: src/components/common/OrderPaymentManagement/index.tsx:135
 msgid "Cash"
 msgstr ""
 
@@ -1893,11 +1904,11 @@ msgstr "Wachtlijstinstellingen wijzigen"
 msgid "Changed by"
 msgstr "Gewijzigd door"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:194
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:211
 msgid "Changes saved"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:193
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:210
 msgid "Changes saved. A notification was sent to {oldEmail}."
 msgstr ""
 
@@ -1905,9 +1916,10 @@ msgstr ""
 msgid "Charity"
 msgstr "Liefdadigheid"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:112
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:104
 #: src/components/common/OrderDetails/index.tsx:16
-#: src/components/common/PaymentAdjustmentList/index.tsx:10
+#: src/components/common/OrderPaymentManagement/index.tsx:21
+#: src/components/common/OrderPaymentManagement/index.tsx:136
 msgid "Check"
 msgstr ""
 
@@ -1915,19 +1927,19 @@ msgstr ""
 msgid "Check In"
 msgstr "Inchecken"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:67
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:59
 msgid "Check in {0} {1}"
 msgstr "Inchecken {0} {1}"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:161
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:126
 msgid "Check in and mark order as paid"
 msgstr "Inchecken en bestelling als betaald markeren"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:95
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:87
 msgid "Check in and record payment"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:86
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:78
 msgid "Check in only"
 msgstr "Alleen inchecken"
 
@@ -1969,15 +1981,15 @@ msgstr "Check-In Lijst Aangemaakt!"
 msgid "Check-In List deleted successfully"
 msgstr "Check-in lijst succesvol verwijderd"
 
-#: src/components/layouts/CheckIn/index.tsx:512
+#: src/components/layouts/CheckIn/index.tsx:519
 msgid "Check-in list has expired"
 msgstr "Check-in lijst is verlopen"
 
-#: src/components/layouts/CheckIn/index.tsx:529
+#: src/components/layouts/CheckIn/index.tsx:536
 msgid "Check-in list is not active"
 msgstr "Check-in lijst is niet actief"
 
-#: src/components/layouts/CheckIn/index.tsx:497
+#: src/components/layouts/CheckIn/index.tsx:504
 msgid "Check-in list not found"
 msgstr "Check-in lijst niet gevonden"
 
@@ -2093,7 +2105,7 @@ msgstr "Kies wie de platformkosten betaalt. Dit heeft geen invloed op extra kost
 msgid "City"
 msgstr "Stad"
 
-#: src/components/layouts/CheckIn/index.tsx:726
+#: src/components/layouts/CheckIn/index.tsx:733
 msgid "Clear filter"
 msgstr "Filter wissen"
 
@@ -2202,6 +2214,10 @@ msgstr "Gegevens per ticket verzamelen"
 msgid "Collect payment at check-in (cash/check)"
 msgstr "Betaling innen bij het inchecken (contant/cheque)"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:89
+msgid "Collected"
+msgstr ""
+
 #: src/components/routes/event/HomepageDesigner/index.tsx:217
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:249
 msgid "Color"
@@ -2239,6 +2255,22 @@ msgstr "Door komma's gescheiden trefwoorden die het evenement beschrijven. Deze 
 #: src/components/routes/profile/ManageProfile/index.tsx:204
 msgid "Communication Preferences"
 msgstr "Communicatievoorkeuren"
+
+#: src/components/common/OrderPaymentManagement/index.tsx:26
+msgid "Comp"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:73
+msgid "Comp remainder"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:173
+msgid "Comp remaining {0}"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:91
+msgid "Comped"
+msgstr ""
 
 #: src/components/routes/admin/EmailSuppressions/index.tsx:144
 #: src/components/routes/admin/EmailSuppressions/index.tsx:270
@@ -2366,7 +2398,7 @@ msgstr "Bevestiging bij inchecken uitgeschakeld"
 msgid "Confirm attendee details"
 msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:270
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:281
 msgid "Confirm attendee details before check-in"
 msgstr "Bevestig bezoekersgegevens vóór het inchecken"
 
@@ -2380,7 +2412,7 @@ msgstr ""
 
 #: src/components/common/AttendeeDetails/index.tsx:60
 #: src/components/common/CheckIn/AttendeeList.tsx:178
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:242
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:259
 #: src/components/modals/ManageAttendeeModal/index.tsx:193
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:211
 msgid "Confirm details at check-in"
@@ -2731,11 +2763,11 @@ msgstr "Kon vragen niet hergebruiken."
 msgid "Could not update attendee."
 msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:213
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:224
 msgid "Couldn't complete check-in. Please try again."
 msgstr "Inchecken niet voltooid. Probeer opnieuw."
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:157
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:174
 msgid "Couldn't save changes"
 msgstr ""
 
@@ -2988,9 +3020,8 @@ msgstr "Je evenement wordt aangemaakt, even geduld"
 msgid "Creating your organizer profile, please wait"
 msgstr "Je organisatorprofiel wordt aangemaakt, even geduld"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:113
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:105
 #: src/components/common/OrderDetails/index.tsx:17
-#: src/components/common/PaymentAdjustmentList/index.tsx:11
 msgid "Credit card"
 msgstr ""
 
@@ -3451,6 +3482,8 @@ msgstr "Niet vergeten!"
 msgid "Don't have an account? <0>Sign up</0>"
 msgstr "Heeft u geen account? <0>Aanmelden</0>"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:25
+#: src/components/common/OrderPaymentManagement/index.tsx:140
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:304
 msgid "Donation"
 msgstr "Donatie"
@@ -3555,7 +3588,8 @@ msgstr "Nederlands"
 msgid "e.g. 180 (3 hours)"
 msgstr "bijv. 180 (3 uur)"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:150
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:115
+#: src/components/common/OrderPaymentManagement/index.tsx:156
 msgid "e.g. check #1234, last 4 of card"
 msgstr ""
 
@@ -3563,7 +3597,7 @@ msgstr ""
 msgid "e.g. Other"
 msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:326
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:337
 #: src/components/modals/ManageAttendeeModal/index.tsx:178
 #: src/components/modals/ManageOrderModal/index.tsx:199
 msgid "e.g. Table 5"
@@ -3599,8 +3633,8 @@ msgid "Each person will receive an email with a reserved spot to complete their 
 msgstr "Elke persoon ontvangt een e-mail met een gereserveerde plek om de aankoop te voltooien."
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:32
-msgid "Each row records a moment where the order total was adjusted at mark-as-paid time."
-msgstr ""
+#~ msgid "Each row records a moment where the order total was adjusted at mark-as-paid time."
+#~ msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:87
 msgid "Early bird"
@@ -3655,7 +3689,7 @@ msgid "Edit Attendee"
 msgstr "Deelnemer bewerken"
 
 #: src/components/common/CheckIn/AttendeeList.tsx:213
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:233
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:250
 msgid "Edit attendee details"
 msgstr "Bezoekersgegevens bewerken"
 
@@ -3788,8 +3822,8 @@ msgid "Eligible Check-In Lists"
 msgstr "In Aanmerking Komende Incheck Lijsten"
 
 #: src/components/common/AttendeeDetails/index.tsx:26
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:276
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:318
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:293
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:329
 #: src/components/common/OrderDetails/index.tsx:42
 #: src/components/common/QuestionsTable/index.tsx:329
 #: src/components/forms/AffiliateForm/index.tsx:89
@@ -3824,7 +3858,7 @@ msgstr "Instellingen voor e-mail en meldingen"
 msgid "Email & Templates"
 msgstr "E-mail & Sjablonen"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:274
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:291
 #: src/components/modals/CreateAttendeeModal/index.tsx:163
 #: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:68
 #: src/components/modals/ManageAttendeeModal/index.tsx:159
@@ -4402,7 +4436,7 @@ msgid "Expiration date"
 msgstr "Vervaldatum"
 
 #: src/components/common/WaitlistTable/index.tsx:28
-#: src/components/layouts/CheckIn/index.tsx:608
+#: src/components/layouts/CheckIn/index.tsx:615
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:74
 msgid "Expired"
 msgstr "Verlopen"
@@ -4849,11 +4883,11 @@ msgstr "Filteren op evenement"
 msgid "Filter by Event"
 msgstr "Filteren op evenement"
 
-#: src/components/layouts/CheckIn/index.tsx:660
+#: src/components/layouts/CheckIn/index.tsx:667
 msgid "Filter by group purchase"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:679
+#: src/components/layouts/CheckIn/index.tsx:686
 msgid "Filter by table"
 msgstr ""
 
@@ -4907,7 +4941,7 @@ msgstr "Eerste deelnemer"
 msgid "First Invoice Number"
 msgstr "Eerste factuurnummer"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:305
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:316
 #: src/components/modals/CreateAttendeeModal/index.tsx:149
 #: src/components/modals/ManageAttendeeModal/index.tsx:155
 #: src/components/modals/ManageOrderModal/index.tsx:223
@@ -4915,7 +4949,7 @@ msgstr "Eerste factuurnummer"
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:314
 #: src/components/routes/product-widget/CollectInformation/index.tsx:861
 #: src/components/routes/product-widget/CollectInformation/index.tsx:1084
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:177
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:179
 msgid "First name"
 msgstr "Voornaam"
 
@@ -5156,15 +5190,15 @@ msgstr "Brutoverkoop"
 msgid "Gross Sales"
 msgstr "Bruto verkoop"
 
-#: src/components/layouts/CheckIn/index.tsx:638
+#: src/components/layouts/CheckIn/index.tsx:645
 #: src/components/routes/event/attendees.tsx:86
 msgid "Group"
 msgstr ""
 
 #: src/components/common/CheckIn/AttendeeList.tsx:123
-#: src/components/layouts/CheckIn/index.tsx:642
-#: src/components/layouts/CheckIn/index.tsx:653
-#: src/components/layouts/CheckIn/index.tsx:760
+#: src/components/layouts/CheckIn/index.tsx:649
+#: src/components/layouts/CheckIn/index.tsx:660
+#: src/components/layouts/CheckIn/index.tsx:767
 #: src/components/routes/event/attendees.tsx:45
 msgid "Group purchase"
 msgstr "Groepsaankoop"
@@ -5177,11 +5211,11 @@ msgstr "Groep: {buyerName}"
 msgid "Guest Management"
 msgstr "Gastenbeheer"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:306
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:317
 msgid "Guest's first name"
 msgstr "Voornaam gast"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:312
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:323
 msgid "Guest's last name"
 msgstr "Achternaam gast"
 
@@ -5613,7 +5647,7 @@ msgstr "Integraties"
 msgid "Invalid"
 msgstr "Ongeldig"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:124
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:141
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:104
 #: src/components/common/ContactOrganizerModal/index.tsx:35
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:92
@@ -5873,13 +5907,13 @@ msgstr "Laatste 90 dagen"
 msgid "Last login"
 msgstr "Laatste login"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:311
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:322
 #: src/components/modals/CreateAttendeeModal/index.tsx:156
 #: src/components/modals/ManageAttendeeModal/index.tsx:156
 #: src/components/modals/ManageOrderModal/index.tsx:229
 #: src/components/routes/contact-profile/index.tsx:141
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:320
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:182
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:184
 msgid "Last name"
 msgstr "Achternaam"
 
@@ -6300,7 +6334,7 @@ msgstr "Berichtenniveau"
 msgid "Messaging tier updated successfully"
 msgstr "Berichtenniveau succesvol bijgewerkt"
 
-#: src/components/common/PaymentAdjustmentList/index.tsx:38
+#: src/components/common/OrderPaymentManagement/index.tsx:133
 msgid "Method"
 msgstr ""
 
@@ -6442,8 +6476,8 @@ msgstr "Naam moet minder dan 255 tekens bevatten"
 msgid "Name of the event"
 msgstr "Naam van het evenement"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:277
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:319
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:294
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:330
 msgid "name@example.com"
 msgstr "name@example.com"
 
@@ -6639,7 +6673,7 @@ msgstr "Geen Korting"
 msgid "No email changes."
 msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:286
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:297
 msgid "No email is on file — please add one so this attendee can receive their ticket and confirmations."
 msgstr "Er is geen e-mailadres bekend — voeg er een toe zodat deze deelnemer zijn ticket en bevestigingen kan ontvangen."
 
@@ -6969,8 +7003,12 @@ msgstr "Niet in Aanmerking"
 msgid "Not linked"
 msgstr "Niet gekoppeld"
 
-#: src/components/layouts/CheckIn/index.tsx:608
+#: src/components/layouts/CheckIn/index.tsx:615
 msgid "Not yet active"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:161
+msgid "Note (optional)"
 msgstr ""
 
 #: src/components/modals/ManageAttendeeModal/index.tsx:182
@@ -7404,8 +7442,8 @@ msgid "Order Total"
 msgstr "Bestelling Totaal"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:131
-msgid "Order total is {0} {currency}. Override if you collected a different amount."
-msgstr ""
+#~ msgid "Order total is {0} {currency}. Override if you collected a different amount."
+#~ msgstr ""
 
 #: src/components/forms/WebhookForm/index.tsx:79
 msgid "Order Updated"
@@ -7578,18 +7616,19 @@ msgid "Original"
 msgstr "Origineel"
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:40
-msgid "Original total"
-msgstr ""
+#~ msgid "Original total"
+#~ msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:296
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:307
 msgid "Originally purchased by {0} {1}"
 msgstr "Oorspronkelijk gekocht door {0} {1}"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:115
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:107
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
 #: src/components/common/OrderDetails/index.tsx:19
+#: src/components/common/OrderPaymentManagement/index.tsx:24
+#: src/components/common/OrderPaymentManagement/index.tsx:139
 #: src/components/common/OrdersTable/index.tsx:401
-#: src/components/common/PaymentAdjustmentList/index.tsx:13
 #: src/constants/eventCategories.ts:22
 msgid "Other"
 msgstr "Overig"
@@ -7601,6 +7640,14 @@ msgstr "Andere Lijsten (Ticket Niet Inbegrepen)"
 #: src/components/routes/admin/Messages/index.tsx:107
 msgid "Outgoing Messages"
 msgstr "Uitgaande berichten"
+
+#: src/components/common/OrderPaymentManagement/index.tsx:103
+msgid "Outstanding"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:88
+msgid "Owed"
+msgstr ""
 
 #: src/components/common/WidgetEditor/index.tsx:227
 msgid "Padding"
@@ -7761,8 +7808,8 @@ msgid "Payment & Plan"
 msgstr "Betaling & Plan"
 
 #: src/components/modals/ManageOrderModal/index.tsx:145
-msgid "Payment Adjustments"
-msgstr ""
+#~ msgid "Payment Adjustments"
+#~ msgstr ""
 
 #: src/components/routes/organizer/Reports/PlatformFeesReport/index.tsx:53
 msgid "Payment Date"
@@ -7781,7 +7828,7 @@ msgstr "Betaling mislukt"
 msgid "Payment Instructions"
 msgstr "Betalingsinstructies"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:108
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:100
 #: src/components/routes/product-widget/Payment/index.tsx:122
 msgid "Payment method"
 msgstr "Betaalmethode"
@@ -7808,6 +7855,10 @@ msgstr "Betaling ontvangen"
 msgid "Payment Received"
 msgstr "Ontvangen betaling"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:61
+msgid "Payment recorded"
+msgstr ""
+
 #: src/components/common/OrderDetails/index.tsx:107
 msgid "Payment reference"
 msgstr ""
@@ -7827,6 +7878,10 @@ msgstr "Betaling gelukt!"
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:222
 msgid "Payment Terms"
 msgstr "Betalingsvoorwaarden"
+
+#: src/components/modals/ManageOrderModal/index.tsx:145
+msgid "Payments"
+msgstr ""
 
 #: src/components/routes/product-widget/Payment/PaymentMethods/Stripe/index.tsx:49
 msgid "Payments not available"
@@ -7998,7 +8053,7 @@ msgstr "Controleer of je e-mailadres geldig is"
 msgid "Please check your email to confirm your email address"
 msgstr "Controleer je e-mail om je e-mailadres te bevestigen"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:282
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:293
 msgid "Please confirm this attendee's check-in details below, then check them in."
 msgstr "Bevestig hieronder de incheckgegevens van deze deelnemer en check hem vervolgens in."
 
@@ -8299,7 +8354,7 @@ msgstr "Producten succesvol gesorteerd"
 msgid "Profile"
 msgstr "Profiel"
 
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:168
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:170
 msgid "Profile is temporarily unavailable. You can manage it from your email link instead."
 msgstr "Profiel is tijdelijk niet beschikbaar. Je kunt het beheren via de link in je e-mail."
 
@@ -8308,7 +8363,7 @@ msgid "Profile updated successfully"
 msgstr "Profiel succesvol bijgewerkt"
 
 #: src/components/routes/contact-profile/index.tsx:74
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:142
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:144
 msgid "Profile updated."
 msgstr "Profiel bijgewerkt."
 
@@ -8574,6 +8629,14 @@ msgstr "Aanbevolen"
 msgid "Reconnect Stripe →"
 msgstr "Stripe opnieuw verbinden →"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:127
+msgid "Record a payment"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:177
+msgid "Record payment"
+msgstr ""
+
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:80
 msgid "Reddit"
 msgstr "Reddit"
@@ -8588,10 +8651,11 @@ msgid "Redirecting to Stripe..."
 msgstr "Doorverwijzen naar Stripe..."
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:39
-msgid "Reference"
-msgstr ""
+#~ msgid "Reference"
+#~ msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:149
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
+#: src/components/common/OrderPaymentManagement/index.tsx:155
 msgid "Reference (optional)"
 msgstr ""
 
@@ -8645,6 +8709,7 @@ msgstr "Restitutie in behandeling"
 msgid "Refund Status"
 msgstr "Restitutie Status"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:94
 #: src/components/common/OrderSummary/index.tsx:80
 #: src/components/common/StatBoxes/index.tsx:57
 #: src/components/routes/event/orders.tsx:30
@@ -8669,7 +8734,7 @@ msgstr "Regionale instellingen"
 msgid "Register"
 msgstr "Registreer"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:339
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:350
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:218
 msgid "Registration questions"
 msgstr "Registratievragen"
@@ -8690,6 +8755,10 @@ msgstr "Gerelateerd evenement"
 #: src/components/modals/SendMessageModal/index.tsx:395
 msgid "Relating to"
 msgstr "Met betrekking tot"
+
+#: src/components/common/OrderPaymentManagement/index.tsx:76
+msgid "Remaining balance comped"
+msgstr ""
 
 #: src/components/routes/event/Reports/PromoCodesReport/index.tsx:82
 msgid "Remaining Uses"
@@ -9077,7 +9146,7 @@ msgstr "Verkopen, bestellingen en prestatie-indicatoren voor alle evenementen"
 msgid "Sales:"
 msgstr "Verkoop:"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:308
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:325
 msgid "Same person — new email address"
 msgstr ""
 
@@ -9125,7 +9194,7 @@ msgstr "San Francisco"
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:352
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:363
 msgid "Save & Check in"
 msgstr "Opslaan & inchecken"
 
@@ -9133,8 +9202,8 @@ msgstr "Opslaan & inchecken"
 msgid "Save & clear"
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:284
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:242
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:301
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:244
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
 
@@ -9187,7 +9256,7 @@ msgstr ""
 msgid "Saved attendee details, but couldn't save registration question answers."
 msgstr "Bezoekersgegevens opgeslagen, maar registratievragen konden niet worden opgeslagen."
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:181
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:198
 msgid "Saved. You can now add this attendee's details below."
 msgstr ""
 
@@ -9195,8 +9264,8 @@ msgstr ""
 msgid "Saving..."
 msgstr "Opslaan..."
 
-#: src/components/layouts/CheckIn/index.tsx:683
-#: src/components/layouts/CheckIn/index.tsx:693
+#: src/components/layouts/CheckIn/index.tsx:690
+#: src/components/layouts/CheckIn/index.tsx:700
 msgid "Scan"
 msgstr "Scannen"
 
@@ -9283,7 +9352,7 @@ msgstr "Zoeken op naam, e-mail of account..."
 msgid "Search by name, email, or order #..."
 msgstr "Zoeken op naam, e-mail of bestelnummer..."
 
-#: src/components/layouts/CheckIn/index.tsx:633
+#: src/components/layouts/CheckIn/index.tsx:640
 msgid "Search by name, order #, attendee # or email..."
 msgstr "Zoek op naam, ordernummer, aanwezigheidsnummer of e-mail..."
 
@@ -9706,6 +9775,14 @@ msgstr "Instelling bijgewerkt"
 msgid "Settings"
 msgstr "Instellingen"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:100
+msgid "Settled"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:99
+msgid "Settled · overpaid {0}"
+msgstr ""
+
 #: src/components/layouts/Event/index.tsx:106
 msgid "Setup & Design"
 msgstr "Instellingen & ontwerp"
@@ -9815,11 +9892,11 @@ msgstr "Tickets tonen"
 msgid "Showing {0} of {totalRows} records"
 msgstr "Toont {0} van {totalRows} records"
 
-#: src/components/layouts/CheckIn/index.tsx:708
+#: src/components/layouts/CheckIn/index.tsx:715
 msgid "Showing group:"
 msgstr "Groep tonen:"
 
-#: src/components/layouts/CheckIn/index.tsx:715
+#: src/components/layouts/CheckIn/index.tsx:722
 msgid "Showing table:"
 msgstr "Tafel tonen:"
 
@@ -9969,8 +10046,8 @@ msgid "Source Event"
 msgstr "Bronevenement"
 
 #: src/components/common/PaymentAdjustmentList/index.tsx:42
-msgid "Source IP"
-msgstr ""
+#~ msgid "Source IP"
+#~ msgstr ""
 
 #: src/components/common/LanguageSwitcher/index.tsx:20
 msgid "Spanish"
@@ -10359,8 +10436,8 @@ msgstr "Blokkering succesvol verwijderd"
 msgid "Swedish"
 msgstr "Zweeds"
 
-#: src/components/layouts/CheckIn/index.tsx:581
-#: src/components/layouts/CheckIn/index.tsx:590
+#: src/components/layouts/CheckIn/index.tsx:588
+#: src/components/layouts/CheckIn/index.tsx:597
 msgid "Switch check-in list"
 msgstr ""
 
@@ -10389,7 +10466,7 @@ msgstr "Systeemstandaard"
 msgid "T-shirt"
 msgstr "T-shirt"
 
-#: src/components/layouts/CheckIn/index.tsx:665
+#: src/components/layouts/CheckIn/index.tsx:672
 #: src/components/routes/event/attendees.tsx:92
 msgid "Table"
 msgstr ""
@@ -10401,7 +10478,7 @@ msgstr ""
 msgid "Table / Seat"
 msgstr "Tafel / Stoel"
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:325
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:336
 msgid "Table / Seat (optional)"
 msgstr "Tafel / Stoel (optioneel)"
 
@@ -10557,7 +10634,7 @@ msgstr "Het merk waaronder dit evenement wordt gepubliceerd"
 msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:502
+#: src/components/layouts/CheckIn/index.tsx:509
 msgid "The check-in list you are looking for does not exist."
 msgstr "De check-in lijst die je zoekt bestaat niet."
 
@@ -10573,7 +10650,7 @@ msgstr "De valuta waarin de vaste kosten zijn gedefinieerd. Deze wordt bij het a
 msgid "The currency of the order"
 msgstr "De valuta van de bestelling"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:217
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:234
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:120
 msgid "The current address ({oldEmail}) will be emailed to let them know the ticket's email address has changed. Continue?"
 msgstr ""
@@ -10747,7 +10824,7 @@ msgstr "Deze sjablonen worden gebruikt als standaard voor alle evenementen in uw
 msgid "These templates will override the organizer defaults for this event only. If no custom template is set here, the organizer template will be used instead."
 msgstr "Deze sjablonen overschrijven de organisator-standaarden alleen voor dit evenement. Als hier geen aangepaste sjabloon is ingesteld, wordt in plaats daarvan de organisatorsjabloon gebruikt."
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:301
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:318
 msgid "These tickets share the buyer's email. Is this a new email address for the buyer, or a different person taking this seat?"
 msgstr ""
 
@@ -10755,7 +10832,7 @@ msgstr ""
 msgid "These will be collected when the attendee details are completed."
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:75
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:67
 msgid "This attendee has an unpaid order."
 msgstr "Deze deelnemer heeft een onbetaalde bestelling."
 
@@ -10763,7 +10840,7 @@ msgstr "Deze deelnemer heeft een onbetaalde bestelling."
 msgid "This attendee is awaiting detail confirmation at check-in and can't be added as a contact until that's cleared. Edit to confirm."
 msgstr ""
 
-#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:291
+#: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:302
 msgid "This attendee is flagged \"Confirm details at check-in.\" Saving these details will clear that flag."
 msgstr "Deze deelnemer is gemarkeerd met ‘Gegevens bevestigen bij inchecken’. Door deze gegevens op te slaan wordt die markering verwijderd."
 
@@ -10771,7 +10848,7 @@ msgstr "Deze deelnemer is gemarkeerd met ‘Gegevens bevestigen bij inchecken’
 msgid "This attendee is flagged to confirm their details at check-in. Their details can still be updated before the event."
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:249
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:266
 msgid "This attendee isn't on file as a contact yet. Add an email below and save to create their contact — then you can fill in their registration details."
 msgstr ""
 
@@ -10787,7 +10864,7 @@ msgstr "Deze categorie is niet zichtbaar voor het publiek"
 msgid "This check-in list has expired"
 msgstr "Deze check-in lijst is verlopen"
 
-#: src/components/layouts/CheckIn/index.tsx:517
+#: src/components/layouts/CheckIn/index.tsx:524
 msgid "This check-in list has expired and is no longer available for check-ins."
 msgstr "Deze check-ins lijst is verlopen en niet langer beschikbaar voor check-ins."
 
@@ -10799,7 +10876,7 @@ msgstr "Deze check-in lijst is actief"
 msgid "This check-in list is not active yet"
 msgstr "Deze check-in lijst is nog niet actief"
 
-#: src/components/layouts/CheckIn/index.tsx:534
+#: src/components/layouts/CheckIn/index.tsx:541
 msgid "This check-in list is not yet active and is not available for check-ins."
 msgstr "Deze check-ins lijst is nog niet actief en is niet beschikbaar voor check-ins."
 
@@ -10960,7 +11037,7 @@ msgstr "Deze vraag is alleen zichtbaar voor de organisator van het evenement."
 msgid "This ticket hasn't been assigned to a guest yet. Click \"Assign attendee\" to add their name and email before sending, printing, or viewing the ticket."
 msgstr "Dit ticket is nog niet aan een gast toegewezen. Klik op \"Bezoeker toewijzen\" om naam en e-mail toe te voegen voordat u het ticket verzendt, afdrukt of bekijkt."
 
-#: src/components/layouts/CheckIn/index.tsx:344
+#: src/components/layouts/CheckIn/index.tsx:351
 msgid "This ticket was just scanned. Please wait before scanning again."
 msgstr "Dit ticket is net gescand. Wacht even voordat u opnieuw scant."
 
@@ -10969,8 +11046,8 @@ msgid "This user is not active, as they have not accepted their invitation."
 msgstr "Deze gebruiker is niet actief, omdat hij zijn uitnodiging niet heeft geaccepteerd."
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:141
-msgid "This will adjust the order total from {0} to {1} {currency}. Taxes and fees will be cleared on this order. An audit entry will be saved."
-msgstr ""
+#~ msgid "This will adjust the order total from {0} to {1} {currency}. Taxes and fees will be cleared on this order. An audit entry will be saved."
+#~ msgstr ""
 
 #: src/components/routes/organizer/Settings/Sections/BasicSettings/index.tsx:80
 msgid "This will be used for notifications and communication with your users."
@@ -11345,11 +11422,11 @@ msgstr "Probeer Hi.Events Gratis"
 msgid "Turkish"
 msgstr "Turks"
 
-#: src/components/layouts/CheckIn/index.tsx:686
+#: src/components/layouts/CheckIn/index.tsx:693
 msgid "Turn sound off"
 msgstr "Geluid uitschakelen"
 
-#: src/components/layouts/CheckIn/index.tsx:686
+#: src/components/layouts/CheckIn/index.tsx:693
 msgid "Turn sound on"
 msgstr "Geluid inschakelen"
 
@@ -11393,12 +11470,12 @@ msgstr "Type ticket"
 msgid "Typography"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:276
+#: src/components/layouts/CheckIn/index.tsx:282
 msgid "Unable to check in attendee"
 msgstr "Deelnemer kan niet worden ingecheckt"
 
-#: src/components/layouts/CheckIn/index.tsx:300
-#: src/components/layouts/CheckIn/index.tsx:302
+#: src/components/layouts/CheckIn/index.tsx:307
+#: src/components/layouts/CheckIn/index.tsx:309
 msgid "Unable to check out attendee"
 msgstr "Deelnemer kan niet worden uitgecheckt"
 
@@ -11418,7 +11495,7 @@ msgstr ""
 msgid "Unable to duplicate product. Please check the your details"
 msgstr "Kan product niet dupliceren. Controleer uw gegevens"
 
-#: src/components/layouts/CheckIn/index.tsx:360
+#: src/components/layouts/CheckIn/index.tsx:367
 msgid "Unable to fetch attendee"
 msgstr "Kan deelnemer niet ophalen"
 
@@ -11496,7 +11573,7 @@ msgstr "Onbeperkt"
 msgid "Unlimited usages allowed"
 msgstr "Onbeperkt gebruik toegestaan"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:74
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:66
 msgid "Unpaid Order"
 msgstr "Onbetaalde bestelling"
 
@@ -11591,7 +11668,7 @@ msgstr ""
 msgid "Updated {attributes_written} value(s)."
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:279
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:296
 msgid "Updates the ticket recipient address. Doesn't resend the ticket automatically."
 msgstr "Werkt het ontvangeradres van het ticket bij. Verzendt het ticket niet automatisch opnieuw."
 
@@ -12092,7 +12169,7 @@ msgid "We couldn't reorder the categories. Please try again."
 msgstr "We konden de categorieën niet opnieuw ordenen. Probeer het opnieuw."
 
 #: src/components/routes/contact-profile/index.tsx:77
-#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:147
+#: src/components/routes/product-widget/OrderSummaryAndProducts/AttendeeProfiles/index.tsx:149
 msgid "We couldn't save your changes. Please try again."
 msgstr "We konden je wijzigingen niet opslaan. Probeer het opnieuw."
 
@@ -12270,7 +12347,6 @@ msgstr "Wat u moet doen:"
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
-#: src/components/common/PaymentAdjustmentList/index.tsx:37
 #: src/components/modals/EditContactModal/AttributeHistoryPanel.tsx:161
 msgid "When"
 msgstr "Wanneer"
@@ -12388,7 +12464,7 @@ msgstr "Als offline betalingen zijn ingeschakeld, kunnen gebruikers hun bestelli
 msgid "When on, check-in staff are prompted to confirm this attendee's details at the door."
 msgstr ""
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:243
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:260
 msgid "When on, this attendee is flagged for check-in staff to confirm their details. Turn it off once their details are confirmed — saved when you click \"Save changes\"."
 msgstr ""
 
@@ -12412,7 +12488,7 @@ msgstr "Wie organiseert dit evenement?"
 msgid "Who should be asked this question?"
 msgstr "Aan wie moet deze vraag worden gesteld?"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:293
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:310
 msgid "Whose email is this?"
 msgstr ""
 
@@ -12465,6 +12541,10 @@ msgstr "Workshop"
 msgid "Write your message here..."
 msgstr "Schrijf hier je bericht..."
 
+#: src/components/common/OrderPaymentManagement/index.tsx:27
+msgid "Write-off"
+msgstr ""
+
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:59
 msgid "X (Twitter)"
 msgstr "X (Twitter)"
@@ -12496,7 +12576,7 @@ msgstr "Ja, annuleer mijn bestelling"
 msgid "Yes, remove them"
 msgstr "Ja, verwijder ze"
 
-#: src/components/common/CheckIn/AttendeeProfileModal.tsx:219
+#: src/components/common/CheckIn/AttendeeProfileModal.tsx:236
 #: src/components/routes/product-widget/OrderSummaryAndProducts/EditAttendeeModal/index.tsx:122
 msgid "Yes, save and notify"
 msgstr ""
@@ -12517,8 +12597,8 @@ msgstr "U imiteert <0>{0}</0> ({1})"
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "U geeft een gedeeltelijke terugbetaling uit. De klant krijgt {0} {1} terugbetaald."
 
-#: src/components/layouts/CheckIn/index.tsx:271
-#: src/components/layouts/CheckIn/index.tsx:295
+#: src/components/layouts/CheckIn/index.tsx:276
+#: src/components/layouts/CheckIn/index.tsx:302
 msgid "You are offline"
 msgstr "Je bent offline"
 
@@ -12546,8 +12626,8 @@ msgstr "U kunt de laatste actieve organisator van uw account niet archiveren."
 msgid "You cannot change the product type as there are attendees associated with this product."
 msgstr "Je kunt het producttype niet wijzigen omdat er deelnemers aan dit product zijn gekoppeld."
 
-#: src/components/layouts/CheckIn/index.tsx:318
-#: src/components/layouts/CheckIn/index.tsx:393
+#: src/components/layouts/CheckIn/index.tsx:325
+#: src/components/layouts/CheckIn/index.tsx:400
 msgid "You cannot check in attendees with unpaid orders. This setting can be changed in the event settings."
 msgstr "Je kunt deelnemers met onbetaalde bestellingen niet inchecken. Je kunt deze instelling wijzigen in de evenementinstellingen."
 
