@@ -88,7 +88,7 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
         ]);
     }
 
-    public function updateEmail(int $contactId, string $email, string $reason = 'manual_resolve'): void
+    public function updateEmail(int $contactId, string $email, string $reason = 'manual_resolve', ?int $changedByUserId = null): void
     {
         $contact = $this->findById($contactId);
         if ($contact === null) {
@@ -112,7 +112,7 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
                 $decoded = json_decode($decoded, true);
             }
             $history = is_array($decoded) ? $decoded : [];
-        } elseif (!is_array($history)) {
+        } elseif (! is_array($history)) {
             $history = [];
         }
         $history[] = [
@@ -120,6 +120,7 @@ class ContactRepository extends BaseRepository implements ContactRepositoryInter
             'old_value' => $oldEmail,
             'new_value' => $newEmail,
             'changed_at' => now()->toIso8601String(),
+            'changed_by' => $changedByUserId,
             'reason' => $reason,
         ];
 

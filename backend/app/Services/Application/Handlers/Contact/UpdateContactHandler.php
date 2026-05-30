@@ -44,35 +44,43 @@ readonly class UpdateContactHandler
         if ($emailChanging) {
             $existing = $this->contactRepository->findByEmailAndAccountId($dto->email, $accountId);
             if ($existing !== null && $existing->getId() !== $contactId) {
-                throw new ContactEmailConflictException();
+                throw new ContactEmailConflictException;
             }
         }
 
-        if ($emailChanging || !empty($updates)) {
-            DB::transaction(function () use ($contactId, $accountId, $updates, $emailChanging, $dto) {
-                if (!empty($updates)) {
+        if ($emailChanging || ! empty($updates)) {
+            DB::transaction(function () use ($contactId, $updates, $emailChanging, $dto, $userId) {
+                if (! empty($updates)) {
                     $this->contactRepository->updateFromArray($contactId, $updates);
                 }
                 if ($emailChanging) {
                     try {
-                        $this->contactRepository->updateEmail($contactId, $dto->email);
+                        // Update only the contact (the canonical current address).
+                        // Linked attendee rows are intentionally left untouched:
+                        // each attendee.email is the historical fact of the address
+                        // used at that event. Cross-event/marketing sends already
+                        // read the contact's current email, and same-event sends
+                        // fall back to it when an attendee's address is suppressed.
+                        // Attribute the change to the editing user so it shows in
+                        // the contact's History tab.
+                        $this->contactRepository->updateEmail($contactId, $dto->email, 'manual_edit', $userId);
                     } catch (Throwable $e) {
                         if ($this->isUniqueViolation($e)) {
-                            throw new ContactEmailConflictException();
+                            throw new ContactEmailConflictException;
                         }
                         throw $e;
                     }
-                    $this->attendeeRepository->updateEmailByContactId($contactId, $dto->email, $accountId);
                 }
             });
         }
 
         if ($dto->wasProvided('attributes') && ! empty($dto->attributes)) {
             $contact = $this->contactRepository->findById($contactId);
+
             return $this->contactUpsertService->updateContactAttributes($contact, $dto->attributes, $userId);
         }
 
-        if ($emailChanging || !empty($updates)) {
+        if ($emailChanging || ! empty($updates)) {
             return $this->contactRepository->findById($contactId);
         }
 
@@ -81,6 +89,6 @@ readonly class UpdateContactHandler
 
     private function isUniqueViolation(Throwable $e): bool
     {
-        return method_exists($e, 'getCode') && (string)$e->getCode() === '23505';
+        return method_exists($e, 'getCode') && (string) $e->getCode() === '23505';
     }
 }

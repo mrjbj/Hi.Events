@@ -85,6 +85,10 @@ export interface PatchCheckInListAttendeePayload {
     seat_info?: string | null;
     confirm_at_checkin?: boolean;
     notify_email_change?: boolean;
+    // Disambiguates a shared/bundle contact (e.g. a table sponsor) when the edited
+    // attendee's name matches the order buyer: 'same_person' renames the contact's
+    // email; 'different_person' splits the attendee onto its own contact.
+    contact_resolution?: 'same_person' | 'different_person';
 }
 
 export const attendeeClientPublic = {

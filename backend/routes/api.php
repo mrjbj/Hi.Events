@@ -353,6 +353,8 @@ $router->middleware(['auth:api'])->group(
         $router->post('/accounts/{account_id}/contacts/backfill/apply-conflict-decisions', \HiEvents\Http\Actions\Contacts\ApplyConflictDecisionsAction::class);
         $router->get('/accounts/{account_id}/contacts/backfill/stale-values', \HiEvents\Http\Actions\Contacts\GetStaleValuesBackfillAction::class);
         $router->post('/accounts/{account_id}/contacts/backfill/apply-stale-value-remaps', \HiEvents\Http\Actions\Contacts\ApplyStaleValueRemapsAction::class);
+        $router->get('/accounts/{account_id}/contacts/backfill/email-changes', \HiEvents\Http\Actions\Contacts\GetEmailChangesBackfillAction::class);
+        $router->post('/accounts/{account_id}/contacts/backfill/apply-email-change-decisions', \HiEvents\Http\Actions\Contacts\ApplyEmailChangeDecisionsAction::class);
 
         // Contact Attribute Definitions
         $router->post('/accounts/{account_id}/contact-attribute-definitions', \HiEvents\Http\Actions\ContactAttributeDefinitions\CreateContactAttributeDefinitionAction::class);

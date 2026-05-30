@@ -239,6 +239,10 @@ const CheckIn = () => {
         }
     }, [isSoundOn]);
 
+    // Resolves once the check-in has settled (success or handled error) so
+    // callers — notably the capture-on-arrival modal — can await it and then
+    // refetch the list as the final, authoritative cache write. It never
+    // rejects; failures are surfaced via toast and still resolve.
     const handleCheckInAction = (
         attendee: Attendee,
         action: 'check-in' | 'check-in-and-mark-order-as-paid',
@@ -247,7 +251,7 @@ const CheckIn = () => {
             payment_reference?: string | null;
             collected_amount?: number | null;
         },
-    ) => {
+    ): Promise<void> => new Promise<void>((resolve) => {
         checkInMutation.mutate({
             checkInListShortId: checkInListShortId,
             attendeePublicId: attendee.public_id,
@@ -258,26 +262,30 @@ const CheckIn = () => {
                 if (errors && errors[attendee.public_id]) {
                     showError(errors[attendee.public_id]);
                     playErrorSound();
+                    resolve();
                     return;
                 }
                 showSuccess(<Trans>{attendee.first_name} <b>checked in</b> successfully</Trans>);
                 playSuccessSound();
                 checkInModalHandlers.close();
                 setSelectedAttendee(null);
+                resolve();
             },
             onError: (error) => {
                 playErrorSound();
                 if (!networkStatus.online) {
                     showError(t`You are offline`);
+                    resolve();
                     return;
                 }
 
                 if (error instanceof AxiosError) {
                     showError(error?.response?.data?.message || t`Unable to check in attendee`);
                 }
+                resolve();
             }
         });
-    };
+    });
 
     const handleCheckInToggle = (attendee: Attendee) => {
         if (attendee.check_in) {
@@ -797,10 +805,11 @@ const CheckIn = () => {
                 eventId={typeof event?.id === 'string' ? Number(event.id) : event?.id}
                 checkInListShortId={checkInListShortId}
                 onCheckInConfirmed={async (updatedAttendee) => {
-                    // Fire the actual check-in after capture saves landed.
-                    // handleCheckInAction is fire-and-forget; the user sees
-                    // a success toast from inside its onSuccess.
-                    handleCheckInAction(updatedAttendee, 'check-in');
+                    // Await the check-in so the modal can refetch the list AFTER
+                    // it lands — otherwise the check-in's optimistic cache write
+                    // (which spreads the pre-edit attendee) clobbers the edit and
+                    // the row shows stale details until a manual reload.
+                    await handleCheckInAction(updatedAttendee, 'check-in');
                 }}
                 onClose={() => {
                     captureModalHandlers.close();

@@ -191,13 +191,8 @@ export const CaptureAttendeeOnArrivalModal = ({
                 }
             }
 
-            // 3. Refresh the attendees list so the row reflects the changes.
-            void queryClient.invalidateQueries({
-                queryKey: [GET_CHECK_IN_LIST_ATTENDEES_PUBLIC_QUERY_KEY, checkInListShortId],
-            });
-
-            // 4. Fire the actual check-in. Use the updated attendee so any
-            //    downstream logic sees the new identity.
+            // 3. Fire the actual check-in and WAIT for it to land. Use the
+            //    updated attendee so any downstream logic sees the new identity.
             const updatedAttendee: Attendee = {
                 ...attendee,
                 first_name: values.first_name.trim(),
@@ -206,6 +201,22 @@ export const CaptureAttendeeOnArrivalModal = ({
                 seat_info: trimmedSeat === '' ? null : trimmedSeat,
             };
             await onCheckInConfirmed(updatedAttendee);
+
+            // 4. Both the edits and the check-in have now persisted server-side,
+            //    so refetch the list LAST as the single source of truth. Doing
+            //    this awaited and after the check-in avoids the check-in's
+            //    optimistic cache write (which spreads the pre-edit attendee)
+            //    clobbering the edit — the bug where the row showed stale
+            //    details until a manual page reload. Also refresh the cached
+            //    profile so re-opening the attendee shows the saved answers.
+            await queryClient.invalidateQueries({
+                queryKey: [GET_CHECK_IN_LIST_ATTENDEES_PUBLIC_QUERY_KEY, checkInListShortId],
+            });
+            if (typeof contactId === 'number') {
+                void queryClient.invalidateQueries({
+                    queryKey: ['attendee-profile', contactId, eventId],
+                });
+            }
 
             showSuccess(t`Attendee captured and checked in.`);
             onClose();

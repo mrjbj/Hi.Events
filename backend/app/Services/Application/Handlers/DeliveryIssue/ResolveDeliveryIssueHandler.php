@@ -22,28 +22,30 @@ use Throwable;
 class ResolveDeliveryIssueHandler
 {
     public const SOURCE_TRANSACTION = 'transaction';
+
     public const SOURCE_ANNOUNCEMENT = 'announcement';
 
     public function __construct(
-        private readonly OutgoingMessageRepositoryInterface             $outgoingMessageRepository,
-        private readonly OutgoingTransactionMessageRepositoryInterface  $transactionMessageRepository,
-        private readonly EventRepositoryInterface                       $eventRepository,
-        private readonly ContactRepositoryInterface                     $contactRepository,
-        private readonly AttendeeRepositoryInterface                    $attendeeRepository,
-        private readonly EmailSuppressionService                        $suppressionService,
-        private readonly ResendOutgoingMessageHandler                   $resendOutgoingHandler,
-        private readonly ResendTransactionMessageHandler                $resendTransactionHandler,
-        private readonly DatabaseManager                                $db,
-    )
-    {
-    }
+        private readonly OutgoingMessageRepositoryInterface $outgoingMessageRepository,
+        private readonly OutgoingTransactionMessageRepositoryInterface $transactionMessageRepository,
+        private readonly EventRepositoryInterface $eventRepository,
+        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly EmailSuppressionService $suppressionService,
+        private readonly ResendOutgoingMessageHandler $resendOutgoingHandler,
+        private readonly ResendTransactionMessageHandler $resendTransactionHandler,
+        private readonly DatabaseManager $db,
+    ) {}
 
     /**
-     * Orchestrates the resolve-delivery-issue cascade:
-     *   1. (if email changed) update Contact + linked Attendees + suppress old address
-     *   2. (if $resend) delegate to the appropriate resend handler
+     * Orchestrates resolving a delivery issue:
+     *   1. (if email changed) move the Contact to the corrected address + suppress
+     *      the old one. Linked attendee rows are NOT rewritten — each is the
+     *      historical fact of its event; same-event sends reach the person via the
+     *      suppressed→contact fallback in SendEventEmailMessagesService.
+     *   2. (if $resend) delegate to the appropriate resend handler.
      *
-     * The cascade and the resend run in the same DB transaction so a mailer
+     * The contact update and the resend run in the same DB transaction so a mailer
      * failure rolls back the email mutation.
      *
      * @throws ContactEmailConflictException
@@ -71,7 +73,7 @@ class ResolveDeliveryIssueHandler
                 $this->cascadeEmailChange($oldEmail, $newEmail, $accountId);
             }
 
-            if (!$resend) {
+            if (! $resend) {
                 return null;
             }
 
@@ -89,20 +91,25 @@ class ResolveDeliveryIssueHandler
         $contactByNew = $this->contactRepository->findByEmailAndAccountId($newEmail, $accountId);
         $contactByOld = $this->contactRepository->findByEmailAndAccountId($oldEmail, $accountId);
 
-        if ($contactByNew !== null && (!$contactByOld || $contactByNew->getId() !== $contactByOld->getId())) {
-            throw new ContactEmailConflictException();
+        if ($contactByNew !== null && (! $contactByOld || $contactByNew->getId() !== $contactByOld->getId())) {
+            throw new ContactEmailConflictException;
         }
 
         if ($contactByOld !== null) {
             try {
+                // Move the contact (the canonical current address) to the corrected
+                // email. We deliberately do NOT rewrite the linked attendee rows:
+                // each attendee.email is the historical fact of what was used at
+                // that event. The old address is suppressed below, and same-event
+                // sends fall back to the contact's current email when an attendee's
+                // own address is suppressed (see SendEventEmailMessagesService).
                 $this->contactRepository->updateEmail($contactByOld->getId(), $newEmail);
             } catch (Throwable $e) {
-                if ((string)$e->getCode() === '23505') {
-                    throw new ContactEmailConflictException();
+                if ((string) $e->getCode() === '23505') {
+                    throw new ContactEmailConflictException;
                 }
                 throw $e;
             }
-            $this->attendeeRepository->updateEmailByContactId($contactByOld->getId(), $newEmail, $accountId);
         }
 
         $this->suppressionService->suppressEmail(
@@ -125,6 +132,7 @@ class ResolveDeliveryIssueHandler
         if ($message === null) {
             throw ValidationException::withMessages(['message' => [__('Outgoing message not found')]]);
         }
+
         return $message->getRecipient();
     }
 
@@ -140,6 +148,7 @@ class ResolveDeliveryIssueHandler
         if ($message === null) {
             throw ValidationException::withMessages(['message' => [__('Transaction message not found')]]);
         }
+
         return $message->getRecipient();
     }
 }

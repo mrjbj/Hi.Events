@@ -40,6 +40,31 @@ class ContactBackfillServiceTest extends TestCase
         $this->assertNull(ContactBackfillService::resolveContactEmail($row));
     }
 
+    /**
+     * Regression for the guest-answer leak: a grouped guest seat now arrives
+     * with a BLANK email (no buyer fallback at checkout). Its per-attendee
+     * answer must resolve to null — never to the buyer's email — so the guest's
+     * answer can never be written onto the buyer's contact.
+     */
+    public function test_resolve_contact_email_never_leaks_blank_guest_answer_onto_buyer(): void
+    {
+        $blankGuestRow = [
+            'attendee_id' => 99,
+            'attendee_email' => '',
+            'buyer_email' => 'buyer@example.com',
+        ];
+
+        $this->assertNull(ContactBackfillService::resolveContactEmail($blankGuestRow));
+
+        $whitespaceGuestRow = [
+            'attendee_id' => 99,
+            'attendee_email' => '   ',
+            'buyer_email' => 'buyer@example.com',
+        ];
+
+        $this->assertNull(ContactBackfillService::resolveContactEmail($whitespaceGuestRow));
+    }
+
     public function test_normalize_attributes_accepts_array(): void
     {
         $this->assertSame(['k' => 'v'], ContactBackfillService::normalizeAttributes(['k' => 'v']));

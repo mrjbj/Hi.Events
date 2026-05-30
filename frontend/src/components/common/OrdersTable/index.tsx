@@ -21,6 +21,7 @@ import {
     IconSend,
     IconTicket,
     IconTrash,
+    IconUsers,
     IconX
 } from "@tabler/icons-react";
 import {relativeDate} from "../../../utilites/dates.ts";
@@ -158,14 +159,13 @@ export const OrdersTable = ({orders, event}: OrdersTableProps) => {
                         <Menu.Label>{t`Manage`}</Menu.Label>
                         <Menu.Item onClick={() => handleModalClick(order.id, viewModal)}
                                    leftSection={<IconBasketCog size={14}/>}>{t`Manage order`}</Menu.Item>
-                        <Menu.Item onClick={() => handleModalClick(order.id, messageModal)}
-                                   leftSection={<IconSend size={14}/>}>{t`Message buyer`}</Menu.Item>
                         <Menu.Item onClick={() => {
                                        const url = eventCheckoutUrl(order.event_id, order.short_id, 'summary');
-                                       clipboard.copy(url);
-                                       showSuccess(t`Customer link copied to clipboard`);
+                                       window.open(url, '_blank', 'noopener,noreferrer');
                                    }}
-                                   leftSection={<IconCopy size={14}/>}>{t`Copy customer link`}</Menu.Item>
+                                   leftSection={<IconUsers size={14}/>}>{t`Manage attendees`}</Menu.Item>
+                        <Menu.Item onClick={() => handleModalClick(order.id, messageModal)}
+                                   leftSection={<IconSend size={14}/>}>{t`Message buyer`}</Menu.Item>
 
                         {order.latest_invoice && (
                             <Menu.Item onClick={() => handleInvoiceDownload(order.latest_invoice as Invoice)}

@@ -178,22 +178,18 @@ class CompleteOrderHandler
             $attendeeLastName = $isPerOrderCollection ? $orderDTO->last_name : $attendee->last_name;
             $rawAttendeeEmail = $isPerOrderCollection ? $orderDTO->email : $attendee->email;
 
-            // A genuine unassigned guest seat (PER_TICKET with no name and no
-            // email) gets a null email and is flagged for detail capture at
-            // check-in instead of inheriting the buyer's email. Named PER_TICKET
-            // rows and all PER_ORDER rows keep their email (falling back to the
-            // buyer's email for blank-but-named bundle seats, as before).
-            $isGuestSeat = ! $isPerOrderCollection
-                && trim((string) $rawAttendeeEmail) === ''
-                && trim((string) $attendeeFirstName) === ''
-                && trim((string) $attendeeLastName) === '';
-
-            if ($isGuestSeat) {
-                $attendeeEmail = null;
-                $confirmAtCheckin = true;
-            } else {
-                $attendeeEmail = trim((string) $rawAttendeeEmail) === '' ? $orderDTO->email : $rawAttendeeEmail;
+            // One rule: a PER_TICKET seat with a real email is linked to a
+            // contact (see linkAttendeesToContacts); a blank-email seat keeps a
+            // null email and is flagged for detail capture at the door. The
+            // buyer's email is NEVER copied onto a blank seat — copy-to-all and
+            // per-order uniqueness keep distinct emails distinct upstream.
+            // PER_ORDER always uses the buyer's identity and never waits.
+            if ($isPerOrderCollection) {
+                $attendeeEmail = $orderDTO->email;
                 $confirmAtCheckin = false;
+            } else {
+                $attendeeEmail = trim((string) $rawAttendeeEmail) !== '' ? $rawAttendeeEmail : null;
+                $confirmAtCheckin = $attendeeEmail === null;
             }
 
             $inserts[] = [
@@ -279,9 +275,11 @@ class CompleteOrderHandler
             ]);
 
             foreach ($attendees as $attendee) {
-                // Guests awaiting detail capture have no real email — don't
-                // promote them into the contacts table until confirmed.
-                if ($attendee->getConfirmAtCheckin() || trim((string) $attendee->getEmail()) === '') {
+                // A blank-email seat has no identity to link yet — it waits for
+                // detail capture at the door. Any seat with an email is linked
+                // (order-level uniqueness guarantees no two collapse onto one
+                // contact).
+                if (trim((string) $attendee->getEmail()) === '') {
                     continue;
                 }
 

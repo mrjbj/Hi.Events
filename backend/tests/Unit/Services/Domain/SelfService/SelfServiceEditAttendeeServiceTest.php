@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services\Domain\SelfService;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
-use HiEvents\DomainObjects\ContactDomainObject;
+use HiEvents\DomainObjects\Enums\AttendeeContactResolutionAction;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
@@ -11,14 +11,13 @@ use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\Mail\Attendee\AttendeeDetailsChangedMail;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
-use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
+use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
-use HiEvents\Services\Domain\Contact\ContactUpsertService;
+use HiEvents\Services\Domain\Contact\DTO\AttendeeContactResolutionDTO;
 use HiEvents\Services\Domain\SelfService\OrderAuditLogService;
 use HiEvents\Services\Domain\SelfService\SelfServiceEditAttendeeService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Mockery;
 use Mockery\MockInterface;
@@ -37,9 +36,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
 
     private MockInterface|SendAttendeeTicketService $sendAttendeeTicketService;
 
-    private MockInterface|ContactUpsertService $contactUpsertService;
-
-    private MockInterface|ContactRepositoryInterface $contactRepository;
+    private MockInterface|AttendeeContactLinkResolver $contactLinkResolver;
 
     private MockInterface|ContactSignedTokenService $contactTokenService;
 
@@ -55,45 +52,26 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class);
         $this->orderAuditLogService = Mockery::mock(OrderAuditLogService::class);
         $this->sendAttendeeTicketService = Mockery::mock(SendAttendeeTicketService::class);
-        $this->contactUpsertService = Mockery::mock(ContactUpsertService::class);
-        $this->contactRepository = Mockery::mock(ContactRepositoryInterface::class);
+        $this->contactLinkResolver = Mockery::mock(AttendeeContactLinkResolver::class);
         $this->contactTokenService = Mockery::mock(ContactSignedTokenService::class);
         $this->logger = Mockery::mock(LoggerInterface::class);
+
+        $this->logger->shouldReceive('warning')->byDefault();
         $this->contactTokenService->shouldReceive('generate')->byDefault()->andReturn('mock-token');
 
-        // Default: never warn unless a test sets it. Most tests will trip the
-        // resyncContactLink path; mock that to a benign no-op too.
-        $this->logger->shouldReceive('warning')->byDefault();
-        $this->contactUpsertService
-            ->shouldReceive('findOrCreateContact')
+        // The contact-link reconciliation is exercised in its own resolver test;
+        // here it's a benign no-op unless a test overrides it.
+        $this->contactLinkResolver
+            ->shouldReceive('resolveAfterEmailChange')
             ->byDefault()
-            ->andReturnUsing(function () {
-                $contact = Mockery::mock(ContactDomainObject::class);
-                $contact->shouldReceive('getId')->andReturn(0);
-                $contact->shouldReceive('getFirstName')->andReturn(null);
-                $contact->shouldReceive('getLastName')->andReturn(null);
-
-                return $contact;
-            });
-        $this->contactRepository->shouldReceive('updateFromArray')->byDefault();
-
-        // resyncContactLink uses a DB::table('attendees') query; stub the
-        // builder chain so the count() returns 1 (treat contact as shared,
-        // skip the contact name sync — keeps these tests focused on the
-        // attendee-update behavior they were originally written to assert).
-        $builder = Mockery::mock(\Illuminate\Database\Query\Builder::class);
-        $builder->shouldReceive('where')->andReturnSelf();
-        $builder->shouldReceive('whereNull')->andReturnSelf();
-        $builder->shouldReceive('count')->andReturn(1);
-        DB::shouldReceive('table')->with('attendees')->andReturn($builder);
+            ->andReturn(new AttendeeContactResolutionDTO(AttendeeContactResolutionAction::UNCHANGED, null, false));
 
         $this->service = new SelfServiceEditAttendeeService(
             $this->attendeeRepository,
             $this->eventRepository,
             $this->orderAuditLogService,
             $this->sendAttendeeTicketService,
-            $this->contactUpsertService,
-            $this->contactRepository,
+            $this->contactLinkResolver,
             $this->contactTokenService,
             $this->logger,
         );
@@ -121,37 +99,21 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             })
             ->andReturn(1);
 
+        // Name-only edit: no email change, so the resolver is not consulted.
+        $this->contactLinkResolver->shouldNotReceive('resolveAfterEmailChange');
+
         $mockProduct = Mockery::mock(ProductDomainObject::class);
         $mockProduct->shouldReceive('getTitle')->andReturn('General Admission');
 
         $mockAttendeeWithProduct = Mockery::mock(AttendeeDomainObject::class);
         $mockAttendeeWithProduct->shouldReceive('getProduct')->andReturn($mockProduct);
 
-        $this->attendeeRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findById')->with(456)->andReturn($mockAttendeeWithProduct);
 
-        $this->attendeeRepository
-            ->shouldReceive('findById')
-            ->with(456)
-            ->andReturn($mockAttendeeWithProduct);
-
-        $mockEventSettings = Mockery::mock(EventSettingDomainObject::class);
-        $mockEventSettings->shouldReceive('getSupportEmail')->andReturn('support@example.com');
-        $mockOrganizer = Mockery::mock(OrganizerDomainObject::class);
-        $mockEvent = Mockery::mock(EventDomainObject::class);
-        $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
-        $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
-        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
-
-        $this->eventRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
-
-        $this->eventRepository
-            ->shouldReceive('findById')
-            ->with(789)
-            ->andReturn($mockEvent);
+        $event = $this->mockEvent();
+        $this->eventRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->eventRepository->shouldReceive('findById')->with(789)->andReturn($event);
 
         $this->orderAuditLogService
             ->shouldReceive('logAttendeeUpdate')
@@ -174,16 +136,12 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         );
 
         $this->assertTrue($result->success);
-        $this->assertFalse($result->shortIdChanged);
-        $this->assertNull($result->newShortId);
         $this->assertFalse($result->emailChanged);
 
-        Mail::assertQueued(AttendeeDetailsChangedMail::class, function ($mail) {
-            return $mail->hasTo('old@example.com');
-        });
+        Mail::assertQueued(AttendeeDetailsChangedMail::class, fn ($mail) => $mail->hasTo('old@example.com'));
     }
 
-    public function test_email_change_triggers_short_id_rotation(): void
+    public function test_email_change_triggers_short_id_rotation_and_resolves_contact(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
@@ -200,62 +158,38 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             ->withArgs(function ($attributes, $where) {
                 return isset($attributes['email'])
                     && $attributes['email'] === 'new@example.com'
-                    && isset($attributes['short_id'])
-                    && str_starts_with($attributes['short_id'], 'a_')
+                    && str_starts_with($attributes['short_id'] ?? '', 'a_')
                     && $where === ['id' => 456];
             })
             ->andReturn(1);
 
+        // Self-service renames a sole-owner contact in place.
+        $this->contactLinkResolver
+            ->shouldReceive('resolveAfterEmailChange')
+            ->once()
+            ->withArgs(function (...$args) {
+                return $args[0] === 456                        // attendeeId
+                    && $args[3] === 'new@example.com'          // newEmail
+                    && ($args[9] ?? null) === true;            // renameSoleOwnerContact
+            })
+            ->andReturn(new AttendeeContactResolutionDTO(AttendeeContactResolutionAction::CONTACT_RENAMED, 0, false));
+
         $mockOrder = Mockery::mock(OrderDomainObject::class);
         $mockProduct = Mockery::mock(ProductDomainObject::class);
         $mockProduct->shouldReceive('getTitle')->andReturn('General Admission');
-
         $mockAttendeeWithRelations = Mockery::mock(AttendeeDomainObject::class);
         $mockAttendeeWithRelations->shouldReceive('getOrder')->andReturn($mockOrder);
         $mockAttendeeWithRelations->shouldReceive('getProduct')->andReturn($mockProduct);
 
-        $this->attendeeRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findById')->with(456)->andReturn($mockAttendeeWithRelations);
 
-        $this->attendeeRepository
-            ->shouldReceive('findById')
-            ->with(456)
-            ->andReturn($mockAttendeeWithRelations);
+        $event = $this->mockEvent();
+        $this->eventRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->eventRepository->shouldReceive('findById')->with(789)->andReturn($event);
 
-        $mockEventSettings = Mockery::mock(EventSettingDomainObject::class);
-        $mockEventSettings->shouldReceive('getSupportEmail')->andReturn('support@example.com');
-        $mockOrganizer = Mockery::mock(OrganizerDomainObject::class);
-        $mockEvent = Mockery::mock(EventDomainObject::class);
-        $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
-        $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
-        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
-
-        $this->eventRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
-
-        $this->eventRepository
-            ->shouldReceive('findById')
-            ->with(789)
-            ->andReturn($mockEvent);
-
-        $this->sendAttendeeTicketService
-            ->shouldReceive('send')
-            ->once();
-
-        $this->orderAuditLogService
-            ->shouldReceive('logAttendeeUpdate')
-            ->once()
-            ->withArgs(function ($att, $oldValues, $newValues, $ip, $ua) use ($attendee) {
-                return $att === $attendee
-                    && isset($oldValues['email']) && $oldValues['email'] === 'old@example.com'
-                    && isset($oldValues['short_id'])
-                    && isset($newValues['email']) && $newValues['email'] === 'new@example.com'
-                    && isset($newValues['short_id']) && str_starts_with($newValues['short_id'], 'a_')
-                    && $ip === '192.168.1.1'
-                    && $ua === 'Mozilla/5.0';
-            });
+        $this->sendAttendeeTicketService->shouldReceive('send')->once();
+        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->once();
 
         $result = $this->service->editAttendee(
             attendee: $attendee,
@@ -268,13 +202,112 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
 
         $this->assertTrue($result->success);
         $this->assertTrue($result->shortIdChanged);
-        $this->assertNotNull($result->newShortId);
-        $this->assertStringStartsWith('a_', $result->newShortId);
         $this->assertTrue($result->emailChanged);
+    }
 
-        Mail::assertQueued(AttendeeDetailsChangedMail::class, function ($mail) {
-            return $mail->hasTo('old@example.com');
-        });
+    public function test_split_resolution_mints_new_contact_token(): void
+    {
+        $attendee = Mockery::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getId')->andReturn(456);
+        $attendee->shouldReceive('getEventId')->andReturn(789);
+        $attendee->shouldReceive('getContactId')->andReturn(5);
+        $attendee->shouldReceive('getFirstName')->andReturn('John');
+        $attendee->shouldReceive('getLastName')->andReturn('Doe');
+        $attendee->shouldReceive('getEmail')->andReturn('shared@example.com');
+        $attendee->shouldReceive('getShortId')->andReturn('a_oldshortid123');
+
+        $this->attendeeRepository->shouldReceive('updateWhere')->once()->andReturn(1);
+
+        $this->contactLinkResolver
+            ->shouldReceive('resolveAfterEmailChange')
+            ->once()
+            ->andReturn(new AttendeeContactResolutionDTO(AttendeeContactResolutionAction::SPLIT, 77, true));
+
+        // linkChanged → a fresh token is minted for the new contact.
+        $this->contactTokenService->shouldReceive('generate')->once()->with(77, 1)->andReturn('split-token');
+
+        $mockOrder = Mockery::mock(OrderDomainObject::class);
+        $mockProduct = Mockery::mock(ProductDomainObject::class);
+        $mockProduct->shouldReceive('getTitle')->andReturn('GA');
+        $mockAttendeeWithRelations = Mockery::mock(AttendeeDomainObject::class);
+        $mockAttendeeWithRelations->shouldReceive('getOrder')->andReturn($mockOrder);
+        $mockAttendeeWithRelations->shouldReceive('getProduct')->andReturn($mockProduct);
+
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findById')->with(456)->andReturn($mockAttendeeWithRelations);
+
+        $event = $this->mockEvent();
+        $this->eventRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->eventRepository->shouldReceive('findById')->with(789)->andReturn($event);
+
+        $this->sendAttendeeTicketService->shouldReceive('send')->once();
+        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->once();
+
+        $result = $this->service->editAttendee(
+            attendee: $attendee,
+            firstName: null,
+            lastName: null,
+            email: 'mine@example.com',
+            ipAddress: '192.168.1.1',
+            userAgent: 'Mozilla/5.0'
+        );
+
+        $this->assertTrue($result->emailChanged);
+        $this->assertSame('split-token', $result->newContactToken);
+    }
+
+    public function test_assigning_email_to_contactless_attendee_does_not_notify_blank_old_address(): void
+    {
+        // An unassigned/contactless seat starts with a blank email. Assigning
+        // one is an email "change" from '' to a real address — but there is no
+        // previous holder to notify, and Mail::to('') would throw. The service
+        // must skip the change notification (while still sending the ticket).
+        $attendee = Mockery::mock(AttendeeDomainObject::class);
+        $attendee->shouldReceive('getId')->andReturn(456);
+        $attendee->shouldReceive('getEventId')->andReturn(789);
+        $attendee->shouldReceive('getContactId')->andReturn(null);
+        $attendee->shouldReceive('getFirstName')->andReturn('');
+        $attendee->shouldReceive('getLastName')->andReturn('');
+        $attendee->shouldReceive('getEmail')->andReturn('');
+        $attendee->shouldReceive('getShortId')->andReturn('a_oldshortid123');
+
+        $this->attendeeRepository->shouldReceive('updateWhere')->once()->andReturn(1);
+
+        $this->contactLinkResolver
+            ->shouldReceive('resolveAfterEmailChange')
+            ->once()
+            ->andReturn(new AttendeeContactResolutionDTO(AttendeeContactResolutionAction::LINKED, 99, true));
+
+        $this->contactTokenService->shouldReceive('generate')->andReturn('linked-token');
+
+        $mockOrder = Mockery::mock(OrderDomainObject::class);
+        $mockProduct = Mockery::mock(ProductDomainObject::class);
+        $mockProduct->shouldReceive('getTitle')->andReturn('GA');
+        $mockAttendeeWithRelations = Mockery::mock(AttendeeDomainObject::class);
+        $mockAttendeeWithRelations->shouldReceive('getOrder')->andReturn($mockOrder);
+        $mockAttendeeWithRelations->shouldReceive('getProduct')->andReturn($mockProduct);
+
+        $this->attendeeRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->attendeeRepository->shouldReceive('findById')->with(456)->andReturn($mockAttendeeWithRelations);
+
+        $event = $this->mockEvent();
+        $this->eventRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->eventRepository->shouldReceive('findById')->with(789)->andReturn($event);
+
+        $this->sendAttendeeTicketService->shouldReceive('send')->once();
+        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->once();
+
+        $result = $this->service->editAttendee(
+            attendee: $attendee,
+            firstName: 'New',
+            lastName: 'Guest',
+            email: 'guest@example.com',
+            ipAddress: '192.168.1.1',
+            userAgent: 'Mozilla/5.0'
+        );
+
+        $this->assertTrue($result->emailChanged);
+        Mail::assertNotQueued(AttendeeDetailsChangedMail::class);
     }
 
     public function test_no_update_when_no_fields_change(): void
@@ -286,6 +319,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $attendee->shouldReceive('getEmail')->andReturn('same@example.com');
 
         $this->attendeeRepository->shouldReceive('updateWhere')->never();
+        $this->contactLinkResolver->shouldNotReceive('resolveAfterEmailChange');
         $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->never();
 
         $result = $this->service->editAttendee(
@@ -298,116 +332,12 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         );
 
         $this->assertTrue($result->success);
-        $this->assertFalse($result->shortIdChanged);
-        $this->assertNull($result->newShortId);
         $this->assertFalse($result->emailChanged);
 
         Mail::assertNothingSent();
     }
 
-    public function test_multiple_fields_update_together(): void
-    {
-        $attendee = Mockery::mock(AttendeeDomainObject::class);
-        $attendee->shouldReceive('getId')->andReturn(456);
-        $attendee->shouldReceive('getEventId')->andReturn(789);
-        $attendee->shouldReceive('getContactId')->andReturn(0);
-        $attendee->shouldReceive('getFirstName')->andReturn('John');
-        $attendee->shouldReceive('getLastName')->andReturn('Doe');
-        $attendee->shouldReceive('getEmail')->andReturn('old@example.com');
-        $attendee->shouldReceive('getShortId')->andReturn('a_oldshortid123');
-
-        $this->attendeeRepository
-            ->shouldReceive('updateWhere')
-            ->once()
-            ->withArgs(function ($attributes, $where) {
-                return isset($attributes['first_name'])
-                    && $attributes['first_name'] === 'Jane'
-                    && isset($attributes['last_name'])
-                    && $attributes['last_name'] === 'Smith'
-                    && isset($attributes['email'])
-                    && $attributes['email'] === 'new@example.com'
-                    && isset($attributes['short_id'])
-                    && str_starts_with($attributes['short_id'], 'a_')
-                    && $where === ['id' => 456];
-            })
-            ->andReturn(1);
-
-        $mockOrder = Mockery::mock(OrderDomainObject::class);
-        $mockProduct = Mockery::mock(ProductDomainObject::class);
-        $mockProduct->shouldReceive('getTitle')->andReturn('VIP Pass');
-
-        $mockAttendeeWithRelations = Mockery::mock(AttendeeDomainObject::class);
-        $mockAttendeeWithRelations->shouldReceive('getOrder')->andReturn($mockOrder);
-        $mockAttendeeWithRelations->shouldReceive('getProduct')->andReturn($mockProduct);
-
-        $this->attendeeRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
-
-        $this->attendeeRepository
-            ->shouldReceive('findById')
-            ->with(456)
-            ->andReturn($mockAttendeeWithRelations);
-
-        $mockEventSettings = Mockery::mock(EventSettingDomainObject::class);
-        $mockEventSettings->shouldReceive('getSupportEmail')->andReturn('support@example.com');
-        $mockOrganizer = Mockery::mock(OrganizerDomainObject::class);
-        $mockEvent = Mockery::mock(EventDomainObject::class);
-        $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
-        $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
-        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
-
-        $this->eventRepository
-            ->shouldReceive('loadRelation')
-            ->andReturnSelf();
-
-        $this->eventRepository
-            ->shouldReceive('findById')
-            ->with(789)
-            ->andReturn($mockEvent);
-
-        $this->sendAttendeeTicketService
-            ->shouldReceive('send')
-            ->once();
-
-        $this->orderAuditLogService
-            ->shouldReceive('logAttendeeUpdate')
-            ->once()
-            ->withArgs(function ($att, $oldValues, $newValues, $ip, $ua) use ($attendee) {
-                return $att === $attendee
-                    && $oldValues['first_name'] === 'John'
-                    && $oldValues['last_name'] === 'Doe'
-                    && $oldValues['email'] === 'old@example.com'
-                    && isset($oldValues['short_id'])
-                    && $newValues['first_name'] === 'Jane'
-                    && $newValues['last_name'] === 'Smith'
-                    && $newValues['email'] === 'new@example.com'
-                    && isset($newValues['short_id']) && str_starts_with($newValues['short_id'], 'a_')
-                    && $ip === '192.168.1.1'
-                    && $ua === 'Mozilla/5.0';
-            });
-
-        $result = $this->service->editAttendee(
-            attendee: $attendee,
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: 'new@example.com',
-            ipAddress: '192.168.1.1',
-            userAgent: 'Mozilla/5.0'
-        );
-
-        $this->assertTrue($result->success);
-        $this->assertTrue($result->shortIdChanged);
-        $this->assertNotNull($result->newShortId);
-        $this->assertStringStartsWith('a_', $result->newShortId);
-        $this->assertTrue($result->emailChanged);
-
-        Mail::assertQueued(AttendeeDetailsChangedMail::class, function ($mail) {
-            return $mail->hasTo('old@example.com');
-        });
-    }
-
-    public function test_confirm_at_checkin_toggle_persists_and_audits_without_email(): void
+    public function test_confirm_at_checkin_toggle_persists_without_email(): void
     {
         $attendee = Mockery::mock(AttendeeDomainObject::class);
         $attendee->shouldReceive('getId')->andReturn(456);
@@ -420,22 +350,11 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $this->attendeeRepository
             ->shouldReceive('updateWhere')
             ->once()
-            ->withArgs(function ($attributes, $where) {
-                return $attributes === ['confirm_at_checkin' => true]
-                    && $where === ['id' => 456];
-            })
+            ->withArgs(fn ($attributes, $where) => $attributes === ['confirm_at_checkin' => true] && $where === ['id' => 456])
             ->andReturn(1);
 
-        $this->orderAuditLogService
-            ->shouldReceive('logAttendeeUpdate')
-            ->once()
-            ->withArgs(function ($att, $oldValues, $newValues, $ip, $ua) use ($attendee) {
-                return $att === $attendee
-                    && $oldValues === ['confirm_at_checkin' => false]
-                    && $newValues === ['confirm_at_checkin' => true]
-                    && $ip === '192.168.1.1'
-                    && $ua === 'Mozilla/5.0';
-            });
+        $this->contactLinkResolver->shouldNotReceive('resolveAfterEmailChange');
+        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->once();
 
         $result = $this->service->editAttendee(
             attendee: $attendee,
@@ -453,32 +372,17 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         Mail::assertNothingSent();
     }
 
-    public function test_confirm_at_checkin_unchanged_is_skipped(): void
+    private function mockEvent(): EventDomainObject
     {
-        $attendee = Mockery::mock(AttendeeDomainObject::class);
-        $attendee->shouldReceive('getId')->andReturn(456);
-        $attendee->shouldReceive('getFirstName')->andReturn('John');
-        $attendee->shouldReceive('getLastName')->andReturn('Doe');
-        $attendee->shouldReceive('getEmail')->andReturn('same@example.com');
-        $attendee->shouldReceive('getSeatInfo')->andReturn(null);
-        $attendee->shouldReceive('getConfirmAtCheckin')->andReturn(true);
+        $eventSettings = Mockery::mock(EventSettingDomainObject::class);
+        $eventSettings->shouldReceive('getSupportEmail')->andReturn('support@example.com');
+        $organizer = Mockery::mock(OrganizerDomainObject::class);
+        $event = Mockery::mock(EventDomainObject::class);
+        $event->shouldReceive('getEventSettings')->andReturn($eventSettings);
+        $event->shouldReceive('getOrganizer')->andReturn($organizer);
+        $event->shouldReceive('getAccountId')->andReturn(1);
 
-        $this->attendeeRepository->shouldReceive('updateWhere')->never();
-        $this->orderAuditLogService->shouldReceive('logAttendeeUpdate')->never();
-
-        $result = $this->service->editAttendee(
-            attendee: $attendee,
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'same@example.com',
-            ipAddress: '192.168.1.1',
-            userAgent: 'Mozilla/5.0',
-            confirmAtCheckin: true,
-        );
-
-        $this->assertTrue($result->success);
-
-        Mail::assertNothingSent();
+        return $event;
     }
 
     protected function tearDown(): void

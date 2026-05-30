@@ -255,10 +255,10 @@ export interface AdminEventStatistics {
 export interface AdminEvent {
     id: IdParam;
     title: string;
-    start_date: string;
+    start_date: string | null;
     end_date: string | null;
-    status: string;
-    organizer_name: string;
+    status: string | null;
+    organizer_name: string | null;
     organizer_id: IdParam;
     account_name: string;
     account_id: IdParam;

@@ -13,13 +13,11 @@ use HiEvents\Helper\IdHelper;
 use HiEvents\Mail\Attendee\AttendeeDetailsChangedMail;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
-use HiEvents\Repository\Interfaces\ContactRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
+use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
-use HiEvents\Services\Domain\Contact\ContactUpsertService;
 use HiEvents\Services\Domain\SelfService\DTO\EditAttendeeResultDTO;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -31,8 +29,7 @@ class SelfServiceEditAttendeeService
         private readonly EventRepositoryInterface $eventRepository,
         private readonly OrderAuditLogService $orderAuditLogService,
         private readonly SendAttendeeTicketService $sendAttendeeTicketService,
-        private readonly ContactUpsertService $contactUpsertService,
-        private readonly ContactRepositoryInterface $contactRepository,
+        private readonly AttendeeContactLinkResolver $contactLinkResolver,
         private readonly ContactSignedTokenService $contactTokenService,
         private readonly LoggerInterface $logger,
     ) {}
@@ -96,31 +93,35 @@ class SelfServiceEditAttendeeService
 
             // Re-resolve attendee.contact_id so the "My Profile" panel (and any
             // other contact-keyed surface) reflects the new attendee identity.
-            // See resyncContactLink for the rules; in short: contacts are keyed by
-            // (account_id, lower(email)), so changing the attendee's email always
-            // routes to the contact for that email — creating one if needed.
-            $newContactId = $this->resyncContactLink(
-                attendeeId: $attendee->getId(),
-                accountId: (int) $event->getAccountId(),
-                newEmail: $newValues['email'] ?? $attendee->getEmail(),
-                newFirstName: $newValues['first_name'] ?? $attendee->getFirstName(),
-                newLastName: $newValues['last_name'] ?? $attendee->getLastName(),
-                previousContactId: $attendee->getContactId(),
-            );
+            // Self-service is the attendee acting on their own ticket, so a
+            // sole-owner contact is renamed in place (they keep one identity);
+            // a shared/bundle contact is split off. See AttendeeContactLinkResolver.
+            $resolution = null;
+            if ($emailChanged) {
+                $resolution = $this->contactLinkResolver->resolveAfterEmailChange(
+                    attendeeId: $attendee->getId(),
+                    accountId: (int) $event->getAccountId(),
+                    previousContactId: $attendee->getContactId(),
+                    newEmail: $newValues['email'] ?? $attendee->getEmail(),
+                    firstName: $newValues['first_name'] ?? $attendee->getFirstName(),
+                    lastName: $newValues['last_name'] ?? $attendee->getLastName(),
+                    renameSoleOwnerContact: true,
+                );
+            }
 
             // Mint a fresh contact_token for the (possibly new) linked contact so
             // the frontend can chain a contact-attribute save in the same flow
             // without needing to refetch the order first.
-            if ($newContactId !== null && $newContactId !== $attendee->getContactId()) {
+            if ($resolution !== null && $resolution->linkChanged && $resolution->contactId !== null) {
                 try {
                     $newContactToken = $this->contactTokenService->generate(
-                        $newContactId,
+                        $resolution->contactId,
                         (int) $event->getAccountId(),
                     );
                 } catch (Throwable $e) {
                     $this->logger->warning('Failed to mint contact token after relink', [
                         'attendee_id' => $attendee->getId(),
-                        'contact_id' => $newContactId,
+                        'contact_id' => $resolution->contactId,
                         'error' => $e->getMessage(),
                     ]);
                 }
@@ -130,13 +131,19 @@ class SelfServiceEditAttendeeService
                 $this->sendTicketToNewEmail($attendee->getId(), $event);
             }
 
-            $this->sendChangeNotificationToOldEmail(
-                oldEmail: $oldEmail,
-                attendeeId: $attendee->getId(),
-                event: $event,
-                oldValues: $oldValues,
-                newValues: $newValues
-            );
+            // Only notify the previous address when there actually was one. An
+            // unassigned/contactless seat has a blank email, and Mail::to('')
+            // throws an RFC-compliance exception — mirror the door, which gates
+            // the notification on a non-empty old address (notify_email_change).
+            if (trim((string) $oldEmail) !== '') {
+                $this->sendChangeNotificationToOldEmail(
+                    oldEmail: $oldEmail,
+                    attendeeId: $attendee->getId(),
+                    event: $event,
+                    oldValues: $oldValues,
+                    newValues: $newValues
+                );
+            }
 
             $this->orderAuditLogService->logAttendeeUpdate(
                 attendee: $attendee,
@@ -192,90 +199,6 @@ class SelfServiceEditAttendeeService
             emailChanged: $emailChanged,
             newContactToken: $newContactToken,
         );
-    }
-
-    /**
-     * Reconcile attendee.contact_id with the attendee's current email and name.
-     *
-     * Rules (constrained by the (account_id, lower(email)) unique index on
-     * contacts):
-     *  1. The contact representing this attendee is whichever record has the
-     *     attendee's current email on the event's account. If that record
-     *     doesn't exist yet, create it with the attendee's name.
-     *  2. If the link points to a different contact (typically because email
-     *     just changed), rewire `attendees.contact_id` to the right one.
-     *  3. If the linked contact is **exclusive** to this attendee (no other
-     *     attendees + the contact's email matches the attendee's email), sync
-     *     the contact's first_name/last_name to match the attendee. This is
-     *     the "buyer fixed a typo in their own seat" case — the contact and
-     *     the attendee should agree.
-     *  4. If the linked contact is **shared** with other attendees (typical
-     *     for bundle seats that all default to the buyer's email), leave the
-     *     contact's name alone — we won't rename the buyer just because they
-     *     reassigned a placeholder seat to a different person via name alone.
-     *     The buyer should change the email to fully reassign the seat.
-     */
-    private function resyncContactLink(
-        int $attendeeId,
-        int $accountId,
-        string $newEmail,
-        ?string $newFirstName,
-        ?string $newLastName,
-        ?int $previousContactId,
-    ): ?int {
-        try {
-            // Find or create the contact that "owns" this email on this account.
-            $targetContact = $this->contactUpsertService->findOrCreateContact(
-                accountId: $accountId,
-                email: $newEmail,
-                firstName: $newFirstName,
-                lastName: $newLastName,
-            );
-
-            // Rewire the attendee's link if it's pointing elsewhere.
-            if ($previousContactId !== $targetContact->getId()) {
-                $this->attendeeRepository->updateWhere(
-                    attributes: ['contact_id' => $targetContact->getId()],
-                    where: ['id' => $attendeeId],
-                );
-            }
-
-            // If the target contact is exclusive to this attendee and its email
-            // matches, sync the contact's name. Skipped when other attendees
-            // share the contact (avoids renaming the buyer mid-reassignment).
-            $otherLinkedAttendees = DB::table('attendees')
-                ->where('contact_id', $targetContact->getId())
-                ->where('id', '!=', $attendeeId)
-                ->whereNull('deleted_at')
-                ->count();
-
-            if ($otherLinkedAttendees === 0) {
-                $contactUpdates = [];
-                if ($newFirstName !== null && $newFirstName !== $targetContact->getFirstName()) {
-                    $contactUpdates['first_name'] = $newFirstName;
-                }
-                if ($newLastName !== null && $newLastName !== $targetContact->getLastName()) {
-                    $contactUpdates['last_name'] = $newLastName;
-                }
-                if (! empty($contactUpdates)) {
-                    $this->contactRepository->updateFromArray($targetContact->getId(), $contactUpdates);
-                }
-            }
-
-            return $targetContact->getId();
-        } catch (Throwable $e) {
-            // Don't fail the attendee edit just because contact relinking hit a
-            // snag (e.g., race on the unique index). The attendee row update
-            // already landed; the contact will reconcile on the next edit.
-            $this->logger->warning('Failed to resync attendee contact link', [
-                'attendee_id' => $attendeeId,
-                'account_id' => $accountId,
-                'new_email' => $newEmail,
-                'error' => $e->getMessage(),
-            ]);
-
-            return null;
-        }
     }
 
     private function loadEventWithRelations(int $eventId): EventDomainObject

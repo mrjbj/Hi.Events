@@ -43,6 +43,37 @@ interface AttendeeRepositoryInterface extends RepositoryInterface
     public function bulkUpdateContactLinkIgnoredAt(int $accountId, array $attendeeIds, ?string $timestamp): int;
 
     /**
+     * Bulk-set contact_email_divergence_ignored_at on attendees, scoped to the given account (verified
+     * via events JOIN). Marks an attendee whose email differs from its linked contact's email as
+     * "reviewed, keep the divergence" so it drops out of the Sync "Email Changes" list.
+     *
+     * @param  int[]  $attendeeIds
+     * @param  ?string  $timestamp  ISO-8601 value to set; null to clear the flag (re-surface the divergence).
+     * @return int Number of rows updated.
+     */
+    public function bulkUpdateContactEmailDivergenceIgnoredAt(int $accountId, array $attendeeIds, ?string $timestamp): int;
+
+    /**
+     * Bulk-set contact_email_divergence_flagged_at on attendees, scoped to the given account (verified
+     * via events JOIN). The flag marks an attendee whose email was deliberately edited (at the door or
+     * via self-service) so it diverges from its linked contact — this is what drives the Sync "Email
+     * Changes" review queue. A contact-side email change never sets it, so attendees merely left behind
+     * by a contact rename stay out of the queue (their per-event email is historical fact, not a TODO).
+     *
+     * @param  int[]  $attendeeIds
+     * @param  ?string  $timestamp  ISO-8601 value to set; null to clear the flag (reconciled / no longer diverging).
+     * @return int Number of rows updated.
+     */
+    public function bulkUpdateContactEmailDivergenceFlaggedAt(int $accountId, array $attendeeIds, ?string $timestamp): int;
+
+    /**
+     * Count non-deleted attendees linked to a given contact. Used to tell a sole-owner contact (safe to
+     * rename in place) from a shared contact (e.g. a table sponsor whose email seeded several guest
+     * tickets) where an email change must split the edited attendee off rather than move the contact.
+     */
+    public function countActiveByContactId(int $contactId): int;
+
+    /**
      * Returns a list of "{order_id}:{product_price_id}" keys for order_items on this
      * check-in list whose quantity > 1. Used to flag attendees that arrived via a
      * group/bundle purchase so the check-in UI can prompt staff to verify names.

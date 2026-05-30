@@ -79,7 +79,7 @@ class ContactBackfillService
             $history = self::decodeJsonArrayOrEmpty($row->attributes_history);
             $perQa = [];
             foreach ($history as $entry) {
-                if (!is_array($entry)) {
+                if (! is_array($entry)) {
                     continue;
                 }
                 $at = $entry['changed_at'] ?? null;
@@ -395,10 +395,18 @@ class ContactBackfillService
         return $writtenCount;
     }
 
+    /**
+     * An attendee-level answer ALWAYS resolves to that attendee's own email and
+     * NEVER falls back to the buyer's — a blank attendee email yields null (the
+     * answer is dropped) rather than leaking the guest's answer onto the buyer's
+     * contact. Only order-level answers (no attendee) use the buyer's email.
+     */
     public static function resolveContactEmail(array $row): ?string
     {
         if (($row['attendee_id'] ?? null) !== null) {
-            return $row['attendee_email'] ?? null;
+            $attendeeEmail = trim((string) ($row['attendee_email'] ?? ''));
+
+            return $attendeeEmail !== '' ? $row['attendee_email'] : null;
         }
 
         return $row['buyer_email'] ?? null;
@@ -424,7 +432,7 @@ class ContactBackfillService
         if (is_array($value)) {
             return $value;
         }
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return [];
         }
         $decoded = json_decode($value, true);
@@ -541,7 +549,7 @@ class ContactBackfillService
             // Skip remaps that don't carry a new_value — those were pure
             // option-list extensions handled above; the contact's existing value
             // is now valid as-is and doesn't need rewriting.
-            if (!array_key_exists('new_value', $r)) {
+            if (! array_key_exists('new_value', $r)) {
                 continue;
             }
             $value = $r['new_value'];
@@ -578,18 +586,19 @@ class ContactBackfillService
                 }
                 if ($value === null) {
                     $valid[$name] = null;
+
                     continue;
                 }
                 $options = is_string($def->options) ? (json_decode($def->options, true) ?? []) : [];
                 if ($def->type === 'select' && is_string($value)) {
-                    if (!in_array($value, $options, true)) {
+                    if (! in_array($value, $options, true)) {
                         continue;
                     }
                     $valid[$name] = $value;
                 } elseif ($def->type === 'multi_select') {
                     $arr = is_array($value) ? $value : [$value];
                     $rejected = array_diff($arr, $options);
-                    if (!empty($rejected)) {
+                    if (! empty($rejected)) {
                         continue;
                     }
                     $valid[$name] = array_values($arr);
@@ -628,11 +637,11 @@ class ContactBackfillService
         foreach ($remaps as $r) {
             $name = (string) ($r['attribute_name'] ?? '');
             $toAdd = $r['add_values_to_options'] ?? null;
-            if ($name === '' || !is_array($toAdd) || empty($toAdd)) {
+            if ($name === '' || ! is_array($toAdd) || empty($toAdd)) {
                 continue;
             }
             foreach ($toAdd as $v) {
-                if (!is_string($v) || $v === '') {
+                if (! is_string($v) || $v === '') {
                     continue;
                 }
                 $perDef[$name][$v] = true;
@@ -656,7 +665,7 @@ class ContactBackfillService
             $current = array_values(array_filter($current, 'is_string'));
             $merged = $current;
             foreach (array_keys($perDef[$def->name] ?? []) as $candidate) {
-                if (!in_array($candidate, $merged, true)) {
+                if (! in_array($candidate, $merged, true)) {
                     $merged[] = $candidate;
                     $added++;
                 }
@@ -715,7 +724,7 @@ class ContactBackfillService
         foreach ($contacts as $contact) {
             $attrs = self::normalizeAttributes($contact->attributes);
             foreach ($defsByName as $name => $def) {
-                if (!array_key_exists($name, $attrs)) {
+                if (! array_key_exists($name, $attrs)) {
                     continue;
                 }
                 $value = $attrs[$name];
@@ -726,13 +735,13 @@ class ContactBackfillService
                 $options = $def['options'];
                 $invalid = [];
                 if ($def['type'] === 'select') {
-                    if (!is_string($value) || !in_array($value, $options, true)) {
+                    if (! is_string($value) || ! in_array($value, $options, true)) {
                         $invalid = is_array($value) ? $value : [(string) $value];
                     }
                 } else { // multi_select
                     $arr = is_array($value) ? $value : [$value];
                     foreach ($arr as $v) {
-                        if (!in_array($v, $options, true)) {
+                        if (! in_array($v, $options, true)) {
                             $invalid[] = $v;
                         }
                     }
@@ -790,11 +799,14 @@ class ContactBackfillService
 
         $staleValuesTotal = count($this->collectStaleValueRows($accountId));
 
+        $emailChangesTotal = $this->emailChangeQuery($accountId, includeProcessed: false)->count();
+
         return [
             'unlinked_attendees_count' => (int) $unlinkedAttendees,
             'unmapped_questions_count' => (int) $unmappedQuestions,
             'conflicts_count' => (int) $conflictsTotal,
             'stale_values_count' => (int) $staleValuesTotal,
+            'email_changes_count' => (int) $emailChangesTotal,
         ];
     }
 
@@ -1076,5 +1088,237 @@ class ContactBackfillService
             currentPage: $page,
             options: ['path' => request()->url(), 'query' => request()->query()],
         );
+    }
+
+    /**
+     * Base query for the "Email Changes" sub-tab: linked attendees whose own email no longer
+     * matches the email on their contact. Attendees link to a contact by email match and the
+     * contact→attendee cascade keeps them aligned, so any divergence here is an intentional
+     * attendee-side edit (e.g. a fix made on the check-in door) that hasn't been reflected on
+     * the contact. Until reviewed it stays local to the ticket; promoting it ("Update") writes
+     * the new address onto the contact and cascades to the person's other tickets.
+     */
+    private function emailChangeQuery(int $accountId, bool $includeProcessed)
+    {
+        // Edit-driven detection: a row only enters the review queue when its email
+        // was DELIBERATELY edited so it diverges (the door / self-service edit sets
+        // contact_email_divergence_flagged_at). A contact-side email change never
+        // sets that flag, so attendees merely left behind by a contact rename stay
+        // out of the queue — their per-event address is historical fact, not a TODO.
+        // The LOWER()!=LOWER() guard auto-expires a flag if the row later re-matches.
+        $query = DB::table('attendees')
+            ->join('contacts', 'contacts.id', '=', 'attendees.contact_id')
+            ->join('events', 'events.id', '=', 'attendees.event_id')
+            ->whereNull('attendees.deleted_at')
+            ->whereNull('contacts.deleted_at')
+            ->where('events.account_id', $accountId)
+            ->whereNotNull('attendees.contact_email_divergence_flagged_at')
+            ->whereRaw('LOWER(attendees.email) != LOWER(contacts.email)');
+
+        if (! $includeProcessed) {
+            $query->whereNull('attendees.contact_email_divergence_ignored_at');
+        }
+
+        return $query;
+    }
+
+    public function getEmailChanges(int $accountId, QueryParamsDTO $params, bool $includeProcessed = false): LengthAwarePaginator
+    {
+        $query = $this->emailChangeQuery($accountId, $includeProcessed)
+            ->select(
+                'attendees.id as attendee_id',
+                'attendees.public_id as attendee_public_id',
+                'attendees.email as attendee_email',
+                'attendees.contact_id',
+                'attendees.event_id',
+                'attendees.updated_at as changed_at',
+                'attendees.contact_email_divergence_ignored_at as ignored_at',
+                'contacts.email as contact_email',
+                'contacts.first_name as contact_first_name',
+                'contacts.last_name as contact_last_name',
+                'events.title as event_title',
+            )
+            // How many active attendees share this contact. >1 means the contact is
+            // shared (e.g. a sponsor's bundle): promoting the new email onto it would
+            // be wrong, so the UI offers "split to own contact" instead of "update".
+            ->selectSub(
+                DB::table('attendees as sibling')
+                    ->whereColumn('sibling.contact_id', 'attendees.contact_id')
+                    ->whereNull('sibling.deleted_at')
+                    ->selectRaw('count(*)'),
+                'shared_count',
+            );
+
+        if ($params->query !== null && $params->query !== '') {
+            $needle = '%'.$params->query.'%';
+            $query->where(function ($q) use ($needle) {
+                $q->where('attendees.email', 'ilike', $needle)
+                    ->orWhere('contacts.email', 'ilike', $needle)
+                    ->orWhere('contacts.first_name', 'ilike', $needle)
+                    ->orWhere('contacts.last_name', 'ilike', $needle);
+            });
+        }
+
+        foreach ($params->filter_fields ?? [] as $filter) {
+            if ($filter->field === 'event_id' && $filter->value) {
+                $query->where('attendees.event_id', $filter->value);
+            }
+        }
+
+        $sortableColumns = [
+            'contact_email' => 'contacts.email',
+            'attendee_email' => 'attendees.email',
+            'event_title' => 'events.title',
+            'changed_at' => 'attendees.updated_at',
+        ];
+        $sortColumn = $sortableColumns[$params->sort_by] ?? 'contacts.email';
+        $sortDirection = strtolower($params->sort_direction ?? 'asc') === 'desc' ? 'desc' : 'asc';
+        $query->orderBy($sortColumn, $sortDirection);
+
+        $paginator = $query->paginate($params->per_page ?: 25, ['*'], 'page', $params->page ?: 1);
+
+        foreach ($paginator->items() as $item) {
+            $item->processed = $item->ignored_at !== null;
+            $item->shared_count = (int) ($item->shared_count ?? 1);
+            $item->shared = $item->shared_count > 1;
+        }
+
+        return $paginator;
+    }
+
+    /**
+     * Apply per-row decisions for diverged attendee emails. Each decision targets one attendee.
+     * Crucially, NOTHING here ever rewrites a sibling attendee's email — a contact email change is
+     * never cascaded down. Each attendee.email is the historical fact of what was used at its event.
+     *
+     *   - 'update': rename the attendee's contact onto the new address. Only valid when the contact
+     *     is the attendee's alone (sole-owner). If the contact is shared (e.g. a sponsor's bundle) or
+     *     the target address already belongs to another contact, this safely degrades to 'split'.
+     *   - 'split': re-point just this attendee to its own contact for the new address (found or
+     *     created), leaving the previously-linked contact and its other attendees untouched.
+     *   - 'ignore': record contact_email_divergence_ignored_at so the row drops out of the active
+     *     list (kept visible under "show kept"). A later attendee-side edit re-flags it for review.
+     *
+     * 'update' and 'split' resolve the divergence, so they clear the review flag
+     * (contact_email_divergence_flagged_at); 'ignore' leaves the flag set but dismissed.
+     *
+     * @param  array<array{attendee_id:int,decision:string}>  $decisions
+     * @return int Number of decisions processed.
+     */
+    public function applyEmailChangeDecisions(int $accountId, array $decisions, int $changedByUserId): int
+    {
+        if (empty($decisions)) {
+            return 0;
+        }
+
+        $decisionMap = [];
+        foreach ($decisions as $d) {
+            $decisionMap[(int) $d['attendee_id']] = $d['decision'];
+        }
+
+        $rows = DB::table('attendees')
+            ->join('contacts', 'contacts.id', '=', 'attendees.contact_id')
+            ->join('events', 'events.id', '=', 'attendees.event_id')
+            ->whereIn('attendees.id', array_keys($decisionMap))
+            ->whereNull('attendees.deleted_at')
+            ->whereNull('contacts.deleted_at')
+            ->where('events.account_id', $accountId)
+            ->select(
+                'attendees.id as attendee_id',
+                'attendees.email as attendee_email',
+                'attendees.first_name as attendee_first_name',
+                'attendees.last_name as attendee_last_name',
+                'attendees.contact_id',
+                'contacts.email as contact_email',
+            )
+            ->get();
+
+        $processed = 0;
+        $ignoreAttendeeIds = [];
+        $resolvedAttendeeIds = [];
+
+        foreach ($rows as $row) {
+            $decision = $decisionMap[(int) $row->attendee_id] ?? 'ignore';
+
+            if ($decision === 'ignore') {
+                $ignoreAttendeeIds[] = (int) $row->attendee_id;
+
+                continue;
+            }
+
+            $newEmail = trim((string) $row->attendee_email);
+            if ($newEmail === '') {
+                continue;
+            }
+
+            // Already in sync (e.g. resolved elsewhere) — just clear the flag.
+            if (strtolower($newEmail) === strtolower((string) $row->contact_email)) {
+                $resolvedAttendeeIds[] = (int) $row->attendee_id;
+                $processed++;
+
+                continue;
+            }
+
+            $contactId = (int) $row->contact_id;
+            $isShared = $this->attendeeRepository->countActiveByContactId($contactId) > 1;
+            $owner = $this->contactRepository->findByEmailAndAccountId($newEmail, $accountId);
+            $targetOwnedByOther = $owner !== null && $owner->getId() !== $contactId;
+
+            // Rename in place only when it's safe: the contact is the attendee's
+            // alone and no other contact already owns the address. Otherwise the
+            // intent (give this attendee the new address) is satisfied by a split.
+            $canRename = $decision === 'update' && ! $isShared && ! $targetOwnedByOther;
+
+            try {
+                if ($canRename) {
+                    DB::transaction(function () use ($contactId, $newEmail) {
+                        $this->contactRepository->updateEmail($contactId, $newEmail);
+                    });
+                } else {
+                    DB::transaction(function () use ($row, $newEmail, $contactId, $accountId) {
+                        $contact = $this->contactUpsertService->findOrCreateContact(
+                            accountId: $accountId,
+                            email: $newEmail,
+                            firstName: $row->attendee_first_name,
+                            lastName: $row->attendee_last_name,
+                        );
+                        if ($contact->getId() !== $contactId) {
+                            $this->attendeeRepository->updateFromArray((int) $row->attendee_id, [
+                                AttendeeDomainObjectAbstract::CONTACT_ID => $contact->getId(),
+                            ]);
+                        }
+                    });
+                }
+                $resolvedAttendeeIds[] = (int) $row->attendee_id;
+                $processed++;
+            } catch (\Throwable $e) {
+                Log::error('Contact backfill: failed to apply email change decision', [
+                    'attendee_id' => $row->attendee_id,
+                    'contact_id' => $contactId,
+                    'account_id' => $accountId,
+                    'decision' => $decision,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (! empty($ignoreAttendeeIds)) {
+            $this->attendeeRepository->bulkUpdateContactEmailDivergenceIgnoredAt(
+                accountId: $accountId,
+                attendeeIds: $ignoreAttendeeIds,
+                timestamp: now()->toDateTimeString(),
+            );
+            $processed += count($ignoreAttendeeIds);
+        }
+
+        if (! empty($resolvedAttendeeIds)) {
+            $this->attendeeRepository->bulkUpdateContactEmailDivergenceFlaggedAt(
+                accountId: $accountId,
+                attendeeIds: $resolvedAttendeeIds,
+                timestamp: null,
+            );
+        }
+
+        return $processed;
     }
 }

@@ -33,6 +33,8 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     final public const CONTACT_LINK_IGNORED_AT = 'contact_link_ignored_at';
     final public const SEAT_INFO = 'seat_info';
     final public const CONFIRM_AT_CHECKIN = 'confirm_at_checkin';
+    final public const CONTACT_EMAIL_DIVERGENCE_IGNORED_AT = 'contact_email_divergence_ignored_at';
+    final public const CONTACT_EMAIL_DIVERGENCE_FLAGGED_AT = 'contact_email_divergence_flagged_at';
 
     protected int $id;
     protected int $order_id;
@@ -57,6 +59,8 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     protected ?string $contact_link_ignored_at = null;
     protected ?string $seat_info = null;
     protected bool $confirm_at_checkin = false;
+    protected ?string $contact_email_divergence_ignored_at = null;
+    protected ?string $contact_email_divergence_flagged_at = null;
 
     public function toArray(): array
     {
@@ -84,6 +88,8 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
                     'contact_link_ignored_at' => $this->contact_link_ignored_at ?? null,
                     'seat_info' => $this->seat_info ?? null,
                     'confirm_at_checkin' => $this->confirm_at_checkin ?? null,
+                    'contact_email_divergence_ignored_at' => $this->contact_email_divergence_ignored_at ?? null,
+                    'contact_email_divergence_flagged_at' => $this->contact_email_divergence_flagged_at ?? null,
                 ];
     }
 
@@ -338,5 +344,27 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     public function getConfirmAtCheckin(): bool
     {
         return $this->confirm_at_checkin;
+    }
+
+    public function setContactEmailDivergenceIgnoredAt(?string $contact_email_divergence_ignored_at): self
+    {
+        $this->contact_email_divergence_ignored_at = $contact_email_divergence_ignored_at;
+        return $this;
+    }
+
+    public function getContactEmailDivergenceIgnoredAt(): ?string
+    {
+        return $this->contact_email_divergence_ignored_at;
+    }
+
+    public function setContactEmailDivergenceFlaggedAt(?string $contact_email_divergence_flagged_at): self
+    {
+        $this->contact_email_divergence_flagged_at = $contact_email_divergence_flagged_at;
+        return $this;
+    }
+
+    public function getContactEmailDivergenceFlaggedAt(): ?string
+    {
+        return $this->contact_email_divergence_flagged_at;
     }
 }

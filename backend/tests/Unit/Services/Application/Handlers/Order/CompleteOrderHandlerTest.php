@@ -5,6 +5,8 @@ namespace Tests\Unit\Services\Application\Handlers\Order;
 use Carbon\Carbon;
 use Exception;
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\Enums\AttendeeDetailsCollectionMethod;
+use HiEvents\DomainObjects\Enums\ProductType;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -142,6 +144,159 @@ class CompleteOrderHandlerTest extends TestCase
         $this->completeOrderHandler->handle($orderShortId, $orderData);
 
         $this->assertTrue(true);
+    }
+
+    public function test_bundle_sponsor_seat_links_while_blank_guests_wait_for_checkin(): void
+    {
+        $orderShortId = 'ABC123';
+
+        // "Copy to all" half-table: the first seat carries the buyer's name +
+        // email (the sponsor); siblings get "Guest N" + a BLANK email. The
+        // buyer's email is never shared onto another seat.
+        $orderDTO = new CompleteOrderOrderDTO(
+            first_name: 'Pat',
+            last_name: 'Sponsor',
+            email: 'pat@example.com',
+            questions: null,
+        );
+        $products = new Collection([
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Pat', last_name: 'Sponsor', email: 'pat@example.com'),
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Guest 2', last_name: '', email: ''),
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Guest 3', last_name: '', email: ''),
+        ]);
+
+        $captured = $this->captureBundleInserts($orderShortId, $orderDTO, $products);
+
+        $this->assertCount(3, $captured);
+        $sponsor = collect($captured)->firstWhere('first_name', 'Pat');
+        $this->assertFalse($sponsor['confirm_at_checkin'], 'The sponsor (buyer) seat links immediately');
+        $this->assertSame('pat@example.com', $sponsor['email']);
+        foreach (collect($captured)->where('first_name', '!=', 'Pat') as $guest) {
+            $this->assertTrue($guest['confirm_at_checkin'], 'Blank-email guest seats wait for check-in confirmation');
+            $this->assertNull($guest['email'], 'Blank-email guests keep a null email (no buyer fallback)');
+        }
+    }
+
+    public function test_bundle_with_distinct_emails_links_every_seat(): void
+    {
+        $orderShortId = 'ABC123';
+
+        // A table the buyer registers for others, each with their own distinct
+        // email: every seat has an identity, so every seat links immediately.
+        $orderDTO = new CompleteOrderOrderDTO(
+            first_name: 'Pat',
+            last_name: 'Sponsor',
+            email: 'pat@example.com',
+            questions: null,
+        );
+        $products = new Collection([
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Alex', last_name: 'Guest', email: 'alex@example.com'),
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Sam', last_name: 'Guest', email: 'sam@example.com'),
+        ]);
+
+        $captured = $this->captureBundleInserts($orderShortId, $orderDTO, $products, quantity: 2);
+
+        $this->assertCount(2, $captured);
+        foreach ($captured as $insert) {
+            $this->assertFalse($insert['confirm_at_checkin'], 'A seat with its own email links immediately');
+            $this->assertNotNull($insert['email']);
+        }
+    }
+
+    public function test_bundle_mixed_blank_and_emailed_seats(): void
+    {
+        $orderShortId = 'ABC123';
+
+        $orderDTO = new CompleteOrderOrderDTO(
+            first_name: 'Pat',
+            last_name: 'Sponsor',
+            email: 'pat@example.com',
+            questions: null,
+        );
+        // One seat with its own email links; one blank seat waits.
+        $products = new Collection([
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Alex', last_name: 'Guest', email: 'alex@example.com'),
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: 'Guest 2', last_name: '', email: ''),
+        ]);
+
+        $captured = $this->captureBundleInserts($orderShortId, $orderDTO, $products, quantity: 2);
+
+        $alex = collect($captured)->firstWhere('first_name', 'Alex');
+        $guest = collect($captured)->firstWhere('first_name', 'Guest 2');
+        $this->assertFalse($alex['confirm_at_checkin']);
+        $this->assertSame('alex@example.com', $alex['email']);
+        $this->assertTrue($guest['confirm_at_checkin']);
+        $this->assertNull($guest['email']);
+    }
+
+    public function test_per_order_collection_uses_buyer_identity_for_every_seat(): void
+    {
+        $orderShortId = 'ABC123';
+
+        $orderDTO = new CompleteOrderOrderDTO(
+            first_name: 'Pat',
+            last_name: 'Buyer',
+            email: 'pat@example.com',
+            questions: null,
+        );
+        // PER_ORDER: attendee rows carry no per-seat identity; all collapse onto
+        // the buyer. No seat waits and no uniqueness rejection.
+        $products = new Collection([
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: '', last_name: '', email: ''),
+            new CompleteOrderProductDataDTO(product_price_id: 1, first_name: '', last_name: '', email: ''),
+        ]);
+
+        $perOrderSetting = $this->createMockEventSetting()
+            ->setAttendeeDetailsCollectionMethod(AttendeeDetailsCollectionMethod::PER_ORDER->name);
+
+        $captured = $this->captureBundleInserts($orderShortId, $orderDTO, $products, quantity: 2, eventSetting: $perOrderSetting);
+
+        $this->assertCount(2, $captured);
+        foreach ($captured as $insert) {
+            $this->assertFalse($insert['confirm_at_checkin'], 'PER_ORDER seats never wait');
+            $this->assertSame('pat@example.com', $insert['email'], 'PER_ORDER seats use the buyer email');
+        }
+    }
+
+    private function captureBundleInserts(
+        string $orderShortId,
+        CompleteOrderOrderDTO $orderDTO,
+        Collection $products,
+        int $quantity = 3,
+        ?EventSettingDomainObject $eventSetting = null,
+    ): array {
+        $orderData = new CompleteOrderDTO(order: $orderDTO, products: $products, event_id: 1);
+
+        $order = $this->createMockOrder()->setOrderItems(new Collection([
+            (new OrderItemDomainObject)
+                ->setId(1)->setProductId(1)->setProductPriceId(1)
+                ->setQuantity($quantity)->setPrice(10)->setTotalGross(10 * $quantity)
+                ->setProductType(ProductType::TICKET->name),
+        ]));
+
+        $this->orderRepository->shouldReceive('findByShortId')->with($orderShortId)->andReturn($order);
+        $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
+        $this->orderRepository->shouldReceive('updateFromArray')->andReturn($this->createMockOrder());
+        $this->productPriceRepository->shouldReceive('findWhereIn')->andReturn(new Collection([$this->createMockProductPrice()]));
+        $this->productQuantityUpdateService->shouldReceive('updateQuantitiesFromOrder');
+        $this->eventSettingsRepository->shouldReceive('findFirstWhere')->andReturn($eventSetting ?? $this->createMockEventSetting());
+        $this->attendeeRepository->shouldReceive('findWhereIn')->andReturn(new Collection);
+        $this->attendeeRepository->shouldReceive('findWhere')->andReturn(new Collection);
+
+        $captured = [];
+        $this->attendeeRepository
+            ->shouldReceive('insert')
+            ->once()
+            ->withArgs(function ($inserts) use (&$captured) {
+                $captured = $inserts;
+
+                return true;
+            })
+            ->andReturn(true);
+
+        $this->completeOrderHandler->handle($orderShortId, $orderData);
+
+        return $captured;
     }
 
     public function test_handle_throws_resource_not_found_exception_when_order_not_found(): void

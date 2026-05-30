@@ -16,8 +16,11 @@ use Tests\TestCase;
 class UpdateContactHandlerTest extends TestCase
 {
     private ContactRepositoryInterface $contactRepository;
+
     private AttendeeRepositoryInterface $attendeeRepository;
+
     private ContactUpsertService $upsertService;
+
     private UpdateContactHandler $handler;
 
     protected function setUp(): void
@@ -38,7 +41,7 @@ class UpdateContactHandlerTest extends TestCase
         $this->app->instance('db', $manager);
     }
 
-    public function testEmailChangeCascadesToContactAndAttendees(): void
+    public function test_email_change_updates_contact_only_without_cascade(): void
     {
         $contact = m::mock(ContactDomainObject::class);
         $contact->shouldReceive('getEmail')->andReturn('old@example.com');
@@ -48,10 +51,12 @@ class UpdateContactHandlerTest extends TestCase
         $this->contactRepository->shouldReceive('findFirstWhere')->once()->andReturn($contact);
         $this->contactRepository->shouldReceive('findByEmailAndAccountId')
             ->once()->with('new@example.com', 42)->andReturn(null);
+        // Attributed to the editing user (id 1) so it shows in the History tab.
         $this->contactRepository->shouldReceive('updateEmail')
-            ->once()->with(7, 'new@example.com');
-        $this->attendeeRepository->shouldReceive('updateEmailByContactId')
-            ->once()->with(7, 'new@example.com', 42)->andReturn(2);
+            ->once()->with(7, 'new@example.com', 'manual_edit', 1);
+        // The contact email change must NOT cascade onto linked attendee rows —
+        // each attendee.email is the historical fact of its event.
+        $this->attendeeRepository->shouldNotReceive('updateEmailByContactId');
         $this->contactRepository->shouldReceive('findById')->once()->with(7)->andReturn($updatedContact);
 
         $dto = UpsertContactDTO::from([
@@ -63,7 +68,7 @@ class UpdateContactHandlerTest extends TestCase
         $this->assertSame($updatedContact, $result);
     }
 
-    public function testEmailConflictThrows(): void
+    public function test_email_conflict_throws(): void
     {
         $this->expectException(ContactEmailConflictException::class);
 
@@ -85,7 +90,7 @@ class UpdateContactHandlerTest extends TestCase
         $this->handler->handle(7, 42, 1, $dto);
     }
 
-    public function testNoEmailChangeWhenSameAddress(): void
+    public function test_no_email_change_when_same_address(): void
     {
         $contact = m::mock(ContactDomainObject::class);
         $contact->shouldReceive('getEmail')->andReturn('same@example.com');

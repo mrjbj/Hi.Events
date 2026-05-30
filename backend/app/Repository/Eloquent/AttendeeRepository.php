@@ -151,6 +151,66 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
             ]);
     }
 
+    public function bulkUpdateContactEmailDivergenceIgnoredAt(int $accountId, array $attendeeIds, ?string $timestamp): int
+    {
+        if (empty($attendeeIds)) {
+            return 0;
+        }
+
+        $scopedIds = DB::table('attendees')
+            ->join('events', 'events.id', '=', 'attendees.event_id')
+            ->where('events.account_id', $accountId)
+            ->whereIn('attendees.id', $attendeeIds)
+            ->whereNull('attendees.deleted_at')
+            ->pluck('attendees.id')
+            ->all();
+
+        if (empty($scopedIds)) {
+            return 0;
+        }
+
+        return DB::table('attendees')
+            ->whereIn('id', $scopedIds)
+            ->update([
+                AttendeeDomainObjectAbstract::CONTACT_EMAIL_DIVERGENCE_IGNORED_AT => $timestamp,
+                AttendeeDomainObjectAbstract::UPDATED_AT => now(),
+            ]);
+    }
+
+    public function bulkUpdateContactEmailDivergenceFlaggedAt(int $accountId, array $attendeeIds, ?string $timestamp): int
+    {
+        if (empty($attendeeIds)) {
+            return 0;
+        }
+
+        $scopedIds = DB::table('attendees')
+            ->join('events', 'events.id', '=', 'attendees.event_id')
+            ->where('events.account_id', $accountId)
+            ->whereIn('attendees.id', $attendeeIds)
+            ->whereNull('attendees.deleted_at')
+            ->pluck('attendees.id')
+            ->all();
+
+        if (empty($scopedIds)) {
+            return 0;
+        }
+
+        return DB::table('attendees')
+            ->whereIn('id', $scopedIds)
+            ->update([
+                AttendeeDomainObjectAbstract::CONTACT_EMAIL_DIVERGENCE_FLAGGED_AT => $timestamp,
+                AttendeeDomainObjectAbstract::UPDATED_AT => now(),
+            ]);
+    }
+
+    public function countActiveByContactId(int $contactId): int
+    {
+        return DB::table('attendees')
+            ->where('contact_id', $contactId)
+            ->whereNull('deleted_at')
+            ->count();
+    }
+
     public function getAttendeesByCheckInShortId(string $shortId, QueryParamsDTO $params): Paginator
     {
         $where = [];
@@ -353,16 +413,17 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
 
         $groupOptions = $groups
             ->map(function ($row) {
-                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                $name = trim(($row->first_name ?? '').' '.($row->last_name ?? ''));
                 $name = $name !== '' ? $name : ($row->email ?? '');
                 $ticketCount = (int) $row->ticket_count;
                 $shortId = (string) ($row->order_short_id ?? '');
                 $shortSuffix = $shortId !== '' ? mb_substr($shortId, -4) : '';
                 $label = $name;
                 if ($shortSuffix !== '') {
-                    $label .= ' · #' . $shortSuffix;
+                    $label .= ' · #'.$shortSuffix;
                 }
-                $label .= ' (' . $ticketCount . ')';
+                $label .= ' ('.$ticketCount.')';
+
                 return [
                     'order_id' => (int) $row->order_id,
                     'label' => $label,
@@ -415,16 +476,17 @@ class AttendeeRepository extends BaseRepository implements AttendeeRepositoryInt
 
         $groupOptions = $groups
             ->map(function ($row) {
-                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                $name = trim(($row->first_name ?? '').' '.($row->last_name ?? ''));
                 $name = $name !== '' ? $name : ($row->email ?? '');
                 $ticketCount = (int) $row->ticket_count;
                 $shortId = (string) ($row->order_short_id ?? '');
                 $shortSuffix = $shortId !== '' ? mb_substr($shortId, -4) : '';
                 $label = $name;
                 if ($shortSuffix !== '') {
-                    $label .= ' · #' . $shortSuffix;
+                    $label .= ' · #'.$shortSuffix;
                 }
-                $label .= ' (' . $ticketCount . ')';
+                $label .= ' ('.$ticketCount.')';
+
                 return [
                     'order_id' => (int) $row->order_id,
                     'label' => $label,

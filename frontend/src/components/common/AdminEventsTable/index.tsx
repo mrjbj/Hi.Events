@@ -43,8 +43,8 @@ const AdminEventsTable = ({events, onSort, sortBy, sortDirection, onViewEvent, o
         return new Intl.NumberFormat('en-US').format(num);
     };
 
-    const getStatusBadgeColor = (status: string) => {
-        switch (status.toUpperCase()) {
+    const getStatusBadgeColor = (status?: string | null) => {
+        switch (status?.toUpperCase()) {
             case 'LIVE':
                 return 'green';
             case 'DRAFT':
@@ -149,7 +149,7 @@ const AdminEventsTable = ({events, onSort, sortBy, sortDirection, onViewEvent, o
                                 </Table.Td>
                                 <Table.Td>
                                     <Badge color={getStatusBadgeColor(event.status)} variant="light">
-                                        {event.status}
+                                        {event.status ?? t`Unknown`}
                                     </Badge>
                                 </Table.Td>
                                 <Table.Td>

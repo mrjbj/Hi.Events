@@ -1211,6 +1211,12 @@ export interface ContactAttributeChange {
     old_values: Record<string, unknown>;
     new_values: Record<string, unknown>;
     source_question_answer_ids?: number[];
+    // Email-change entries (written by ContactRepository::updateEmail) use a flat
+    // single-field shape instead of the attribute old_values/new_values map.
+    field?: string;
+    old_value?: unknown;
+    new_value?: unknown;
+    reason?: string;
 }
 
 export interface ContactAttributeDefinition {

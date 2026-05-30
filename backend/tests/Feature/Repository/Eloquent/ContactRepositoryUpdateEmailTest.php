@@ -25,6 +25,7 @@ class ContactRepositoryUpdateEmailTest extends TestCase
     use DatabaseTransactions;
 
     private ContactRepositoryInterface $repository;
+
     private int $accountId;
 
     protected function setUp(): void
@@ -41,7 +42,7 @@ class ContactRepositoryUpdateEmailTest extends TestCase
         $this->repository = app(ContactRepositoryInterface::class);
     }
 
-    public function testUpdateEmailWritesArrayShapedHistoryNotDoubleEncodedString(): void
+    public function test_update_email_writes_array_shaped_history_not_double_encoded_string(): void
     {
         $contactId = $this->insertContact('old@example.com');
 
@@ -63,7 +64,7 @@ class ContactRepositoryUpdateEmailTest extends TestCase
         $this->assertSame('manual_resolve', $decoded[0]['reason']);
     }
 
-    public function testUpdateEmailAppendsToExistingHistoryWithoutLoss(): void
+    public function test_update_email_appends_to_existing_history_without_loss(): void
     {
         $contactId = $this->insertContact('a@example.com', [
             ['field' => 'email', 'old_value' => 'first@example.com', 'new_value' => 'a@example.com', 'changed_at' => '2026-01-01T00:00:00+00:00', 'reason' => 'manual_resolve'],
@@ -78,7 +79,7 @@ class ContactRepositoryUpdateEmailTest extends TestCase
         $this->assertSame('b@example.com', $history[1]['new_value']);
     }
 
-    public function testUpdateEmailHealsExistingDoubleEncodedHistoryInsteadOfDiscardingIt(): void
+    public function test_update_email_heals_existing_double_encoded_history_instead_of_discarding_it(): void
     {
         // Simulate the pre-fix corruption: write a double-encoded value
         // directly into the column so we don't go through Eloquent's cast.
@@ -103,7 +104,18 @@ class ContactRepositoryUpdateEmailTest extends TestCase
         $this->assertSame('recovered@example.com', $history[1]['new_value']);
     }
 
-    public function testUpdateEmailIsNoopWhenEmailUnchanged(): void
+    public function test_update_email_records_changed_by_and_reason_for_history_tab(): void
+    {
+        $contactId = $this->insertContact('old@example.com');
+
+        $this->repository->updateEmail($contactId, 'new@example.com', 'manual_edit', 99);
+
+        $entry = json_decode(DB::table('contacts')->where('id', $contactId)->value('attributes_history'), true)[0];
+        $this->assertSame('manual_edit', $entry['reason']);
+        $this->assertSame(99, $entry['changed_by']);
+    }
+
+    public function test_update_email_is_noop_when_email_unchanged(): void
     {
         $contactId = $this->insertContact('same@example.com');
 

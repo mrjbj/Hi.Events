@@ -76,6 +76,11 @@ export const CollectInformation = () => {
     const isPerOrderCollection = event?.settings?.attendee_details_collection_method === 'PER_ORDER';
     const [copyOption, setCopyOption] = useState<'none' | 'first' | 'all'>('none');
     const hasAutoAppliedBundleDefault = useRef(false);
+    // The order details captured the last time we copied to attendees. Lets us
+    // re-sync copied seats as the buyer keeps typing (the auto-copy fires the
+    // instant details first look "complete" — i.e. after the FIRST character of
+    // the last name — so without this a seat keeps a half-typed name).
+    const lastCopiedOrderRef = useRef<{first_name: string; last_name: string; email: string} | null>(null);
     const [expandedBundles, setExpandedBundles] = useState<Record<string, boolean>>({});
 
     const isEmailValid = (email: string) => {
@@ -118,6 +123,21 @@ export const CollectInformation = () => {
                         : null,
             },
             products: {
+                email: (value, values, path) => {
+                    // No two ticket seats may share an email (blank is always
+                    // allowed — it means "assign later"). PER_ORDER is exempt.
+                    if (isPerOrderCollection) return null;
+                    const email = (value ?? '').trim().toLowerCase();
+                    if (email === '') return null;
+                    const index = parseInt(path.split('.')[1]);
+                    const duplicate = getTicketAttendeeIndices().some(i =>
+                        i !== index
+                        && (values.products[i]?.email ?? '').trim().toLowerCase() === email
+                    );
+                    return duplicate
+                        ? t`This email is already used on this order. Enter a different email or leave blank to assign later.`
+                        : null;
+                },
                 email_confirmation: (value, values, path) => {
                     const index = parseInt(path.split('.')[1]);
                     const product = values.products[index];
@@ -165,21 +185,12 @@ export const CollectInformation = () => {
 
         const copiedEmail = form.values.order.email;
 
-        // For bundle products (min_per_order > 1), attendees beyond the first slot of
-        // the same product_id get distinguishable "Guest N" placeholders instead of
-        // duplicate buyer names. Buyer's email still copies to all so the buyer
-        // (or admin) can resend/forward later from the "Your Order" page.
-        const firstIndexByProductId = new Map<any, number>();
-        form.values.products.forEach((p, i) => {
-            if (!firstIndexByProductId.has(p.product_id)) {
-                firstIndexByProductId.set(p.product_id, i);
-            }
-        });
-        const isBundleProduct = (productId: any) => {
-            const catalogProduct = products.find(cp => !!cp && String(cp.id) === String(productId));
-            return (catalogProduct?.min_per_order ?? 1) > 1;
-        };
-
+        // Only the FIRST ticket seat ever carries the buyer's identity. Every
+        // other copied seat gets a distinguishable "Guest N" placeholder name
+        // and a BLANK email — the buyer's email is never shared onto a second
+        // seat (that would collide with the per-order email-uniqueness rule and
+        // re-create the contact "masquerade"). A blank-email seat is assigned
+        // later, or its details are captured at the door.
         const updatedProducts = form.values.products.map((product, index) => {
             const isTicketAttendee = ticketIndices.includes(index);
             const isFirst = index === ticketIndices[0];
@@ -187,20 +198,14 @@ export const CollectInformation = () => {
 
             if (isTicketAttendee) {
                 if (shouldCopy) {
-                    const firstIndexOfThisProduct = firstIndexByProductId.get(product.product_id);
-                    const isBundleSibling = option === 'all'
-                        && isBundleProduct(product.product_id)
-                        && firstIndexOfThisProduct !== undefined
-                        && index !== firstIndexOfThisProduct;
-
-                    if (isBundleSibling) {
-                        const guestNumber = index - (firstIndexOfThisProduct ?? 0) + 1;
+                    if (!isFirst) {
+                        const guestNumber = ticketIndices.indexOf(index) + 1;
                         return {
                             ...product,
                             first_name: `Guest ${guestNumber}`,
                             last_name: "",
-                            email: form.values.order.email,
-                            email_confirmation: form.values.order.email,
+                            email: "",
+                            email_confirmation: "",
                         };
                     }
 
@@ -229,16 +234,27 @@ export const CollectInformation = () => {
             products: updatedProducts,
         });
 
+        lastCopiedOrderRef.current = option === 'none' ? null : {
+            first_name: form.values.order.first_name,
+            last_name: form.values.order.last_name,
+            email: form.values.order.email,
+        };
+
         // Programmatic setValues doesn't fire onBlur. We trigger the contact
         // lookup for the copied email to compute answered_question_ids, but
         // only apply the *hidden question IDs* — the name/email values are
         // already in place from the copy above. Calling applyContactToProduct
         // here would race with the setValues state commit above and clobber
         // the copied email back to blank.
+        //
+        // Only the first seat carries the buyer's email now, so only it inherits
+        // the buyer-contact's hidden IDs. Sibling seats are blank-email and must
+        // NOT inherit them, or the backend autofill (which keys off the
+        // submitted email) mismatches and raises an invisible validation error.
         const copiedIndices =
-            option === 'all' ? ticketIndices :
-            option === 'first' && ticketIndices.length > 0 ? [ticketIndices[0]] :
-            [];
+            (option === 'all' || option === 'first') && ticketIndices.length > 0
+                ? [ticketIndices[0]]
+                : [];
 
         if (option !== 'none' && isEmailValid(copiedEmail)) {
             void fetchLookup(copiedEmail).then((result) => {
@@ -312,6 +328,53 @@ export const CollectInformation = () => {
         form.values.order.email,
         products,
     ]);
+
+    // Keep copied seats in step with the order as the buyer finishes typing.
+    // The auto-copy snapshots their details the instant the order first looks
+    // "complete" (after one char of the last name), so a seat would otherwise
+    // keep e.g. "L" instead of "Last-Dev5". We only update seats that STILL
+    // hold the previously-copied values — manually-edited seats are left alone.
+    useEffect(() => {
+        if (copyOption === 'none') return;
+        const prev = lastCopiedOrderRef.current;
+        if (!prev) return;
+        if (!areOrderDetailsComplete()) return;
+
+        const cur = form.values.order;
+        if (prev.first_name === cur.first_name && prev.last_name === cur.last_name && prev.email === cur.email) {
+            return;
+        }
+
+        const ticketIndices = getTicketAttendeeIndices();
+        const firstIndex = ticketIndices[0];
+        let changed = false;
+
+        const updatedProducts = form.values.products.map((p, i) => {
+            if (!ticketIndices.includes(i)) return p;
+            if (copyOption === 'first' && i !== firstIndex) return p;
+
+            // Only the first/sponsor seat copied the buyer's full name + email,
+            // so it's the only seat that re-syncs as the buyer keeps typing.
+            // Sibling seats are blank-email "Guest N" placeholders and are left
+            // untouched here.
+            if (i === firstIndex) {
+                if (p.first_name === prev.first_name && p.last_name === prev.last_name && p.email === prev.email) {
+                    changed = true;
+                    return {...p, first_name: cur.first_name, last_name: cur.last_name, email: cur.email, email_confirmation: cur.email};
+                }
+                return p;
+            }
+
+            return p;
+        });
+
+        lastCopiedOrderRef.current = {first_name: cur.first_name, last_name: cur.last_name, email: cur.email};
+
+        if (changed) {
+            form.setValues({...form.values, products: updatedProducts});
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [form.values.order.first_name, form.values.order.last_name, form.values.order.email]);
 
     const applyContactToOrder = (result: {first_name: string | null; last_name: string | null}) => {
         const current = form.values.order;
@@ -403,6 +466,17 @@ export const CollectInformation = () => {
     };
 
     const handleProductEmailBlur = async (idx: number) => {
+        // Re-validate the other ticket seats' email fields so a duplicate-email
+        // error appears (or clears) immediately on the sibling fields, rather
+        // than only surfacing at submit.
+        if (!isPerOrderCollection) {
+            getTicketAttendeeIndices().forEach((i) => {
+                if (i !== idx) {
+                    form.validateField(`products.${i}.email`);
+                }
+            });
+        }
+
         const result = await fetchLookup(form.values.products[idx]?.email ?? '');
         if (result) {
             applyContactToProduct(idx, result);

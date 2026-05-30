@@ -24,14 +24,23 @@ use Tests\TestCase;
 class ResolveDeliveryIssueHandlerTest extends TestCase
 {
     private OutgoingMessageRepositoryInterface $outgoingRepo;
+
     private OutgoingTransactionMessageRepositoryInterface $transactionRepo;
+
     private EventRepositoryInterface $eventRepo;
+
     private ContactRepositoryInterface $contactRepo;
+
     private AttendeeRepositoryInterface $attendeeRepo;
+
     private EmailSuppressionService $suppressionService;
+
     private ResendOutgoingMessageHandler $resendOutgoing;
+
     private ResendTransactionMessageHandler $resendTransaction;
+
     private DatabaseManager $db;
+
     private ResolveDeliveryIssueHandler $handler;
 
     protected function setUp(): void
@@ -62,7 +71,7 @@ class ResolveDeliveryIssueHandlerTest extends TestCase
         );
     }
 
-    public function testAnnouncementEmailChangeCascadesAndResends(): void
+    public function test_announcement_email_change_updates_contact_and_resends_without_cascade(): void
     {
         $event = m::mock(EventDomainObject::class);
         $event->shouldReceive('getAccountId')->andReturn(42);
@@ -80,7 +89,10 @@ class ResolveDeliveryIssueHandlerTest extends TestCase
         $this->contactRepo->shouldReceive('findByEmailAndAccountId')
             ->with('old@example.com', 42)->andReturn($contact);
         $this->contactRepo->shouldReceive('updateEmail')->once()->with(99, 'new@example.com');
-        $this->attendeeRepo->shouldReceive('updateEmailByContactId')->once()->with(99, 'new@example.com', 42)->andReturn(3);
+        // Resolving a bounce corrects the contact (canonical) address and suppresses
+        // the dead one; it must NOT rewrite linked attendee rows. Same-event sends
+        // reach the person via the suppressed→contact fallback in the send service.
+        $this->attendeeRepo->shouldNotReceive('updateEmailByContactId');
 
         $this->suppressionService->shouldReceive('suppressEmail')
             ->once()
@@ -95,7 +107,7 @@ class ResolveDeliveryIssueHandlerTest extends TestCase
         $this->assertSame($resent, $result);
     }
 
-    public function testEmailUnchangedSkipsCascadeButStillResends(): void
+    public function test_email_unchanged_skips_cascade_but_still_resends(): void
     {
         $event = m::mock(EventDomainObject::class);
         $event->shouldReceive('getAccountId')->andReturn(42);
@@ -115,7 +127,7 @@ class ResolveDeliveryIssueHandlerTest extends TestCase
         $this->assertSame($resent, $result);
     }
 
-    public function testEmailConflictThrowsAndDoesNotResend(): void
+    public function test_email_conflict_throws_and_does_not_resend(): void
     {
         $this->expectException(ContactEmailConflictException::class);
 
@@ -143,7 +155,7 @@ class ResolveDeliveryIssueHandlerTest extends TestCase
         $this->handler->handle(7, 123, ResolveDeliveryIssueHandler::SOURCE_ANNOUNCEMENT, 'taken@example.com', true);
     }
 
-    public function testResendFalseSkipsResend(): void
+    public function test_resend_false_skips_resend(): void
     {
         $event = m::mock(EventDomainObject::class);
         $event->shouldReceive('getAccountId')->andReturn(42);

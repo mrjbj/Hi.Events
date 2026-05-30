@@ -1,5 +1,5 @@
 import {ActionIcon, Badge, Button, Loader, Tooltip, UnstyledButton} from "@mantine/core";
-import {IconArmchair, IconFilterOff, IconTicket, IconUserEdit, IconUsersGroup} from "@tabler/icons-react";
+import {IconAlertCircle, IconArmchair, IconFilterOff, IconTicket, IconUserEdit, IconUserPlus, IconUsersGroup} from "@tabler/icons-react";
 import {t} from "@lingui/macro";
 import {Attendee} from "../../../types.ts";
 import classes from "../../layouts/CheckIn/CheckIn.module.scss";
@@ -169,6 +169,17 @@ export const AttendeeList = ({
                                         </Badge>
                                     )
                                 )}
+                                {attendee.confirm_at_checkin && (
+                                    <Badge
+                                        color="yellow"
+                                        variant="light"
+                                        size="sm"
+                                        leftSection={<IconAlertCircle size={12}/>}
+                                        aria-label={t`Confirm details at check-in`}
+                                    >
+                                        {t`Confirm details`}
+                                    </Badge>
+                                )}
                             </div>
                             {attendee.status === 'CANCELLED' ? (
                                 <div style={{fontSize: '0.8em', color: 'red'}}>
@@ -192,18 +203,25 @@ export const AttendeeList = ({
                             </div>
                         </div>
                         <div className={classes.actions}>
-                            {onEditAttendee && attendee.contact_token && (
-                                <Tooltip label={t`Edit attendee details`}>
-                                    <ActionIcon
-                                        variant="subtle"
-                                        color="gray"
-                                        onClick={() => onEditAttendee(attendee)}
-                                        aria-label={t`Edit attendee`}
-                                    >
-                                        <IconUserEdit size={18}/>
-                                    </ActionIcon>
-                                </Tooltip>
-                            )}
+                            {onEditAttendee && (() => {
+                                // The edit modal works for every attendee: it captures
+                                // name/email/confirm via the check-in endpoint (no contact
+                                // required) and links/creates a contact on save. A distinct
+                                // icon flags attendees not yet on file as a contact.
+                                const isLinked = !!attendee.contact_id;
+                                return (
+                                    <Tooltip label={isLinked ? t`Edit attendee details` : t`Add attendee details`}>
+                                        <ActionIcon
+                                            variant="subtle"
+                                            color="gray"
+                                            onClick={() => onEditAttendee(attendee)}
+                                            aria-label={isLinked ? t`Edit attendee` : t`Add attendee details`}
+                                        >
+                                            {isLinked ? <IconUserEdit size={18}/> : <IconUserPlus size={18}/>}
+                                        </ActionIcon>
+                                    </Tooltip>
+                                );
+                            })()}
                             <Button
                                 onClick={() => {
                                     onClickSound?.();

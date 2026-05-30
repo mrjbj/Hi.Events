@@ -22,6 +22,7 @@ class ProductQuestionRule extends BaseQuestionRule
 
         $this->skipBasicAttendeeValidation = $attendeeDetailsCollectionMethod === AttendeeDetailsCollectionMethod::PER_ORDER->name;
     }
+
     /**
      * @throws ValidationException
      */
@@ -43,10 +44,10 @@ class ProductQuestionRule extends BaseQuestionRule
             $requiredQuestionIds = $this->questions
                 ->filter(function (QuestionDomainObject $question) use ($productId) {
                     return $question->getRequired()
-                        && !$question->getIsHidden()
-                        && $question->getProducts()?->map(fn($product) => $product->getId())->contains($productId);
+                        && ! $question->getIsHidden()
+                        && $question->getProducts()?->map(fn ($product) => $product->getId())->contains($productId);
                 })
-                ->map(fn(QuestionDomainObject $question) => $question->getId());
+                ->map(fn (QuestionDomainObject $question) => $question->getId());
 
             if (array_diff($requiredQuestionIds->toArray(), collect($questions)->pluck('question_id')->toArray())) {
                 // Keyed by 'products.{index}.questions' so the frontend's
@@ -70,7 +71,7 @@ class ProductQuestionRule extends BaseQuestionRule
     private function isBundleSiblingSlot(mixed $productRequestData, int $productIndex, Collection $allProducts): bool
     {
         $product = $this->getProductDomainObject($productRequestData['product_id'] ?? null);
-        if (!$product) {
+        if (! $product) {
             return false;
         }
         $minPerOrder = (int) $product->getMinPerOrder();
@@ -79,7 +80,7 @@ class ProductQuestionRule extends BaseQuestionRule
         }
 
         $firstIndexOfThisProduct = $allProducts
-            ->search(fn($p) => ($p['product_id'] ?? null) === ($productRequestData['product_id'] ?? null));
+            ->search(fn ($p) => ($p['product_id'] ?? null) === ($productRequestData['product_id'] ?? null));
 
         return $firstIndexOfThisProduct !== false
             && $firstIndexOfThisProduct !== $productIndex;
@@ -90,19 +91,27 @@ class ProductQuestionRule extends BaseQuestionRule
         $validationMessages = [];
         $productsCollection = $products instanceof Collection ? $products : collect($products);
 
+        // PER_TICKET only: two seats may not submit the same email (a blank
+        // email is always allowed and means "assign later"). PER_ORDER is exempt
+        // because every ticket intentionally shares the buyer's identity.
+        if (! $this->skipBasicAttendeeValidation) {
+            $validationMessages = $this->validateUniqueAttendeeEmails($products);
+        }
+
         foreach ($products as $productIndex => $productRequestData) {
             $productDomainObject = $this->getProductDomainObject($productRequestData['product_id']);
 
-            if (!$productDomainObject) {
-                $validationMessages['products.' . $productIndex][] = __('This product is outdated. Please reload the page.');
+            if (! $productDomainObject) {
+                $validationMessages['products.'.$productIndex][] = __('This product is outdated. Please reload the page.');
+
                 continue;
             }
 
             $isBundleSibling = $this->isBundleSiblingSlot($productRequestData, (int) $productIndex, $productsCollection);
 
             if ($productDomainObject->getProductType() === ProductType::TICKET->name
-                && !$this->skipBasicAttendeeValidation
-                && !$isBundleSibling
+                && ! $this->skipBasicAttendeeValidation
+                && ! $isBundleSibling
             ) {
                 $validationMessages = [
                     ...$validationMessages,
@@ -119,16 +128,17 @@ class ProductQuestionRule extends BaseQuestionRule
             $questions = $productRequestData['questions'] ?? [];
             foreach ($questions as $questionIndex => $question) {
                 $questionDomainObject = $this->getQuestionDomainObject($question['question_id'] ?? null);
-                $key = 'products.' . $productIndex . '.questions.' . $questionIndex . '.response';
+                $key = 'products.'.$productIndex.'.questions.'.$questionIndex.'.response';
                 $response = empty($question['response']) ? null : $question['response'];
                 $answer = $response['answer'] ?? $response;
 
-                if (!$questionDomainObject) {
-                    $validationMessages[$key . '.answer'][] = __('This question is outdated. Please reload the page.');
+                if (! $questionDomainObject) {
+                    $validationMessages[$key.'.answer'][] = __('This question is outdated. Please reload the page.');
+
                     continue;
                 }
 
-                if (is_null($response) && !$questionDomainObject->getRequired()) {
+                if (is_null($response) && ! $questionDomainObject->getRequired()) {
                     continue;
                 }
 
@@ -136,8 +146,8 @@ class ProductQuestionRule extends BaseQuestionRule
                     $validationMessages = $this->validateRequiredFields($questionDomainObject, $response, $key, $validationMessages);
                 }
 
-                if (!$questionDomainObject->isAnswerValid($answer)) {
-                    $validationMessages[$key . '.answer'][] = __('Please select an option');
+                if (! $questionDomainObject->isAnswerValid($answer)) {
+                    $validationMessages[$key.'.answer'][] = __('Please select an option');
                 }
 
                 $validationMessages = $this->validateResponseLength($questionDomainObject, $response, $key, $validationMessages);
@@ -151,12 +161,22 @@ class ProductQuestionRule extends BaseQuestionRule
     {
         $validationMessages = [];
 
-        $validator = Validator::make($productRequestData, [
+        // Email is optional per attendee — a blank email means "assign this seat
+        // later / capture at the door". When an email IS supplied the confirmation
+        // field is required and must match.
+        $hasEmail = trim((string) ($productRequestData['email'] ?? '')) !== '';
+
+        $rules = [
             'first_name' => ['required', 'string', 'min:1', 'max:100'],
             'last_name' => ['required', 'string', 'min:1', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:100'],
-            'email_confirmation' => ['required', 'string', 'email', 'max:100', 'same:email'],
-        ], [
+            'email' => ['nullable', 'string', 'email', 'max:100'],
+        ];
+
+        if ($hasEmail) {
+            $rules['email_confirmation'] = ['required', 'string', 'email', 'max:100', 'same:email'];
+        }
+
+        $validator = Validator::make($productRequestData, $rules, [
             'email_confirmation.required' => __('Please confirm the email address'),
             'email_confirmation.same' => __('Email addresses do not match'),
         ]);
@@ -166,6 +186,38 @@ class ProductQuestionRule extends BaseQuestionRule
                 foreach ($messages as $message) {
                     $validationMessages["products.$productIndex.$field"][] = $message;
                 }
+            }
+        }
+
+        return $validationMessages;
+    }
+
+    /**
+     * Within a single order, no two ticket attendees may submit the same email.
+     * Blank emails never collide (they mean "assign later"). Keyed at
+     * 'products.{index}.email' so the frontend surfaces the error inline.
+     */
+    private function validateUniqueAttendeeEmails(mixed $products): array
+    {
+        $validationMessages = [];
+        $seen = [];
+
+        foreach ($products as $productIndex => $productRequestData) {
+            $productDomainObject = $this->getProductDomainObject($productRequestData['product_id'] ?? null);
+            if (! $productDomainObject || $productDomainObject->getProductType() !== ProductType::TICKET->name) {
+                continue;
+            }
+
+            $email = strtolower(trim((string) ($productRequestData['email'] ?? '')));
+            if ($email === '') {
+                continue;
+            }
+
+            if (isset($seen[$email])) {
+                $validationMessages["products.$productIndex.email"][] =
+                    __('This email is already used on this order. Enter a different email or leave blank to assign later.');
+            } else {
+                $seen[$email] = true;
             }
         }
 

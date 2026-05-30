@@ -1,8 +1,8 @@
 import {t, Trans} from "@lingui/macro";
 import {Button, Group, MultiSelect, Select, SimpleGrid, Stack, Text, TextInput} from "@mantine/core";
 import {IconCheck} from "@tabler/icons-react";
-import {useMutation, useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
-import {useEffect, useState} from "react";
+import {useQueries, useQueryClient, UseQueryResult} from "@tanstack/react-query";
+import {MutableRefObject, useEffect, useState} from "react";
 
 import {ContactAttributeDefinition, contactPortalClientPublic, MyContactResult} from "../../../../../api/contact-portal.client.ts";
 import {AttendeeContactToken} from "../../../../../types.ts";
@@ -93,18 +93,30 @@ interface AttendeeProfileCardProps {
     contactId?: number;
     eventId?: number;
     /** Optional extra persistence run as part of "Save changes" (e.g. the
-     *  check-in modal saving the confirm-at-check-in flag on the attendee row).
-     *  Awaited alongside the contact update; a rejection fails the whole save. */
-    additionalSaveAsync?: () => Promise<void>;
+     *  check-in modal saving the confirm-at-check-in flag and mirroring the
+     *  edited name onto the attendee row). Receives the names just written to
+     *  the contact so the caller can keep the attendee record in sync. Awaited
+     *  alongside the contact update; a rejection fails the whole save. */
+    additionalSaveAsync?: (saved: {firstName: string; lastName: string}) => Promise<void>;
     /** Called after a successful save — e.g. to close the containing modal. */
     onSaved?: () => void;
+    /** When provided, the card publishes a silent saver into this ref so a
+     *  parent can fold the profile save into a larger commit (e.g. the check-in
+     *  modal's "Save email", which persists name, questions, the confirm flag
+     *  and the email together). The silent saver suppresses this card's own
+     *  toast/onSaved and rethrows on failure so the parent can react. */
+    saveRef?: MutableRefObject<(() => Promise<void>) | null>;
+    /** Hide the card's own "Save changes" button when a parent drives the save
+     *  itself (via saveRef) — e.g. the check-in modal's single combined save. */
+    showSaveButton?: boolean;
 }
 
-export const AttendeeProfileCard = ({token, data, contactId, eventId, additionalSaveAsync, onSaved}: AttendeeProfileCardProps) => {
+export const AttendeeProfileCard = ({token, data, contactId, eventId, additionalSaveAsync, onSaved, saveRef, showSaveButton = true}: AttendeeProfileCardProps) => {
     const queryClient = useQueryClient();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [attrs, setAttrs] = useState<Record<string, AttrValue>>({});
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (!data?.found) return;
@@ -113,8 +125,9 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId, additional
         setAttrs(toAttributeValues(data.attributes, data.attribute_definitions));
     }, [data?.found, data?.first_name, data?.last_name, data?.attribute_definitions]);
 
-    const mutation = useMutation({
-        mutationFn: async () => {
+    const performSave = async (silent = false) => {
+        setSaving(true);
+        try {
             await contactPortalClientPublic.updateMyContact({
                 token,
                 first_name: firstName,
@@ -122,17 +135,33 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId, additional
                 attributes: attrs,
             });
             if (additionalSaveAsync) {
-                await additionalSaveAsync();
+                await additionalSaveAsync({firstName, lastName});
             }
-        },
-        onSuccess: () => {
-            showSuccess(t`Profile updated.`);
             if (typeof contactId === 'number' && typeof eventId === 'number') {
                 void queryClient.invalidateQueries({queryKey: ['attendee-profile', contactId, eventId]});
             }
-            onSaved?.();
-        },
-        onError: () => showError(t`We couldn't save your changes. Please try again.`),
+            if (!silent) {
+                showSuccess(t`Profile updated.`);
+                onSaved?.();
+            }
+        } catch (error) {
+            if (silent) throw error;
+            showError(t`We couldn't save your changes. Please try again.`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!saveRef) return;
+        if (!data?.found) {
+            saveRef.current = null;
+            return;
+        }
+        saveRef.current = () => performSave(true);
+        return () => {
+            saveRef.current = null;
+        };
     });
 
     if (!data?.found) {
@@ -143,9 +172,8 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId, additional
         );
     }
 
-    return (
-        <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}>
-            <Stack gap="sm">
+    const fields = (
+        <Stack gap="sm">
                 <SimpleGrid cols={{base: 1, sm: 2, md: 3}} spacing="sm">
                     <TextInput
                         label={t`First name`}
@@ -205,17 +233,28 @@ export const AttendeeProfileCard = ({token, data, contactId, eventId, additional
                     })}
                 </SimpleGrid>
 
-                <Group justify="flex-end" mt="xs">
-                    <Button
-                        type="submit"
-                        size="xs"
-                        loading={mutation.isPending}
-                        leftSection={<IconCheck size={14}/>}
-                    >
-                        {t`Save changes`}
-                    </Button>
-                </Group>
+                {showSaveButton && (
+                    <Group justify="flex-end" mt="xs">
+                        <Button
+                            type="submit"
+                            size="xs"
+                            loading={saving}
+                            leftSection={<IconCheck size={14}/>}
+                        >
+                            {t`Save changes`}
+                        </Button>
+                    </Group>
+                )}
             </Stack>
+    );
+
+    if (!showSaveButton) {
+        return fields;
+    }
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); void performSave(); }}>
+            {fields}
         </form>
     );
 };

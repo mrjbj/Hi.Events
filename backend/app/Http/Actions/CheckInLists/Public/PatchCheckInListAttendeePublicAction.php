@@ -33,6 +33,9 @@ class PatchCheckInListAttendeePublicAction extends BaseAction
                     $request->has('notify_email_change')
                         ? ['notify_email_change' => $request->boolean('notify_email_change')]
                         : [],
+                    $request->filled('contact_resolution')
+                        ? ['contact_resolution' => $request->string('contact_resolution')->toString()]
+                        : [],
                 ),
             );
         } catch (CannotCheckInException $e) {

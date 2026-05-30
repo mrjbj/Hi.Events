@@ -16,7 +16,12 @@ interface HistoryRow {
     newValue: unknown;
     changedBy: number | null;
     sourceQuestionAnswerIds?: number[];
+    isEmailChange?: boolean;
+    reason?: string;
 }
+
+// Sentinel attribute name for email-change rows (email isn't a contact attribute).
+const EMAIL_ROW_KEY = '__email__';
 
 const INITIAL_LIMIT = 100;
 
@@ -53,6 +58,25 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
         const history: ContactAttributeChange[] = Array.isArray(raw) ? raw : [];
         const emitted: HistoryRow[] = [];
         history.forEach(change => {
+            // Email-change entries use a flat {field, old_value, new_value, reason}
+            // shape rather than the attribute old_values/new_values map.
+            if (change.field === 'email') {
+                if (!valuesEqual(change.old_value, change.new_value)) {
+                    emitted.push({
+                        changedAt: change.changed_at,
+                        attributeName: EMAIL_ROW_KEY,
+                        attributeLabel: t`Email address`,
+                        isDefinitionMissing: false,
+                        oldValue: change.old_value,
+                        newValue: change.new_value,
+                        changedBy: change.changed_by ?? null,
+                        isEmailChange: true,
+                        reason: change.reason,
+                    });
+                }
+                return;
+            }
+
             const keys = new Set<string>([
                 ...Object.keys(change.old_values ?? {}),
                 ...Object.keys(change.new_values ?? {}),
@@ -100,7 +124,7 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
             <Box py="xl" ta="center">
                 <IconHistory size={32} style={{opacity: 0.4}}/>
                 <Text c="dimmed" mt="xs">
-                    <Trans>No attribute changes yet.</Trans>
+                    <Trans>No changes yet.</Trans>
                 </Text>
             </Box>
         );
@@ -169,7 +193,11 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
                                     </Tooltip>
                                 </Table.Td>
                                 <Table.Td>
-                                    {isSync ? (
+                                    {row.isEmailChange ? (
+                                        <Tooltip label={row.reason ? t`Reason: ${row.reason}` : t`Email address change`} withArrow>
+                                            <Badge size="sm" variant="light" color="violet">{t`Email change`}</Badge>
+                                        </Tooltip>
+                                    ) : isSync ? (
                                         <Badge size="sm" variant="light" color="blue">{t`From question answer`}</Badge>
                                     ) : (
                                         <Badge size="sm" variant="light" color="gray">{t`Manual edit`}</Badge>

@@ -10,6 +10,7 @@ import {AttendeeProfileEntry} from "../AttendeeProfiles";
 import {contactPortalClientPublic} from "../../../../../api/contact-portal.client.ts";
 import {SelfServiceUpdateResult} from "../../../../../api/self-service.client.ts";
 import {showError} from "../../../../../utilites/notifications.tsx";
+import {confirmationDialog} from "../../../../../utilites/confirmationDialog.tsx";
 
 type AttrValue = string | string[];
 
@@ -107,7 +108,26 @@ export const EditAttendeeModal = ({
         }
     }, [contactData?.found, contactData?.attribute_definitions, attendee.id]);
 
-    const handleSubmit = async (values: typeof form.values) => {
+    const handleSubmit = (values: typeof form.values) => {
+        const oldEmail = attendee.email;
+        const emailChanged = !!values.email && values.email !== oldEmail;
+
+        // Mirror the check-in door: when the email actually changes and there
+        // was a previous address on file, warn that the old address will be
+        // notified before we send anything.
+        if (emailChanged && oldEmail) {
+            confirmationDialog(
+                t`The current address (${oldEmail}) will be emailed to let them know the ticket's email address has changed. Continue?`,
+                () => void performSave(values),
+                {confirm: t`Yes, save and notify`, cancel: t`Cancel`},
+            );
+            return;
+        }
+
+        void performSave(values);
+    };
+
+    const performSave = async (values: typeof form.values) => {
         setSubmitting(true);
         try {
             // 1. Save the attendee row first. The backend's resyncContactLink may

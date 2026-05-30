@@ -16,8 +16,12 @@ use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
+use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
+use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use Illuminate\Support\Facades\Mail;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Throwable;
 
 class PatchCheckInListAttendeePublicHandler
 {
@@ -26,10 +30,13 @@ class PatchCheckInListAttendeePublicHandler
         private readonly CheckInListRepositoryInterface $checkInListRepository,
         private readonly BundleSeatInfoPropagationService $bundleSeatInfoPropagationService,
         private readonly EventRepositoryInterface $eventRepository,
+        private readonly AttendeeContactLinkResolver $contactLinkResolver,
+        private readonly ContactSignedTokenService $contactTokenService,
+        private readonly LoggerInterface $logger,
     ) {}
 
     /**
-     * @param  array<string, string|bool|null>  $fields  keys: first_name, last_name, email, seat_info, confirm_at_checkin, notify_email_change (all optional)
+     * @param  array<string, string|bool|null>  $fields  keys: first_name, last_name, email, seat_info, confirm_at_checkin, notify_email_change, contact_resolution (all optional)
      *
      * @throws CannotCheckInException
      */
@@ -90,6 +97,38 @@ class PatchCheckInListAttendeePublicHandler
         // door-capture modal omits this flag so capturing a placeholder's details
         // doesn't spam the buyer.
         $emailChanged = array_key_exists('email', $updates) && $updates['email'] !== $oldEmail;
+
+        // Reconcile the attendee↔contact link after an email change. The resolver
+        // decides whether to link (contactless), split off a shared/bundle contact,
+        // rename a sponsor's contact (when the door confirmed it's the same person),
+        // or flag a sole-owner divergence for review. It owns the divergence
+        // flag, so the door no longer touches those columns directly.
+        //
+        // We deliberately only act on an actual email CHANGE. A grouped guest can
+        // only be separated from the sponsor by being given their own, distinct
+        // address (contacts are keyed by email) — so the door captures that new
+        // email. Re-saving the buyer's inherited placeholder unchanged would just
+        // merge the guest onto the sponsor, so we don't. Contactless attendees
+        // left with no real email flow through Contacts → Sync → New Contacts.
+        $accountId = null;
+        if ($emailChanged) {
+            $accountId = (int) $this->eventRepository->findById($attendee->getEventId())->getAccountId();
+            $this->contactLinkResolver->resolveAfterEmailChange(
+                attendeeId: $attendee->getId(),
+                accountId: $accountId,
+                previousContactId: $attendee->getContactId(),
+                newEmail: (string) $updates['email'],
+                firstName: $updates['first_name'] ?? $attendee->getFirstName(),
+                lastName: $updates['last_name'] ?? $attendee->getLastName(),
+                sponsorDecision: $fields['contact_resolution'] ?? null,
+                renameSoleOwnerContact: false,
+            );
+        }
+
+        // Only notify the previous email holder when the client explicitly asks
+        // (the "Edit attendee details" modal's confirmed "Save email" flow). The
+        // door-capture modal omits this flag so capturing a placeholder's details
+        // doesn't spam the buyer.
         if (! empty($fields['notify_email_change']) && $emailChanged && ! empty($oldEmail)) {
             $this->sendChangeNotificationToOldEmail(
                 oldEmail: $oldEmail,
@@ -110,7 +149,26 @@ class PatchCheckInListAttendeePublicHandler
             );
         }
 
-        return $this->attendeeRepository->findById($attendee->getId());
+        $refreshed = $this->attendeeRepository->findById($attendee->getId());
+
+        // After an email change that (re)linked a contact, mint a fresh contact
+        // token on the returned attendee so the door modal can chain a profile /
+        // registration-attribute save without refetching the whole check-in list.
+        if ($emailChanged && $accountId !== null && $refreshed->getContactId() !== null) {
+            try {
+                $refreshed->setContactToken(
+                    $this->contactTokenService->generate((int) $refreshed->getContactId(), $accountId),
+                );
+            } catch (Throwable $e) {
+                $this->logger->warning('Failed to mint contact token after check-in email edit', [
+                    'attendee_id' => $refreshed->getId(),
+                    'contact_id' => $refreshed->getContactId(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $refreshed;
     }
 
     private function sendChangeNotificationToOldEmail(

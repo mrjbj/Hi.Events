@@ -17,7 +17,8 @@ interface ContactRepositoryInterface extends RepositoryInterface
 
     /**
      * Lowercases the email and writes it. Appends an entry to attributes_history
-     * (old_email, changed_at, reason) so the prior address is preserved for audit.
+     * (old_value, new_value, changed_at, changed_by, reason) so the prior address
+     * is preserved for audit and surfaced in the contact's History tab.
      */
-    public function updateEmail(int $contactId, string $email, string $reason = 'manual_resolve'): void;
+    public function updateEmail(int $contactId, string $email, string $reason = 'manual_resolve', ?int $changedByUserId = null): void;
 }

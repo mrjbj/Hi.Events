@@ -160,6 +160,33 @@ export const contactClient = {
         );
         return response.data;
     },
+    backfillEmailChanges: async (
+        accountId: IdParam,
+        params: QueryFilters = {},
+        includeProcessed = false,
+    ) => {
+        const merged: QueryFilters = {
+            ...params,
+            additionalParams: {
+                ...(params.additionalParams ?? {}),
+                ...(includeProcessed ? {include_processed: '1'} : {}),
+            },
+        };
+        const response = await api.get<GenericPaginatedResponse<ContactBackfillEmailChangeRow>>(
+            `accounts/${accountId}/contacts/backfill/email-changes` + queryParamsHelper.buildQueryString(merged),
+        );
+        return response.data;
+    },
+    backfillApplyEmailChangeDecisions: async (
+        accountId: IdParam,
+        decisions: Array<{ attendee_id: number; decision: 'update' | 'split' | 'ignore' }>,
+    ) => {
+        const response = await api.post<{ data: { count: number } }>(
+            `accounts/${accountId}/contacts/backfill/apply-email-change-decisions`,
+            {decisions},
+        );
+        return response.data;
+    },
 };
 
 export interface ContactBackfillSummary {
@@ -167,6 +194,7 @@ export interface ContactBackfillSummary {
     unmapped_questions_count: number;
     conflicts_count: number;
     stale_values_count: number;
+    email_changes_count: number;
 }
 
 export interface ContactBackfillUnlinkedAttendee {
@@ -223,4 +251,23 @@ export interface ContactBackfillStaleValueRow {
     current_value: string | string[];
     invalid_values: string[];
     options: string[];
+}
+
+export interface ContactBackfillEmailChangeRow {
+    attendee_id: number;
+    attendee_public_id: string;
+    attendee_email: string;
+    contact_id: number;
+    contact_email: string;
+    contact_first_name: string | null;
+    contact_last_name: string | null;
+    event_id: number;
+    event_title: string | null;
+    changed_at: string | null;
+    ignored_at: string | null;
+    processed: boolean;
+    // How many active attendees share this contact. >1 means the contact is shared
+    // (e.g. a sponsor's bundle) so the row offers "split" rather than "update".
+    shared: boolean;
+    shared_count: number;
 }

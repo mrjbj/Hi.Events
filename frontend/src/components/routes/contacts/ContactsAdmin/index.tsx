@@ -15,6 +15,8 @@ import {GET_BACKFILL_SUMMARY_QUERY_KEY} from "../../../../queries/useGetBackfill
 import {GET_BACKFILL_UNLINKED_ATTENDEES_QUERY_KEY} from "../../../../queries/useGetBackfillUnlinkedAttendees.ts";
 import {GET_BACKFILL_UNMAPPED_QUESTIONS_QUERY_KEY} from "../../../../queries/useGetBackfillUnmappedQuestions.ts";
 import {GET_BACKFILL_CONFLICTS_QUERY_KEY} from "../../../../queries/useGetBackfillConflicts.ts";
+import {GET_BACKFILL_STALE_VALUES_QUERY_KEY} from "../../../../queries/useGetBackfillStaleValues.ts";
+import {GET_BACKFILL_EMAIL_CHANGES_QUERY_KEY} from "../../../../queries/useGetBackfillEmailChanges.ts";
 
 const ContactsAdmin = () => {
     const [activeTab, setActiveTab] = useState<string | null>('contacts');
@@ -31,6 +33,8 @@ const ContactsAdmin = () => {
                     GET_BACKFILL_UNLINKED_ATTENDEES_QUERY_KEY,
                     GET_BACKFILL_UNMAPPED_QUESTIONS_QUERY_KEY,
                     GET_BACKFILL_CONFLICTS_QUERY_KEY,
+                    GET_BACKFILL_EMAIL_CHANGES_QUERY_KEY,
+                    GET_BACKFILL_STALE_VALUES_QUERY_KEY,
                 ];
             }
             return [];

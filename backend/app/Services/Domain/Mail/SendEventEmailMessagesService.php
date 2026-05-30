@@ -176,26 +176,47 @@ class SendEventEmailMessagesService
     }
 
     /**
-     * Cross-event announcements (audience event != promoted event) prefer the
-     * Contact's current email so cleanups done in the Resolve modal compound
-     * across all future sends. Same-event and transactional sends use the
-     * attendee's email verbatim.
+     * Resolve which address to send to. The contact is the *current* canonical
+     * email; the attendee row is the *historical fact* of what was used at this
+     * event. We prefer one or the other by context:
+     *
+     *  - Cross-event announcements (audience event != promoted event) prefer the
+     *    Contact's current email so cleanups done in the Resolve modal compound
+     *    across all future sends.
+     *  - Same-event / transactional sends use the attendee's email verbatim —
+     *    EXCEPT when that address is suppressed (e.g. a bounce we resolved by
+     *    correcting the contact). Then we fall back to the contact's current
+     *    email so the person is still reached, while the attendee row keeps its
+     *    historical address. This is the deliverability backstop that lets us
+     *    stop cascading contact email changes onto attendee rows.
      */
     private function resolveAttendeeEmail(AttendeeDomainObject $attendee, SendMessageDTO $messageData): ?string
     {
         $promotes = $messageData->promotes_event_id;
         $isCrossEvent = $promotes !== null && (int) $promotes !== (int) $messageData->event_id;
-        if (! $isCrossEvent) {
-            return $attendee->getEmail();
+        $hasUsableContact = $attendee->getContactId() !== null && $attendee->getContactLinkIgnoredAt() === null;
+
+        if ($isCrossEvent && $hasUsableContact) {
+            $contactEmail = $attendee->getContact()?->getEmail();
+            if ($contactEmail !== null && $contactEmail !== '') {
+                return $contactEmail;
+            }
         }
 
-        if ($attendee->getContactId() === null || $attendee->getContactLinkIgnoredAt() !== null) {
-            return $attendee->getEmail();
+        $attendeeEmail = $attendee->getEmail();
+
+        if (! $isCrossEvent
+            && $hasUsableContact
+            && $attendeeEmail !== null
+            && $attendeeEmail !== ''
+            && $this->emailSuppressionService->isEmailSuppressed($attendeeEmail, $messageData->account_id, 'transactional')) {
+            $contactEmail = $attendee->getContact()?->getEmail();
+            if ($contactEmail !== null && $contactEmail !== '' && strtolower($contactEmail) !== strtolower($attendeeEmail)) {
+                return $contactEmail;
+            }
         }
 
-        $contact = $attendee->getContact();
-
-        return $contact?->getEmail() ?? $attendee->getEmail();
+        return $attendeeEmail;
     }
 
     private function attendeesQuery(): AttendeeRepositoryInterface
