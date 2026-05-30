@@ -20,8 +20,12 @@ enum OrderPaymentType: string
     case COMP = 'COMP';
     case WRITE_OFF = 'WRITE_OFF';
 
-    // Money returned (stored as a negative amount).
-    case REFUND = 'REFUND';
+    /**
+     * Note: refunds are intentionally NOT a ledger type. They live in their own
+     * lane (order_refunds + orders.total_refunded) for both Stripe and offline
+     * channels, so the ledger holds positive credits only and the balance never
+     * double-counts a refund. See OrderBalanceService.
+     */
 
     /**
      * Types that represent cash actually collected (counted in "collected").
@@ -41,5 +45,16 @@ enum OrderPaymentType: string
     public static function compTypes(): array
     {
         return [self::COMP, self::WRITE_OFF];
+    }
+
+    public static function fromOfflinePaymentMethod(OfflinePaymentMethod $method): self
+    {
+        return match ($method) {
+            OfflinePaymentMethod::CASH => self::CASH,
+            OfflinePaymentMethod::CHECK => self::CHECK,
+            OfflinePaymentMethod::CREDIT_CARD => self::CARD,
+            OfflinePaymentMethod::BANK_TRANSFER => self::BANK_TRANSFER,
+            OfflinePaymentMethod::OTHER => self::OTHER,
+        };
     }
 }

@@ -7,10 +7,12 @@ use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 use HiEvents\DomainObjects\AccountDomainObject;
 use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\OrderPaymentType;
 use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
+use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -28,6 +30,7 @@ use HiEvents\Repository\Interfaces\AffiliateRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\InvoiceRepositoryInterface;
+use HiEvents\Repository\Interfaces\OrderPaymentRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
@@ -50,6 +53,7 @@ class MarkOrderAsPaidService
         private readonly EventRepositoryInterface                  $eventRepository,
         private readonly OrderApplicationFeeService                $orderApplicationFeeService,
         private readonly SendOrderDetailsService                   $sendOrderDetailsService,
+        private readonly OrderPaymentRepositoryInterface           $orderPaymentRepository,
     )
     {
     }
@@ -78,6 +82,8 @@ class MarkOrderAsPaidService
             if ($order->getStatus() !== OrderStatus::AWAITING_OFFLINE_PAYMENT->name) {
                 throw new ResourceConflictException(__('Order is not awaiting offline payment'));
             }
+
+            $this->recordSettlementPayment($order, $dto);
 
             $this->updateOrderStatusAndMethod($dto, $order);
 
@@ -135,6 +141,31 @@ class MarkOrderAsPaidService
                 'status' => InvoiceStatus::PAID->name,
             ]);
         }
+    }
+
+    /**
+     * Record the full settlement on the payments ledger so the order's balance
+     * stays consistent with the ledger model. The order's totals are untouched.
+     */
+    private function recordSettlementPayment(OrderDomainObject $order, MarkOrderAsPaidDTO $dto): void
+    {
+        $amount = round((float)$order->getTotalGross(), 2);
+
+        if ($amount <= 0.0) {
+            return;
+        }
+
+        $this->orderPaymentRepository->create([
+            OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
+            OrderPaymentDomainObjectAbstract::TYPE => OrderPaymentType::fromOfflinePaymentMethod($dto->paymentMethod)->value,
+            OrderPaymentDomainObjectAbstract::AMOUNT => $amount,
+            OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
+            OrderPaymentDomainObjectAbstract::REFERENCE => $dto->paymentReference,
+            OrderPaymentDomainObjectAbstract::RECORDED_BY_USER_ID => null,
+            OrderPaymentDomainObjectAbstract::RECORDED_BY_IP => null,
+            OrderPaymentDomainObjectAbstract::CREATED_AT => now()->toDateTimeString(),
+            OrderPaymentDomainObjectAbstract::UPDATED_AT => now()->toDateTimeString(),
+        ]);
     }
 
     private function updateOrderStatusAndMethod(MarkOrderAsPaidDTO $dto, OrderDomainObject $order): void

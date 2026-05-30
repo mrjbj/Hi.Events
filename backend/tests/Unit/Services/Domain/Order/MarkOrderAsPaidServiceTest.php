@@ -5,10 +5,12 @@ namespace Tests\Unit\Services\Domain\Order;
 use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 use HiEvents\DomainObjects\AccountDomainObject;
 use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\OrderPaymentType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
+use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
@@ -17,6 +19,7 @@ use HiEvents\Repository\Interfaces\AffiliateRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\InvoiceRepositoryInterface;
+use HiEvents\Repository\Interfaces\OrderPaymentRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
@@ -53,6 +56,8 @@ class MarkOrderAsPaidServiceTest extends TestCase
 
     private SendOrderDetailsService|MockInterface $sendOrderDetailsService;
 
+    private OrderPaymentRepositoryInterface|MockInterface $orderPaymentRepository;
+
     private MarkOrderAsPaidService $service;
 
     protected function setUp(): void
@@ -70,6 +75,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class);
         $this->orderApplicationFeeService = Mockery::mock(OrderApplicationFeeService::class);
         $this->sendOrderDetailsService = Mockery::mock(SendOrderDetailsService::class);
+        $this->orderPaymentRepository = Mockery::mock(OrderPaymentRepositoryInterface::class);
 
         $this->databaseManager->shouldReceive('transaction')
             ->andReturnUsing(fn ($callback) => $callback());
@@ -85,6 +91,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
             $this->eventRepository,
             $this->orderApplicationFeeService,
             $this->sendOrderDetailsService,
+            $this->orderPaymentRepository,
         );
     }
 
@@ -116,6 +123,14 @@ class MarkOrderAsPaidServiceTest extends TestCase
             items: collect([$this->mockItem(1, 25.0)]),
         );
         $this->setupSideEffectMocks(updatedOrderTotalGross: 25.0);
+
+        $this->orderPaymentRepository
+            ->shouldReceive('create')
+            ->once()
+            ->with(Mockery::on(function (array $attrs) {
+                return $attrs[OrderPaymentDomainObjectAbstract::AMOUNT] === 25.0
+                    && $attrs[OrderPaymentDomainObjectAbstract::TYPE] === OrderPaymentType::CASH->value;
+            }));
 
         $this->orderRepository
             ->shouldReceive('updateFromArray')
@@ -176,6 +191,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $order->shouldReceive('getOrderItems')->andReturn($items);
         $order->shouldReceive('getPaymentProvider')->andReturn(null);
         $order->shouldReceive('getLatestInvoice')->andReturn(null);
+        $order->shouldReceive('getCurrency')->andReturn('USD');
 
         $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->orderRepository

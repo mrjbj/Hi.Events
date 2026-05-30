@@ -74,7 +74,14 @@ changes** — the moment we stop rewriting the order, the aggregate is right by 
 | `CASH` / `CHECK` / `CARD` / `BANK_TRANSFER` / `OTHER` | Money received at door / offline | Yes | Yes |
 | `COMP` / `WRITE_OFF` | Deliberate forgiveness of the remainder (non-cash) | No | Yes |
 | `DONATION` | Cash received **in excess** of owed | Yes (as donation) | n/a (excess) |
-| `REFUND` (negative) | Money returned | Reduces collected | Reverses |
+
+> **Refunds are NOT a ledger type.** They keep their existing lane —
+> `order_refunds` (per-transaction detail) + `orders.total_refunded` (rollup) — for both Stripe and
+> (future) offline channels. The balance reads refunds from `total_refunded`, so the ledger holds
+> positive credits only and a refund can never be double-counted. A future "refund arbitrary amounts
+> via Stripe or offline" feature extends the refund lane (write `order_refunds` + bump
+> `total_refunded`); it needs no ledger changes. The manage-order view merges the two lists for a
+> full money-movement timeline without duplicating data.
 
 > **Overpay vs. comp are opposite directions.** A **comp** is a non-cash credit that settles the
 > balance without money. A **donation/overpay** is *cash beyond owed*. Donation is therefore a
@@ -238,6 +245,16 @@ already corrected).
      rows yet) never surface a wrong balance.
 2. **Record-payment path** — new action/handler; refactor `MarkOrderAsPaid` to write a ledger row;
    remove the rewrite. Status recompute.
+   - **DONE (2026-05-30):** `ApplyOrderBalanceStatusService` (the §5 matrix — derives & persists
+     order/payment status from balance, activates attendees when settled);
+     `RecordOrderPaymentService` + `RecordOrderPaymentDTO` (insert ledger credit → reconcile status,
+     guarded to COMPLETED/AWAITING_OFFLINE_PAYMENT orders); HTTP `POST /events/{id}/orders/{id}/payments`
+     (`RecordOrderPaymentAction` + handler + request). `MarkOrderAsPaid` now writes a full-settlement
+     ledger row (`OrderPaymentType::fromOfflinePaymentMethod`) so a marked-paid order is consistent
+     with the ledger. Refunds excluded from the ledger (own lane). Tests: balance-status matrix,
+     record-payment (happy/not-found/bad-status), mark-as-paid ledger row. Full Unit suite 610 green.
+   - **Not yet:** `MarkOrderAsPaid` still also sets COMPLETED directly (belt-and-suspenders alongside
+     the ledger row); fully routing it through `ApplyOrderBalanceStatusService` is a later cleanup.
 3. **Check-in UX** — entered-amount → receipt; short-payment prompt (outstanding vs comp); overpay
    surfacing.
 4. **Backfill + data fix** — §8 steps; retire `order_payment_adjustments` rewrite.

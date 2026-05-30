@@ -20,7 +20,8 @@ use Illuminate\Support\Collection;
  *
  * Stripe receipts come from the confirmed stripe_payments.amount_received (minor
  * units), NOT from the mere presence of a stripe_payments row. Refunds use the
- * authoritative orders.total_refunded rollup plus any REFUND ledger rows.
+ * authoritative orders.total_refunded rollup (Stripe or offline) — refunds are
+ * never ledger rows, so the balance cannot double-count them.
  */
 class OrderBalanceService
 {
@@ -51,15 +52,12 @@ class OrderBalanceService
 
         $cashReceipts = 0.0;
         $comps = 0.0;
-        $ledgerRefunds = 0.0;
 
         foreach ($orderPayments as $payment) {
             $amount = round((float)$payment->getAmount(), 2);
             $type = $payment->getType();
 
-            if ($type === OrderPaymentType::REFUND->value) {
-                $ledgerRefunds += abs($amount);
-            } elseif (in_array($type, $compTypes, true)) {
+            if (in_array($type, $compTypes, true)) {
                 $comps += $amount;
             } elseif (in_array($type, $cashTypes, true)) {
                 $cashReceipts += $amount;
@@ -71,7 +69,7 @@ class OrderBalanceService
             ? round($stripePayment->getAmountReceived() / 100, 2)
             : 0.0;
 
-        $refunds = round((float)$order->getTotalRefunded() + $ledgerRefunds, 2);
+        $refunds = round((float)$order->getTotalRefunded(), 2);
         $grossReceipts = round($cashReceipts + $stripeReceipts, 2);
         $collected = round($grossReceipts - $refunds, 2);
         $balance = round($owed - $grossReceipts - $comps + $refunds, 2);
