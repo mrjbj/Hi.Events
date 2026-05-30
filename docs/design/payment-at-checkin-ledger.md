@@ -229,6 +229,13 @@ already corrected).
 ## 10. Rollout phases
 
 1. **Schema + read model** — `order_payments`, `OrderBalanceService`, resource fields. No behavior change.
+   - **DONE (2026-05-30):** `order_payments` table + migration; `OrderPaymentType` enum; `OrderPayment`
+     model + generated domain objects; `OrderPaymentRepository(Interface)` + provider binding;
+     `OrderBalanceService` + `OrderBalanceDTO` (balance = owed − cash − stripe − comps + refunds, with
+     `collected`/`overpaid`/`isSettled`); `OrderBalanceServiceTest` (7 cases: unpaid, exact, partial,
+     comp, overpay, stripe, refund). **Deferred to Phase 4:** exposing balance on `OrderResource` —
+     held until the receipts backfill (§8, step 2) lands, so existing offline-paid orders (no ledger
+     rows yet) never surface a wrong balance.
 2. **Record-payment path** — new action/handler; refactor `MarkOrderAsPaid` to write a ledger row;
    remove the rewrite. Status recompute.
 3. **Check-in UX** — entered-amount → receipt; short-payment prompt (outstanding vs comp); overpay
