@@ -1,0 +1,40 @@
+{
+  "title": "Smoke Test — Manage-Order Payments Panel",
+  "subtitle": "Phase 3: record offline payments + comp remainder against an order's ledger, with live balance reconciliation.",
+  "meta": {
+    "Flow": "login → event orders → open order → Payments panel → record payment → comp remainder",
+    "App URL": "https://localhost:8443",
+    "Event": "261 (Developer-05)",
+    "Order": "O-00H9VYK (id 133), set to AWAITING_OFFLINE_PAYMENT / total $1.57 for the test",
+    "User": "playwright@hi-events.test",
+    "Endpoint": "POST /events/{id}/orders/{id}/payments",
+    "Branch": "jbj/local"
+  },
+  "steps": [
+    {
+      "title": "Orders list — order is awaiting offline payment",
+      "description": "Event 261 orders. Order O-00H9VYK shows $1.57 with payment status \"Awaiting Payment\" (offline). This is the order we will collect against.",
+      "status": "pass",
+      "screenshot": "shots/01-orders-list.png"
+    },
+    {
+      "title": "Payments panel — initial state (fully outstanding)",
+      "description": "Manage-Order drawer → Payments accordion. Balance summary shows Owed $1.57 and Outstanding $1.57 (red). The record form defaults the amount to the outstanding balance, and a \"Comp remaining $1.57\" action is offered for forgiving the balance.",
+      "status": "pass",
+      "screenshot": "shots/02-panel-initial.png"
+    },
+    {
+      "title": "After recording a $1.00 partial cash payment",
+      "description": "Entered $1.00 cash, reference \"check #4471\", clicked Record payment. \"Payment recorded\" toast; Collected → $1.00, Outstanding → $0.57; a ledger row appears (Cash $1.00 · check #4471). Comp action updates to \"Comp remaining $0.57\". The order total/line items are never touched — this is a ledger credit against the receivable.",
+      "status": "pass",
+      "screenshot": "shots/03-after-partial-payment.png"
+    },
+    {
+      "title": "After comping the remainder — order settled",
+      "description": "Clicked \"Comp remaining $0.57\". \"Remaining balance comped\"; balance shows Collected $1.00 + Comped $0.57 with a green Settled badge; ledger now has both rows (Cash $1.00, Comp $0.57). Order status reconciled to COMPLETED (the orders-list row also updated to \"Completed\"), and attendees activated — all derived from the ledger balance.",
+      "status": "pass",
+      "screenshot": "shots/04-settled.png",
+      "notes": "End-to-end round trip verified: form → POST /payments → RecordOrderPaymentService → ledger insert → ApplyOrderBalanceStatusService (status + attendee activation) → refetch → recomputed balance in the UI."
+    }
+  ]
+}
