@@ -9,19 +9,14 @@ use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
-use HiEvents\DomainObjects\Generated\OrderItemDomainObjectAbstract;
-use HiEvents\DomainObjects\Generated\OrderPaymentAdjustmentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
-use HiEvents\DomainObjects\OrderPaymentAdjustmentDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Repository\Interfaces\AffiliateRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\InvoiceRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrderItemRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrderPaymentAdjustmentRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
@@ -39,8 +34,6 @@ use Tests\TestCase;
 class MarkOrderAsPaidServiceTest extends TestCase
 {
     private OrderRepositoryInterface|MockInterface $orderRepository;
-
-    private OrderItemRepositoryInterface|MockInterface $orderItemRepository;
 
     private DatabaseManager|MockInterface $databaseManager;
 
@@ -60,8 +53,6 @@ class MarkOrderAsPaidServiceTest extends TestCase
 
     private SendOrderDetailsService|MockInterface $sendOrderDetailsService;
 
-    private OrderPaymentAdjustmentRepositoryInterface|MockInterface $orderPaymentAdjustmentRepository;
-
     private MarkOrderAsPaidService $service;
 
     protected function setUp(): void
@@ -70,7 +61,6 @@ class MarkOrderAsPaidServiceTest extends TestCase
         Event::fake();
 
         $this->orderRepository = Mockery::mock(OrderRepositoryInterface::class);
-        $this->orderItemRepository = Mockery::mock(OrderItemRepositoryInterface::class);
         $this->databaseManager = Mockery::mock(DatabaseManager::class);
         $this->affiliateRepository = Mockery::mock(AffiliateRepositoryInterface::class);
         $this->invoiceRepository = Mockery::mock(InvoiceRepositoryInterface::class);
@@ -80,14 +70,12 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class);
         $this->orderApplicationFeeService = Mockery::mock(OrderApplicationFeeService::class);
         $this->sendOrderDetailsService = Mockery::mock(SendOrderDetailsService::class);
-        $this->orderPaymentAdjustmentRepository = Mockery::mock(OrderPaymentAdjustmentRepositoryInterface::class);
 
         $this->databaseManager->shouldReceive('transaction')
             ->andReturnUsing(fn ($callback) => $callback());
 
         $this->service = new MarkOrderAsPaidService(
             $this->orderRepository,
-            $this->orderItemRepository,
             $this->databaseManager,
             $this->affiliateRepository,
             $this->invoiceRepository,
@@ -97,7 +85,6 @@ class MarkOrderAsPaidServiceTest extends TestCase
             $this->eventRepository,
             $this->orderApplicationFeeService,
             $this->sendOrderDetailsService,
-            $this->orderPaymentAdjustmentRepository,
         );
     }
 
@@ -121,7 +108,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $this->service->markOrderAsPaid($this->buildDto());
     }
 
-    public function test_records_method_when_no_amount_override(): void
+    public function test_marks_order_as_paid_without_touching_totals(): void
     {
         $this->setupInitialOrderLookup(
             orderStatus: OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
@@ -129,9 +116,6 @@ class MarkOrderAsPaidServiceTest extends TestCase
             items: collect([$this->mockItem(1, 25.0)]),
         );
         $this->setupSideEffectMocks(updatedOrderTotalGross: 25.0);
-
-        $this->orderPaymentAdjustmentRepository->shouldNotReceive('create');
-        $this->orderItemRepository->shouldNotReceive('updateFromArray');
 
         $this->orderRepository
             ->shouldReceive('updateFromArray')
@@ -139,133 +123,16 @@ class MarkOrderAsPaidServiceTest extends TestCase
             ->with(99, Mockery::on(function (array $attrs) {
                 return $attrs[OrderDomainObjectAbstract::STATUS] === OrderStatus::COMPLETED->name
                     && $attrs[OrderDomainObjectAbstract::OFFLINE_PAYMENT_METHOD] === 'CASH'
-                    && $attrs[OrderDomainObjectAbstract::OFFLINE_PAYMENT_REFERENCE] === 'check-ref-1';
+                    && $attrs[OrderDomainObjectAbstract::OFFLINE_PAYMENT_REFERENCE] === 'check-ref-1'
+                    && !array_key_exists(OrderDomainObjectAbstract::TOTAL_GROSS, $attrs);
             }));
 
         $this->service->markOrderAsPaid($this->buildDto(
             paymentMethod: OfflinePaymentMethod::CASH,
             paymentReference: 'check-ref-1',
-            collectedAmount: null,
         ));
 
         $this->addToAssertionCount(1);
-    }
-
-    public function test_no_audit_row_when_collected_equals_total(): void
-    {
-        $this->setupInitialOrderLookup(
-            orderStatus: OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
-            totalGross: 25.0,
-            items: collect([$this->mockItem(1, 25.0)]),
-        );
-        $this->setupSideEffectMocks(updatedOrderTotalGross: 25.0);
-
-        $this->orderPaymentAdjustmentRepository->shouldNotReceive('create');
-        $this->orderItemRepository->shouldNotReceive('updateFromArray');
-
-        $this->orderRepository
-            ->shouldReceive('updateFromArray')
-            ->once()
-            ->andReturn(new OrderDomainObject());
-
-        $this->service->markOrderAsPaid($this->buildDto(collectedAmount: 25.0));
-
-        $this->addToAssertionCount(1);
-    }
-
-    public function test_writes_audit_row_and_zeroes_taxes_when_amount_overridden(): void
-    {
-        $this->setupInitialOrderLookup(
-            orderStatus: OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
-            totalGross: 25.0,
-            totalBeforeAdditions: 22.94,
-            totalTax: 2.06,
-            totalFee: 0.0,
-            items: collect([$this->mockItem(1, 25.0)]),
-        );
-        $this->setupSideEffectMocks(updatedOrderTotalGross: 20.0);
-
-        $capturedAdjustment = null;
-        $this->orderPaymentAdjustmentRepository
-            ->shouldReceive('create')
-            ->once()
-            ->andReturnUsing(function (array $attrs) use (&$capturedAdjustment) {
-                $capturedAdjustment = $attrs;
-                return new OrderPaymentAdjustmentDomainObject();
-            });
-
-        $capturedItemUpdate = null;
-        $this->orderItemRepository
-            ->shouldReceive('updateFromArray')
-            ->once()
-            ->andReturnUsing(function (int $id, array $attrs) use (&$capturedItemUpdate) {
-                $capturedItemUpdate = $attrs;
-                return new OrderItemDomainObject();
-            });
-
-        $orderUpdates = [];
-        $this->orderRepository
-            ->shouldReceive('updateFromArray')
-            ->twice()
-            ->andReturnUsing(function (int $id, array $attrs) use (&$orderUpdates) {
-                $orderUpdates[] = $attrs;
-                return new OrderDomainObject();
-            });
-
-        $this->service->markOrderAsPaid($this->buildDto(
-            paymentMethod: OfflinePaymentMethod::CASH,
-            paymentReference: null,
-            collectedAmount: 20.0,
-        ));
-
-        $this->assertSame(25.0, $capturedAdjustment[OrderPaymentAdjustmentDomainObjectAbstract::ORIGINAL_TOTAL_GROSS]);
-        $this->assertSame(20.0, $capturedAdjustment[OrderPaymentAdjustmentDomainObjectAbstract::ADJUSTED_TOTAL_GROSS]);
-        $this->assertSame('CASH', $capturedAdjustment[OrderPaymentAdjustmentDomainObjectAbstract::PAYMENT_METHOD]);
-
-        $this->assertSame(20.0, $orderUpdates[0][OrderDomainObjectAbstract::TOTAL_GROSS]);
-        $this->assertSame(20.0, $orderUpdates[0][OrderDomainObjectAbstract::TOTAL_BEFORE_ADDITIONS]);
-        $this->assertSame(0, $orderUpdates[0][OrderDomainObjectAbstract::TOTAL_TAX]);
-        $this->assertSame(0, $orderUpdates[0][OrderDomainObjectAbstract::TOTAL_FEE]);
-
-        $this->assertSame(20.0, $capturedItemUpdate[OrderItemDomainObjectAbstract::PRICE]);
-        $this->assertSame(20.0, $capturedItemUpdate[OrderItemDomainObjectAbstract::TOTAL_GROSS]);
-        $this->assertSame(0, $capturedItemUpdate[OrderItemDomainObjectAbstract::TOTAL_TAX]);
-    }
-
-    public function test_multi_item_proportional_scaling_with_remainder_to_last_item(): void
-    {
-        $this->setupInitialOrderLookup(
-            orderStatus: OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
-            totalGross: 100.0,
-            items: collect([
-                $this->mockItem(11, 30.0),
-                $this->mockItem(12, 30.0),
-                $this->mockItem(13, 40.0),
-            ]),
-        );
-        $this->setupSideEffectMocks(updatedOrderTotalGross: 80.0);
-        $this->orderPaymentAdjustmentRepository->shouldReceive('create')->once();
-        $this->orderRepository
-            ->shouldReceive('updateFromArray')
-            ->twice()
-            ->andReturn(new OrderDomainObject());
-
-        $itemUpdates = [];
-        $this->orderItemRepository
-            ->shouldReceive('updateFromArray')
-            ->times(3)
-            ->andReturnUsing(function (int $id, array $attrs) use (&$itemUpdates) {
-                $itemUpdates[$id] = $attrs[OrderItemDomainObjectAbstract::PRICE];
-                return new OrderItemDomainObject();
-            });
-
-        $this->service->markOrderAsPaid($this->buildDto(collectedAmount: 80.0));
-
-        // 80/100 ratio: 30→24, 30→24, last item gets remainder 80-48 = 32
-        $this->assertSame(24.0, $itemUpdates[11]);
-        $this->assertSame(24.0, $itemUpdates[12]);
-        $this->assertSame(32.0, $itemUpdates[13]);
-        $this->assertEqualsWithDelta(80.0, array_sum($itemUpdates), 0.001);
     }
 
     // ----- helpers -----
@@ -273,14 +140,12 @@ class MarkOrderAsPaidServiceTest extends TestCase
     private function buildDto(
         OfflinePaymentMethod $paymentMethod = OfflinePaymentMethod::CASH,
         ?string $paymentReference = null,
-        ?float $collectedAmount = null,
     ): MarkOrderAsPaidDTO {
         return new MarkOrderAsPaidDTO(
             eventId: 10,
             orderId: 99,
             paymentMethod: $paymentMethod,
             paymentReference: $paymentReference,
-            collectedAmount: $collectedAmount,
         );
     }
 

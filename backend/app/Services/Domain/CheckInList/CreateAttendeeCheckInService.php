@@ -205,9 +205,6 @@ class CreateAttendeeCheckInService
                     orderId: $attendee->getOrderId(),
                     paymentMethod: $attendeeAction->payment_method ?? OfflinePaymentMethod::OTHER,
                     paymentReference: $attendeeAction->payment_reference,
-                    collectedAmount: $attendeeAction->collected_amount,
-                    adjustedByUserId: null,
-                    adjustedByIp: $checkInUserIpAddress,
                 ));
             }
 

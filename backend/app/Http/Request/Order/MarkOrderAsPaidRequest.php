@@ -13,7 +13,6 @@ class MarkOrderAsPaidRequest extends FormRequest
         return [
             'payment_method' => ['required', 'string', Rule::in(OfflinePaymentMethod::valuesArray())],
             'payment_reference' => ['nullable', 'string', 'max:255'],
-            'collected_amount' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

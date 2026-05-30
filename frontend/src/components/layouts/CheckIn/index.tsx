@@ -249,7 +249,6 @@ const CheckIn = () => {
         payment?: {
             payment_method: string;
             payment_reference?: string | null;
-            collected_amount?: number | null;
         },
     ): Promise<void> => new Promise<void>((resolve) => {
         checkInMutation.mutate({

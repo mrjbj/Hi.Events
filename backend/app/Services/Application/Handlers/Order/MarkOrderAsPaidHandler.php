@@ -27,7 +27,6 @@ class MarkOrderAsPaidHandler
             'orderId' => $dto->orderId,
             'eventId' => $dto->eventId,
             'paymentMethod' => $dto->paymentMethod->value,
-            'collectedAmountProvided' => $dto->collectedAmount !== null,
         ]);
 
         return $this->markOrderAsPaidService->markOrderAsPaid($dto);

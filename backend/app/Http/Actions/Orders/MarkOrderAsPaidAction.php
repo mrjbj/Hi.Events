@@ -33,9 +33,6 @@ class MarkOrderAsPaidAction extends BaseAction
                 orderId: $orderId,
                 paymentMethod: OfflinePaymentMethod::from($validated['payment_method']),
                 paymentReference: $validated['payment_reference'] ?? null,
-                collectedAmount: isset($validated['collected_amount']) ? (float) $validated['collected_amount'] : null,
-                adjustedByUserId: $this->getAuthenticatedUser()->getId(),
-                adjustedByIp: $request->ip(),
             ));
         } catch (ResourceConflictException $e) {
             return $this->errorResponse($e->getMessage(), Response::HTTP_CONFLICT);

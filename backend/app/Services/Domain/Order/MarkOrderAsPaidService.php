@@ -11,8 +11,6 @@ use HiEvents\DomainObjects\Enums\PaymentProviders;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
-use HiEvents\DomainObjects\Generated\OrderItemDomainObjectAbstract;
-use HiEvents\DomainObjects\Generated\OrderPaymentAdjustmentDomainObjectAbstract;
 use HiEvents\DomainObjects\InvoiceDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -30,8 +28,6 @@ use HiEvents\Repository\Interfaces\AffiliateRepositoryInterface;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\InvoiceRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrderItemRepositoryInterface;
-use HiEvents\Repository\Interfaces\OrderPaymentAdjustmentRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
@@ -45,7 +41,6 @@ class MarkOrderAsPaidService
 {
     public function __construct(
         private readonly OrderRepositoryInterface                  $orderRepository,
-        private readonly OrderItemRepositoryInterface              $orderItemRepository,
         private readonly DatabaseManager                           $databaseManager,
         private readonly AffiliateRepositoryInterface              $affiliateRepository,
         private readonly InvoiceRepositoryInterface                $invoiceRepository,
@@ -55,7 +50,6 @@ class MarkOrderAsPaidService
         private readonly EventRepositoryInterface                  $eventRepository,
         private readonly OrderApplicationFeeService                $orderApplicationFeeService,
         private readonly SendOrderDetailsService                   $sendOrderDetailsService,
-        private readonly OrderPaymentAdjustmentRepositoryInterface $orderPaymentAdjustmentRepository,
     )
     {
     }
@@ -84,8 +78,6 @@ class MarkOrderAsPaidService
             if ($order->getStatus() !== OrderStatus::AWAITING_OFFLINE_PAYMENT->name) {
                 throw new ResourceConflictException(__('Order is not awaiting offline payment'));
             }
-
-            $this->applyAmountOverrideIfNeeded($order, $dto);
 
             $this->updateOrderStatusAndMethod($dto, $order);
 
@@ -132,91 +124,6 @@ class MarkOrderAsPaidService
 
             return $updatedOrder;
         });
-    }
-
-    /**
-     * If the collected amount differs from the order's total, adjust order + item
-     * totals and write an audit row. Defensive choice: any override clears
-     * taxes/fees entirely — the collected amount becomes the gross. This keeps
-     * the math predictable for door-collected payments.
-     */
-    private function applyAmountOverrideIfNeeded(OrderDomainObject $order, MarkOrderAsPaidDTO $dto): void
-    {
-        if ($dto->collectedAmount === null) {
-            return;
-        }
-
-        $originalTotal = round((float) $order->getTotalGross(), 2);
-        $collected = round($dto->collectedAmount, 2);
-
-        if ($originalTotal === $collected) {
-            return;
-        }
-
-        $this->orderPaymentAdjustmentRepository->create([
-            OrderPaymentAdjustmentDomainObjectAbstract::ORDER_ID => $order->getId(),
-            OrderPaymentAdjustmentDomainObjectAbstract::ORIGINAL_TOTAL_GROSS => $originalTotal,
-            OrderPaymentAdjustmentDomainObjectAbstract::ORIGINAL_TOTAL_BEFORE_ADDITIONS => (float) $order->getTotalBeforeAdditions(),
-            OrderPaymentAdjustmentDomainObjectAbstract::ORIGINAL_TOTAL_TAX => (float) $order->getTotalTax(),
-            OrderPaymentAdjustmentDomainObjectAbstract::ORIGINAL_TOTAL_FEE => (float) $order->getTotalFee(),
-            OrderPaymentAdjustmentDomainObjectAbstract::ADJUSTED_TOTAL_GROSS => $collected,
-            OrderPaymentAdjustmentDomainObjectAbstract::PAYMENT_METHOD => $dto->paymentMethod->value,
-            OrderPaymentAdjustmentDomainObjectAbstract::PAYMENT_REFERENCE => $dto->paymentReference,
-            OrderPaymentAdjustmentDomainObjectAbstract::ADJUSTED_BY_USER_ID => $dto->adjustedByUserId,
-            OrderPaymentAdjustmentDomainObjectAbstract::ADJUSTED_BY_IP => $dto->adjustedByIp,
-            OrderPaymentAdjustmentDomainObjectAbstract::CREATED_AT => now()->toDateTimeString(),
-        ]);
-
-        $this->orderRepository->updateFromArray($order->getId(), [
-            OrderDomainObjectAbstract::TOTAL_GROSS => $collected,
-            OrderDomainObjectAbstract::TOTAL_BEFORE_ADDITIONS => $collected,
-            OrderDomainObjectAbstract::TOTAL_TAX => 0,
-            OrderDomainObjectAbstract::TOTAL_FEE => 0,
-            OrderDomainObjectAbstract::TAXES_AND_FEES_ROLLUP => null,
-        ]);
-
-        $this->rescaleOrderItems($order, $collected);
-    }
-
-    /**
-     * Scale per-item amounts proportionally to the new order total. Taxes/fees
-     * on items are zeroed (matching the order-level defensive policy). The last
-     * item absorbs any rounding remainder so the items sum back to the override.
-     */
-    private function rescaleOrderItems(OrderDomainObject $order, float $newTotal): void
-    {
-        $items = $order->getOrderItems();
-        if (!$items || $items->isEmpty()) {
-            return;
-        }
-
-        $originalTotal = (float) $order->getTotalGross();
-        $ratio = $originalTotal > 0 ? $newTotal / $originalTotal : 0;
-
-        $itemsArray = $items->all();
-        $count = count($itemsArray);
-        $running = 0.0;
-
-        foreach ($itemsArray as $index => $item) {
-            /** @var OrderItemDomainObject $item */
-            if ($index === $count - 1) {
-                $itemTotal = round($newTotal - $running, 2);
-            } else {
-                $itemTotal = $originalTotal > 0
-                    ? round((float) $item->getTotalGross() * $ratio, 2)
-                    : round($newTotal / $count, 2);
-                $running += $itemTotal;
-            }
-
-            $this->orderItemRepository->updateFromArray($item->getId(), [
-                OrderItemDomainObjectAbstract::PRICE => $itemTotal,
-                OrderItemDomainObjectAbstract::TOTAL_BEFORE_ADDITIONS => $itemTotal,
-                OrderItemDomainObjectAbstract::TOTAL_GROSS => $itemTotal,
-                OrderItemDomainObjectAbstract::TOTAL_TAX => 0,
-                OrderItemDomainObjectAbstract::TOTAL_SERVICE_FEE => 0,
-                OrderItemDomainObjectAbstract::TAXES_AND_FEES_ROLLUP => null,
-            ]);
-        }
     }
 
     private function updateOrderInvoice(int $orderId): void

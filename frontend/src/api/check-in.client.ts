@@ -44,7 +44,6 @@ export const publicCheckInClient = {
         payment?: {
             payment_method: string;
             payment_reference?: string | null;
-            collected_amount?: number | null;
         },
     ) => {
         const attendeePayload: Record<string, unknown> = {
@@ -54,7 +53,6 @@ export const publicCheckInClient = {
         if (action === 'check-in-and-mark-order-as-paid' && payment) {
             attendeePayload.payment_method = payment.payment_method;
             attendeePayload.payment_reference = payment.payment_reference ?? null;
-            attendeePayload.collected_amount = payment.collected_amount ?? null;
         }
         const response = await publicApi.post<GenericDataResponse<PublicCheckIn[]>>(
             `/check-in-lists/${checkInListShortId}/check-ins`,

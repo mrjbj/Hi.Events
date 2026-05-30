@@ -1,4 +1,4 @@
-import {Alert, Button, Modal, NumberInput, Select, Stack, Text, TextInput} from "@mantine/core";
+import {Alert, Button, Modal, Select, Stack, TextInput} from "@mantine/core";
 import {IconAlertCircle, IconCreditCard, IconUserCheck} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
 import {useState} from "react";
@@ -9,7 +9,6 @@ export type OfflinePaymentMethod = 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRAN
 export interface MarkAsPaidPayload {
     payment_method: OfflinePaymentMethod;
     payment_reference?: string | null;
-    collected_amount?: number | null;
 }
 
 interface CheckInOptionsModalProps {
@@ -32,9 +31,6 @@ export const CheckInOptionsModal = ({
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [method, setMethod] = useState<OfflinePaymentMethod>('CASH');
     const [reference, setReference] = useState('');
-    const orderTotal = attendee?.order_total_gross ?? 0;
-    const [collected, setCollected] = useState<number>(orderTotal);
-    const currency = attendee?.order_currency ?? 'USD';
 
     if (!attendee) return null;
 
@@ -42,7 +38,6 @@ export const CheckInOptionsModal = ({
         setShowPaymentForm(false);
         setMethod('CASH');
         setReference('');
-        setCollected(orderTotal);
     };
 
     const handleClose = () => {
@@ -54,11 +49,8 @@ export const CheckInOptionsModal = ({
         onCheckInAndMarkAsPaid({
             payment_method: method,
             payment_reference: reference.trim() === '' ? null : reference.trim(),
-            collected_amount: collected,
         });
     };
-
-    const amountDiffers = Math.abs(collected - orderTotal) > 0.001;
 
     return (
         <Modal
@@ -118,33 +110,6 @@ export const CheckInOptionsModal = ({
                             onChange={(val) => val && setMethod(val as OfflinePaymentMethod)}
                             allowDeselect={false}
                         />
-                        <NumberInput
-                            label={<Trans>Amount collected ({currency})</Trans>}
-                            required
-                            decimalScale={2}
-                            fixedDecimalScale
-                            min={0}
-                            step={1}
-                            value={collected}
-                            onChange={(val) => setCollected(typeof val === 'number' ? val : parseFloat(String(val)) || 0)}
-                            description={
-                                <Trans>Order total is {orderTotal.toFixed(2)} {currency}. Override if you collected a different amount.</Trans>
-                            }
-                        />
-                        {amountDiffers && (
-                            <Alert
-                                icon={<IconAlertCircle size={16}/>}
-                                color="yellow"
-                                variant="light"
-                            >
-                                <Text size="sm">
-                                    <Trans>
-                                        This will adjust the order total from {orderTotal.toFixed(2)} to {collected.toFixed(2)} {currency}.
-                                        Taxes and fees will be cleared on this order. An audit entry will be saved.
-                                    </Trans>
-                                </Text>
-                            </Alert>
-                        )}
                         <TextInput
                             label={t`Reference (optional)`}
                             placeholder={t`e.g. check #1234, last 4 of card`}

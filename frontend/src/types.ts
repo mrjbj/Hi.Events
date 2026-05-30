@@ -637,20 +637,6 @@ interface TaxesAndFeesRollup {
     taxes: TaxOrFee[];
 }
 
-export interface OrderPaymentAdjustment {
-    id: number;
-    original_total_gross: number;
-    original_total_before_additions: number;
-    original_total_tax: number;
-    original_total_fee: number;
-    adjusted_total_gross: number;
-    payment_method: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER';
-    payment_reference?: string | null;
-    adjusted_by_user_id?: number | null;
-    adjusted_by_ip?: string | null;
-    created_at: string;
-}
-
 export interface Order {
     id: IdParam;
     short_id: string;
@@ -662,7 +648,6 @@ export interface Order {
     payment_provider: PaymentProvider;
     offline_payment_method?: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER' | null;
     offline_payment_reference?: string | null;
-    payment_adjustments?: OrderPaymentAdjustment[];
     notes?: string;
     email: string;
     reserved_until: string;
