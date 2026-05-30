@@ -13,6 +13,7 @@ class AttendeeAndActionDTO extends Data
         public AttendeeCheckInActionType  $action,
         public ?OfflinePaymentMethod      $payment_method = null,
         public ?string                    $payment_reference = null,
+        public ?float                     $amount = null,
     )
     {
     }

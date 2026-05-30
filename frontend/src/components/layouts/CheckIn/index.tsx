@@ -249,6 +249,7 @@ const CheckIn = () => {
         payment?: {
             payment_method: string;
             payment_reference?: string | null;
+            amount?: number | null;
         },
     ): Promise<void> => new Promise<void>((resolve) => {
         checkInMutation.mutate({

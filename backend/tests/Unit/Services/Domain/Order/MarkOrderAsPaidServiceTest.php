@@ -150,17 +150,51 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function test_records_the_amount_received_when_provided(): void
+    {
+        $this->setupInitialOrderLookup(
+            orderStatus: OrderStatus::AWAITING_OFFLINE_PAYMENT->name,
+            totalGross: 100.0,
+            items: collect([$this->mockItem(1, 100.0)]),
+        );
+        $this->setupSideEffectMocks(updatedOrderTotalGross: 100.0);
+
+        // Agent collected $120 cash for a $100 table (no change given) — the
+        // ledger row must reflect the cash actually received, not total_gross.
+        $this->orderPaymentRepository
+            ->shouldReceive('create')
+            ->once()
+            ->with(Mockery::on(function (array $attrs) {
+                return $attrs[OrderPaymentDomainObjectAbstract::AMOUNT] === 120.0
+                    && $attrs[OrderPaymentDomainObjectAbstract::RECORDED_BY_IP] === '10.0.0.9';
+            }));
+
+        $this->orderRepository->shouldReceive('updateFromArray')->once();
+
+        $this->service->markOrderAsPaid($this->buildDto(
+            paymentMethod: OfflinePaymentMethod::CASH,
+            amountReceived: 120.0,
+            recordedByIp: '10.0.0.9',
+        ));
+
+        $this->addToAssertionCount(1);
+    }
+
     // ----- helpers -----
 
     private function buildDto(
         OfflinePaymentMethod $paymentMethod = OfflinePaymentMethod::CASH,
         ?string $paymentReference = null,
+        ?float $amountReceived = null,
+        ?string $recordedByIp = null,
     ): MarkOrderAsPaidDTO {
         return new MarkOrderAsPaidDTO(
             eventId: 10,
             orderId: 99,
             paymentMethod: $paymentMethod,
             paymentReference: $paymentReference,
+            amountReceived: $amountReceived,
+            recordedByIp: $recordedByIp,
         );
     }
 

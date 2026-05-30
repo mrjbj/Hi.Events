@@ -1,0 +1,74 @@
+{
+  "title": "Smoke Test — Counter Check-in for an Awaiting-Payment Attendee",
+  "subtitle": "Two outcomes at the door: pay the correct amount, vs. comp them. Same order (O-6FDWJZ5, $100), reset between scenarios.",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Flow": "Public check-in door (unauthenticated link) → CheckInOptionsModal; contrasted with authenticated Manage-Order Payments panel",
+    "Check-in list": "cil_ZFoi5YA8eoZef (event 10, Developer-02) — allow_orders_awaiting_offline_payment_to_check_in = true",
+    "Order": "O-6FDWJZ5 (id 15), staged to AWAITING_OFFLINE_PAYMENT / $100, attendee Sam Spade (A-ZV8IDXP) AWAITING_PAYMENT",
+    "Admin user": "playwright@hi-events.test (ADMIN on account 39)",
+    "Endpoints": "check-in: POST /public/check-in-lists/.../attendees/.../check-ins; payments: POST /events/10/orders/15/payments",
+    "Key design point": "The door can take a correct full payment, but CANNOT comp — comping a receivable is gated behind the authenticated Manage-Order surface.",
+    "Branch": "jbj/local",
+    "Data": "Order 15 staged + reset between scenarios; restored via ops/smoke/checkin-payment/RESTORE.sql"
+  },
+  "steps": [
+    {
+      "title": "Door — attendee is awaiting payment",
+      "description": "The check-in agent opens the public check-in list and finds Sam Spade flagged 'Awaiting payment' (VIP). Because the event allows awaiting-offline-payment check-ins, the row is actionable rather than blocked.",
+      "status": "info",
+      "screenshot": "shots/01-door-awaiting-attendee.png"
+    },
+    {
+      "title": "Door modal — pay or check-in only, NO comp",
+      "description": "Tapping Check In opens the door options modal: an 'Unpaid Order' alert with exactly two choices — 'Check in only' and 'Check in and record payment'. There is deliberately no comp/write-off/arbitrary-amount option here: the door link is unauthenticated, and comping a receivable is a financial decision kept off it.",
+      "status": "pass",
+      "screenshot": "shots/02-door-modal-no-comp.png",
+      "notes": "This is the central design boundary the two scenarios pivot on."
+    },
+    {
+      "title": "Scenario A — they pay the correct amount",
+      "description": "'Check in and record payment' expands to a payment-method picker (Cash) + optional reference. The agent records the full payment at the counter. The amount is never typed freehand — it settles the full balance via the ledger.",
+      "status": "pass",
+      "screenshot": "shots/03-door-pay-cash-form.png"
+    },
+    {
+      "title": "Scenario A — checked in, order paid in full",
+      "description": "Submitting checks the attendee in and marks the order paid. The 'Awaiting payment' flag clears from the row.",
+      "status": "pass",
+      "screenshot": "shots/04-door-checked-in-success.png"
+    },
+    {
+      "title": "Scenario A — Manage-Order confirms settlement",
+      "description": "The authenticated Payments panel shows Owed $100.00 / Collected $100.00 / Settled, with a single CASH $100.00 ledger row ('Cash at door — paid in full'). The order's total_gross was never rewritten — the door payment is a typed credit against the balance.",
+      "status": "pass",
+      "screenshot": "shots/05-manage-order-settled-by-door-cash.png"
+    },
+    {
+      "title": "Scenario B — same order, reset to outstanding",
+      "description": "Order reset to awaiting payment ($100 outstanding, nothing collected). The authenticated Manage-Order Payments panel exposes the action the door cannot: 'Comp remaining $100.00' (alongside Record payment with arbitrary amount/method/donation).",
+      "status": "pass",
+      "screenshot": "shots/06-manage-order-outstanding-comp-available.png",
+      "notes": "Comp lives only here — an authenticated, role-gated surface."
+    },
+    {
+      "title": "Scenario B — remainder comped",
+      "description": "Clicking Comp remaining writes a non-cash COMP $100.00 ledger row. The panel now reads Comped $100.00, Collected $0.00, Settled. No money was collected, but the balance is cleared.",
+      "status": "pass",
+      "screenshot": "shots/07-manage-order-settled-by-comp.png",
+      "notes": "Contrast with Scenario A: a COMP row (non-cash) vs. a CASH receipt. Collected stays $0."
+    },
+    {
+      "title": "Scenario B — attendee now active at the door",
+      "description": "Back on the check-in list, Sam Spade no longer shows 'Awaiting payment'. Settling the balance (here via comp) flipped the attendee to ACTIVE, so the door now offers a plain check-in.",
+      "status": "pass",
+      "screenshot": "shots/08-door-attendee-now-active.png"
+    },
+    {
+      "title": "Scenario B — direct check-in, no payment prompt",
+      "description": "Tapping Check In admits the attendee immediately ('Sam checked in successfully') — the unpaid-order modal does not appear, confirming the comp fully resolved the order at the counter.",
+      "status": "pass",
+      "screenshot": "shots/09-door-direct-checkin-after-comp.png"
+    }
+  ]
+}

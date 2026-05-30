@@ -1,5 +1,7 @@
-import {Badge, Box, Divider, Group, NumberInput, Select, Stack, Table, Text, TextInput} from "@mantine/core";
+import {Badge, Box, Divider, Group, Modal, NumberInput, Select, Stack, Table, Text, TextInput, Textarea} from "@mantine/core";
 import {useForm} from "@mantine/form";
+import {useDisclosure} from "@mantine/hooks";
+import {useState} from "react";
 import {t, Trans} from "@lingui/macro";
 import {useParams} from "react-router";
 import {Order, OrderPaymentType} from "../../../types.ts";
@@ -36,6 +38,9 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
     const balance = order.payment_balance;
     const currency = order.currency;
     const outstanding = balance ? Math.max(0, balance.balance) : 0;
+    const [compModalOpen, compModalHandlers] = useDisclosure(false);
+    const [compReason, setCompReason] = useState('');
+    const [compReasonError, setCompReasonError] = useState<string | null>(null);
 
     const form = useForm({
         initialValues: {
@@ -66,14 +71,25 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
         });
     };
 
+    const openCompModal = () => {
+        setCompReason('');
+        setCompReasonError(null);
+        compModalHandlers.open();
+    };
+
     const compRemainder = () => {
+        if (compReason.trim() === '') {
+            setCompReasonError(t`A reason is required to comp a balance`);
+            return;
+        }
         recordPayment.mutate({
             eventId,
             orderId: order.id,
-            payload: {type: 'COMP', amount: outstanding, note: t`Comp remainder`},
+            payload: {type: 'COMP', amount: outstanding, note: compReason.trim()},
         }, {
             onSuccess: () => {
                 showSuccess(t`Remaining balance comped`);
+                compModalHandlers.close();
                 onUpdated();
             },
             onError: (error) => errorHandler(form, error),
@@ -113,7 +129,12 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                                     <Table.Td>{labels[payment.type] ?? payment.type}</Table.Td>
                                     <Table.Td>{formatCurrency(payment.amount, payment.currency)}</Table.Td>
                                     <Table.Td>
-                                        <Text size="xs" c="dimmed">{payment.reference ?? ''}</Text>
+                                        {payment.reference && (
+                                            <Text size="xs" c="dimmed">{payment.reference}</Text>
+                                        )}
+                                        {payment.note && (
+                                            <Text size="xs" c="dimmed" fs="italic">{payment.note}</Text>
+                                        )}
                                     </Table.Td>
                                     <Table.Td>
                                         <Text size="xs" c="dimmed">{prettyDate(payment.created_at, timezone)}</Text>
@@ -167,7 +188,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                                 <Button
                                     variant="subtle"
                                     color="gray"
-                                    onClick={compRemainder}
+                                    onClick={openCompModal}
                                     disabled={recordPayment.isPending}
                                 >
                                     <Trans>Comp remaining {formatCurrency(outstanding, currency)}</Trans>
@@ -180,6 +201,40 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                     </Stack>
                 </form>
             </Stack>
+
+            <Modal
+                opened={compModalOpen}
+                onClose={compModalHandlers.close}
+                title={<Trans>Comp remaining {formatCurrency(outstanding, currency)}</Trans>}
+            >
+                <Stack gap="sm">
+                    <Text size="sm" c="dimmed">
+                        {t`A comp forgives the outstanding balance without collecting money. Record the reason for your audit trail.`}
+                    </Text>
+                    <Textarea
+                        label={t`Reason`}
+                        required
+                        autosize
+                        minRows={2}
+                        maxLength={1000}
+                        placeholder={t`e.g. board-approved sponsor, fundraising comp`}
+                        value={compReason}
+                        error={compReasonError}
+                        onChange={(e) => {
+                            setCompReason(e.currentTarget.value);
+                            if (compReasonError) setCompReasonError(null);
+                        }}
+                    />
+                    <Group justify="flex-end">
+                        <Button variant="subtle" color="gray" onClick={compModalHandlers.close}>
+                            {t`Cancel`}
+                        </Button>
+                        <Button onClick={compRemainder} loading={recordPayment.isPending}>
+                            <Trans>Comp {formatCurrency(outstanding, currency)}</Trans>
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </Box>
     );
 };

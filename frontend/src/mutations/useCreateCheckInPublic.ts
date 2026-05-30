@@ -14,12 +14,23 @@ export const useCreateCheckInPublic = (pagination: QueryFilters) => {
             payment?: {
                 payment_method: string;
                 payment_reference?: string | null;
+                amount?: number | null;
             },
         }) =>
             publicCheckInClient.createCheckIn(checkInListShortId, attendeePublicId, action, payment),
 
-        onSuccess: (data, {checkInListShortId, action}) => {
+        onSuccess: (data, {checkInListShortId, action, payment}) => {
             const markedAsPaid = action === 'check-in-and-mark-order-as-paid';
+
+            // A door payment only activates the attendee when it settles the order.
+            // A short (partial) payment leaves the order awaiting payment, so the
+            // attendee stays AWAITING_PAYMENT — decided per row against what's owed.
+            const settlesOrder = (owed?: number | null) => {
+                const amount = payment?.amount;
+                if (amount === undefined || amount === null) return true; // no amount entered = pay in full
+                if (owed === undefined || owed === null) return true;
+                return amount >= owed;
+            };
 
             queryClient.setQueryData(
                 [GET_CHECK_IN_LIST_ATTENDEES_PUBLIC_QUERY_KEY, checkInListShortId, pagination],
@@ -41,16 +52,19 @@ export const useCreateCheckInPublic = (pagination: QueryFilters) => {
                             (key) => key === attendee.public_id
                         );
 
+                        const activates = markedAsPaid && !hasError && settlesOrder(attendee.order_total_gross);
+
                         if (attendeeCheckIn) {
                             return {
                                 ...attendee,
                                 check_in: attendeeCheckIn,
-                                status: markedAsPaid && !hasError ? 'ACTIVE' : attendee.status,
+                                status: activates ? 'ACTIVE' : attendee.status,
                             };
                         }
 
-                        // Mark all attendees with the same order_id as ACTIVE if markedAsPaid
-                        if (markedAsPaid && attendee.order_id === updatedOrderId) {
+                        // Mark all attendees with the same order_id as ACTIVE if the order settled
+                        if (markedAsPaid && attendee.order_id === updatedOrderId
+                            && settlesOrder(attendee.order_total_gross)) {
                             return {
                                 ...attendee,
                                 status: 'ACTIVE',
@@ -65,6 +79,14 @@ export const useCreateCheckInPublic = (pagination: QueryFilters) => {
                     };
                 }
             );
+
+            // Refetch authoritative status/balance after a payment (the optimistic
+            // guess above can't account for prior partial credits on the order).
+            if (markedAsPaid) {
+                queryClient.invalidateQueries({
+                    queryKey: [GET_CHECK_IN_LIST_ATTENDEES_PUBLIC_QUERY_KEY, checkInListShortId],
+                });
+            }
         }
     });
 };

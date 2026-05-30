@@ -1,0 +1,53 @@
+{
+  "title": "Smoke Test — Door Amount-Received + Required Comp Reason",
+  "subtitle": "Agent enters the cash actually collected at the door (partial allowed); comp/write-off now requires an audit reason. Same order O-6FDWJZ5, staged to $100.",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Flow": "Door records the entered amount (partial → balance stays outstanding, attendee still admitted) → admin comps the remainder with a required reason",
+    "Check-in list": "cil_ZFoi5YA8eoZef (event 10) — allow_orders_awaiting_offline_payment_to_check_in = true",
+    "Order": "O-6FDWJZ5 (id 15), staged to AWAITING_OFFLINE_PAYMENT / $100, attendee Sam Spade (A-ZV8IDXP)",
+    "Admin user": "playwright@hi-events.test (ADMIN on account 39)",
+    "Design rule": "Door = record reconcilable money (any amount, captured with method + reference + IP). Comp = forgive a balance, authenticated only, now reason-required.",
+    "Branch": "jbj/local",
+    "Data": "Order 15 staged then restored via ops/smoke/checkin-payment/RESTORE.sql"
+  },
+  "steps": [
+    {
+      "title": "Door — amount received field (defaults to order total)",
+      "description": "The 'Check in and record payment' form now shows the order total and an 'Amount received' field defaulting to it, with guidance: less leaves a balance due, more is recorded as overpaid. The agent enters what actually hit the drawer / Square.",
+      "status": "pass",
+      "screenshot": "shots/01-door-amount-received-default.png"
+    },
+    {
+      "title": "Door — short cash entered ($40 of $100)",
+      "description": "The agent could only collect $40 (e.g. couldn't make change, or a part payment). The amount is set to $40 and the reference captures who collected it. The action button reflects the entered amount: 'Check in and record $40.00 payment'.",
+      "status": "pass",
+      "screenshot": "shots/02-door-partial-40-entered.png",
+      "notes": "Recording an arbitrary amount can no longer corrupt the order — it's a ledger credit, not a rewrite of total_gross."
+    },
+    {
+      "title": "Partial recorded — balance stays outstanding, attendee admitted",
+      "description": "Manage-Order shows Owed $100 / Collected $40 / Outstanding $60. The CASH $40 row carries the agent's point-in-time memo ('Cash — collected by J. Doe') and the recorded IP — your reconciliation trail against the drawer/bank. The order stays awaiting payment and the attendee was still checked in.",
+      "status": "pass",
+      "screenshot": "shots/03-manage-order-partial-balance.png"
+    },
+    {
+      "title": "Comp now requires a reason",
+      "description": "Comping the $60 remainder opens a modal that blocks submission without a reason: 'A reason is required to comp a balance' (enforced server-side too). A comp forgives a receivable with no money to reconcile, so the reason is the audit trail.",
+      "status": "pass",
+      "screenshot": "shots/04-comp-reason-required-validation.png"
+    },
+    {
+      "title": "Comp reason entered",
+      "description": "The operator records why the balance is being forgiven (e.g. 'Board-approved sponsor comp — remainder waived per 5/30 vote').",
+      "status": "pass",
+      "screenshot": "shots/05-comp-reason-entered.png"
+    },
+    {
+      "title": "Settled — cash + comp, both with their memos",
+      "description": "Final ledger: Collected $40 (cash) + Comped $60 = settled. Both rows show their context — the cash receipt's reference and the comp's audit reason — giving a complete, reconcilable money-movement record. Attendee is now ACTIVE.",
+      "status": "pass",
+      "screenshot": "shots/06-manage-order-settled-cash-plus-comp.png"
+    }
+  ]
+}

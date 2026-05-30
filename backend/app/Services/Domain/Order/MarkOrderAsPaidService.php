@@ -144,12 +144,19 @@ class MarkOrderAsPaidService
     }
 
     /**
-     * Record the full settlement on the payments ledger so the order's balance
+     * Record the settling receipt on the payments ledger so the order's balance
      * stays consistent with the ledger model. The order's totals are untouched.
+     *
+     * The recorded amount is the cash actually received (`amountReceived`) when the
+     * caller supplies it — so an over-the-counter payment that exceeds the balance
+     * (e.g. cash with no change given) is reconcilable against the drawer, with the
+     * excess surfaced as overpaid. It defaults to the full balance when not given.
      */
     private function recordSettlementPayment(OrderDomainObject $order, MarkOrderAsPaidDTO $dto): void
     {
-        $amount = round((float)$order->getTotalGross(), 2);
+        $amount = $dto->amountReceived !== null
+            ? round($dto->amountReceived, 2)
+            : round((float)$order->getTotalGross(), 2);
 
         if ($amount <= 0.0) {
             return;
@@ -162,7 +169,7 @@ class MarkOrderAsPaidService
             OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
             OrderPaymentDomainObjectAbstract::REFERENCE => $dto->paymentReference,
             OrderPaymentDomainObjectAbstract::RECORDED_BY_USER_ID => null,
-            OrderPaymentDomainObjectAbstract::RECORDED_BY_IP => null,
+            OrderPaymentDomainObjectAbstract::RECORDED_BY_IP => $dto->recordedByIp,
             OrderPaymentDomainObjectAbstract::CREATED_AT => now()->toDateTimeString(),
             OrderPaymentDomainObjectAbstract::UPDATED_AT => now()->toDateTimeString(),
         ]);

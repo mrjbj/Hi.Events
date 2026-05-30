@@ -67,15 +67,15 @@ msgstr ""
 msgid "{0} {1}"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:383
+#: src/components/layouts/CheckIn/index.tsx:384
 msgid "{0} {1} is already checked in"
 msgstr "{0} {1} уже зарегистрирован"
 
-#: src/components/layouts/CheckIn/index.tsx:267
+#: src/components/layouts/CheckIn/index.tsx:268
 msgid "{0} <0>checked in</0> successfully"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:296
+#: src/components/layouts/CheckIn/index.tsx:297
 msgid "{0} <0>checked out</0> successfully"
 msgstr ""
 
@@ -339,6 +339,10 @@ msgstr ""
 msgid "A cancellation notice has been sent to"
 msgstr ""
 
+#: src/components/common/OrderPaymentManagement/index.tsx:212
+msgid "A comp forgives the outstanding balance without collecting money. Record the reason for your audit trail."
+msgstr ""
+
 #: src/components/forms/QuestionForm/index.tsx:251
 msgid "A date input. Perfect for asking for a date of birth etc."
 msgstr ""
@@ -381,6 +385,10 @@ msgstr ""
 
 #: src/components/forms/QuestionForm/index.tsx:233
 msgid "A Radio option has multiple options but only one can be selected."
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:82
+msgid "A reason is required to comp a balance"
 msgstr ""
 
 #: src/components/forms/QuestionForm/index.tsx:367
@@ -953,7 +961,7 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:146
+#: src/components/common/OrderPaymentManagement/index.tsx:167
 msgid "Amount ({currency})"
 msgstr ""
 
@@ -967,6 +975,10 @@ msgstr ""
 
 #: src/components/modals/CreateAttendeeModal/index.tsx:211
 msgid "Amount paid ({0})"
+msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:132
+msgid "Amount received ({currency})"
 msgstr ""
 
 #: src/components/modals/CreateAttendeeModal/index.tsx:202
@@ -1349,7 +1361,7 @@ msgstr ""
 msgid "Attendee Name"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:374
+#: src/components/layouts/CheckIn/index.tsx:375
 msgid "Attendee not found"
 msgstr ""
 
@@ -1554,7 +1566,7 @@ msgstr ""
 msgid "Awesome Organizer Ltd."
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:134
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:164
 msgid "Back"
 msgstr ""
 
@@ -1597,10 +1609,10 @@ msgstr ""
 msgid "Background Type"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:106
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:124
 #: src/components/common/OrderDetails/index.tsx:18
-#: src/components/common/OrderPaymentManagement/index.tsx:23
-#: src/components/common/OrderPaymentManagement/index.tsx:138
+#: src/components/common/OrderPaymentManagement/index.tsx:25
+#: src/components/common/OrderPaymentManagement/index.tsx:159
 msgid "Bank transfer"
 msgstr ""
 
@@ -1738,11 +1750,12 @@ msgstr ""
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:236
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:335
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:360
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:94
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:108
 #: src/components/common/CheckIn/ScannerSelectionModal.tsx:57
 #: src/components/common/ContactOrganizerModal/index.tsx:104
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:211
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:121
+#: src/components/common/OrderPaymentManagement/index.tsx:230
 #: src/components/common/PromoCodeTable/index.tsx:40
 #: src/components/common/QuestionAndAnswerList/index.tsx:149
 #: src/components/common/QuestionsTable/index.tsx:257
@@ -1845,15 +1858,15 @@ msgstr ""
 msgid "Capacity Management"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:22
-#: src/components/common/OrderPaymentManagement/index.tsx:137
+#: src/components/common/OrderPaymentManagement/index.tsx:24
+#: src/components/common/OrderPaymentManagement/index.tsx:158
 msgid "Card"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:103
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:121
 #: src/components/common/OrderDetails/index.tsx:15
-#: src/components/common/OrderPaymentManagement/index.tsx:20
-#: src/components/common/OrderPaymentManagement/index.tsx:135
+#: src/components/common/OrderPaymentManagement/index.tsx:22
+#: src/components/common/OrderPaymentManagement/index.tsx:156
 msgid "Cash"
 msgstr ""
 
@@ -1915,10 +1928,10 @@ msgstr ""
 msgid "Charity"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:104
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:122
 #: src/components/common/OrderDetails/index.tsx:16
-#: src/components/common/OrderPaymentManagement/index.tsx:21
-#: src/components/common/OrderPaymentManagement/index.tsx:136
+#: src/components/common/OrderPaymentManagement/index.tsx:23
+#: src/components/common/OrderPaymentManagement/index.tsx:157
 msgid "Check"
 msgstr ""
 
@@ -1926,19 +1939,24 @@ msgstr ""
 msgid "Check In"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:59
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:73
 msgid "Check in {0} {1}"
 msgstr ""
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:126
-msgid "Check in and mark order as paid"
+#~ msgid "Check in and mark order as paid"
+#~ msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:155
+msgid "Check in and record {0} payment"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:87
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:101
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:156
 msgid "Check in and record payment"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:78
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:92
 msgid "Check in only"
 msgstr ""
 
@@ -1980,15 +1998,15 @@ msgstr ""
 msgid "Check-In List deleted successfully"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:519
+#: src/components/layouts/CheckIn/index.tsx:520
 msgid "Check-in list has expired"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:536
+#: src/components/layouts/CheckIn/index.tsx:537
 msgid "Check-in list is not active"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:504
+#: src/components/layouts/CheckIn/index.tsx:505
 msgid "Check-in list not found"
 msgstr ""
 
@@ -2104,7 +2122,7 @@ msgstr ""
 msgid "City"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:733
+#: src/components/layouts/CheckIn/index.tsx:734
 msgid "Clear filter"
 msgstr ""
 
@@ -2213,7 +2231,7 @@ msgstr ""
 msgid "Collect payment at check-in (cash/check)"
 msgstr "Принимать оплату при регистрации (наличные/чек)"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:89
+#: src/components/common/OrderPaymentManagement/index.tsx:105
 msgid "Collected"
 msgstr ""
 
@@ -2255,19 +2273,24 @@ msgstr ""
 msgid "Communication Preferences"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:26
+#: src/components/common/OrderPaymentManagement/index.tsx:28
 msgid "Comp"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:73
-msgid "Comp remainder"
+#: src/components/common/OrderPaymentManagement/index.tsx:233
+msgid "Comp {0}"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:173
+#: src/components/common/OrderPaymentManagement/index.tsx:73
+#~ msgid "Comp remainder"
+#~ msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:194
+#: src/components/common/OrderPaymentManagement/index.tsx:208
 msgid "Comp remaining {0}"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:91
+#: src/components/common/OrderPaymentManagement/index.tsx:107
 msgid "Comped"
 msgstr ""
 
@@ -3019,7 +3042,7 @@ msgstr ""
 msgid "Creating your organizer profile, please wait"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:105
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:123
 #: src/components/common/OrderDetails/index.tsx:17
 msgid "Credit card"
 msgstr ""
@@ -3481,8 +3504,8 @@ msgstr ""
 msgid "Don't have an account? <0>Sign up</0>"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:25
-#: src/components/common/OrderPaymentManagement/index.tsx:140
+#: src/components/common/OrderPaymentManagement/index.tsx:27
+#: src/components/common/OrderPaymentManagement/index.tsx:161
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:304
 msgid "Donation"
 msgstr ""
@@ -3585,9 +3608,16 @@ msgstr ""
 msgid "e.g. 180 (3 hours)"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:115
-#: src/components/common/OrderPaymentManagement/index.tsx:156
+#: src/components/common/OrderPaymentManagement/index.tsx:220
+msgid "e.g. board-approved sponsor, fundraising comp"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:177
 msgid "e.g. check #1234, last 4 of card"
+msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:142
+msgid "e.g. collected by J. Doe, Square #1234"
 msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:76
@@ -4104,6 +4134,10 @@ msgstr "Введите фамилию"
 msgid "Enter new password"
 msgstr ""
 
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:133
+msgid "Enter the amount actually collected. Less than the total leaves a balance due; more is recorded as overpaid."
+msgstr ""
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:124
 msgid "Enter the VAT number including country code"
 msgstr ""
@@ -4433,7 +4467,7 @@ msgid "Expiration date"
 msgstr ""
 
 #: src/components/common/WaitlistTable/index.tsx:28
-#: src/components/layouts/CheckIn/index.tsx:615
+#: src/components/layouts/CheckIn/index.tsx:616
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:74
 msgid "Expired"
 msgstr ""
@@ -4880,11 +4914,11 @@ msgstr ""
 msgid "Filter by Event"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:667
+#: src/components/layouts/CheckIn/index.tsx:668
 msgid "Filter by group purchase"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:686
+#: src/components/layouts/CheckIn/index.tsx:687
 msgid "Filter by table"
 msgstr ""
 
@@ -5187,15 +5221,15 @@ msgstr ""
 msgid "Gross Sales"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:645
+#: src/components/layouts/CheckIn/index.tsx:646
 #: src/components/routes/event/attendees.tsx:86
 msgid "Group"
 msgstr ""
 
 #: src/components/common/CheckIn/AttendeeList.tsx:123
-#: src/components/layouts/CheckIn/index.tsx:649
-#: src/components/layouts/CheckIn/index.tsx:660
-#: src/components/layouts/CheckIn/index.tsx:767
+#: src/components/layouts/CheckIn/index.tsx:650
+#: src/components/layouts/CheckIn/index.tsx:661
+#: src/components/layouts/CheckIn/index.tsx:768
 #: src/components/routes/event/attendees.tsx:45
 msgid "Group purchase"
 msgstr ""
@@ -6331,7 +6365,7 @@ msgstr ""
 msgid "Messaging tier updated successfully"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:133
+#: src/components/common/OrderPaymentManagement/index.tsx:154
 msgid "Method"
 msgstr ""
 
@@ -7000,11 +7034,11 @@ msgstr ""
 msgid "Not linked"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:615
+#: src/components/layouts/CheckIn/index.tsx:616
 msgid "Not yet active"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:161
+#: src/components/common/OrderPaymentManagement/index.tsx:182
 msgid "Note (optional)"
 msgstr ""
 
@@ -7433,6 +7467,10 @@ msgstr ""
 msgid "Order timeout"
 msgstr ""
 
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
+msgid "Order total"
+msgstr ""
+
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:22
 #: src/components/modals/RefundOrderModal/index.tsx:78
 msgid "Order Total"
@@ -7620,11 +7658,11 @@ msgstr ""
 msgid "Originally purchased by {0} {1}"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:107
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:125
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
 #: src/components/common/OrderDetails/index.tsx:19
-#: src/components/common/OrderPaymentManagement/index.tsx:24
-#: src/components/common/OrderPaymentManagement/index.tsx:139
+#: src/components/common/OrderPaymentManagement/index.tsx:26
+#: src/components/common/OrderPaymentManagement/index.tsx:160
 #: src/components/common/OrdersTable/index.tsx:401
 #: src/constants/eventCategories.ts:22
 msgid "Other"
@@ -7638,11 +7676,11 @@ msgstr ""
 msgid "Outgoing Messages"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:103
+#: src/components/common/OrderPaymentManagement/index.tsx:119
 msgid "Outstanding"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:88
+#: src/components/common/OrderPaymentManagement/index.tsx:104
 msgid "Owed"
 msgstr ""
 
@@ -7825,7 +7863,7 @@ msgstr ""
 msgid "Payment Instructions"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:100
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:118
 #: src/components/routes/product-widget/Payment/index.tsx:122
 msgid "Payment method"
 msgstr ""
@@ -7852,7 +7890,7 @@ msgstr ""
 msgid "Payment Received"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:61
+#: src/components/common/OrderPaymentManagement/index.tsx:66
 msgid "Payment recorded"
 msgstr ""
 
@@ -8549,6 +8587,7 @@ msgstr "Готовы к обновлению? Это займет всего н�
 msgid "Real-Time Analytics"
 msgstr ""
 
+#: src/components/common/OrderPaymentManagement/index.tsx:215
 #: src/components/routes/admin/EmailSuppressions/index.tsx:140
 #: src/components/routes/admin/EmailSuppressions/index.tsx:180
 #: src/components/routes/admin/EmailSuppressions/index.tsx:266
@@ -8624,11 +8663,11 @@ msgstr ""
 msgid "Reconnect Stripe →"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:127
+#: src/components/common/OrderPaymentManagement/index.tsx:148
 msgid "Record a payment"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:177
+#: src/components/common/OrderPaymentManagement/index.tsx:198
 msgid "Record payment"
 msgstr ""
 
@@ -8649,8 +8688,8 @@ msgstr ""
 #~ msgid "Reference"
 #~ msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
-#: src/components/common/OrderPaymentManagement/index.tsx:155
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:141
+#: src/components/common/OrderPaymentManagement/index.tsx:176
 msgid "Reference (optional)"
 msgstr ""
 
@@ -8704,7 +8743,7 @@ msgstr ""
 msgid "Refund Status"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:94
+#: src/components/common/OrderPaymentManagement/index.tsx:110
 #: src/components/common/OrderSummary/index.tsx:80
 #: src/components/common/StatBoxes/index.tsx:57
 #: src/components/routes/event/orders.tsx:30
@@ -8751,7 +8790,7 @@ msgstr "Связанное мероприятие"
 msgid "Relating to"
 msgstr "Относится к"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:76
+#: src/components/common/OrderPaymentManagement/index.tsx:91
 msgid "Remaining balance comped"
 msgstr ""
 
@@ -9259,8 +9298,8 @@ msgstr ""
 msgid "Saving..."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:690
-#: src/components/layouts/CheckIn/index.tsx:700
+#: src/components/layouts/CheckIn/index.tsx:691
+#: src/components/layouts/CheckIn/index.tsx:701
 msgid "Scan"
 msgstr "Сканировать"
 
@@ -9347,7 +9386,7 @@ msgstr ""
 msgid "Search by name, email, or order #..."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:640
+#: src/components/layouts/CheckIn/index.tsx:641
 msgid "Search by name, order #, attendee # or email..."
 msgstr ""
 
@@ -9770,11 +9809,11 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:100
+#: src/components/common/OrderPaymentManagement/index.tsx:116
 msgid "Settled"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:99
+#: src/components/common/OrderPaymentManagement/index.tsx:115
 msgid "Settled · overpaid {0}"
 msgstr ""
 
@@ -9887,11 +9926,11 @@ msgstr ""
 msgid "Showing {0} of {totalRows} records"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:715
+#: src/components/layouts/CheckIn/index.tsx:716
 msgid "Showing group:"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:722
+#: src/components/layouts/CheckIn/index.tsx:723
 msgid "Showing table:"
 msgstr ""
 
@@ -10431,8 +10470,8 @@ msgstr ""
 msgid "Swedish"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:588
-#: src/components/layouts/CheckIn/index.tsx:597
+#: src/components/layouts/CheckIn/index.tsx:589
+#: src/components/layouts/CheckIn/index.tsx:598
 msgid "Switch check-in list"
 msgstr ""
 
@@ -10461,7 +10500,7 @@ msgstr ""
 msgid "T-shirt"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:672
+#: src/components/layouts/CheckIn/index.tsx:673
 #: src/components/routes/event/attendees.tsx:92
 msgid "Table"
 msgstr ""
@@ -10629,7 +10668,7 @@ msgstr ""
 msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:509
+#: src/components/layouts/CheckIn/index.tsx:510
 msgid "The check-in list you are looking for does not exist."
 msgstr ""
 
@@ -10827,7 +10866,7 @@ msgstr ""
 msgid "These will be collected when the attendee details are completed."
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:67
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:81
 msgid "This attendee has an unpaid order."
 msgstr ""
 
@@ -10859,7 +10898,7 @@ msgstr ""
 msgid "This check-in list has expired"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:524
+#: src/components/layouts/CheckIn/index.tsx:525
 msgid "This check-in list has expired and is no longer available for check-ins."
 msgstr ""
 
@@ -10871,7 +10910,7 @@ msgstr ""
 msgid "This check-in list is not active yet"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:541
+#: src/components/layouts/CheckIn/index.tsx:542
 msgid "This check-in list is not yet active and is not available for check-ins."
 msgstr ""
 
@@ -11032,7 +11071,7 @@ msgstr ""
 msgid "This ticket hasn't been assigned to a guest yet. Click \"Assign attendee\" to add their name and email before sending, printing, or viewing the ticket."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:351
+#: src/components/layouts/CheckIn/index.tsx:352
 msgid "This ticket was just scanned. Please wait before scanning again."
 msgstr "Этот билет только что был отсканирован. Пожалуйста, подождите перед повторным сканированием."
 
@@ -11417,11 +11456,11 @@ msgstr ""
 msgid "Turkish"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:693
+#: src/components/layouts/CheckIn/index.tsx:694
 msgid "Turn sound off"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:693
+#: src/components/layouts/CheckIn/index.tsx:694
 msgid "Turn sound on"
 msgstr ""
 
@@ -11465,12 +11504,12 @@ msgstr ""
 msgid "Typography"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:282
+#: src/components/layouts/CheckIn/index.tsx:283
 msgid "Unable to check in attendee"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:307
-#: src/components/layouts/CheckIn/index.tsx:309
+#: src/components/layouts/CheckIn/index.tsx:308
+#: src/components/layouts/CheckIn/index.tsx:310
 msgid "Unable to check out attendee"
 msgstr ""
 
@@ -11490,7 +11529,7 @@ msgstr ""
 msgid "Unable to duplicate product. Please check the your details"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:367
+#: src/components/layouts/CheckIn/index.tsx:368
 msgid "Unable to fetch attendee"
 msgstr ""
 
@@ -11568,7 +11607,7 @@ msgstr ""
 msgid "Unlimited usages allowed"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:66
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:80
 msgid "Unpaid Order"
 msgstr ""
 
@@ -12536,7 +12575,7 @@ msgstr ""
 msgid "Write your message here..."
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:27
+#: src/components/common/OrderPaymentManagement/index.tsx:29
 msgid "Write-off"
 msgstr ""
 
@@ -12592,8 +12631,8 @@ msgstr ""
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "Вы оформляете частичный возврат. Клиенту будет возвращено {0} {1}."
 
-#: src/components/layouts/CheckIn/index.tsx:276
-#: src/components/layouts/CheckIn/index.tsx:302
+#: src/components/layouts/CheckIn/index.tsx:277
+#: src/components/layouts/CheckIn/index.tsx:303
 msgid "You are offline"
 msgstr ""
 
@@ -12621,8 +12660,8 @@ msgstr ""
 msgid "You cannot change the product type as there are attendees associated with this product."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:325
-#: src/components/layouts/CheckIn/index.tsx:400
+#: src/components/layouts/CheckIn/index.tsx:326
+#: src/components/layouts/CheckIn/index.tsx:401
 msgid "You cannot check in attendees with unpaid orders. This setting can be changed in the event settings."
 msgstr ""
 

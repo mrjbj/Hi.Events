@@ -1,14 +1,16 @@
-import {Alert, Button, Modal, Select, Stack, TextInput} from "@mantine/core";
+import {Alert, Button, Group, Modal, NumberInput, Select, Stack, Text, TextInput} from "@mantine/core";
 import {IconAlertCircle, IconCreditCard, IconUserCheck} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Attendee} from "../../../types.ts";
+import {formatCurrency} from "../../../utilites/currency.ts";
 
 export type OfflinePaymentMethod = 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface MarkAsPaidPayload {
     payment_method: OfflinePaymentMethod;
     payment_reference?: string | null;
+    amount?: number | null;
 }
 
 interface CheckInOptionsModalProps {
@@ -31,6 +33,16 @@ export const CheckInOptionsModal = ({
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [method, setMethod] = useState<OfflinePaymentMethod>('CASH');
     const [reference, setReference] = useState('');
+    const owed = attendee?.order_total_gross ?? 0;
+    const currency = attendee?.order_currency ?? 'USD';
+    const [amount, setAmount] = useState<number | ''>(owed);
+
+    // Default the amount-received field to the full order total whenever the
+    // modal is (re)opened for an attendee — the agent overrides with the cash
+    // actually collected (which may be more, e.g. no change given, or less).
+    useEffect(() => {
+        setAmount(owed);
+    }, [attendee?.public_id, owed]);
 
     if (!attendee) return null;
 
@@ -38,6 +50,7 @@ export const CheckInOptionsModal = ({
         setShowPaymentForm(false);
         setMethod('CASH');
         setReference('');
+        setAmount(owed);
     };
 
     const handleClose = () => {
@@ -49,6 +62,7 @@ export const CheckInOptionsModal = ({
         onCheckInAndMarkAsPaid({
             payment_method: method,
             payment_reference: reference.trim() === '' ? null : reference.trim(),
+            amount: amount === '' ? null : Number(amount),
         });
     };
 
@@ -96,6 +110,10 @@ export const CheckInOptionsModal = ({
                     </>
                 ) : (
                     <>
+                        <Group justify="space-between" wrap="nowrap">
+                            <Text size="sm" c="dimmed">{t`Order total`}</Text>
+                            <Text size="sm" fw={600}>{formatCurrency(owed, currency)}</Text>
+                        </Group>
                         <Select
                             label={t`Payment method`}
                             required
@@ -110,9 +128,18 @@ export const CheckInOptionsModal = ({
                             onChange={(val) => val && setMethod(val as OfflinePaymentMethod)}
                             allowDeselect={false}
                         />
+                        <NumberInput
+                            label={<Trans>Amount received ({currency})</Trans>}
+                            description={t`Enter the amount actually collected. Less than the total leaves a balance due; more is recorded as overpaid.`}
+                            min={0}
+                            decimalScale={2}
+                            fixedDecimalScale
+                            value={amount}
+                            onChange={(val) => setAmount(val === '' ? '' : Number(val))}
+                        />
                         <TextInput
                             label={t`Reference (optional)`}
-                            placeholder={t`e.g. check #1234, last 4 of card`}
+                            placeholder={t`e.g. collected by J. Doe, Square #1234`}
                             value={reference}
                             onChange={(e) => setReference(e.currentTarget.value)}
                             maxLength={255}
@@ -120,10 +147,13 @@ export const CheckInOptionsModal = ({
                         <Button
                             onClick={submitPaid}
                             loading={isPending}
+                            disabled={amount === '' || Number(amount) <= 0}
                             variant="filled"
                             fullWidth
                         >
-                            {t`Check in and mark order as paid`}
+                            {amount !== '' && Number(amount) < owed
+                                ? <Trans>Check in and record {formatCurrency(Number(amount), currency)} payment</Trans>
+                                : t`Check in and record payment`}
                         </Button>
                         <Button
                             onClick={() => setShowPaymentForm(false)}

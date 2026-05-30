@@ -15,13 +15,21 @@ use HiEvents\DomainObjects\Status\AttendeeStatus;
 use HiEvents\Exceptions\CannotCheckInException;
 use HiEvents\Helper\DateHelper;
 use HiEvents\Helper\IdHelper;
+use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
+use HiEvents\DomainObjects\StripePaymentDomainObject;
+use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeCheckInRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventSettingsRepositoryInterface;
+use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\CheckInList\Public\DTO\AttendeeAndActionDTO;
 use HiEvents\Services\Domain\CheckInList\DTO\CheckInResultDTO;
 use HiEvents\Services\Domain\CheckInList\DTO\CreateAttendeeCheckInsResponseDTO;
 use HiEvents\Services\Application\Handlers\Order\DTO\MarkOrderAsPaidDTO;
+use HiEvents\Services\Application\Handlers\Order\DTO\RecordOrderPaymentDTO;
 use HiEvents\Services\Domain\Order\MarkOrderAsPaidService;
+use HiEvents\Services\Domain\Order\OrderBalanceService;
+use HiEvents\Services\Domain\Order\RecordOrderPaymentService;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -34,6 +42,9 @@ class CreateAttendeeCheckInService
         private readonly EventSettingsRepositoryInterface   $eventSettingsRepository,
         private readonly ConnectionInterface                $db,
         private readonly MarkOrderAsPaidService             $markOrderAsPaidService,
+        private readonly RecordOrderPaymentService          $recordOrderPaymentService,
+        private readonly OrderBalanceService                $orderBalanceService,
+        private readonly OrderRepositoryInterface           $orderRepository,
     )
     {
     }
@@ -200,16 +211,66 @@ class CreateAttendeeCheckInService
             $checkIn = $this->createCheckIn($attendee, $checkInList, $checkInUserIpAddress);
 
             if ($checkInAction->value === AttendeeCheckInActionType::CHECK_IN_AND_MARK_ORDER_AS_PAID->value) {
-                $this->markOrderAsPaidService->markOrderAsPaid(new MarkOrderAsPaidDTO(
-                    eventId: $attendee->getEventId(),
-                    orderId: $attendee->getOrderId(),
-                    paymentMethod: $attendeeAction->payment_method ?? OfflinePaymentMethod::OTHER,
-                    paymentReference: $attendeeAction->payment_reference,
-                ));
+                $this->recordDoorPayment($attendee, $attendeeAction, $checkInUserIpAddress);
             }
 
             return new CheckInResultDTO(checkIn: $checkIn);
         });
+    }
+
+    /**
+     * Record a payment collected at the door against the order's ledger.
+     *
+     * The agent enters the amount actually received (cash/card/Square), which may
+     * be the full balance, more (can't make change — excess is surfaced as
+     * overpaid), or less (short — the order stays awaiting payment while the
+     * attendee is still admitted). Comp/write-off is deliberately NOT available
+     * here: the door link is unauthenticated, and only reconcilable money may be
+     * recorded over it — forgiving a balance stays on the authenticated
+     * manage-order surface.
+     *
+     * @throws Throwable
+     */
+    private function recordDoorPayment(
+        AttendeeDomainObject $attendee,
+        AttendeeAndActionDTO $attendeeAction,
+        string               $checkInUserIpAddress
+    ): void
+    {
+        $method = $attendeeAction->payment_method ?? OfflinePaymentMethod::OTHER;
+
+        $order = $this->orderRepository
+            ->loadRelation(new Relationship(StripePaymentDomainObject::class, name: 'stripe_payment'))
+            ->findFirstWhere([OrderDomainObjectAbstract::ID => $attendee->getOrderId()]);
+
+        $outstanding = max(0.0, $this->orderBalanceService->getBalanceForOrder($order)->balance);
+        $amount = $attendeeAction->amount !== null ? round($attendeeAction->amount, 2) : $outstanding;
+
+        if ($amount <= 0.0) {
+            return;
+        }
+
+        if ($amount >= $outstanding - 0.001) {
+            $this->markOrderAsPaidService->markOrderAsPaid(new MarkOrderAsPaidDTO(
+                eventId: $attendee->getEventId(),
+                orderId: $attendee->getOrderId(),
+                paymentMethod: $method,
+                paymentReference: $attendeeAction->payment_reference,
+                amountReceived: $amount,
+                recordedByIp: $checkInUserIpAddress,
+            ));
+
+            return;
+        }
+
+        $this->recordOrderPaymentService->record(new RecordOrderPaymentDTO(
+            eventId: $attendee->getEventId(),
+            orderId: $attendee->getOrderId(),
+            type: OrderPaymentType::fromOfflinePaymentMethod($method),
+            amount: $amount,
+            reference: $attendeeAction->payment_reference,
+            recordedByIp: $checkInUserIpAddress,
+        ));
     }
 
     private function getExistingCheckIn(Collection $existingCheckIns, AttendeeDomainObject $attendee): ?object

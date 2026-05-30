@@ -162,7 +162,7 @@ invariant — they are always written together):
 | "Mark as paid" (no amount) | Record one `order_payments` receipt = current balance → recompute status. Preserves one-click full settle. |
 | **New** `RecordOrderPayment` (Action → Handler → Service) | Insert a ledger row (amount, type, reference, operator, ip); recompute status via `OrderBalanceService`. Used by door + admin. |
 | **New** `OrderBalanceService` | Read model in §4; consumed by status recompute, resources, reports. |
-| Check-in "pay at check-in" | Record a receipt for the entered amount; if short, prompt **Leave outstanding** vs **Comp remainder** (writes a `COMP` row). Never touch totals. |
+| Check-in "pay at check-in" | Record a receipt for the **entered amount** (cash/card/Square; defaults to the balance). Settling (≥ balance) routes through `MarkOrderAsPaidService` (receipt email/invoice/app-fee, activates attendees); a **short** amount routes through `RecordOrderPaymentService` (records the partial, order stays awaiting, attendee still admitted). **Comp is NOT available at the door** — only reconcilable money may be recorded over the unauthenticated link. Never touch totals. |
 | Stats | **No change** — increment stays on `order.total_gross` at order creation. |
 | Resources (`AdminOrderResource`, `OrderResource`) | Add derived `amount_paid`, `balance`, `overpaid`, and the `payments[]` ledger. |
 | Manage-order sidebar (frontend) | Show **Payments** (new ledger) alongside the existing **Adjustments** (`PaymentAdjustmentList`); render order status as a function of outstanding balance. Eventually repoint the adjustments view onto `order_payments` (`COMP`/`WRITE_OFF` rows). |
@@ -228,7 +228,12 @@ already corrected).
 
 ## 9. Open questions for review
 
-1. Should `COMP` / `WRITE_OFF` require a reason string (fundraising audit)?
+1. ~~Should `COMP` / `WRITE_OFF` require a reason string (fundraising audit)?~~
+   **Resolved (2026-05-30): yes — required.** A comp/write-off forgives a receivable with
+   no money to reconcile, so the reason *is* the audit trail. Enforced server-side in
+   `RecordOrderPaymentRequest` (`note` required when `type ∈ {COMP, WRITE_OFF}`) and in the
+   manage-order comp modal (blocks submission without a reason). The reason is shown in the
+   ledger table. Cash receipts keep an *optional* reference/note.
 2. Donation handling timing — confirmed: derive `overpaid` in Phase 1; auto-create an explicit
    refundable `DONATION` row + dashboard "donations in excess" reporting in a later phase. Any
    constraint on when an excess becomes a donation vs. an expected over-collection?
@@ -261,10 +266,26 @@ already corrected).
    `prefix('/public')` with **no `auth:api`** (the check-in-list link is the only credential). So the
    rich UX — partial, **comp/write-off**, donation, arbitrary amounts — must NOT live at the door:
    comping a receivable is a financial decision that can't be exposed via an unauthenticated link.
-   Phase 1 also already removed the dangerous free-text amount footgun (the door's "mark paid" now
-   records the correct full amount via the ledger automatically). So the door stays simple
-   (check-in / mark-paid-in-full), and the rich payment management belongs in the **authenticated
-   Manage-Order surface** (uses the Phase 2 `POST .../payments` endpoint).
+   Phase 1 also already removed the dangerous free-text amount footgun — but note the footgun was
+   the *order rewrite*, not the amount entry: with the ledger, an entered amount is just a credit
+   row and can never corrupt `total_gross`. So the rich *forgiveness* UX (comp/write-off/arbitrary
+   donation) belongs in the **authenticated Manage-Order surface** (uses the Phase 2 `POST .../payments`
+   endpoint), while recording *reconcilable money* is safe at the door (see the update below).
+
+   - **Update (2026-05-30) — door amount-received + required comp reason.** The door's
+     "Check in and record payment" now takes the **amount actually collected** (defaults to the
+     balance). The boundary is: **the door may add reconcilable money; only the authenticated
+     surface may forgive it.** A settling amount (≥ balance) routes through `MarkOrderAsPaidService`
+     (records the entered amount — overpay surfaces as donation — and fires the receipt/invoice/
+     app-fee side effects); a **short** amount routes through `RecordOrderPaymentService` (partial
+     receipt; order stays `AWAITING_OFFLINE_PAYMENT`, attendee admitted but not activated). Each row
+     captures method + reference + recorded IP as the agent's point-in-time reconciliation memo.
+     **Comp/write-off now require a reason** (server-side + UI), surfaced in the ledger table.
+     Backend: `amount` on `AttendeeAndActionDTO` + check-in request; `amountReceived`/`recordedByIp`
+     on `MarkOrderAsPaidDTO`; branch in `CreateAttendeeCheckInService::recordDoorPayment`. Tests:
+     `CreateAttendeeCheckInServiceTest` (full/short/no-amount), `RecordOrderPaymentRequestTest`
+     (comp reason), `MarkOrderAsPaidServiceTest` (records amount received). Smoke:
+     `ops/smoke/checkin-payment-amount-comp/`.
    - **DONE (2026-05-30) — backend enablers:** `OrderBalanceService` wired into `GetOrderAction`
      so `OrderResource` now exposes `payment_balance` (owed/collected/comps/refunded/balance/overpaid/
      isSettled) + the `payments` ledger list. Fixed the `stripe_payment` relation name on the new load

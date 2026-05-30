@@ -12,6 +12,8 @@ class MarkOrderAsPaidDTO extends BaseDTO
         public readonly int                  $orderId,
         public readonly OfflinePaymentMethod $paymentMethod,
         public readonly ?string              $paymentReference = null,
+        public readonly ?float               $amountReceived = null,
+        public readonly ?string              $recordedByIp = null,
     )
     {
     }

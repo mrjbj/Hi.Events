@@ -67,15 +67,15 @@ msgstr "{0}"
 msgid "{0} {1}"
 msgstr "{0} {1}"
 
-#: src/components/layouts/CheckIn/index.tsx:383
+#: src/components/layouts/CheckIn/index.tsx:384
 msgid "{0} {1} is already checked in"
 msgstr "{0} {1} 已签到"
 
-#: src/components/layouts/CheckIn/index.tsx:267
+#: src/components/layouts/CheckIn/index.tsx:268
 msgid "{0} <0>checked in</0> successfully"
 msgstr "{0} <0>签到</0>成功"
 
-#: src/components/layouts/CheckIn/index.tsx:296
+#: src/components/layouts/CheckIn/index.tsx:297
 msgid "{0} <0>checked out</0> successfully"
 msgstr "{0} <0>签退</0>成功"
 
@@ -339,6 +339,10 @@ msgstr "94103"
 msgid "A cancellation notice has been sent to"
 msgstr "取消通知已发送至"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:212
+msgid "A comp forgives the outstanding balance without collecting money. Record the reason for your audit trail."
+msgstr ""
+
 #: src/components/forms/QuestionForm/index.tsx:251
 msgid "A date input. Perfect for asking for a date of birth etc."
 msgstr "日期输入字段。非常适合询问出生日期等。"
@@ -382,6 +386,10 @@ msgstr "无折扣的促销代码可以用来显示隐藏的产品。"
 #: src/components/forms/QuestionForm/index.tsx:233
 msgid "A Radio option has multiple options but only one can be selected."
 msgstr "单选题有多个选项，但只能选择一个。"
+
+#: src/components/common/OrderPaymentManagement/index.tsx:82
+msgid "A reason is required to comp a balance"
+msgstr ""
 
 #: src/components/forms/QuestionForm/index.tsx:367
 msgid "A reusable contact attribute named <0>{0}</0> already exists. Linking to it keeps answers consistent across events."
@@ -953,7 +961,7 @@ msgstr "令人惊叹, 活动, 关键词..."
 msgid "Amount"
 msgstr "金额"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:146
+#: src/components/common/OrderPaymentManagement/index.tsx:167
 msgid "Amount ({currency})"
 msgstr ""
 
@@ -968,6 +976,10 @@ msgstr "支付金额"
 #: src/components/modals/CreateAttendeeModal/index.tsx:211
 msgid "Amount paid ({0})"
 msgstr "支付金额 ({0})"
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:132
+msgid "Amount received ({currency})"
+msgstr ""
 
 #: src/components/modals/CreateAttendeeModal/index.tsx:202
 msgid "Amount will be collected at check-in. The attendee will receive your event's offline payment instructions in their confirmation email."
@@ -1349,7 +1361,7 @@ msgstr "参与者信息收集"
 msgid "Attendee Name"
 msgstr "参会者姓名"
 
-#: src/components/layouts/CheckIn/index.tsx:374
+#: src/components/layouts/CheckIn/index.tsx:375
 msgid "Attendee not found"
 msgstr "未找到参与者"
 
@@ -1554,7 +1566,7 @@ msgstr "精彩活动有限公司"
 msgid "Awesome Organizer Ltd."
 msgstr "Awesome Organizer Ltd."
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:134
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:164
 msgid "Back"
 msgstr ""
 
@@ -1597,10 +1609,10 @@ msgstr "背景颜色"
 msgid "Background Type"
 msgstr "背景类型"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:106
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:124
 #: src/components/common/OrderDetails/index.tsx:18
-#: src/components/common/OrderPaymentManagement/index.tsx:23
-#: src/components/common/OrderPaymentManagement/index.tsx:138
+#: src/components/common/OrderPaymentManagement/index.tsx:25
+#: src/components/common/OrderPaymentManagement/index.tsx:159
 msgid "Bank transfer"
 msgstr ""
 
@@ -1738,11 +1750,12 @@ msgstr "活动"
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:236
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:335
 #: src/components/common/CheckIn/CaptureAttendeeOnArrivalModal.tsx:360
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:94
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:108
 #: src/components/common/CheckIn/ScannerSelectionModal.tsx:57
 #: src/components/common/ContactOrganizerModal/index.tsx:104
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:211
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:121
+#: src/components/common/OrderPaymentManagement/index.tsx:230
 #: src/components/common/PromoCodeTable/index.tsx:40
 #: src/components/common/QuestionAndAnswerList/index.tsx:149
 #: src/components/common/QuestionsTable/index.tsx:257
@@ -1845,15 +1858,15 @@ msgstr "容量分配"
 msgid "Capacity Management"
 msgstr "容量管理"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:22
-#: src/components/common/OrderPaymentManagement/index.tsx:137
+#: src/components/common/OrderPaymentManagement/index.tsx:24
+#: src/components/common/OrderPaymentManagement/index.tsx:158
 msgid "Card"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:103
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:121
 #: src/components/common/OrderDetails/index.tsx:15
-#: src/components/common/OrderPaymentManagement/index.tsx:20
-#: src/components/common/OrderPaymentManagement/index.tsx:135
+#: src/components/common/OrderPaymentManagement/index.tsx:22
+#: src/components/common/OrderPaymentManagement/index.tsx:156
 msgid "Cash"
 msgstr ""
 
@@ -1915,10 +1928,10 @@ msgstr ""
 msgid "Charity"
 msgstr "慈善"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:104
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:122
 #: src/components/common/OrderDetails/index.tsx:16
-#: src/components/common/OrderPaymentManagement/index.tsx:21
-#: src/components/common/OrderPaymentManagement/index.tsx:136
+#: src/components/common/OrderPaymentManagement/index.tsx:23
+#: src/components/common/OrderPaymentManagement/index.tsx:157
 msgid "Check"
 msgstr ""
 
@@ -1926,19 +1939,24 @@ msgstr ""
 msgid "Check In"
 msgstr "签到"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:59
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:73
 msgid "Check in {0} {1}"
 msgstr "签到 {0} {1}"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:126
-msgid "Check in and mark order as paid"
-msgstr "签到并标记订单为已付款"
+#~ msgid "Check in and mark order as paid"
+#~ msgstr "签到并标记订单为已付款"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:87
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:155
+msgid "Check in and record {0} payment"
+msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:101
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:156
 msgid "Check in and record payment"
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:78
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:92
 msgid "Check in only"
 msgstr "仅签到"
 
@@ -1980,15 +1998,15 @@ msgstr "签到列表已创建！"
 msgid "Check-In List deleted successfully"
 msgstr "签到列表删除成功"
 
-#: src/components/layouts/CheckIn/index.tsx:519
+#: src/components/layouts/CheckIn/index.tsx:520
 msgid "Check-in list has expired"
 msgstr "签到列表已过期"
 
-#: src/components/layouts/CheckIn/index.tsx:536
+#: src/components/layouts/CheckIn/index.tsx:537
 msgid "Check-in list is not active"
 msgstr "签到列表未激活"
 
-#: src/components/layouts/CheckIn/index.tsx:504
+#: src/components/layouts/CheckIn/index.tsx:505
 msgid "Check-in list not found"
 msgstr "未找到签到列表"
 
@@ -2104,7 +2122,7 @@ msgstr "选择谁支付平台费用。这不会影响您在账户设置中配置
 msgid "City"
 msgstr "城市"
 
-#: src/components/layouts/CheckIn/index.tsx:733
+#: src/components/layouts/CheckIn/index.tsx:734
 msgid "Clear filter"
 msgstr "清除筛选"
 
@@ -2213,7 +2231,7 @@ msgstr "按门票收集信息"
 msgid "Collect payment at check-in (cash/check)"
 msgstr "在签到时收款（现金/支票）"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:89
+#: src/components/common/OrderPaymentManagement/index.tsx:105
 msgid "Collected"
 msgstr ""
 
@@ -2255,19 +2273,24 @@ msgstr "以逗号分隔的描述活动的关键字。搜索引擎将使用这些
 msgid "Communication Preferences"
 msgstr "通信偏好"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:26
+#: src/components/common/OrderPaymentManagement/index.tsx:28
 msgid "Comp"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:73
-msgid "Comp remainder"
+#: src/components/common/OrderPaymentManagement/index.tsx:233
+msgid "Comp {0}"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:173
+#: src/components/common/OrderPaymentManagement/index.tsx:73
+#~ msgid "Comp remainder"
+#~ msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:194
+#: src/components/common/OrderPaymentManagement/index.tsx:208
 msgid "Comp remaining {0}"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:91
+#: src/components/common/OrderPaymentManagement/index.tsx:107
 msgid "Comped"
 msgstr ""
 
@@ -3019,7 +3042,7 @@ msgstr "正在创建您的活动，请稍候"
 msgid "Creating your organizer profile, please wait"
 msgstr "正在创建您的主办方资料，请稍候"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:105
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:123
 #: src/components/common/OrderDetails/index.tsx:17
 msgid "Credit card"
 msgstr ""
@@ -3481,8 +3504,8 @@ msgstr "别忘了！"
 msgid "Don't have an account? <0>Sign up</0>"
 msgstr "还没有账户？<0>注册</0>"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:25
-#: src/components/common/OrderPaymentManagement/index.tsx:140
+#: src/components/common/OrderPaymentManagement/index.tsx:27
+#: src/components/common/OrderPaymentManagement/index.tsx:161
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:304
 msgid "Donation"
 msgstr "捐赠"
@@ -3587,9 +3610,16 @@ msgstr "荷兰语"
 msgid "e.g. 180 (3 hours)"
 msgstr "例如 180（3小时）"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:115
-#: src/components/common/OrderPaymentManagement/index.tsx:156
+#: src/components/common/OrderPaymentManagement/index.tsx:220
+msgid "e.g. board-approved sponsor, fundraising comp"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:177
 msgid "e.g. check #1234, last 4 of card"
+msgstr ""
+
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:142
+msgid "e.g. collected by J. Doe, Square #1234"
 msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:76
@@ -4106,6 +4136,10 @@ msgstr "输入姓氏"
 msgid "Enter new password"
 msgstr "输入新密码"
 
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:133
+msgid "Enter the amount actually collected. Less than the total leaves a balance due; more is recorded as overpaid."
+msgstr ""
+
 #: src/components/modals/EditAccountVatSettingsModal/index.tsx:124
 msgid "Enter the VAT number including country code"
 msgstr "输入包含国家代码的增值税号"
@@ -4435,7 +4469,7 @@ msgid "Expiration date"
 msgstr "过期日期"
 
 #: src/components/common/WaitlistTable/index.tsx:28
-#: src/components/layouts/CheckIn/index.tsx:615
+#: src/components/layouts/CheckIn/index.tsx:616
 #: src/components/routes/event/SoldOutWaitlist/index.tsx:74
 msgid "Expired"
 msgstr "已过期"
@@ -4882,11 +4916,11 @@ msgstr "按活动筛选"
 msgid "Filter by Event"
 msgstr "按活动筛选"
 
-#: src/components/layouts/CheckIn/index.tsx:667
+#: src/components/layouts/CheckIn/index.tsx:668
 msgid "Filter by group purchase"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:686
+#: src/components/layouts/CheckIn/index.tsx:687
 msgid "Filter by table"
 msgstr ""
 
@@ -5189,15 +5223,15 @@ msgstr "销售总额"
 msgid "Gross Sales"
 msgstr "总销售额"
 
-#: src/components/layouts/CheckIn/index.tsx:645
+#: src/components/layouts/CheckIn/index.tsx:646
 #: src/components/routes/event/attendees.tsx:86
 msgid "Group"
 msgstr ""
 
 #: src/components/common/CheckIn/AttendeeList.tsx:123
-#: src/components/layouts/CheckIn/index.tsx:649
-#: src/components/layouts/CheckIn/index.tsx:660
-#: src/components/layouts/CheckIn/index.tsx:767
+#: src/components/layouts/CheckIn/index.tsx:650
+#: src/components/layouts/CheckIn/index.tsx:661
+#: src/components/layouts/CheckIn/index.tsx:768
 #: src/components/routes/event/attendees.tsx:45
 msgid "Group purchase"
 msgstr "团体购买"
@@ -6333,7 +6367,7 @@ msgstr "消息级别"
 msgid "Messaging tier updated successfully"
 msgstr "消息级别更新成功"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:133
+#: src/components/common/OrderPaymentManagement/index.tsx:154
 msgid "Method"
 msgstr ""
 
@@ -7002,11 +7036,11 @@ msgstr "不符合条件"
 msgid "Not linked"
 msgstr "未关联"
 
-#: src/components/layouts/CheckIn/index.tsx:615
+#: src/components/layouts/CheckIn/index.tsx:616
 msgid "Not yet active"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:161
+#: src/components/common/OrderPaymentManagement/index.tsx:182
 msgid "Note (optional)"
 msgstr ""
 
@@ -7435,6 +7469,10 @@ msgstr "订单摘要"
 msgid "Order timeout"
 msgstr "订单超时"
 
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
+msgid "Order total"
+msgstr ""
+
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:22
 #: src/components/modals/RefundOrderModal/index.tsx:78
 msgid "Order Total"
@@ -7622,11 +7660,11 @@ msgstr "原始"
 msgid "Originally purchased by {0} {1}"
 msgstr "最初由 {0} {1} 购买"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:107
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:125
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
 #: src/components/common/OrderDetails/index.tsx:19
-#: src/components/common/OrderPaymentManagement/index.tsx:24
-#: src/components/common/OrderPaymentManagement/index.tsx:139
+#: src/components/common/OrderPaymentManagement/index.tsx:26
+#: src/components/common/OrderPaymentManagement/index.tsx:160
 #: src/components/common/OrdersTable/index.tsx:401
 #: src/constants/eventCategories.ts:22
 msgid "Other"
@@ -7640,11 +7678,11 @@ msgstr "其他列表（不包含此票）"
 msgid "Outgoing Messages"
 msgstr "发出的消息"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:103
+#: src/components/common/OrderPaymentManagement/index.tsx:119
 msgid "Outstanding"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:88
+#: src/components/common/OrderPaymentManagement/index.tsx:104
 msgid "Owed"
 msgstr ""
 
@@ -7827,7 +7865,7 @@ msgstr "付款失败"
 msgid "Payment Instructions"
 msgstr "支付说明"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:100
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:118
 #: src/components/routes/product-widget/Payment/index.tsx:122
 msgid "Payment method"
 msgstr "付款方式"
@@ -7854,7 +7892,7 @@ msgstr "已收到付款"
 msgid "Payment Received"
 msgstr "已收到付款"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:61
+#: src/components/common/OrderPaymentManagement/index.tsx:66
 msgid "Payment recorded"
 msgstr ""
 
@@ -8553,6 +8591,7 @@ msgstr "准备升级？这只需要几分钟。"
 msgid "Real-Time Analytics"
 msgstr "实时分析"
 
+#: src/components/common/OrderPaymentManagement/index.tsx:215
 #: src/components/routes/admin/EmailSuppressions/index.tsx:140
 #: src/components/routes/admin/EmailSuppressions/index.tsx:180
 #: src/components/routes/admin/EmailSuppressions/index.tsx:266
@@ -8628,11 +8667,11 @@ msgstr "推荐"
 msgid "Reconnect Stripe →"
 msgstr "重新连接 Stripe →"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:127
+#: src/components/common/OrderPaymentManagement/index.tsx:148
 msgid "Record a payment"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:177
+#: src/components/common/OrderPaymentManagement/index.tsx:198
 msgid "Record payment"
 msgstr ""
 
@@ -8653,8 +8692,8 @@ msgstr "正在重定向到 Stripe..."
 #~ msgid "Reference"
 #~ msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:114
-#: src/components/common/OrderPaymentManagement/index.tsx:155
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:141
+#: src/components/common/OrderPaymentManagement/index.tsx:176
 msgid "Reference (optional)"
 msgstr ""
 
@@ -8708,7 +8747,7 @@ msgstr "退款处理中"
 msgid "Refund Status"
 msgstr "退款状态"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:94
+#: src/components/common/OrderPaymentManagement/index.tsx:110
 #: src/components/common/OrderSummary/index.tsx:80
 #: src/components/common/StatBoxes/index.tsx:57
 #: src/components/routes/event/orders.tsx:30
@@ -8755,7 +8794,7 @@ msgstr "相关活动"
 msgid "Relating to"
 msgstr "关联到"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:76
+#: src/components/common/OrderPaymentManagement/index.tsx:91
 msgid "Remaining balance comped"
 msgstr ""
 
@@ -9263,8 +9302,8 @@ msgstr ""
 msgid "Saving..."
 msgstr "保存中..."
 
-#: src/components/layouts/CheckIn/index.tsx:690
-#: src/components/layouts/CheckIn/index.tsx:700
+#: src/components/layouts/CheckIn/index.tsx:691
+#: src/components/layouts/CheckIn/index.tsx:701
 msgid "Scan"
 msgstr "扫描"
 
@@ -9351,7 +9390,7 @@ msgstr "按姓名、电子邮件或账户搜索..."
 msgid "Search by name, email, or order #..."
 msgstr "按姓名、电子邮件或订单号搜索..."
 
-#: src/components/layouts/CheckIn/index.tsx:640
+#: src/components/layouts/CheckIn/index.tsx:641
 msgid "Search by name, order #, attendee # or email..."
 msgstr "按姓名、订单号、参与者号或电子邮件搜索..."
 
@@ -9774,11 +9813,11 @@ msgstr "设置已更新"
 msgid "Settings"
 msgstr "设置"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:100
+#: src/components/common/OrderPaymentManagement/index.tsx:116
 msgid "Settled"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:99
+#: src/components/common/OrderPaymentManagement/index.tsx:115
 msgid "Settled · overpaid {0}"
 msgstr ""
 
@@ -9891,11 +9930,11 @@ msgstr "显示票种"
 msgid "Showing {0} of {totalRows} records"
 msgstr "显示 {0} / {totalRows} 条记录"
 
-#: src/components/layouts/CheckIn/index.tsx:715
+#: src/components/layouts/CheckIn/index.tsx:716
 msgid "Showing group:"
 msgstr "显示团体："
 
-#: src/components/layouts/CheckIn/index.tsx:722
+#: src/components/layouts/CheckIn/index.tsx:723
 msgid "Showing table:"
 msgstr "显示桌位："
 
@@ -10435,8 +10474,8 @@ msgstr "屏蔽删除成功"
 msgid "Swedish"
 msgstr "瑞典语"
 
-#: src/components/layouts/CheckIn/index.tsx:588
-#: src/components/layouts/CheckIn/index.tsx:597
+#: src/components/layouts/CheckIn/index.tsx:589
+#: src/components/layouts/CheckIn/index.tsx:598
 msgid "Switch check-in list"
 msgstr ""
 
@@ -10465,7 +10504,7 @@ msgstr "系统默认"
 msgid "T-shirt"
 msgstr "T恤衫"
 
-#: src/components/layouts/CheckIn/index.tsx:672
+#: src/components/layouts/CheckIn/index.tsx:673
 #: src/components/routes/event/attendees.tsx:92
 msgid "Table"
 msgstr ""
@@ -10633,7 +10672,7 @@ msgstr "此活动发布所用的品牌"
 msgid "The change is applied when you click Save on the attribute. Click Cancel to keep the option for now."
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:509
+#: src/components/layouts/CheckIn/index.tsx:510
 msgid "The check-in list you are looking for does not exist."
 msgstr "您查找的签到列表不存在。"
 
@@ -10831,7 +10870,7 @@ msgstr ""
 msgid "These will be collected when the attendee details are completed."
 msgstr ""
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:67
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:81
 msgid "This attendee has an unpaid order."
 msgstr "此参与者有未付款的订单。"
 
@@ -10863,7 +10902,7 @@ msgstr "此类别对公众隐藏"
 msgid "This check-in list has expired"
 msgstr "此签到列表已过期"
 
-#: src/components/layouts/CheckIn/index.tsx:524
+#: src/components/layouts/CheckIn/index.tsx:525
 msgid "This check-in list has expired and is no longer available for check-ins."
 msgstr "此签到列表已过期，不再可用于签到。"
 
@@ -10875,7 +10914,7 @@ msgstr "此签到列表已激活"
 msgid "This check-in list is not active yet"
 msgstr "此签到列表尚未激活"
 
-#: src/components/layouts/CheckIn/index.tsx:541
+#: src/components/layouts/CheckIn/index.tsx:542
 msgid "This check-in list is not yet active and is not available for check-ins."
 msgstr "此签到列表尚未激活，不能用于签到。"
 
@@ -11036,7 +11075,7 @@ msgstr "此重置密码链接无效或已过期。"
 msgid "This ticket hasn't been assigned to a guest yet. Click \"Assign attendee\" to add their name and email before sending, printing, or viewing the ticket."
 msgstr "此票据尚未分配给客人。点击 \"分配参与者\" 添加姓名和邮箱，然后再发送、打印或查看票据。"
 
-#: src/components/layouts/CheckIn/index.tsx:351
+#: src/components/layouts/CheckIn/index.tsx:352
 msgid "This ticket was just scanned. Please wait before scanning again."
 msgstr "此门票刚刚被扫描。请等待后再次扫描。"
 
@@ -11421,11 +11460,11 @@ msgstr "免费试用Hi.Events"
 msgid "Turkish"
 msgstr "土耳其语"
 
-#: src/components/layouts/CheckIn/index.tsx:693
+#: src/components/layouts/CheckIn/index.tsx:694
 msgid "Turn sound off"
 msgstr "关闭声音"
 
-#: src/components/layouts/CheckIn/index.tsx:693
+#: src/components/layouts/CheckIn/index.tsx:694
 msgid "Turn sound on"
 msgstr "开启声音"
 
@@ -11469,12 +11508,12 @@ msgstr "门票类型"
 msgid "Typography"
 msgstr ""
 
-#: src/components/layouts/CheckIn/index.tsx:282
+#: src/components/layouts/CheckIn/index.tsx:283
 msgid "Unable to check in attendee"
 msgstr "无法签到参与者"
 
-#: src/components/layouts/CheckIn/index.tsx:307
-#: src/components/layouts/CheckIn/index.tsx:309
+#: src/components/layouts/CheckIn/index.tsx:308
+#: src/components/layouts/CheckIn/index.tsx:310
 msgid "Unable to check out attendee"
 msgstr "无法签退参与者"
 
@@ -11494,7 +11533,7 @@ msgstr ""
 msgid "Unable to duplicate product. Please check the your details"
 msgstr "无法复制产品。请检查您的详细信息"
 
-#: src/components/layouts/CheckIn/index.tsx:367
+#: src/components/layouts/CheckIn/index.tsx:368
 msgid "Unable to fetch attendee"
 msgstr "无法获取参与者"
 
@@ -11572,7 +11611,7 @@ msgstr "无限制"
 msgid "Unlimited usages allowed"
 msgstr "允许无限次使用"
 
-#: src/components/common/CheckIn/CheckInOptionsModal.tsx:66
+#: src/components/common/CheckIn/CheckInOptionsModal.tsx:80
 msgid "Unpaid Order"
 msgstr "未付款订单"
 
@@ -12540,7 +12579,7 @@ msgstr "研讨会"
 msgid "Write your message here..."
 msgstr "请在此输入您的消息..."
 
-#: src/components/common/OrderPaymentManagement/index.tsx:27
+#: src/components/common/OrderPaymentManagement/index.tsx:29
 msgid "Write-off"
 msgstr ""
 
@@ -12596,8 +12635,8 @@ msgstr "您正在模拟 <0>{0}</0> ({1})"
 msgid "You are issuing a partial refund. The customer will be refunded {0} {1}."
 msgstr "您正在发出部分退款。客户将获得 {0} {1} 的退款。"
 
-#: src/components/layouts/CheckIn/index.tsx:276
-#: src/components/layouts/CheckIn/index.tsx:302
+#: src/components/layouts/CheckIn/index.tsx:277
+#: src/components/layouts/CheckIn/index.tsx:303
 msgid "You are offline"
 msgstr "您处于离线状态"
 
@@ -12625,8 +12664,8 @@ msgstr "您无法归档账户中最后一个活跃的主办方。"
 msgid "You cannot change the product type as there are attendees associated with this product."
 msgstr "您无法更改产品类型，因为有与该产品关联的参会者。"
 
-#: src/components/layouts/CheckIn/index.tsx:325
-#: src/components/layouts/CheckIn/index.tsx:400
+#: src/components/layouts/CheckIn/index.tsx:326
+#: src/components/layouts/CheckIn/index.tsx:401
 msgid "You cannot check in attendees with unpaid orders. This setting can be changed in the event settings."
 msgstr "您无法为未支付订单的与会者签到。此设置可在活动设置中更改。"
 

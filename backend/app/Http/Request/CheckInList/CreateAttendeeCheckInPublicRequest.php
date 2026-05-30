@@ -22,6 +22,7 @@ class CreateAttendeeCheckInPublicRequest extends BaseRequest
                 Rule::in(OfflinePaymentMethod::valuesArray()),
             ],
             'attendees.*.payment_reference' => ['nullable', 'string', 'max:255'],
+            'attendees.*.amount' => ['nullable', 'numeric', 'gt:0'],
         ];
     }
 }
