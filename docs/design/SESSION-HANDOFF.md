@@ -23,10 +23,25 @@ first — §5 status matrix, §10 phase log).
 5. `feat(orders): expose order balance` (backend) — `payment_balance` + `payments` on
    `OrderResource` via `GetOrderAction`; backfill is a MANUAL `ops/sql/backfill_order_payments.sql`.
 6. `feat(orders): Manage-Order payments panel` (frontend) — the `OrderPaymentManagement` panel.
+7. `chore(smoke): reusable playwright→HTML smoke-report skill` — the `smoke-report` skill +
+   `ops/smoke/build-report.mjs` generator (artifact `ops/smoke/payment-panel/`).
+8. `feat(checkin,orders): door amount-received + required comp reason` (`d633765a`) — see below.
 
 ## Status
 
 - **Phases 1–3 DONE and visually smoke-tested** (report under `ops/smoke/payment-panel/`).
+- **Door amount-received + required comp reason DONE (commit `d633765a`)** — the door's "record
+  payment" now takes the **amount actually collected** (defaults to order total; method +
+  reference + recorded IP = reconciliation memo). Boundary: **the door may add reconcilable
+  money; only the authenticated manage-order surface may forgive it (comp).**
+  `CreateAttendeeCheckInService::recordDoorPayment` branches on balance — settling (≥ balance) →
+  `MarkOrderAsPaidService` (receipt/invoice/app-fee, activates attendee, overpay = donation);
+  short → `RecordOrderPaymentService` (partial; order stays awaiting, attendee admitted not
+  activated). Comp/write-off now **require a reason** (server-side `RecordOrderPaymentRequest` +
+  UI modal; reason renders in the ledger table). Tests: `CreateAttendeeCheckInServiceTest`,
+  `RecordOrderPaymentRequestTest`, `MarkOrderAsPaidServiceTest` (618 unit green). Smoke reports:
+  `ops/smoke/checkin-payment/` (door pay-vs-comp boundary) + `ops/smoke/checkin-payment-amount-comp/`
+  (amount-received + comp reason). Design doc §6, §9.1 (resolved), §10 Phase 3 update.
 - **Migrations are schema-only** (operator preference) — data backfill/cleanup is manual:
   - Run `ops/sql/backfill_order_payments.sql` by hand on prod for the few pre-ledger
     pay-at-check-in orders (else their balance reads as fully outstanding).
@@ -44,6 +59,12 @@ first — §5 status matrix, §10 phase log).
 - Optional dashboard "cash collected" card.
 - Auto-create explicit `DONATION` rows for overpayment + donations-in-excess reporting.
 - Optional cleanup: route `MarkOrderAsPaid` fully through `ApplyOrderBalanceStatusService`.
+
+**Known small gap (door amount-received):** the door defaults "Amount received" to
+`order_total_gross`, which equals true outstanding for fresh awaiting orders but reads high if a
+partial was already recorded before the modal reopens (agent overrides it; server reconciles
+correctly). Closing it = surface true outstanding on `AttendeeWithCheckInPublicResource` (costs a
+per-row balance computation in the check-in list). Deferred — not worth the N+1 yet.
 
 ## Smoke-report capability (reusable)
 
@@ -65,9 +86,9 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 
 > Resume the Hi.Events payments-ledger work on branch `jbj/local`. Read
 > `docs/design/SESSION-HANDOFF.md` and `docs/design/payment-at-checkin-ledger.md` for full
-> context. Phases 1–3 (ledger schema, record-payment endpoint + status reconciliation,
-> Manage-Order payments panel) are committed and smoke-tested; migrations are schema-only and
-> data backfill/cleanup is manual. I want to start **Phase 5**: add `collected`/`outstanding`
-> columns to `ops/sql/orders_export.sql`, [and/or] a dashboard "cash collected" card, [and/or]
-> auto `DONATION` rows for overpayment. Confirm the current state from git log first, then
-> propose a plan for the Phase 5 piece I named.
+> context. Committed & smoke-tested so far: Phases 1–3 (ledger schema, record-payment endpoint +
+> status reconciliation, Manage-Order payments panel), plus door amount-received + required comp
+> reason (`d633765a`). Migrations are schema-only; data backfill/cleanup is manual. I want to
+> start **Phase 5**: add `collected`/`outstanding` columns to `ops/sql/orders_export.sql`,
+> [and/or] a dashboard "cash collected" card, [and/or] auto `DONATION` rows for overpayment.
+> Confirm the current state from git log first, then propose a plan for the Phase 5 piece I named.
