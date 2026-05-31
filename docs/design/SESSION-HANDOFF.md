@@ -26,6 +26,7 @@ first — §5 status matrix, §10 phase log).
 7. `chore(smoke): reusable playwright→HTML smoke-report skill` — the `smoke-report` skill +
    `ops/smoke/build-report.mjs` generator (artifact `ops/smoke/payment-panel/`).
 8. `feat(checkin,orders): door amount-received + required comp reason` (`d633765a`) — see below.
+9. `feat(orders): reverse offline payment ledger entries — Phase B` (`ca613e25`) — see below.
 
 ## Status
 
@@ -42,6 +43,22 @@ first — §5 status matrix, §10 phase log).
   `RecordOrderPaymentRequestTest`, `MarkOrderAsPaidServiceTest` (618 unit green). Smoke reports:
   `ops/smoke/checkin-payment/` (door pay-vs-comp boundary) + `ops/smoke/checkin-payment-amount-comp/`
   (amount-received + comp reason). Design doc §6, §9.1 (resolved), §10 Phase 3 update.
+- **Payment reversal DONE (Phase B, commit `ca613e25`)** — correcting a mistakenly recorded
+  offline payment books a **linked, negative-amount row of the same type** (`reverses_payment_id`
+  → original) instead of deleting it: the original stays as the audit trail, and `OrderBalanceService`
+  (sums signed amounts) restores the balance with **no order-total changes**. Reversals **require a
+  reason**; guards reject reversing a reversal or double-reversing. **Stripe receipts are not ledger
+  rows** and are corrected via a refund, never reversed here, so the per-row "Reverse" affordance
+  only appears on offline ledger rows. Backend: migration `…193000_add_reverses_payment_id…`,
+  `ReverseOrderPaymentService` (+ DTO/Handler/`ReverseOrderPaymentRequest`/Action), route
+  `POST /events/{id}/orders/{id}/payments/{paymentId}/reverse`, `reverses_payment_id` on
+  `OrderPaymentResource`. Frontend: reason modal, reversal rows red/negative, reversed originals
+  struck-through + "Reversed" badge; `useReverseOrderPayment`. Also accentuated the low-emphasis
+  "Comp remaining" control (dashed border + gift icon). Tests: `ReverseOrderPaymentServiceTest` (7),
+  `ReverseOrderPaymentRequestTest` (2); full Unit suite **627 green**. Smoke (6 steps, all pass):
+  `ops/smoke/payment-reversal/`. **Note:** running `generate-domain-objects` regenerated the
+  `OrderPaymentAdjustment*` domain-object classes (table not yet dropped — §8.1); they were deleted
+  from this commit and will keep reappearing until the table is dropped.
 - **Migrations are schema-only** (operator preference) — data backfill/cleanup is manual:
   - Run `ops/sql/backfill_order_payments.sql` by hand on prod for the few pre-ledger
     pay-at-check-in orders (else their balance reads as fully outstanding).
@@ -53,9 +70,28 @@ first — §5 status matrix, §10 phase log).
 - **Verified:** full Unit suite 610 green; 125 Order tests across unit+feature; live browser
   smoke of record-payment + comp-remainder round trip.
 
-## Next (Phase 5, not started)
+## Next
 
-- `collected`/`outstanding` columns in `ops/sql/orders_export.sql`.
+Money-correction plan (agreed this session) — **A → B → C**, B is done:
+
+- **A (not started) — relocate the existing Refund UX into the payments panel.** Don't rebuild:
+  `RefundOrderModal` already does partial + full + notify + cancel. Surface it inside
+  `OrderPaymentManagement` (panel-level "Refund" + per-Stripe-receipt "Refund") so the panel is the
+  single money-movement timeline (design §6). Pure frontend wiring; the kebab item can stay or retire.
+- **B (DONE, `ca613e25`) — offline payment reversal.** See status above.
+- **C (not started) — offline-refund recording + `total_refunded` reconciler.** Keep the Stripe
+  webhook bump as-is (idempotency-guarded by `refund_id`; high upstream-merge-risk hot path). For
+  future *offline* refunds, write an `order_refunds` row (`provider=OFFLINE`) and bump
+  `total_refunded` in the same transaction (single write path, no webhook). Add an artisan/SQL
+  **reconciler** that resets `total_refunded = SUM(order_refunds succeeded)` for drift repair —
+  the "should it be a sum" answer, as a self-heal, not the hot-path write. **Distinction to keep:**
+  a *reversal* (Phase B) un-does a receipt that never truly moved (reduces `collected`, NOT a refund);
+  a *refund* returns money genuinely received (refund lane).
+
+Parked Phase 5 reporting (lower urgency than correctness above):
+
+- `collected`/`outstanding` columns in `ops/sql/orders_export.sql` (line-item-grained; add via a
+  `LEFT JOIN LATERAL` over `order_payments`, mirroring `OrderBalanceService`).
 - Optional dashboard "cash collected" card.
 - Auto-create explicit `DONATION` rows for overpayment + donations-in-excess reporting.
 - Optional cleanup: route `MarkOrderAsPaid` fully through `ApplyOrderBalanceStatusService`.
@@ -87,8 +123,11 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 > Resume the Hi.Events payments-ledger work on branch `jbj/local`. Read
 > `docs/design/SESSION-HANDOFF.md` and `docs/design/payment-at-checkin-ledger.md` for full
 > context. Committed & smoke-tested so far: Phases 1–3 (ledger schema, record-payment endpoint +
-> status reconciliation, Manage-Order payments panel), plus door amount-received + required comp
-> reason (`d633765a`). Migrations are schema-only; data backfill/cleanup is manual. I want to
-> start **Phase 5**: add `collected`/`outstanding` columns to `ops/sql/orders_export.sql`,
-> [and/or] a dashboard "cash collected" card, [and/or] auto `DONATION` rows for overpayment.
-> Confirm the current state from git log first, then propose a plan for the Phase 5 piece I named.
+> status reconciliation, Manage-Order payments panel), door amount-received + required comp reason
+> (`d633765a`), and **Phase B offline payment reversal** (`ca613e25` — linked negative-amount row,
+> required reason, reversed-original badge). Migrations are schema-only; data backfill/cleanup is
+> manual. Next on the money-correction plan is **A** (relocate the existing `RefundOrderModal` into
+> the payments panel — don't rebuild it) and/or **C** (offline-refund recording + a `total_refunded`
+> reconciler, keeping the Stripe webhook bump as-is). Parked: Phase 5 reporting (orders_export
+> columns, dashboard "cash collected" card, auto `DONATION` rows). Confirm the current state from
+> git log first, then propose a plan for the piece I name.
