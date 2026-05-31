@@ -32,6 +32,9 @@ first — §5 status matrix, §10 phase log).
     — smoke-report git policy + tiers (see "Smoke-report capability" below).
 12. `test(smoke): Tier-2 reproducible payment-reversal replay (@playwright/test)` (`1ef80a50`)
     — first committed Tier-2 replay (see below).
+13. `feat(orders): surface Stripe refund in the payments panel — Phase A` (`b33a7db4`) — money-
+    correction Phase A (see "Next" below).
+14. `skills update` (`6f566456`).
 
 ## Status
 
@@ -77,21 +80,30 @@ first — §5 status matrix, §10 phase log).
 
 ## Next
 
-Money-correction plan (agreed this session) — **A → B → C**, B is done:
+Money-correction plan (agreed this session) — **A → B → C**, A & B done, C deferred:
 
-- **A (not started) — relocate the existing Refund UX into the payments panel.** Don't rebuild:
-  `RefundOrderModal` already does partial + full + notify + cancel. Surface it inside
-  `OrderPaymentManagement` (panel-level "Refund" + per-Stripe-receipt "Refund") so the panel is the
-  single money-movement timeline (design §6). Pure frontend wiring; the kebab item can stay or retire.
+- **A (DONE, `b33a7db4`) — relocate the existing Refund UX into the payments panel.** Surfaced
+  `RefundOrderModal` (unchanged: partial + full + notify + cancel) inside `OrderPaymentManagement`
+  as a panel-level "Refund" + per-Stripe-receipt affordance, same guard predicate as the OrdersTable
+  kebab (Stripe provider, not free, not awaiting-offline, not fully refunded); kebab stays as a
+  list-level shortcut. Panel refetches via `onUpdated()` on close. Partial refunds repeatable. Smoke:
+  `ops/smoke/refund-in-panel/` (6 steps pass).
 - **B (DONE, `ca613e25`) — offline payment reversal.** See status above.
-- **C (not started) — offline-refund recording + `total_refunded` reconciler.** Keep the Stripe
-  webhook bump as-is (idempotency-guarded by `refund_id`; high upstream-merge-risk hot path). For
-  future *offline* refunds, write an `order_refunds` row (`provider=OFFLINE`) and bump
-  `total_refunded` in the same transaction (single write path, no webhook). Add an artisan/SQL
-  **reconciler** that resets `total_refunded = SUM(order_refunds succeeded)` for drift repair —
-  the "should it be a sum" answer, as a self-heal, not the hot-path write. **Distinction to keep:**
-  a *reversal* (Phase B) un-does a receipt that never truly moved (reduces `collected`, NOT a refund);
-  a *refund* returns money genuinely received (refund lane).
+- **C (DEFERRED, 2026-05-31) — offline-refund recording + `total_refunded` reconciler. NOT being
+  built now.** Decided this is not needed yet. C's only unique value is **categorization** —
+  recording "real offline money was returned" as a *refund* distinct from a *reversal* (Phase B =
+  un-doing a receipt that never truly moved). It adds **no balance correctness**: reversing the
+  offline payment already drops `collected` by the same amount. Skipping it avoids a confusing
+  **third money verb** (two named "Refund") at the door. **Stopgap:** use **reversal** for the rare
+  offline cash-return. **Footgun:** reversal re-opens the order as `AWAITING_OFFLINE_PAYMENT` (negative
+  row → balance goes positive again), so a refunded order can resurface in unpaid lists as if it still
+  owes — fine for a SUPERADMIN who knows, but conflates "refunded" with "voided" in reporting. The
+  reconciler half is a no-op without offline refund rows (Stripe webhook already keeps `total_refunded`
+  correct), so it travels with C. **Revisit when** offline cash-refunds get frequent, or reports must
+  split "refunded" vs "voided". Full rationale: design doc §9 item 4. If/when built: keep the Stripe
+  webhook bump as-is (idempotency-guarded by `refund_id`; high upstream-merge-risk hot path); write an
+  `order_refunds` row (`provider=OFFLINE`) + bump `total_refunded` in one transaction; add a
+  `total_refunded = SUM(order_refunds succeeded)` reconciler as a self-heal.
 
 Parked Phase 5 reporting (lower urgency than correctness above):
 
@@ -152,12 +164,14 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 > `docs/design/SESSION-HANDOFF.md` and `docs/design/payment-at-checkin-ledger.md` for full
 > context. Committed & smoke-tested so far: Phases 1–3 (ledger schema, record-payment endpoint +
 > status reconciliation, Manage-Order payments panel), door amount-received + required comp reason
-> (`d633765a`), and **Phase B offline payment reversal** (`ca613e25` — linked negative-amount row,
-> required reason, reversed-original badge). Migrations are schema-only; data backfill/cleanup is
-> manual. Next on the money-correction plan is **A** (relocate the existing `RefundOrderModal` into
-> the payments panel — don't rebuild it) and/or **C** (offline-refund recording + a `total_refunded`
-> reconciler, keeping the Stripe webhook bump as-is). Parked: Phase 5 reporting (orders_export
-> columns, dashboard "cash collected" card, auto `DONATION` rows). Confirm the current state from
-> git log first, then propose a plan for the piece I name. (Smoke testing now has a two-tier model —
+> (`d633765a`), **Phase B offline payment reversal** (`ca613e25` — linked negative-amount row,
+> required reason, reversed-original badge), and **money-correction Phase A** (`b33a7db4` — Stripe
+> `RefundOrderModal` surfaced inside the payments panel). Migrations are schema-only; data
+> backfill/cleanup is manual. The money-correction plan (A → B → C) is **A & B done, C deferred**
+> (2026-05-31 — offline-refund recording not needed yet; use reversal as the stopgap; full rationale
+> in design §9 item 4 and the "Next" section). No active next step on this thread unless C is
+> revived. Parked: Phase 5 reporting (orders_export columns, dashboard "cash collected" card, auto
+> `DONATION` rows). Confirm the current state from git log first, then await instruction. (Smoke
+> testing now has a two-tier model —
 > Tier 1 agent-driven, Tier 2 committed `@playwright/test` replays with self-seeding fixtures;
 > shots/report are gitignored. See "Smoke-report capability" in the handoff before adding a smoke run.)

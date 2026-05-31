@@ -239,6 +239,23 @@ already corrected).
    constraint on when an excess becomes a donation vs. an expected over-collection?
 3. When the manage-order sidebar shows "outstanding," should a non-zero balance also surface a
    one-click "record remaining payment / comp remainder" action inline?
+4. ~~Build offline-refund recording (Phase C — write an `order_refunds` row with `provider=OFFLINE`
+   + bump `total_refunded`, plus a `total_refunded = SUM(succeeded)` reconciler)?~~
+   **Deferred (2026-05-31): not now.** Phase C's only unique job is **categorization** — recording
+   "real offline money (door cash/check) was returned" as a refund distinct from a *reversal*
+   (Phase B = un-doing a receipt that never truly moved). It does **not** add balance correctness:
+   reversing the offline payment already drops `collected` by the same amount, so the books net out.
+   For this operator's volume (occasional district-event door cash), genuine offline cash-refunds are
+   rare-to-never, and adding a **third money verb** — two of which would be named "Refund" (Stripe
+   panel-refund, offline-refund) alongside "Reverse" — is a real UX hazard at the door surface.
+   **Stopgap:** use **reversal (Phase B)** for the rare cash-return. **Footgun to accept:** reversal
+   re-opens the order as `AWAITING_OFFLINE_PAYMENT` (it books a negative row, so the derived balance
+   goes positive again), so a refunded order can resurface in unpaid/outstanding lists as if it still
+   owes money — manageable for a SUPERADMIN who knows the history, but it conflates "refunded" with
+   "voided" in reporting. The reconciler half travels with Phase C (it's a no-op without offline
+   refund rows; the Stripe webhook already keeps `total_refunded` correct on its own). **Revisit when:**
+   offline cash-refunds become frequent enough that reverse-as-a-workaround muddies the books, **or**
+   financial reports must show "refunded" and "voided" as distinct lines.
 
 ## 10. Rollout phases
 
