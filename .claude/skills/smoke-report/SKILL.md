@@ -22,8 +22,14 @@ embedded as base64 (no external image deps; safe to open or email). Generated fr
    load: `docker compose -f docker/development/docker-compose.dev.yml restart frontend`,
    then wait for HTTP 200. (Edits to existing files HMR fine; brand-new files often need
    the restart.)
-2. **Get an auth path that doesn't rabbit-hole.** Reuse an existing dev/test user; set a
-   known password via tinker if needed (`Hash::make(...)`, note it). Don't invent flows.
+2. **Get an auth path that doesn't rabbit-hole.** Use the stable smoke login instead of
+   hunting for a dev user or resetting passwords by hand:
+   `docker compose -f docker/development/docker-compose.dev.yml exec -T backend php artisan smoke:admin`
+   It idempotently ensures a **SUPERADMIN** user — `smoke-admin@hi.events.test` /
+   `SmokeAdmin123!` — so login and permissions are never the blocker. (Local-only: the
+   command refuses to run outside the `local` env, so the fixed password can't reach prod.)
+   Log in at `/auth/login` with those creds. Don't invent flows. Only fall back to a
+   tinker password reset if you specifically need a *different* user's data.
 3. **Seed deterministic test data** so the UI shows the states you want to capture
    (e.g. flip an order to AWAITING_OFFLINE_PAYMENT). **Capture the original values first
    and RESTORE them at the end** — leave dev as you found it.
@@ -113,6 +119,10 @@ Learned building the first one — all four are required, or it rots:
    factories**, so a replay must build its own fixture (account/user/event/order graph) via
    the app's domain services or a dedicated seeder, then tear it down. Do NOT depend on
    incidental dev rows — they don't exist on a fresh DB. This is the hard part, not the clicks.
+   For the **login** half specifically, `php artisan smoke:admin` gives every run the same
+   stable SUPERADMIN (`smoke-admin@hi.events.test` / `SmokeAdmin123!`) — use it so auth/role
+   is never the variable; specs that need domain data still build + tear down their own graph
+   (see `smoke:reversal-fixture`).
 3. **Explicit waits, not `sleep`.** Use auto-waiting locators + `expect(...).toBeVisible()`.
 4. **Determinism = same *states*, not same *pixels*.** Dates, random `public_id`s, and
    relative times ("5 days ago") vary every run — assert on roles/text, never pixel-diff.
