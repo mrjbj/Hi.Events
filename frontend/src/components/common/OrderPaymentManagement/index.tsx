@@ -3,7 +3,7 @@ import {useForm} from "@mantine/form";
 import {useDisclosure} from "@mantine/hooks";
 import {useState} from "react";
 import {t, Trans} from "@lingui/macro";
-import {IconArrowBackUp, IconGift} from "@tabler/icons-react";
+import {IconArrowBackUp, IconGift, IconReceiptRefund} from "@tabler/icons-react";
 import {useParams} from "react-router";
 import {Order, OrderPayment, OrderPaymentType} from "../../../types.ts";
 import {formatCurrency} from "../../../utilites/currency.ts";
@@ -12,6 +12,7 @@ import {useReverseOrderPayment} from "../../../mutations/useReverseOrderPayment.
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {showSuccess} from "../../../utilites/notifications.tsx";
 import {Button} from "../Button";
+import {RefundOrderModal} from "../../modals/RefundOrderModal";
 import {prettyDate} from "../../../utilites/dates.ts";
 
 interface OrderPaymentManagementProps {
@@ -49,6 +50,12 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
     const [reverseTarget, setReverseTarget] = useState<OrderPayment | null>(null);
     const [reverseReason, setReverseReason] = useState('');
     const [reverseReasonError, setReverseReasonError] = useState<string | null>(null);
+    const [refundOpen, refundHandlers] = useDisclosure(false);
+
+    const isRefundable = !order.is_free_order
+        && order.status !== 'AWAITING_OFFLINE_PAYMENT'
+        && order.payment_provider === 'STRIPE'
+        && order.refund_status !== 'REFUNDED';
 
     const form = useForm({
         initialValues: {
@@ -136,24 +143,39 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
     return (
         <Box p="md">
             <Stack gap="sm">
-                {balance && (
-                    <Group gap="xl" wrap="wrap">
-                        <Summary label={t`Owed`} value={formatCurrency(balance.amountOwed, currency)}/>
-                        <Summary label={t`Collected`} value={formatCurrency(balance.amountCollected, currency)}/>
-                        {balance.totalComps > 0 && (
-                            <Summary label={t`Comped`} value={formatCurrency(balance.totalComps, currency)}/>
-                        )}
-                        {balance.totalRefunded > 0 && (
-                            <Summary label={t`Refunded`} value={formatCurrency(balance.totalRefunded, currency)}/>
-                        )}
-                        {balance.isSettled ? (
-                            <Badge color="green" variant="light">
-                                {balance.overpaid > 0
-                                    ? <Trans>Settled · overpaid {formatCurrency(balance.overpaid, currency)}</Trans>
-                                    : t`Settled`}
-                            </Badge>
-                        ) : (
-                            <Summary label={t`Outstanding`} value={formatCurrency(outstanding, currency)} highlight/>
+                {(balance || isRefundable) && (
+                    <Group justify="space-between" align="flex-start" wrap="nowrap">
+                        {balance ? (
+                            <Group gap="xl" wrap="wrap">
+                                <Summary label={t`Owed`} value={formatCurrency(balance.amountOwed, currency)}/>
+                                <Summary label={t`Collected`} value={formatCurrency(balance.amountCollected, currency)}/>
+                                {balance.totalComps > 0 && (
+                                    <Summary label={t`Comped`} value={formatCurrency(balance.totalComps, currency)}/>
+                                )}
+                                {balance.totalRefunded > 0 && (
+                                    <Summary label={t`Refunded`} value={formatCurrency(balance.totalRefunded, currency)}/>
+                                )}
+                                {balance.isSettled ? (
+                                    <Badge color="green" variant="light">
+                                        {balance.overpaid > 0
+                                            ? <Trans>Settled · overpaid {formatCurrency(balance.overpaid, currency)}</Trans>
+                                            : t`Settled`}
+                                    </Badge>
+                                ) : (
+                                    <Summary label={t`Outstanding`} value={formatCurrency(outstanding, currency)} highlight/>
+                                )}
+                            </Group>
+                        ) : <span/>}
+                        {isRefundable && (
+                            <Button
+                                variant="light"
+                                color="red"
+                                size="compact-sm"
+                                leftSection={<IconReceiptRefund size={14}/>}
+                                onClick={refundHandlers.open}
+                            >
+                                {t`Refund`}
+                            </Button>
                         )}
                     </Group>
                 )}
@@ -360,6 +382,16 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                     </Group>
                 </Stack>
             </Modal>
+
+            {refundOpen && (
+                <RefundOrderModal
+                    orderId={order.id}
+                    onClose={() => {
+                        refundHandlers.close();
+                        onUpdated();
+                    }}
+                />
+            )}
         </Box>
     );
 };

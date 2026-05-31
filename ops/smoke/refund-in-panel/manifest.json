@@ -1,0 +1,52 @@
+{
+  "title": "Smoke Test — Refund in Payments Panel (Phase A)",
+  "subtitle": "Stripe refund relocated into the Manage-Order payments panel; partial + repeatable refunds, with the offline boundary",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Flow": "Manage order → Payments panel → Refund (partial $40 of $100) → reopen showing $60 remaining",
+    "Branch": "jbj/local",
+    "Change": "OrderPaymentManagement: panel-level Refund button (reuses existing RefundOrderModal), guarded to Stripe orders",
+    "Login": "playwright@hi-events.test",
+    "Data note": "Stripe keys in dev are placeholders (pk_test_xxx) — no live Stripe. Order O-ENANEOF was DB-seeded to $100 and the post-refund state (Refunded $40 / PARTIALLY_REFUNDED) was DB-seeded to capture the 'after' visual. The Stripe processing itself is pre-existing behavior, not part of this change. Order restored to originals afterward."
+  },
+  "steps": [
+    {
+      "title": "1 · Refund button now lives in the Payments panel",
+      "description": "Open a refundable Stripe order ($100, settled). The panel header shows Owed $100 / Collected $100 / SETTLED, and the new red Refund button sits beside the balance — this is the change.",
+      "status": "pass",
+      "screenshot": "shots/01-panel-refund-button.png",
+      "notes": "Guard mirrors the OrdersTable kebab: payment_provider === 'STRIPE' && not free && not awaiting-offline && not already fully refunded."
+    },
+    {
+      "title": "2 · Refund opens the existing modal — full refund default",
+      "description": "Clicking Refund opens RefundOrderModal (reused unchanged). Order Total $100, Available to Refund $100, amount prefilled to the full balance ('Full refund').",
+      "status": "pass",
+      "screenshot": "shots/02-modal-full-default.png"
+    },
+    {
+      "title": "3 · Enter $40 → partial refund detected ($40 of $100)",
+      "description": "Typing 40 flips the field description to 'Partial refund' and shows the blue confirmation alert: 'The customer will be refunded 40.00 USD.' Directly answers: yes, you can refund $40 of a $100 Stripe payment.",
+      "status": "pass",
+      "screenshot": "shots/03-partial-40-of-100.png"
+    },
+    {
+      "title": "4 · After the $40 refund — $60 collected, button persists",
+      "description": "Post-refund panel: Owed $100 / Collected $60 / Refunded $40 / Outstanding $40. The Refund button is STILL present — partial refunds are repeatable against the remainder.",
+      "status": "pass",
+      "screenshot": "shots/04-after-partial-60-remains.png",
+      "notes": "State DB-seeded (total_refunded=40, refund_status=PARTIALLY_REFUNDED) since dev Stripe is a placeholder. Balance math is pre-existing OrderBalanceService: a refund adds back to the receivable, so Outstanding reads $40."
+    },
+    {
+      "title": "5 · Reopen Refund — only $60 now available",
+      "description": "Reopening the modal shows Order Total $100, Already Refunded −$40, Available to Refund $60. The max enforces the remaining refundable amount.",
+      "status": "pass",
+      "screenshot": "shots/05-modal-60-available.png"
+    },
+    {
+      "title": "6 · Boundary — offline order has NO Refund button",
+      "description": "An OFFLINE order's Payments panel (Owed $1.57 / Outstanding $1.57) shows no Refund button. Offline money is corrected via per-row Reverse (Phase B) or offline-refund recording (Phase C), never a Stripe refund.",
+      "status": "pass",
+      "screenshot": "shots/06-offline-no-refund-button.png"
+    }
+  ]
+}
