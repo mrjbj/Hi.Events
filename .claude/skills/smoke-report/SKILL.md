@@ -71,6 +71,51 @@ relative to the manifest's directory.
 
 ## Reusable generator
 
-`ops/smoke/build-report.mjs` is generic — point it at any manifest. The report is
-regenerable from `shots/` + `manifest.json`, so the large `report.html` need not be
-committed (gitignored); the screenshots + manifest + generator are the durable artifact.
+`ops/smoke/build-report.mjs` is generic — point it at any manifest. It assembles
+`manifest.json` + the PNGs in `shots/` into a self-contained `report.html`. It does NOT
+drive a browser — the shots must already exist on disk.
+
+## Git policy — what's committed vs. ignored
+
+Three artifacts, three shelf lives. `ops/smoke/.gitignore` enforces this:
+
+- **Commit (durable):** `SKILL.md`, `build-report.mjs`, and each run's `manifest.json`.
+  The manifest is the text record of *what story was validated and what each step should
+  show* — it diffs in PRs and ages gracefully. Tier-2 replay specs (below) are committed too.
+- **Gitignore, keep on disk (`**/shots/`, `**/report.html`):** screenshots and the
+  assembled report are heavy, binary, and go stale the moment the UI changes. They're local
+  review evidence, not history. **Do not delete them** — while they sit on disk you can
+  rebuild `report.html` any time with `build-report.mjs`.
+
+Consequence to be honest about: once `shots/` are gone (fresh clone, new laptop), the report
+is **not** recreatable from the manifest alone — the manifest references PNGs that no longer
+exist. From-scratch regeneration requires either re-running the Tier-1 agent flow or a
+committed Tier-2 replay spec. The manifest is the assembly spec for the HTML, **not** a
+browser replay script.
+
+## Two tiers
+
+- **Tier 1 — agent-driven smoke (this skill's default).** You drive the live app ad hoc,
+  capture, build the report, human reviews. Ephemeral by nature; recreate by re-running.
+  Lightweight and adaptive — don't over-engineer it.
+- **Tier 2 — committed reproducible replay (opt-in, per flow worth re-validating).** A
+  checked-in `@playwright/test` spec that regenerates the shots → report deterministically on
+  any laptop / in CI. Promote a flow to Tier 2 deliberately; do not make it mandatory for
+  every smoke. Reference: `frontend/tests/smoke/` + its seeder (see that dir's README).
+
+### What makes a Tier-2 replay actually deterministic
+
+Learned building the first one — all four are required, or it rots:
+
+1. **Semantic locators, never refs.** `getByRole`/`getByText`/`getByLabel`. The interactive
+   `eNNN` refs from Tier-1 change every snapshot and are not replayable.
+2. **Own your seed data.** This repo has an **empty `DatabaseSeeder` and no event/order
+   factories**, so a replay must build its own fixture (account/user/event/order graph) via
+   the app's domain services or a dedicated seeder, then tear it down. Do NOT depend on
+   incidental dev rows — they don't exist on a fresh DB. This is the hard part, not the clicks.
+3. **Explicit waits, not `sleep`.** Use auto-waiting locators + `expect(...).toBeVisible()`.
+4. **Determinism = same *states*, not same *pixels*.** Dates, random `public_id`s, and
+   relative times ("5 days ago") vary every run — assert on roles/text, never pixel-diff.
+
+Preconditions a replay does NOT own: the dev stack must be up + migrated, and (for brand-new
+frontend modules) the frontend container restarted. Document these; don't script them.
