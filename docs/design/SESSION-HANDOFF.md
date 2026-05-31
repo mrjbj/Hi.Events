@@ -27,6 +27,11 @@ first — §5 status matrix, §10 phase log).
    `ops/smoke/build-report.mjs` generator (artifact `ops/smoke/payment-panel/`).
 8. `feat(checkin,orders): door amount-received + required comp reason` (`d633765a`) — see below.
 9. `feat(orders): reverse offline payment ledger entries — Phase B` (`ca613e25`) — see below.
+10. `docs: refresh session handoff for Phase B payment reversal` (`debe5392`).
+11. `chore(smoke): gitignore shots, document commit-vs-ignore policy + two-tier model` (`91e79489`)
+    — smoke-report git policy + tiers (see "Smoke-report capability" below).
+12. `test(smoke): Tier-2 reproducible payment-reversal replay (@playwright/test)` (`1ef80a50`)
+    — first committed Tier-2 replay (see below).
 
 ## Status
 
@@ -102,13 +107,36 @@ partial was already recorded before the modal reopens (agent overrides it; serve
 correctly). Closing it = surface true outstanding on `AttendeeWithCheckInPublicResource` (costs a
 per-row balance computation in the check-in list). Deferred — not worth the N+1 yet.
 
-## Smoke-report capability (reusable)
+## Smoke-report capability (reusable) + two-tier model
 
-New skill **`.claude/skills/smoke-report/SKILL.md`** + generator **`ops/smoke/build-report.mjs`**:
+Skill **`.claude/skills/smoke-report/SKILL.md`** + generator **`ops/smoke/build-report.mjs`**:
 drive the app with `playwright-cli`, screenshot each step, write a `manifest.json`, generate a
 self-contained HTML report. Dev login used: `playwright@hi-events.test` / `SmokeTest123!`
 (password set this session). Frontend SSR caches new modules — restart the `frontend` container
 after adding new files. Example artifact: `ops/smoke/payment-panel/`.
+
+**Git policy (A, commit `91e79489`).** `ops/smoke/.gitignore` ignores `**/shots/` + `**/report.html`;
+the 25 previously-tracked PNGs were untracked (kept on disk). **Committed = durable:** `SKILL.md`,
+`build-report.mjs`, each run's `manifest.json`, and Tier-2 specs. **Ignored = local evidence:**
+shots + report (rebuild `report.html` from `manifest.json` + shots while they're on disk). Honest
+caveat baked into the skill: the manifest is the HTML *assembly spec*, **not** a browser replay
+script — from a fresh clone, regenerating shots from scratch needs a Tier-2 spec.
+
+**Two tiers (documented in the skill):**
+- **Tier 1 — agent-driven smoke (default).** Ephemeral; recreate by re-running the agent. Lightweight.
+- **Tier 2 — committed `@playwright/test` replay (opt-in, commit `1ef80a50`).** Self-seeding e2e spec
+  that regenerates the report deterministically on any laptop / CI. Reference:
+  **`frontend/tests/smoke/payment-reversal.spec.ts`** + the backend **`smoke:reversal-fixture`** artisan
+  command (builds/idempotently tears down a self-contained account/user/event/offline-order graph —
+  drives the real `CreateEventService` for `event_settings`, inserts simpler rows directly — and prints
+  a `FIXTURE_JSON=` line). Run with `cd frontend && npm run test:smoke` (proven green 3× consecutively,
+  ~2.2s each), then rebuild the report via `build-report.mjs`. The four determinism conditions
+  (semantic locators, owned seed data, explicit waits, assert-states-not-pixels) live in
+  `frontend/tests/smoke/README.md`. **Why a seeder, not factories:** `DatabaseSeeder` is empty and only
+  4 factories exist (Account, AccountVatSetting, Order, User) — no event/order graph factories. Promote
+  a flow to Tier 2 only when it's worth re-validating; don't make every smoke a maintained spec.
+- **Lockfile note:** the repo tracks `yarn.lock` (now includes `@playwright/test`); a stray
+  `package-lock.json` from local `npm install` is not committed and will reappear if you re-run npm.
 
 ## Environment
 
@@ -130,4 +158,6 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 > the payments panel — don't rebuild it) and/or **C** (offline-refund recording + a `total_refunded`
 > reconciler, keeping the Stripe webhook bump as-is). Parked: Phase 5 reporting (orders_export
 > columns, dashboard "cash collected" card, auto `DONATION` rows). Confirm the current state from
-> git log first, then propose a plan for the piece I name.
+> git log first, then propose a plan for the piece I name. (Smoke testing now has a two-tier model —
+> Tier 1 agent-driven, Tier 2 committed `@playwright/test` replays with self-seeding fixtures;
+> shots/report are gitignored. See "Smoke-report capability" in the handoff before adding a smoke run.)
