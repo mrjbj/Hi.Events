@@ -1,0 +1,52 @@
+{
+  "title": "Smoke Test — Payment Reversal (Manage-Order)",
+  "subtitle": "Phase B: reverse a recorded offline ledger entry. The original row is never deleted — a linked, negative-amount row of the same type books the correction, restoring the balance. No refund is issued.",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Flow": "login → event 10 orders → open O-DBIEECO → Payments panel → record $1.57 Cash → reverse it with a required reason → balance restored",
+    "Branch": "jbj/local",
+    "Event": "10",
+    "Order": "O-DBIEECO (id 12), staged to AWAITING_OFFLINE_PAYMENT / $1.57, no Stripe payment",
+    "User": "playwright@hi-events.test (ADMIN, account 39)",
+    "Endpoint": "POST /events/{id}/orders/{id}/payments/{paymentId}/reverse",
+    "Data": "Order 12 staged then restored to COMPLETED/PAYMENT_RECEIVED; test ledger rows 14/15 deleted"
+  },
+  "steps": [
+    {
+      "title": "Payments panel — outstanding balance, empty ledger",
+      "description": "Owed $1.57 / Collected $0.00 / Outstanding $1.57. Note the low-emphasis 'Comp remaining $1.57' control now carries a thin dashed border + gift icon so it reads as clickable at rest.",
+      "status": "pass",
+      "screenshot": "shots/01-panel-initial.png"
+    },
+    {
+      "title": "Record a $1.57 Cash payment",
+      "description": "Amount defaults to the outstanding balance; method Cash, reference 'receipt #DEV-12'. This creates a positive ledger credit.",
+      "status": "pass",
+      "screenshot": "shots/02-record-cash-filled.png"
+    },
+    {
+      "title": "Order settled — ledger row with reverse affordance",
+      "description": "Balance reconciles to SETTLED (Collected $1.57). The new Cash row shows the reference and a per-row reverse icon (hover tooltip: 'Reverse this payment').",
+      "status": "pass",
+      "screenshot": "shots/03-settled-with-ledger-row.png"
+    },
+    {
+      "title": "Reverse modal — reason required",
+      "description": "Explains it books a correcting entry of -$1.57 against the Cash payment, keeps the original for audit, and does NOT issue a refund (offline cash is returned in person). Reason is required.",
+      "status": "pass",
+      "screenshot": "shots/04-reverse-modal-empty.png"
+    },
+    {
+      "title": "Reason entered",
+      "description": "'Wrong amount entered — cash was never collected, correcting the ledger.' The reason becomes the reversal row's audit note.",
+      "status": "pass",
+      "screenshot": "shots/05-reverse-modal-reason.png"
+    },
+    {
+      "title": "Reversed — balance restored, audit trail intact",
+      "description": "Ledger now shows a 'Reversal -$1.57' row (red, with the reason) and the original 'Cash' row struck-through with a 'Reversed' badge and no further reverse action. Balance returns to Outstanding $1.57. DB: row 15 reverses_payment_id=14.",
+      "status": "pass",
+      "screenshot": "shots/06-after-reversal.png"
+    }
+  ]
+}

@@ -340,7 +340,7 @@ msgstr "94103"
 msgid "A cancellation notice has been sent to"
 msgstr "Een annuleringsmelding is verzonden naar"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:212
+#: src/components/common/OrderPaymentManagement/index.tsx:296
 msgid "A comp forgives the outstanding balance without collecting money. Record the reason for your audit trail."
 msgstr ""
 
@@ -388,8 +388,12 @@ msgstr "Een promotiecode zonder korting kan worden gebruikt om verborgen product
 msgid "A Radio option has multiple options but only one can be selected."
 msgstr "Een Radio-optie heeft meerdere opties, maar er kan er maar één worden geselecteerd."
 
-#: src/components/common/OrderPaymentManagement/index.tsx:82
+#: src/components/common/OrderPaymentManagement/index.tsx:119
 msgid "A reason is required to comp a balance"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:99
+msgid "A reason is required to reverse a payment"
 msgstr ""
 
 #: src/components/forms/QuestionForm/index.tsx:367
@@ -962,7 +966,7 @@ msgstr "Verbazingwekkend, evenement, trefwoorden..."
 msgid "Amount"
 msgstr "Bedrag"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:167
+#: src/components/common/OrderPaymentManagement/index.tsx:243
 msgid "Amount ({currency})"
 msgstr ""
 
@@ -1612,8 +1616,8 @@ msgstr "Achtergrond Type"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:124
 #: src/components/common/OrderDetails/index.tsx:18
-#: src/components/common/OrderPaymentManagement/index.tsx:25
-#: src/components/common/OrderPaymentManagement/index.tsx:159
+#: src/components/common/OrderPaymentManagement/index.tsx:27
+#: src/components/common/OrderPaymentManagement/index.tsx:235
 msgid "Bank transfer"
 msgstr ""
 
@@ -1756,7 +1760,8 @@ msgstr "Campagne"
 #: src/components/common/ContactOrganizerModal/index.tsx:104
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:211
 #: src/components/common/EmailTemplateSettings/EmailTemplateSettingsBase.tsx:121
-#: src/components/common/OrderPaymentManagement/index.tsx:230
+#: src/components/common/OrderPaymentManagement/index.tsx:314
+#: src/components/common/OrderPaymentManagement/index.tsx:355
 #: src/components/common/PromoCodeTable/index.tsx:40
 #: src/components/common/QuestionAndAnswerList/index.tsx:149
 #: src/components/common/QuestionsTable/index.tsx:257
@@ -1859,15 +1864,15 @@ msgstr "Capaciteitstoewijzingen"
 msgid "Capacity Management"
 msgstr "Capaciteitsbeheer"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:24
-#: src/components/common/OrderPaymentManagement/index.tsx:158
+#: src/components/common/OrderPaymentManagement/index.tsx:26
+#: src/components/common/OrderPaymentManagement/index.tsx:234
 msgid "Card"
 msgstr ""
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:121
 #: src/components/common/OrderDetails/index.tsx:15
-#: src/components/common/OrderPaymentManagement/index.tsx:22
-#: src/components/common/OrderPaymentManagement/index.tsx:156
+#: src/components/common/OrderPaymentManagement/index.tsx:24
+#: src/components/common/OrderPaymentManagement/index.tsx:232
 msgid "Cash"
 msgstr ""
 
@@ -1931,8 +1936,8 @@ msgstr "Liefdadigheid"
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:122
 #: src/components/common/OrderDetails/index.tsx:16
-#: src/components/common/OrderPaymentManagement/index.tsx:23
-#: src/components/common/OrderPaymentManagement/index.tsx:157
+#: src/components/common/OrderPaymentManagement/index.tsx:25
+#: src/components/common/OrderPaymentManagement/index.tsx:233
 msgid "Check"
 msgstr ""
 
@@ -2232,7 +2237,7 @@ msgstr "Gegevens per ticket verzamelen"
 msgid "Collect payment at check-in (cash/check)"
 msgstr "Betaling innen bij het inchecken (contant/cheque)"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:105
+#: src/components/common/OrderPaymentManagement/index.tsx:142
 msgid "Collected"
 msgstr ""
 
@@ -2274,11 +2279,11 @@ msgstr "Door komma's gescheiden trefwoorden die het evenement beschrijven. Deze 
 msgid "Communication Preferences"
 msgstr "Communicatievoorkeuren"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:28
+#: src/components/common/OrderPaymentManagement/index.tsx:30
 msgid "Comp"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:233
+#: src/components/common/OrderPaymentManagement/index.tsx:317
 msgid "Comp {0}"
 msgstr ""
 
@@ -2286,12 +2291,12 @@ msgstr ""
 #~ msgid "Comp remainder"
 #~ msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:194
-#: src/components/common/OrderPaymentManagement/index.tsx:208
+#: src/components/common/OrderPaymentManagement/index.tsx:278
+#: src/components/common/OrderPaymentManagement/index.tsx:292
 msgid "Comp remaining {0}"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:107
+#: src/components/common/OrderPaymentManagement/index.tsx:144
 msgid "Comped"
 msgstr ""
 
@@ -3505,8 +3510,8 @@ msgstr "Niet vergeten!"
 msgid "Don't have an account? <0>Sign up</0>"
 msgstr "Heeft u geen account? <0>Aanmelden</0>"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:27
-#: src/components/common/OrderPaymentManagement/index.tsx:161
+#: src/components/common/OrderPaymentManagement/index.tsx:29
+#: src/components/common/OrderPaymentManagement/index.tsx:237
 #: src/components/common/ProductsTable/SortableProduct/index.tsx:304
 msgid "Donation"
 msgstr "Donatie"
@@ -3611,16 +3616,20 @@ msgstr "Nederlands"
 msgid "e.g. 180 (3 hours)"
 msgstr "bijv. 180 (3 uur)"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:220
+#: src/components/common/OrderPaymentManagement/index.tsx:304
 msgid "e.g. board-approved sponsor, fundraising comp"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:177
+#: src/components/common/OrderPaymentManagement/index.tsx:253
 msgid "e.g. check #1234, last 4 of card"
 msgstr ""
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:142
 msgid "e.g. collected by J. Doe, Square #1234"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:345
+msgid "e.g. entered the wrong amount, duplicate entry"
 msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:76
@@ -6368,7 +6377,7 @@ msgstr "Berichtenniveau"
 msgid "Messaging tier updated successfully"
 msgstr "Berichtenniveau succesvol bijgewerkt"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:154
+#: src/components/common/OrderPaymentManagement/index.tsx:230
 msgid "Method"
 msgstr ""
 
@@ -7041,7 +7050,7 @@ msgstr "Niet gekoppeld"
 msgid "Not yet active"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:182
+#: src/components/common/OrderPaymentManagement/index.tsx:258
 msgid "Note (optional)"
 msgstr ""
 
@@ -7664,8 +7673,8 @@ msgstr "Oorspronkelijk gekocht door {0} {1}"
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:125
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:98
 #: src/components/common/OrderDetails/index.tsx:19
-#: src/components/common/OrderPaymentManagement/index.tsx:26
-#: src/components/common/OrderPaymentManagement/index.tsx:160
+#: src/components/common/OrderPaymentManagement/index.tsx:28
+#: src/components/common/OrderPaymentManagement/index.tsx:236
 #: src/components/common/OrdersTable/index.tsx:401
 #: src/constants/eventCategories.ts:22
 msgid "Other"
@@ -7679,11 +7688,11 @@ msgstr "Andere Lijsten (Ticket Niet Inbegrepen)"
 msgid "Outgoing Messages"
 msgstr "Uitgaande berichten"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:119
+#: src/components/common/OrderPaymentManagement/index.tsx:156
 msgid "Outstanding"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:104
+#: src/components/common/OrderPaymentManagement/index.tsx:141
 msgid "Owed"
 msgstr ""
 
@@ -7893,12 +7902,16 @@ msgstr "Betaling ontvangen"
 msgid "Payment Received"
 msgstr "Ontvangen betaling"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:66
+#: src/components/common/OrderPaymentManagement/index.tsx:74
 msgid "Payment recorded"
 msgstr ""
 
 #: src/components/common/OrderDetails/index.tsx:107
 msgid "Payment reference"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:109
+msgid "Payment reversed"
 msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:816
@@ -8592,7 +8605,8 @@ msgstr "Klaar om te upgraden? Dit duurt slechts een paar minuten."
 msgid "Real-Time Analytics"
 msgstr "Realtime analyses"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:215
+#: src/components/common/OrderPaymentManagement/index.tsx:299
+#: src/components/common/OrderPaymentManagement/index.tsx:340
 #: src/components/routes/admin/EmailSuppressions/index.tsx:140
 #: src/components/routes/admin/EmailSuppressions/index.tsx:180
 #: src/components/routes/admin/EmailSuppressions/index.tsx:266
@@ -8668,11 +8682,11 @@ msgstr "Aanbevolen"
 msgid "Reconnect Stripe →"
 msgstr "Stripe opnieuw verbinden →"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:148
+#: src/components/common/OrderPaymentManagement/index.tsx:224
 msgid "Record a payment"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:198
+#: src/components/common/OrderPaymentManagement/index.tsx:282
 msgid "Record payment"
 msgstr ""
 
@@ -8694,7 +8708,7 @@ msgstr "Doorverwijzen naar Stripe..."
 #~ msgstr ""
 
 #: src/components/common/CheckIn/CheckInOptionsModal.tsx:141
-#: src/components/common/OrderPaymentManagement/index.tsx:176
+#: src/components/common/OrderPaymentManagement/index.tsx:252
 msgid "Reference (optional)"
 msgstr ""
 
@@ -8748,7 +8762,7 @@ msgstr "Restitutie in behandeling"
 msgid "Refund Status"
 msgstr "Restitutie Status"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:110
+#: src/components/common/OrderPaymentManagement/index.tsx:147
 #: src/components/common/OrderSummary/index.tsx:80
 #: src/components/common/StatBoxes/index.tsx:57
 #: src/components/routes/event/orders.tsx:30
@@ -8795,7 +8809,7 @@ msgstr "Gerelateerd evenement"
 msgid "Relating to"
 msgstr "Met betrekking tot"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:91
+#: src/components/common/OrderPaymentManagement/index.tsx:128
 msgid "Remaining balance comped"
 msgstr ""
 
@@ -9096,6 +9110,24 @@ msgstr "Inkomsten"
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:67
 msgid "Revenue Summary"
 msgstr "Omzetoverzicht"
+
+#: src/components/common/OrderPaymentManagement/index.tsx:174
+msgid "Reversal"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:326
+#: src/components/common/OrderPaymentManagement/index.tsx:358
+msgid "Reverse payment"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:203
+#: src/components/common/OrderPaymentManagement/index.tsx:208
+msgid "Reverse this payment"
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:177
+msgid "Reversed"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/Users/index.tsx:177
 msgid "Revoke invitation"
@@ -9814,11 +9846,11 @@ msgstr "Instelling bijgewerkt"
 msgid "Settings"
 msgstr "Instellingen"
 
-#: src/components/common/OrderPaymentManagement/index.tsx:116
+#: src/components/common/OrderPaymentManagement/index.tsx:153
 msgid "Settled"
 msgstr ""
 
-#: src/components/common/OrderPaymentManagement/index.tsx:115
+#: src/components/common/OrderPaymentManagement/index.tsx:152
 msgid "Settled · overpaid {0}"
 msgstr ""
 
@@ -10889,6 +10921,10 @@ msgstr ""
 
 #: src/components/common/CheckIn/AttendeeProfileModal.tsx:266
 msgid "This attendee isn't on file as a contact yet. Add an email below and save to create their contact — then you can fill in their registration details."
+msgstr ""
+
+#: src/components/common/OrderPaymentManagement/index.tsx:331
+msgid "This books a correcting entry of {0} against the {1} payment. The original entry is kept for the audit trail. Reversing offline money assumes the cash or check is returned in person; it does not issue a refund."
 msgstr ""
 
 #: src/components/common/ProductsTable/ProductsBlankSlate/index.tsx:61
@@ -12580,7 +12616,7 @@ msgstr "Workshop"
 msgid "Write your message here..."
 msgstr "Schrijf hier je bericht..."
 
-#: src/components/common/OrderPaymentManagement/index.tsx:29
+#: src/components/common/OrderPaymentManagement/index.tsx:31
 msgid "Write-off"
 msgstr ""
 

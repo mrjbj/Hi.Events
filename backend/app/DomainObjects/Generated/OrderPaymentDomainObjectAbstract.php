@@ -12,6 +12,7 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const PLURAL_NAME = 'order_payments';
     final public const ID = 'id';
     final public const ORDER_ID = 'order_id';
+    final public const REVERSES_PAYMENT_ID = 'reverses_payment_id';
     final public const TYPE = 'type';
     final public const AMOUNT = 'amount';
     final public const CURRENCY = 'currency';
@@ -25,6 +26,7 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
 
     protected int $id;
     protected int $order_id;
+    protected ?int $reverses_payment_id = null;
     protected string $type;
     protected float $amount;
     protected string $currency;
@@ -41,6 +43,7 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
         return [
                     'id' => $this->id ?? null,
                     'order_id' => $this->order_id ?? null,
+                    'reverses_payment_id' => $this->reverses_payment_id ?? null,
                     'type' => $this->type ?? null,
                     'amount' => $this->amount ?? null,
                     'currency' => $this->currency ?? null,
@@ -74,6 +77,17 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     public function getOrderId(): int
     {
         return $this->order_id;
+    }
+
+    public function setReversesPaymentId(?int $reverses_payment_id): self
+    {
+        $this->reverses_payment_id = $reverses_payment_id;
+        return $this;
+    }
+
+    public function getReversesPaymentId(): ?int
+    {
+        return $this->reverses_payment_id;
     }
 
     public function setType(string $type): self

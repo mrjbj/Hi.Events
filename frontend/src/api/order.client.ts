@@ -63,6 +63,10 @@ export interface RecordOrderPaymentPayload {
     note?: string | null;
 }
 
+export interface ReverseOrderPaymentPayload {
+    note: string;
+}
+
 export const orderClient = {
     all: async (eventId: IdParam, pagination: QueryFilters) => {
         const response = await api.get<GenericPaginatedResponse<Order>>(
@@ -110,6 +114,11 @@ export const orderClient = {
 
     recordPayment: async (eventId: IdParam, orderId: IdParam, payload: RecordOrderPaymentPayload) => {
         const response = await api.post<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}/payments`, payload);
+        return response.data;
+    },
+
+    reversePayment: async (eventId: IdParam, orderId: IdParam, paymentId: IdParam, payload: ReverseOrderPaymentPayload) => {
+        const response = await api.post<GenericDataResponse<Order>>(`events/${eventId}/orders/${orderId}/payments/${paymentId}/reverse`, payload);
         return response.data;
     },
 

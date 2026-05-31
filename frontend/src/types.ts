@@ -687,6 +687,7 @@ export type OrderPaymentType =
 
 export interface OrderPayment {
     id: number;
+    reverses_payment_id?: number | null;
     type: OrderPaymentType;
     amount: number;
     currency: string;
