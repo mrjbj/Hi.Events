@@ -3,13 +3,12 @@
   "subtitle": "Phase B: reverse a recorded offline ledger entry. The original row is never deleted — a linked, negative-amount row of the same type books the correction, restoring the balance. No refund is issued.",
   "meta": {
     "App URL": "https://localhost:8443",
-    "Flow": "login → event 10 orders → open O-DBIEECO → Payments panel → record $1.57 Cash → reverse it with a required reason → balance restored",
+    "Flow": "login → event orders → open seeded order → Payments panel → record $1.57 Cash → reverse it with a required reason → balance restored",
     "Branch": "jbj/local",
-    "Event": "10",
-    "Order": "O-DBIEECO (id 12), staged to AWAITING_OFFLINE_PAYMENT / $1.57, no Stripe payment",
-    "User": "playwright@hi-events.test (ADMIN, account 39)",
+    "Tier": "2 — reproducible replay (frontend/tests/smoke/payment-reversal.spec.ts, run via `npm run test:smoke`)",
+    "Fixture": "self-seeded by `php artisan smoke:reversal-fixture`: a fresh account/user/event and one offline order ($1.57, AWAITING_OFFLINE_PAYMENT, no Stripe), torn down after",
     "Endpoint": "POST /events/{id}/orders/{id}/payments/{paymentId}/reverse",
-    "Data": "Order 12 staged then restored to COMPLETED/PAYMENT_RECEIVED; test ledger rows 14/15 deleted"
+    "Determinism": "asserts on roles/text, not pixels — dates and the random order public_id vary per run"
   },
   "steps": [
     {
