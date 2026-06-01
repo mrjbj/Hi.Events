@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {t, Trans} from "@lingui/macro";
 import {Button, NumberInput, Skeleton} from "@mantine/core";
+import {IconDownload} from "@tabler/icons-react";
 import {Card} from "../../../../common/Card";
 import classes from "./EventReconciliation.module.scss";
 import {useGetEventReconciliation} from "../../../../../queries/useGetEventReconciliation.ts";
@@ -9,6 +10,9 @@ import {formatCurrency, getCurrencySymbol} from "../../../../../utilites/currenc
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
 import {ChannelFeeInput, EventReconciliationChannel, IdParam, PaymentChannel} from "../../../../../types.ts";
 import {formatDateWithLocale} from "../../../../../utilites/dates.ts";
+import {orderClient} from "../../../../../api/order.client.ts";
+import {downloadBinary} from "../../../../../utilites/download.ts";
+import {withLoadingNotification} from "../../../../../utilites/withLoadingNotification.tsx";
 
 interface EventReconciliationProps {
     eventId: IdParam;
@@ -41,6 +45,31 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
     const updateFees = useUpdateEventChannelFees();
 
     const [feeDrafts, setFeeDrafts] = useState<Record<string, number | string>>({});
+    const [exportPending, setExportPending] = useState(false);
+
+    const handleExport = async () => {
+        await withLoadingNotification(async () => {
+                setExportPending(true);
+                const blob = await orderClient.exportOrders(eventId);
+                downloadBinary(blob, 'orders.xlsx');
+            },
+            {
+                loading: {
+                    title: t`Exporting orders`,
+                    message: t`Please wait while we prepare your orders for export...`,
+                },
+                success: {
+                    title: t`Orders exported`,
+                    message: t`Your orders have been exported successfully.`,
+                    onRun: () => setExportPending(false),
+                },
+                error: {
+                    title: t`Failed to export orders`,
+                    message: t`Please try again.`,
+                    onRun: () => setExportPending(false),
+                },
+            });
+    };
 
     useEffect(() => {
         if (reconciliation) {
@@ -91,6 +120,16 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
             <Card className={classes.card}>
                 <div className={classes.cardTitle}>
                     <h2><Trans>Event Reconciliation</Trans></h2>
+                    <Button
+                        size="xs"
+                        variant="light"
+                        radius="md"
+                        loading={exportPending}
+                        onClick={handleExport}
+                        rightSection={<IconDownload size={14}/>}
+                    >
+                        <Trans>Export orders</Trans>
+                    </Button>
                 </div>
 
                 <div className={classes.tiles}>

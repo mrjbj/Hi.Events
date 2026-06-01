@@ -3,8 +3,12 @@
 namespace HiEvents\Exports;
 
 use Carbon\Carbon;
+use HiEvents\DomainObjects\Enums\PaymentChannel;
+use HiEvents\DomainObjects\Enums\PaymentProviders;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Enums\QuestionTypeEnum;
 use HiEvents\DomainObjects\OrderDomainObject;
+use HiEvents\DomainObjects\OrderPaymentDomainObject;
 use HiEvents\DomainObjects\QuestionDomainObject;
 use HiEvents\Resources\Order\OrderResource;
 use HiEvents\Services\Domain\Question\QuestionAnswerFormatter;
@@ -20,16 +24,16 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
     private LengthAwarePaginator $orders;
+
     private Collection $questions;
 
-    public function __construct(private QuestionAnswerFormatter $questionAnswerFormatter)
-    {
-    }
+    public function __construct(private QuestionAnswerFormatter $questionAnswerFormatter) {}
 
     public function withData(LengthAwarePaginator $orders, Collection $questions): OrdersExport
     {
         $this->orders = $orders;
         $this->questions = $questions;
+
         return $this;
     }
 
@@ -40,7 +44,7 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
 
     public function headings(): array
     {
-        $questionTitles = $this->questions->map(fn($question) => $question->getTitle())->toArray();
+        $questionTitles = $this->questions->map(fn ($question) => $question->getTitle())->toArray();
 
         return array_merge([
             __('ID'),
@@ -52,6 +56,10 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
             __('Total Tax'),
             __('Total Fee'),
             __('Total Refunded'),
+            __('Channel'),
+            __('Collected'),
+            __('Comped'),
+            __('Balance'),
             __('Status'),
             __('Payment Status'),
             __('Refund Status'),
@@ -71,14 +79,13 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
     }
 
     /**
-     * @param OrderDomainObject $order
-     * @return array
+     * @param  OrderDomainObject  $order
      */
     public function map($order): array
     {
         $answers = $this->questions->map(function (QuestionDomainObject $question) use ($order) {
             $answer = $order->getQuestionAndAnswerViews()
-                ->first(fn($qav) => $qav->getQuestionId() === $question->getId())?->getAnswer() ?? '';
+                ->first(fn ($qav) => $qav->getQuestionId() === $question->getId())?->getAnswer() ?? '';
 
             return $this->questionAnswerFormatter->getAnswerAsText(
                 $answer,
@@ -96,6 +103,10 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
             $order->getTotalTax(),
             $order->getTotalFee(),
             $order->getTotalRefunded(),
+            $this->channelForOrder($order),
+            $order->getPaymentBalance()?->amountCollected,
+            $order->getPaymentBalance()?->totalComps,
+            $order->getPaymentBalance()?->balance,
             $order->getStatus(),
             $order->getPaymentStatus(),
             $order->getRefundStatus(),
@@ -112,6 +123,34 @@ class OrdersExport implements FromCollection, WithHeadings, WithMapping, WithSty
             $order->getPromoCode(),
             $order->getOptedIntoMarketingAt() ? 'Yes' : 'No',
         ], $answers->toArray());
+    }
+
+    /**
+     * Reconciliation channel for an order, mirroring EventReconciliationService:
+     * Stripe orders are the STRIPE channel; everything else takes the channel of
+     * its largest settling payment (an in-person CREDIT_CARD reconciles under
+     * SQUARE). Orders with no cash payment (e.g. comped) fall to OTHER.
+     *
+     * @param  OrderDomainObject  $order
+     */
+    private function channelForOrder($order): string
+    {
+        if ($order->getPaymentProvider() === PaymentProviders::STRIPE->value) {
+            return PaymentChannel::STRIPE->value;
+        }
+
+        $largestPayment = ($order->getOrderPayments() ?? collect())
+            ->filter(fn (OrderPaymentDomainObject $p) => $p->getTransactionType() === PaymentTransactionType::PAYMENT->value && (float) $p->getAmount() > 0)
+            ->sortByDesc(fn (OrderPaymentDomainObject $p) => (float) $p->getAmount())
+            ->first();
+
+        return match ($largestPayment?->getPaymentMethod()) {
+            'CREDIT_CARD' => PaymentChannel::SQUARE->value,
+            'CASH' => PaymentChannel::CASH->value,
+            'CHECK' => PaymentChannel::CHECK->value,
+            'BANK_TRANSFER' => PaymentChannel::BANK_TRANSFER->value,
+            default => PaymentChannel::OTHER->value,
+        };
     }
 
     public function styles(Worksheet $sheet): array
