@@ -1,6 +1,7 @@
 # Session Handoff — Payments Ledger + Smoke-Report Capability
 
-Snapshot for resuming after a context clear. Branch: **`jbj/local`** (unpushed).
+Snapshot for resuming after a context clear. Branch: **`jbj/local`** (pushed — `origin/jbj/local`
+is at HEAD, working tree clean).
 
 ## What this work is
 
@@ -45,7 +46,15 @@ first — §5 status matrix, §10 phase log).
     channel from the ledger `payment_method`, and drops `orders.offline_payment_method`/
     `offline_payment_reference` + the dead `order_payment_adjustments` table.
 17. `ops(sql): archive District11 brunch order-total recovery script` (`3297f60a`) — moved the
-    one-off `2026-05-30_brunch-cleanup.sql` into `ops/sql/` as history. **Last committed work.**
+    one-off `2026-05-30_brunch-cleanup.sql` into `ops/sql/` as history.
+18. `docs: refresh handoff — split + offline-column cleanup landed` (`4f3dcee6`).
+19. `docs(smoke): refresh reconciliation manifest for transaction_type/payment_method split` (`6e48ed0b`).
+20. `docs(backlog): add feature backlog + /backlog skill` (`f59a7321`) — see `docs/design/BACKLOG.md`.
+21. `fix(reconciliation): count money-bearing orders so totals tie to Stripe` (`63788383`) — **the
+    money-bearing-scope fix** (see Status below). Reconciliation no longer drops CANCELLED orders that
+    moved money, so the channel breakdown ties to the Stripe dashboard's gross/refund/net.
+22. `feat(dashboard): lay the two reconciliation cards side by side` (`961d86aa`) — flex row, stacks
+    below `md`. **Last committed work.**
 
 ## Status
 
@@ -117,12 +126,13 @@ generator-wide quirk — never hand-edit them); 67 focused Order/Check-in/Reconc
 the parallel session's full **634 Unit green** + `tsc` clean on this checkout. Locales re-extracted
 (English populated, non-English left empty per convention).
 
-**⚠️ NOT YET DEPLOYED — these are live schema migrations.** Prod deploy (the only remaining step):
-backup → `migrate` (runs `2026_06_01_000000` drop-offline-columns, `2026_06_01_000100`
-drop-`order_payment_adjustments` **incl. its 5 prod recovery rows — intended**, `2026_06_02_000000`
-type-split + backfill of existing `order_payments` rows) → verify the reconciliation widget loads.
-The split's backfill maps each existing `type` to the new two-axis pair, so post-migrate balances and
-channel attribution should be unchanged.
+**✅ DEPLOYED & VERIFIED ON PROD (2026-05-31).** The three migrations ran on prod
+(`2026_06_01_000000` drop-offline-columns, `2026_06_01_000100` drop-`order_payment_adjustments`
+incl. its 5 recovery rows, `2026_06_02_000000` type-split + backfill). Verified read-only: `type`
+column gone, `transaction_type`/`payment_method` present, offline columns + adjustments table gone,
+backfill correct (PAYMENT/CASH ×7, PAYMENT/CREDIT_CARD ×1, COMP/∅ ×1, DONATION ×2). The 2 backfilled
+donations were `payment_method=NULL` (old schema stored no method); fixed with a one-line prod UPDATE
+to `CASH`. COMP correctly stays `NULL` (no money moves on a comp).
 
 **District11 prod data cleanup — DONE & verified (2026-05-31).** The 5 adjustment-mangled door orders
 had totals restored to the canonical $15 (600/669/671/674 via hand SQL; 599 already $15), then those 5
@@ -137,9 +147,21 @@ display-only; leave-vs-backfill deferred (memory `district11-manually-created-pa
 
 > **Feature backlog** (durable, not part of this snapshot): see [`docs/design/BACKLOG.md`](./BACKLOG.md), maintained via `/backlog`.
 
-**Immediate: deploy the split + cleanup to prod** (`b7b51df9`) — see the deploy note in the "DONE"
-section above (backup → `migrate` → verify reconciliation widget). It's the only step between the
-committed work and prod. Everything below is lower-urgency follow-up.
+**Immediate: deploy the reconciliation tie-to-Stripe fix + card layout** (`63788383`, `961d86aa`) —
+**code-only, NO migration**, so deploy is just image rebuild + restart (no backup/migrate needed).
+Both are committed AND pushed to `origin/jbj/local` but **not yet deployed to prod**. After deploy,
+**eyeball the dashboard**: (a) the Stripe channel should now tie to the Stripe dashboard
+(event 10: sales $2,494 / refunds $400 / net $2,094 — it was hiding 3 CANCELLED orders that moved
+money); (b) the two reconciliation cards now sit side by side — **watch the three headline tiles in
+the left card**, which only collapse to one column below the `md` *viewport*, so they may look
+cramped at ~43% card width on a wide screen (fix = make them 2-up inside the narrowed card).
+
+Reconciliation scope decision (locked this session): an order counts if it's an active/expected sale
+(`COMPLETED`/`AWAITING_OFFLINE_PAYMENT`) **OR it actually moved money** (kept/refunded Stripe charge,
+or has ledger rows). "Gross sales" is Stripe-gross-volume style (includes fully-refunded cancelled
+orders, netted back by the Refunds line) — chosen so every line ties to the processor and there's one
+consistent refund figure. The cancel-and-keep-to-dodge-a-double-fee pattern (order 511) is legitimate
+revenue, not an error.
 
 Money-correction plan (agreed earlier) — **A → B → C**, A & B done, C deferred:
 
@@ -221,19 +243,19 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 
 ## Revival prompt (paste after `/clear`)
 
-> Resume the Hi.Events payments-ledger work on branch `jbj/local`. Read
-> `docs/design/SESSION-HANDOFF.md` and `docs/design/payment-at-checkin-ledger.md` first. **The
-> `order_payments` type-split + offline-column cleanup are DONE and committed** as one coherent unit
-> (`b7b51df9` — `transaction_type`/`payment_method` split, enum `OrderPaymentType`→
-> `PaymentTransactionType`, reconciliation derives channel from the ledger, and
-> `orders.offline_payment_method`/`offline_payment_reference` + the `order_payment_adjustments` table
-> dropped via migrations `2026_06_01_000000`/`000100`/`2026_06_02_000000`). A follow-up commit
-> (`3297f60a`) archived the District11 brunch recovery SQL into `ops/sql/`. The working tree is clean;
-> full validation green (634 Unit + tsc + pint on hand-written files). **The one remaining step is the
-> PROD DEPLOY of those live schema migrations** (backup → `migrate` → verify the reconciliation widget
-> loads — note the `order_payment_adjustments` drop also removes its 5 prod recovery rows, intended).
-> District11 prod data cleanup (9 door orders re-recorded, $215 + one comp) is DONE & verified; the 80
-> Aug-2025 BBQ "owing" orders are an imported-data display artifact, deferred. **Confirm current state
-> from `git log` AND `git status` before acting.** Prior context still applies: money-correction plan
-> A & B done / C deferred; Phase 5 reporting parked; smoke testing has a two-tier model (see
-> "Smoke-report capability").
+> Resume the Hi.Events payments-ledger work on branch `jbj/local` (fully pushed to
+> `origin/jbj/local`, working tree clean). Read `docs/design/SESSION-HANDOFF.md` and
+> `docs/design/payment-at-checkin-ledger.md` first. **The `order_payments` type-split +
+> offline-column cleanup are DONE, committed (`b7b51df9`), AND deployed+verified on prod** —
+> `transaction_type`/`payment_method` split, enum `OrderPaymentType`→`PaymentTransactionType`, offline
+> columns + `order_payment_adjustments` table dropped via migrations `2026_06_01_000000`/`000100`/
+> `2026_06_02_000000`. **Since then, two NEW code-only commits are pushed but NOT yet deployed to
+> prod:** `63788383` (reconciliation now counts money-bearing orders regardless of status, so the
+> Stripe channel ties to the Stripe dashboard — it was hiding CANCELLED orders that moved money) and
+> `961d86aa` (the two reconciliation cards laid side by side, responsive). **The one remaining step is
+> a code-only prod deploy** (image rebuild + restart, no migration) — then eyeball the dashboard:
+> Stripe channel ties to Stripe, and check the left card's 3 headline tiles aren't cramped at ~43%
+> width. District11 prod data cleanup is DONE & verified; the 80 Aug-2025 BBQ "owing" orders are an
+> imported-data display artifact, deferred. **Confirm current state from `git log` AND `git status`
+> before acting.** Prior context still applies: money-correction plan A & B done / C deferred; Phase 5
+> reporting parked; smoke testing has a two-tier model; feature ideas live in `docs/design/BACKLOG.md`.
