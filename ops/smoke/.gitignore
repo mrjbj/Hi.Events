@@ -2,6 +2,10 @@
 # Regenerate: node ops/smoke/build-report.mjs --manifest <dir>/manifest.json --out <dir>/report.html
 **/report.html
 
+# Other generated intermediate HTML (e.g. rendered DB-state panels) — rebuilt
+# from their generator script + captured fixture data, so not kept in history.
+**/db-diff.html
+
 # Screenshots are local review evidence — regenerable by re-running the smoke
 # (Tier 1) or a committed replay spec (Tier 2). Kept on disk, not in git history.
 **/shots/

@@ -11,15 +11,17 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 
 ## Open ideas
 
-- [ ] **Contact merge** — merge two duplicate contacts into one canonical record, reassigning their orders/attendees/history to the survivor and retiring the dup. Should be silenceable (see admin email suppression). ([design](./backlog-designs.md#6-contact-merge)) (2026-05-31)
-
-- [ ] **Admin email suppression** — let admins stop outbound notifications when editing email addresses. Re-scoped after a code dig: admin back-office edits already send no email, so only a **per-action toggle** on the public self-service edit modals + check-in door is needed; the global session kill-switch was dropped as a footgun. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (2026-05-31)
-
-- [ ] **Persistent email-suppression flag (address-keyed)** — a suppression list that marks specific addresses as "never email", honored across **both** marketing/announcements and transactional sends. Placeholder addresses (e.g. `unknown@unknown.com`) should be suppressed always/by default. Distinct from the per-action toggle above; complements the existing SES bounce/complaint suppression in `TransactionalEmailTrackingService`. ([design](./backlog-designs.md#8-persistent-email-suppression-flag-address-keyed)) (2026-06-01)
-
-- [ ] **Bug: kebab click injects a stray char into the Orders filter** — intermittently, after setting a filter on the Orders page, clicking the "Manage order" kebab drops a random character into the *start* of the filter input (as if typed), which re-filters and hides the row the operator was acting on; they must re-enter the filter. Works on the next try. Likely a focus/keydown leak — the kebab-trigger keypress (or an autofocus stealing the event) is routed into the still-focused search field. ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (2026-05-31)
+_Nothing open right now — everything designed in [backlog-designs.md](./backlog-designs.md) has shipped (see below)._
 
 ## Shipped
+
+- [x] **Contact merge** — `MergeContactsAction → Handler → Service`: reassign the duplicate's attendees to the survivor, survivor-wins/fill-gaps for name + attributes, union question-id sets, merge history with a `merge` marker, soft-delete the dup (freeing its email). Merge modal with a gap-fill preview; history panel renders the merge entry. ([design](./backlog-designs.md#6-contact-merge)) (`a4fb43db`, 2026-06-01)
+
+- [x] **Admin email suppression (per-action toggle)** — a "notify the previous address" toggle (default on) on the public self-service Edit Attendee / Edit Order modals; the check-in door already had its flag. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (`92e521da`, 2026-06-01)
+
+- [x] **Persistent email-suppression flag (address-keyed)** — new `DO_NOT_CONTACT` reason suppressing all send types, plus a configurable placeholder-pattern check (`config('mail.suppressed_address_patterns')`), both independent of the SES flag. The three change-notification mail sites now honor suppression; superadmin screen + a Contact "Never email" toggle. ([design](./backlog-designs.md#8-persistent-email-suppression-flag-address-keyed)) (`92e521da`, 2026-06-01)
+
+- [x] **Bug: kebab click injects a stray char into the Orders filter** — root cause was the 300ms-debounced URL-synced value clobbering the focused filter input; the `SearchBar` mirror now never overwrites a focused field (but still honors deliberate clears). ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (`1c955487`, 2026-06-01)
 
 - [x] **Orders payment-type filter** — single combined "Payment type" multi-select on the Orders page (Cash / Check / Card / Bank transfer / Comp / Donation / Stripe); backend `OrderRepository::applyPaymentTypeFilter()` routes each value to the right ledger column / relation. _Note: shipped without the repository unit tests the design called for — coverage added separately._ ([design](./backlog-designs.md#4-orders-payment-type-filter)) (`42c26ad9`, 2026-05-31)
 
