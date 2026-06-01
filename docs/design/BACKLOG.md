@@ -6,21 +6,24 @@ durable list — the [session handoff](./SESSION-HANDOFF.md) is the *current* in
 snapshot and links here, but does not own this list.
 
 Each entry: `- [ ] <title> — <one-line what> (<date added>)`. Where a fuller rationale
-exists, the entry points at the deeper note.
+exists, the entry points at the deeper note. Designs for all open ideas live in
+[backlog-designs.md](./backlog-designs.md).
 
 ## Open ideas
 
-- [ ] **Contact merge** — merge two duplicate contacts into one canonical record, reassigning their orders/attendees/history to the survivor and retiring the dup. Should be silenceable (see admin email suppression). (2026-05-31)
+- [ ] **Contact merge** — merge two duplicate contacts into one canonical record, reassigning their orders/attendees/history to the survivor and retiring the dup. Should be silenceable (see admin email suppression). ([design](./backlog-designs.md#6-contact-merge)) (2026-05-31)
 
-- [ ] **Admin email suppression** — let admins stop outbound notifications when editing email addresses: a per-modal warning+toggle, and/or a global per-session "no emails" switch for bulk back-office cleanup. Checked at the SES send boundary, fail-safe (default = emails on). (2026-05-31)
+- [ ] **Admin email suppression** — let admins stop outbound notifications when editing email addresses. Re-scoped after a code dig: admin back-office edits already send no email, so only a **per-action toggle** on the public self-service edit modals + check-in door is needed; the global session kill-switch was dropped as a footgun. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (2026-05-31)
 
-- [ ] **Orders payment-type filter** — filter the Orders page by payment type (CASH / CARD / CHECK / COMP / DONATION / Stripe), drawing on the `order_payments` ledger. (2026-05-31)
+- [ ] **Orders payment-type filter** — filter the Orders page by payment type (single combined dropdown: Cash / Check / Card / Bank transfer / Comp / Donation / Stripe), backend routing each value to the right `order_payments` column or the Stripe relation. ([design](./backlog-designs.md#4-orders-payment-type-filter)) (2026-05-31)
 
-- [ ] **Escape-clears-filters everywhere** — the check-in page already clears filters on `Esc`; factor that into a shared hook applied to Orders, Contacts, and Attendees too. (SSR — guard `document`/keyboard listeners.) (2026-05-31)
+- [ ] **Escape-clears-filters everywhere** — the check-in page already clears filters on `Esc`; factor that into a shared hook applied to Orders, Contacts, and Attendees too. (SSR — guard `document`/keyboard listeners.) ([design](./backlog-designs.md#1-escape-clears-filters-everywhere)) (2026-05-31)
 
-- [ ] **Guard the payment card when an order is fully settled** — on the "Manage orders" payment panel, stop operators from blindly entering new transactions once the order is fully settled. Suggested UX: settled state renders the add-transaction form *locked* (disabled inputs + lock icon + "Fully settled" badge); clicking the lock pops a confirm ("This order is fully settled — add another transaction anyway?") and only then unlocks the form, making a second transaction deliberate. Unsettled orders behave as today. (2026-05-31)
+- [ ] **Guard the payment card when an order is fully settled** — on the "Manage orders" payment panel, lock the add-transaction form once `payment_balance.isSettled`; clicking the lock pops a confirm and only then unlocks, making a second transaction deliberate. Frontend-only. ([design](./backlog-designs.md#2-guard-the-payment-card-when-an-order-is-fully-settled)) (2026-05-31)
 
-- [ ] **Check-in overpayment → donation prompt** — when an operator records a payment greater than `total_gross`, prompt "Record the extra as a donation?" and on yes auto-write a second `DONATION` ledger row. Schema prerequisite (`order_payments` type/method split) landed `b7b51df9`; hook into `RecordOrderPaymentService` / the check-in & Manage-Payments UI. (2026-05-31)
+- [ ] **Check-in overpayment → donation prompt** — when a recorded payment exceeds outstanding, prompt "Record the extra as a donation?" (door + Manage-Payments) and on yes write a second `DONATION` row for the excess with the same method. Schema prerequisite landed `b7b51df9`. ([design](./backlog-designs.md#3-check-in-overpayment--donation-prompt)) (2026-05-31)
+
+- [ ] **Bug: kebab click injects a stray char into the Orders filter** — intermittently, after setting a filter on the Orders page, clicking the "Manage order" kebab drops a random character into the *start* of the filter input (as if typed), which re-filters and hides the row the operator was acting on; they must re-enter the filter. Works on the next try. Likely a focus/keydown leak — the kebab-trigger keypress (or an autofocus stealing the event) is routed into the still-focused search field. ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (2026-05-31)
 
 ## Shipped
 
