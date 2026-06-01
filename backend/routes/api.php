@@ -109,7 +109,9 @@ use HiEvents\Http\Actions\Events\GetOrganizerEventsPublicAction;
 use HiEvents\Http\Actions\Events\Images\CreateEventImageAction;
 use HiEvents\Http\Actions\Events\Images\DeleteEventImageAction;
 use HiEvents\Http\Actions\Events\Images\GetEventImagesAction;
+use HiEvents\Http\Actions\Events\Stats\GetEventReconciliationAction;
 use HiEvents\Http\Actions\Events\Stats\GetEventStatsAction;
+use HiEvents\Http\Actions\Events\Stats\UpsertEventChannelFeesAction;
 use HiEvents\Http\Actions\Events\UpdateEventAction;
 use HiEvents\Http\Actions\Events\UpdateEventStatusAction;
 use HiEvents\Http\Actions\EventSettings\EditEventSettingsAction;
@@ -393,6 +395,8 @@ $router->middleware(['auth:api'])->group(
 
         // Stats
         $router->get('/events/{event_id}/stats', GetEventStatsAction::class);
+        $router->get('/events/{event_id}/reconciliation', GetEventReconciliationAction::class);
+        $router->patch('/events/{event_id}/channel-fees', UpsertEventChannelFeesAction::class);
 
         // Email Templates - Event level
         $router->get('/events/{eventId}/email-templates', GetEventEmailTemplatesAction::class);

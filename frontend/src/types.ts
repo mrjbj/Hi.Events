@@ -357,6 +357,41 @@ export interface CheckInStats {
     total_attendees: number;
 }
 
+export type PaymentChannel = 'STRIPE' | 'SQUARE' | 'CASH' | 'CHECK' | 'BANK_TRANSFER' | 'OTHER';
+
+export interface EventReconciliationChannel {
+    channel: PaymentChannel;
+    sales: number;
+    donations: number;
+    refunds: number;
+    fee: number;
+    net: number;
+    share: number;
+}
+
+export interface EventReconciliation {
+    currency: string;
+    gross_sales: number;
+    refunds: number;
+    comps: number;
+    write_offs: number;
+    donations: number;
+    net_expected_funds: number;
+    total_received: number;
+    collected: number;
+    total_fees: number;
+    net_to_bank: number;
+    channels: EventReconciliationChannel[];
+    fees_updated_at: string | null;
+    fees_updated_by_user_id: number | null;
+}
+
+export interface ChannelFeeInput {
+    channel: PaymentChannel;
+    fee_amount: number;
+    note?: string | null;
+}
+
 export interface EventStats {
     daily_stats: EventDailyStats[];
     start_date: string;
@@ -646,8 +681,6 @@ export interface Order {
     company_name: string;
     address: Address;
     payment_provider: PaymentProvider;
-    offline_payment_method?: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER' | null;
-    offline_payment_reference?: string | null;
     notes?: string;
     email: string;
     reserved_until: string;

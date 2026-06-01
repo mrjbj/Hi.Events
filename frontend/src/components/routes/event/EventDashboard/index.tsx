@@ -3,6 +3,7 @@ import {useParams} from "react-router";
 import {PageTitle} from "../../../common/PageTitle";
 import {PageBody} from "../../../common/PageBody";
 import {StatBoxes} from "../../../common/StatBoxes";
+import {EventReconciliation} from "./EventReconciliation";
 import {useGetMe} from "../../../../queries/useGetMe.ts";
 import {t, Trans} from "@lingui/macro";
 import {AreaChart} from "@mantine/charts";
@@ -376,6 +377,8 @@ export const EventDashboard = () => {
                         areaChartProps={{syncId: 'events'}}
                     />
                 </Card>
+
+                <EventReconciliation eventId={eventId} timezone={event.timezone}/>
             </>)}
         </PageBody>
     )

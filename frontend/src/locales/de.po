@@ -129,6 +129,10 @@ msgstr "{availableCount} von {totalCount} verfügbar"
 msgid "{buyerName} placed this order and these tickets share their email. Is this a new email address for them, or a different person taking this seat?"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:109
+msgid "{collectedPercent}% received"
+msgstr ""
+
 #: src/components/common/Countdown/index.tsx:68
 msgid "{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
 msgstr "{days} Tage, {hours} Stunden, {minutes} Minuten und {seconds} Sekunden"
@@ -1185,12 +1189,12 @@ msgid "Are you sure you want to leave?"
 msgstr "Möchten Sie wirklich gehen?"
 
 #: src/components/layouts/Event/index.tsx:158
-#: src/components/routes/event/EventDashboard/index.tsx:81
+#: src/components/routes/event/EventDashboard/index.tsx:82
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "Möchten Sie diese Veranstaltung wirklich als Entwurf speichern? Dadurch wird die Veranstaltung für die Öffentlichkeit unsichtbar."
 
 #: src/components/layouts/Event/index.tsx:159
-#: src/components/routes/event/EventDashboard/index.tsx:82
+#: src/components/routes/event/EventDashboard/index.tsx:83
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "Möchten Sie diese Veranstaltung wirklich öffentlich machen? Dadurch wird die Veranstaltung für die Öffentlichkeit sichtbar"
 
@@ -1425,7 +1429,7 @@ msgstr "Teilnehmer exportiert"
 msgid "Attendees registered"
 msgstr "Registrierte Teilnehmer"
 
-#: src/components/routes/event/EventDashboard/index.tsx:333
+#: src/components/routes/event/EventDashboard/index.tsx:334
 msgid "Attendees Registered"
 msgstr "Registrierte Teilnehmer"
 
@@ -1617,6 +1621,7 @@ msgstr "Hintergrundtyp"
 #: src/components/common/OrderDetails/index.tsx:18
 #: src/components/common/OrderPaymentManagement/index.tsx:28
 #: src/components/common/OrderPaymentManagement/index.tsx:257
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:32
 msgid "Bank transfer"
 msgstr ""
 
@@ -1872,6 +1877,7 @@ msgstr ""
 #: src/components/common/OrderDetails/index.tsx:15
 #: src/components/common/OrderPaymentManagement/index.tsx:25
 #: src/components/common/OrderPaymentManagement/index.tsx:254
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:30
 msgid "Cash"
 msgstr ""
 
@@ -1929,6 +1935,10 @@ msgstr ""
 msgid "Changes saved. A notification was sent to {oldEmail}."
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:166
+msgid "Channel"
+msgstr ""
+
 #: src/constants/eventCategories.ts:15
 msgid "Charity"
 msgstr "Wohltätigkeit"
@@ -1937,6 +1947,7 @@ msgstr "Wohltätigkeit"
 #: src/components/common/OrderDetails/index.tsx:16
 #: src/components/common/OrderPaymentManagement/index.tsx:26
 #: src/components/common/OrderPaymentManagement/index.tsx:255
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:31
 msgid "Check"
 msgstr ""
 
@@ -2240,6 +2251,10 @@ msgstr "Zahlung beim Check-in einsammeln (Bargeld/Scheck)"
 msgid "Collected"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:103
+msgid "Collected to date"
+msgstr ""
+
 #: src/components/routes/event/HomepageDesigner/index.tsx:217
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:249
 msgid "Color"
@@ -2318,7 +2333,7 @@ msgid "Complete payment online so you don't have to handle it at the door."
 msgstr ""
 
 #: src/components/common/StripeConnectButton/index.tsx:87
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Complete Stripe Setup"
 msgstr "Stripe-Einrichtung abschließen"
 
@@ -2326,7 +2341,7 @@ msgstr "Stripe-Einrichtung abschließen"
 msgid "Complete the setup below to continue"
 msgstr "Schließen Sie die folgende Einrichtung ab, um fortzufahren"
 
-#: src/components/routes/event/EventDashboard/index.tsx:171
+#: src/components/routes/event/EventDashboard/index.tsx:172
 msgid "Complete these steps to start selling tickets for your event."
 msgstr "Schließen Sie diese Schritte ab, um mit dem Ticketverkauf für Ihre Veranstaltung zu beginnen."
 
@@ -2355,7 +2370,7 @@ msgstr "Vollendet"
 msgid "Completed orders"
 msgstr "Abgeschlossene Bestellungen"
 
-#: src/components/routes/event/EventDashboard/index.tsx:331
+#: src/components/routes/event/EventDashboard/index.tsx:332
 msgid "Completed Orders"
 msgstr "Abgeschlossene Bestellungen"
 
@@ -2367,6 +2382,14 @@ msgstr "Komponentencode"
 #: src/components/routes/event/messages.tsx:281
 msgid "Compose"
 msgstr "Verfassen"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:218
+msgid "comps"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:84
+msgid "Comps (forgiven)"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:117
 msgid "Conference Center"
@@ -2508,7 +2531,7 @@ msgstr "Verbinden & Upgraden"
 msgid "Connect Documentation"
 msgstr "Verbindungsdokumentation"
 
-#: src/components/routes/event/EventDashboard/index.tsx:236
+#: src/components/routes/event/EventDashboard/index.tsx:237
 msgid "Connect payment processing"
 msgstr "Zahlungsabwicklung verbinden"
 
@@ -2525,7 +2548,7 @@ msgstr "Verbinden Sie Stripe, um die Bearbeitung von E-Mail-Vorlagen zu ermögli
 msgid "Connect Stripe to enable messaging"
 msgstr "Stripe verbinden, um Nachrichten zu aktivieren"
 
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Connect to Stripe"
 msgstr "Mit Stripe verbinden"
 
@@ -2785,6 +2808,10 @@ msgstr "Fragen konnten nicht wiederhergestellt werden."
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:83
 msgid "Could not reuse questions."
 msgstr "Fragen konnten nicht wiederverwendet werden."
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:73
+msgid "Could not save processing fees. Please try again."
+msgstr ""
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:68
 msgid "Could not update attendee."
@@ -3519,6 +3546,11 @@ msgstr "Spende"
 msgid "Donation / Pay what you'd like product"
 msgstr "Spende / Produkt mit freier Preiswahl"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:85
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:168
+msgid "Donations"
+msgstr ""
+
 #: src/components/modals/CheckInListSuccessModal/index.tsx:59
 #: src/components/modals/CreateOrganizerWebhookModal/index.tsx:72
 #: src/components/modals/CreateWebhookModal/index.tsx:72
@@ -4198,6 +4230,10 @@ msgstr "Fehler beim Bestätigen der E-Mail-Änderung"
 msgid "Error loading logs"
 msgstr "Fehler beim Laden der Protokolle"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:115
+msgid "est. after fees"
+msgstr ""
+
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:68
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:30
 msgid "EU VAT-registered businesses: Reverse charge mechanism applies (0% - Article 196 of VAT Directive 2006/112/EC)"
@@ -4233,7 +4269,7 @@ msgstr "EUR"
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:247
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
-#: src/components/routes/event/EventDashboard/index.tsx:299
+#: src/components/routes/event/EventDashboard/index.tsx:300
 #: src/components/routes/events/Dashboard/index.tsx:184
 #: src/components/routes/organizer/Reports/CheckInSummaryReport/index.tsx:19
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:41
@@ -4371,6 +4407,10 @@ msgstr "Veranstaltungsübersicht"
 msgid "Event Page"
 msgstr "Veranstaltungsseite"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:93
+msgid "Event Reconciliation"
+msgstr ""
+
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:54
 msgid "Event restored successfully"
 msgstr "Veranstaltung erfolgreich wiederhergestellt"
@@ -4383,7 +4423,7 @@ msgstr "Veranstaltungseinstellungen"
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
 #: src/components/layouts/Event/index.tsx:174
-#: src/components/routes/event/EventDashboard/index.tsx:96
+#: src/components/routes/event/EventDashboard/index.tsx:97
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
 msgstr "Die Aktualisierung des Ereignisstatus ist fehlgeschlagen. Bitte versuchen Sie es später erneut"
@@ -4391,7 +4431,7 @@ msgstr "Die Aktualisierung des Ereignisstatus ist fehlgeschlagen. Bitte versuche
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
 #: src/components/layouts/Event/index.tsx:170
-#: src/components/routes/event/EventDashboard/index.tsx:93
+#: src/components/routes/event/EventDashboard/index.tsx:94
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
 msgstr "Veranstaltungsstatus aktualisiert"
@@ -4879,9 +4919,14 @@ msgstr "Gebührenbehandlung"
 #: src/components/common/InlineOrderSummary/index.tsx:156
 #: src/components/common/OrdersTable/index.tsx:366
 #: src/components/forms/ProductForm/index.tsx:468
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:170
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:54
 msgid "Fees"
 msgstr "Gebühren"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:156
+msgid "fees are editable"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:291
 msgid "Fees are subject to change. You will be notified of any changes to your fee structure."
@@ -4890,6 +4935,10 @@ msgstr "Gebühren können sich ändern. Du wirst über Änderungen deiner Gebüh
 #: src/components/routes/admin/Configurations/index.tsx:88
 msgid "Fees Bypassed"
 msgstr "Gebühren umgangen"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:226
+msgid "Fees updated {0}"
+msgstr ""
 
 #: src/constants/eventCategories.ts:5
 msgid "Festival"
@@ -4963,15 +5012,15 @@ msgstr "Einrichtung abschließen"
 msgid "Finish Stripe Setup"
 msgstr "Stripe-Einrichtung abschließen"
 
-#: src/components/routes/event/EventDashboard/index.tsx:282
+#: src/components/routes/event/EventDashboard/index.tsx:283
 msgid "First 30 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:274
+#: src/components/routes/event/EventDashboard/index.tsx:275
 msgid "First 7 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:290
+#: src/components/routes/event/EventDashboard/index.tsx:291
 msgid "First 90 days from event start"
 msgstr ""
 
@@ -5113,13 +5162,17 @@ msgstr "Französisch"
 msgid "From question answer"
 msgstr "Aus Fragenantwort"
 
-#: src/components/routes/event/EventDashboard/index.tsx:298
+#: src/components/routes/event/EventDashboard/index.tsx:299
 msgid "Full event duration"
 msgstr ""
 
 #: src/components/modals/RefundOrderModal/index.tsx:109
 msgid "Full refund"
 msgstr "Vollständige Erstattung"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:155
+msgid "Funds by Channel"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:146
 msgid "General"
@@ -5166,7 +5219,7 @@ msgstr "Erste Schritte"
 msgid "Get Tickets"
 msgstr "Tickets erhalten"
 
-#: src/components/routes/event/EventDashboard/index.tsx:169
+#: src/components/routes/event/EventDashboard/index.tsx:170
 msgid "Get your event ready"
 msgstr "Bereiten Sie Ihre Veranstaltung vor"
 
@@ -5222,11 +5275,12 @@ msgid "Gross Revenue"
 msgstr "Bruttoeinnahmen"
 
 #: src/components/common/StatBoxes/index.tsx:63
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:82
 msgid "Gross sales"
 msgstr "Bruttoumsatz"
 
 #: src/components/routes/admin/Dashboard/index.tsx:259
-#: src/components/routes/event/EventDashboard/index.tsx:370
+#: src/components/routes/event/EventDashboard/index.tsx:371
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:119
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:30
 msgid "Gross Sales"
@@ -5294,7 +5348,7 @@ msgstr "Hier ist Ihr Partnerlink"
 msgid "Here's what to expect:"
 msgstr "Das können Sie erwarten:"
 
-#: src/components/routes/event/EventDashboard/index.tsx:121
+#: src/components/routes/event/EventDashboard/index.tsx:122
 msgid "Hi {0} 👋"
 msgstr "Hallo {0} 👋"
 
@@ -5460,6 +5514,10 @@ msgstr "Wie oft kann dieser Code verwendet werden?"
 msgid "How to pay offline"
 msgstr "Wie man offline zahlt"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:120
+msgid "How we get there"
+msgstr ""
+
 #: src/components/common/Editor/index.tsx:92
 msgid "HTML character limit exceeded: {htmlLength}/{maxLength}"
 msgstr "HTML-Zeichenlimit überschritten: {htmlLength}/{maxLength}"
@@ -5604,7 +5662,7 @@ msgstr "Wichtiger Hinweis"
 msgid "Important: Changing your email address will update the link to access this order. You will be redirected to the new order link after saving."
 msgstr "Wichtig: Wenn Sie Ihre E-Mail-Adresse ändern, wird der Link für den Zugriff auf diese Bestellung aktualisiert. Nach dem Speichern werden Sie zum neuen Bestelllink weitergeleitet."
 
-#: src/components/routes/event/EventDashboard/index.tsx:137
+#: src/components/routes/event/EventDashboard/index.tsx:138
 msgid "Important: Stripe reconnection required"
 msgstr "Wichtig: Stripe-Neuverbindung erforderlich"
 
@@ -5921,7 +5979,7 @@ msgstr "Letzte 24 Stunden"
 
 #: src/components/common/OrganizerReportTable/index.tsx:56
 #: src/components/common/ReportTable/index.tsx:48
-#: src/components/routes/event/EventDashboard/index.tsx:266
+#: src/components/routes/event/EventDashboard/index.tsx:267
 msgid "Last 30 days"
 msgstr "Letzte 30 Tage"
 
@@ -6038,7 +6096,7 @@ msgstr "Link zu Bestelldetails"
 msgid "Link to ticket"
 msgstr "Link zum Ticket"
 
-#: src/components/routes/event/EventDashboard/index.tsx:238
+#: src/components/routes/event/EventDashboard/index.tsx:239
 msgid "Link your Stripe account to receive funds from ticket sales."
 msgstr "Verknüpfen Sie Ihr Stripe-Konto, um Gelder aus dem Ticketverkauf zu erhalten."
 
@@ -6162,7 +6220,7 @@ msgstr "Rechnungsadresse beim Checkout erforderlich machen"
 msgid "Make this question mandatory"
 msgstr "Machen Sie diese Frage obligatorisch"
 
-#: src/components/routes/event/EventDashboard/index.tsx:192
+#: src/components/routes/event/EventDashboard/index.tsx:193
 msgid "Make your event live"
 msgstr "Machen Sie Ihre Veranstaltung live"
 
@@ -6420,7 +6478,7 @@ msgstr "Geldbeträge sind ungefähre Summen über alle Währungen"
 msgid "Monitor and manage failed background jobs"
 msgstr "Überwachen und verwalten Sie fehlgeschlagene Hintergrundprozesse"
 
-#: src/components/routes/event/EventDashboard/index.tsx:283
+#: src/components/routes/event/EventDashboard/index.tsx:284
 #: src/components/routes/event/MessageTracking/shared.tsx:58
 msgid "Month"
 msgstr "Monat"
@@ -6536,10 +6594,27 @@ msgstr ""
 msgid "Needs info — click for details"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:171
+msgid "Net deposit"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:98
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:136
+msgid "Net expected funds"
+msgstr ""
+
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:85
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:36
 msgid "Net Revenue"
 msgstr "Nettoeinnahmen"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:113
+msgid "Net to bank"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:146
+msgid "Net to bank (est.)"
+msgstr ""
 
 #: src/components/common/OrganizerWebhookTable/index.tsx:266
 #: src/components/common/PromoCodeTable/index.tsx:158
@@ -6750,6 +6825,10 @@ msgstr "Keine fehlgeschlagenen Jobs"
 #: src/components/common/FilterModal/index.tsx:261
 msgid "No filters available"
 msgstr "Keine Filter verfügbar"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:160
+msgid "No funds recorded for this event yet."
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:167
 msgid "No images matching \"{debouncedQuery}\""
@@ -7012,6 +7091,10 @@ msgstr "Keine Webhooks"
 #: src/components/layouts/Checkout/index.tsx:322
 msgid "No, keep me here"
 msgstr "Nein, hier bleiben"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:217
+msgid "Non-cash credits (no money in the door):"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:69
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:31
@@ -7675,6 +7758,7 @@ msgstr "Ursprünglich gekauft von {0} {1}"
 #: src/components/common/OrderPaymentManagement/index.tsx:29
 #: src/components/common/OrderPaymentManagement/index.tsx:258
 #: src/components/common/OrdersTable/index.tsx:401
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:33
 #: src/constants/eventCategories.ts:22
 msgid "Other"
 msgstr "Sonstiges"
@@ -8316,6 +8400,14 @@ msgstr "Erstattung verarbeiten"
 msgid "Processed"
 msgstr "Verarbeitet"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:141
+msgid "Processing fees"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:72
+msgid "Processing fees saved"
+msgstr ""
+
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:498
 msgid "Processing order"
 msgstr "Bestellung wird verarbeitet"
@@ -8353,7 +8445,7 @@ msgstr "Produkt erfolgreich gelöscht"
 msgid "Product Price Type"
 msgstr "Produktpreistyp"
 
-#: src/components/routes/event/EventDashboard/index.tsx:311
+#: src/components/routes/event/EventDashboard/index.tsx:312
 #: src/components/routes/event/Reports/index.tsx:17
 msgid "Product Sales"
 msgstr "Produktverkäufe"
@@ -8390,7 +8482,7 @@ msgstr "Verkaufte Produkte"
 
 #: src/components/routes/admin/Dashboard/index.tsx:258
 #: src/components/routes/admin/Dashboard/index.tsx:355
-#: src/components/routes/event/EventDashboard/index.tsx:332
+#: src/components/routes/event/EventDashboard/index.tsx:333
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:125
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:68
 msgid "Products Sold"
@@ -8489,7 +8581,7 @@ msgstr "Anbieter-Ereignisse"
 msgid "Publish"
 msgstr "Veröffentlichen"
 
-#: src/components/routes/event/EventDashboard/index.tsx:203
+#: src/components/routes/event/EventDashboard/index.tsx:204
 msgid "Publish Event"
 msgstr "Veranstaltung veröffentlichen"
 
@@ -8521,7 +8613,7 @@ msgstr "Anz."
 msgid "Quantity Available"
 msgstr "Verfügbare Menge"
 
-#: src/components/routes/event/EventDashboard/index.tsx:291
+#: src/components/routes/event/EventDashboard/index.tsx:292
 msgid "Quarter"
 msgstr "Quartal"
 
@@ -8626,7 +8718,7 @@ msgstr ""
 msgid "Receive product updates from {0}."
 msgstr "Produktupdates von {0} erhalten."
 
-#: src/components/routes/event/EventDashboard/index.tsx:267
+#: src/components/routes/event/EventDashboard/index.tsx:268
 msgid "Recent"
 msgstr ""
 
@@ -8677,7 +8769,7 @@ msgstr "Empfänger mit ungelösten Zustellungsproblemen"
 msgid "Recommended"
 msgstr "Empfohlen"
 
-#: src/components/routes/event/EventDashboard/index.tsx:143
+#: src/components/routes/event/EventDashboard/index.tsx:144
 msgid "Reconnect Stripe →"
 msgstr "Stripe neu verbinden →"
 
@@ -8777,6 +8869,8 @@ msgstr "Rückerstattung"
 msgid "Refunded: {0}"
 msgstr "Erstattet: {0}"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:83
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:169
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:79
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:42
 msgid "Refunds"
@@ -9105,7 +9199,7 @@ msgstr "Wiederverwendet"
 #: src/components/common/AffiliateTable/index.tsx:157
 #: src/components/common/EventCard/index.tsx:235
 #: src/components/routes/admin/Attribution/index.tsx:137
-#: src/components/routes/event/EventDashboard/index.tsx:343
+#: src/components/routes/event/EventDashboard/index.tsx:344
 msgid "Revenue"
 msgstr "Einnahmen"
 
@@ -9191,6 +9285,7 @@ msgid "Sale starts {0}"
 msgstr "Verkauf beginnt {0}"
 
 #: src/components/common/AffiliateTable/index.tsx:145
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:167
 msgid "Sales"
 msgstr "Verkauf"
 
@@ -9292,6 +9387,10 @@ msgstr "Änderungen speichern"
 #: src/components/modals/EditAccountConfigurationModal/index.tsx:115
 msgid "Save Configuration"
 msgstr "Konfiguration speichern"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:237
+msgid "Save fees"
+msgstr ""
 
 #: src/components/modals/EditOrganizerModal/index.tsx:70
 msgid "Save Organizer"
@@ -9867,6 +9966,7 @@ msgstr "Einrichtung & Design"
 #: src/components/modals/ShareModal/index.tsx:37
 #: src/components/modals/ShareModal/index.tsx:165
 #: src/components/modals/ShareModal/index.tsx:186
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:172
 msgid "Share"
 msgstr "Teilen"
 
@@ -10100,7 +10200,7 @@ msgstr "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
 msgid "Something went wrong. Please try again."
 msgstr "Etwas ist schief gelaufen. Bitte versuche es erneut."
 
-#: src/components/routes/event/EventDashboard/index.tsx:139
+#: src/components/routes/event/EventDashboard/index.tsx:140
 msgid "Sorry for the inconvenience."
 msgstr "Entschuldigung für die Unannehmlichkeiten."
 
@@ -10138,6 +10238,10 @@ msgstr ""
 #: src/constants/eventCategories.ts:8
 msgid "Sports"
 msgstr "Sport"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:29
+msgid "Square"
+msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:101
 msgid "Stage removal"
@@ -10242,6 +10346,7 @@ msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:391
 #: src/components/routes/admin/Dashboard/index.tsx:424
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:28
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:85
 msgid "Stripe"
 msgstr "Stripe"
@@ -11412,7 +11517,7 @@ msgstr "Einträge gesamt"
 msgid "Total Fee"
 msgstr "Gesamtgebühr"
 
-#: src/components/routes/event/EventDashboard/index.tsx:369
+#: src/components/routes/event/EventDashboard/index.tsx:370
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:149
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:97
 msgid "Total Fees"
@@ -11434,11 +11539,11 @@ msgstr "Gesamtbestellungen"
 msgid "Total refunded"
 msgstr "Gesamtbetrag zurückerstattet"
 
-#: src/components/routes/event/EventDashboard/index.tsx:372
+#: src/components/routes/event/EventDashboard/index.tsx:373
 msgid "Total Refunded"
 msgstr "Insgesamt erstattet"
 
-#: src/components/routes/event/EventDashboard/index.tsx:371
+#: src/components/routes/event/EventDashboard/index.tsx:372
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:143
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:91
 msgid "Total Tax"
@@ -11451,6 +11556,10 @@ msgstr "Gesamtbenutzer"
 #: src/components/routes/admin/Dashboard/index.tsx:307
 msgid "Total Views"
 msgstr "Aufrufe Gesamt"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:204
+msgid "Totals"
+msgstr ""
 
 #: src/components/routes/admin/Attribution/index.tsx:32
 msgid "Track account growth and performance by attribution source"
@@ -11655,7 +11764,7 @@ msgstr "Unbegrenzte Nutzung erlaubt"
 msgid "Unpaid Order"
 msgstr "Unbezahlte Bestellung"
 
-#: src/components/routes/event/EventDashboard/index.tsx:214
+#: src/components/routes/event/EventDashboard/index.tsx:215
 msgid "Unpublish Event"
 msgstr "Veranstaltung nicht mehr veröffentlichen"
 
@@ -12300,7 +12409,7 @@ msgstr "Wir bearbeiten Ihre Bestellung. Bitte warten..."
 msgid "We've officially moved our headquarters to Ireland 🇮🇪. As part of this transition, we're now using Stripe Ireland instead of Stripe Canada. To keep your payouts running smoothly, you'll need to reconnect your Stripe account."
 msgstr "Wir haben unseren Hauptsitz offiziell nach Irland 🇮🇪 verlegt. Als Teil dieses Übergangs verwenden wir jetzt Stripe Irland anstelle von Stripe Kanada. Um Ihre Auszahlungen reibungslos am Laufen zu halten, müssen Sie Ihr Stripe-Konto erneut verbinden."
 
-#: src/components/routes/event/EventDashboard/index.tsx:138
+#: src/components/routes/event/EventDashboard/index.tsx:139
 msgid "We've relocated our headquarters to Ireland. As a result, we need you to reconnect your Stripe account. This quick process takes just a few minutes. Your sales and existing data remain completely unaffected."
 msgstr "Wir haben unseren Hauptsitz nach Irland verlegt. Daher müssen Sie Ihr Stripe-Konto neu verbinden. Dieser schnelle Vorgang dauert nur wenige Minuten. Ihre Verkäufe und bestehenden Daten bleiben völlig unberührt."
 
@@ -12352,7 +12461,7 @@ msgstr "Webhooks"
 msgid "Website"
 msgstr "Website"
 
-#: src/components/routes/event/EventDashboard/index.tsx:275
+#: src/components/routes/event/EventDashboard/index.tsx:276
 #: src/components/routes/event/MessageTracking/shared.tsx:57
 msgid "Week"
 msgstr "Woche"
@@ -12369,7 +12478,7 @@ msgstr "Willkommen an Bord! Bitte melden Sie sich an, um fortzufahren."
 msgid "Welcome back"
 msgstr "Willkommen zurück"
 
-#: src/components/routes/event/EventDashboard/index.tsx:115
+#: src/components/routes/event/EventDashboard/index.tsx:116
 msgid "Welcome back{0} 👋"
 msgstr "Willkommen zurück{0} 👋"
 
@@ -12416,6 +12525,10 @@ msgstr "Welche Art von Veranstaltung?"
 #: src/components/forms/QuestionForm/index.tsx:336
 msgid "What type of question is this?"
 msgstr "Um welche Art von Frage handelt es sich?"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:100
+msgid "what we \"sold\""
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:77
 msgid "What you need to do:"
@@ -12621,6 +12734,10 @@ msgstr "Schreiben Sie Ihre Nachricht hier..."
 
 #: src/components/common/OrderPaymentManagement/index.tsx:32
 msgid "Write-off"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:220
+msgid "write-offs"
 msgstr ""
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:59
@@ -12873,7 +12990,7 @@ msgstr "Ihre E-Mail-Anfrage zur Änderung auf <0>{0}</0> steht noch aus. Bitte �
 msgid "Your event is live!"
 msgstr "Ihre Veranstaltung ist live!"
 
-#: src/components/routes/event/EventDashboard/index.tsx:194
+#: src/components/routes/event/EventDashboard/index.tsx:195
 msgid "Your event must be live before you can sell tickets to attendees."
 msgstr "Ihr Event muss live sein, bevor Sie Tickets an Teilnehmer verkaufen können."
 

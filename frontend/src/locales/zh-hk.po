@@ -129,6 +129,10 @@ msgstr "{totalCount} 中有 {availableCount} 可用"
 msgid "{buyerName} placed this order and these tickets share their email. Is this a new email address for them, or a different person taking this seat?"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:109
+msgid "{collectedPercent}% received"
+msgstr ""
+
 #: src/components/common/Countdown/index.tsx:68
 msgid "{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
 msgstr "{days} 天, {hours} 小時, {minutes} 分鐘, 和 {seconds} 秒"
@@ -1185,12 +1189,12 @@ msgid "Are you sure you want to leave?"
 msgstr "您確定要離開嗎？"
 
 #: src/components/layouts/Event/index.tsx:158
-#: src/components/routes/event/EventDashboard/index.tsx:81
+#: src/components/routes/event/EventDashboard/index.tsx:82
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "您確定要將此活動設為草稿嗎？這將使公眾無法看到該活動"
 
 #: src/components/layouts/Event/index.tsx:159
-#: src/components/routes/event/EventDashboard/index.tsx:82
+#: src/components/routes/event/EventDashboard/index.tsx:83
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "您確定要將此事件公開嗎？這將使事件對公眾可見"
 
@@ -1425,7 +1429,7 @@ msgstr "與會者已導出"
 msgid "Attendees registered"
 msgstr "已註冊參加者"
 
-#: src/components/routes/event/EventDashboard/index.tsx:333
+#: src/components/routes/event/EventDashboard/index.tsx:334
 msgid "Attendees Registered"
 msgstr "註冊的參會者"
 
@@ -1617,6 +1621,7 @@ msgstr "背景類型"
 #: src/components/common/OrderDetails/index.tsx:18
 #: src/components/common/OrderPaymentManagement/index.tsx:28
 #: src/components/common/OrderPaymentManagement/index.tsx:257
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:32
 msgid "Bank transfer"
 msgstr ""
 
@@ -1872,6 +1877,7 @@ msgstr ""
 #: src/components/common/OrderDetails/index.tsx:15
 #: src/components/common/OrderPaymentManagement/index.tsx:25
 #: src/components/common/OrderPaymentManagement/index.tsx:254
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:30
 msgid "Cash"
 msgstr ""
 
@@ -1929,6 +1935,10 @@ msgstr ""
 msgid "Changes saved. A notification was sent to {oldEmail}."
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:166
+msgid "Channel"
+msgstr ""
+
 #: src/constants/eventCategories.ts:15
 msgid "Charity"
 msgstr "慈善"
@@ -1937,6 +1947,7 @@ msgstr "慈善"
 #: src/components/common/OrderDetails/index.tsx:16
 #: src/components/common/OrderPaymentManagement/index.tsx:26
 #: src/components/common/OrderPaymentManagement/index.tsx:255
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:31
 msgid "Check"
 msgstr ""
 
@@ -2240,6 +2251,10 @@ msgstr "在簽到時收款（現金/支票）"
 msgid "Collected"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:103
+msgid "Collected to date"
+msgstr ""
+
 #: src/components/routes/event/HomepageDesigner/index.tsx:217
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:249
 msgid "Color"
@@ -2318,7 +2333,7 @@ msgid "Complete payment online so you don't have to handle it at the door."
 msgstr ""
 
 #: src/components/common/StripeConnectButton/index.tsx:87
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Complete Stripe Setup"
 msgstr "完成 Stripe 設置"
 
@@ -2326,7 +2341,7 @@ msgstr "完成 Stripe 設置"
 msgid "Complete the setup below to continue"
 msgstr "完成下面的設置以繼續"
 
-#: src/components/routes/event/EventDashboard/index.tsx:171
+#: src/components/routes/event/EventDashboard/index.tsx:172
 msgid "Complete these steps to start selling tickets for your event."
 msgstr "完成以下步驟即可開始銷售您的活動門票。"
 
@@ -2355,7 +2370,7 @@ msgstr "已完成"
 msgid "Completed orders"
 msgstr "已完成訂單"
 
-#: src/components/routes/event/EventDashboard/index.tsx:331
+#: src/components/routes/event/EventDashboard/index.tsx:332
 msgid "Completed Orders"
 msgstr "已完成訂單"
 
@@ -2367,6 +2382,14 @@ msgstr "組件代碼"
 #: src/components/routes/event/messages.tsx:281
 msgid "Compose"
 msgstr "撰寫"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:218
+msgid "comps"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:84
+msgid "Comps (forgiven)"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:117
 msgid "Conference Center"
@@ -2508,7 +2531,7 @@ msgstr "連接並升級"
 msgid "Connect Documentation"
 msgstr "連接文檔"
 
-#: src/components/routes/event/EventDashboard/index.tsx:236
+#: src/components/routes/event/EventDashboard/index.tsx:237
 msgid "Connect payment processing"
 msgstr "連接支付處理"
 
@@ -2525,7 +2548,7 @@ msgstr "連接 Stripe 以啟用電子郵件範本編輯"
 msgid "Connect Stripe to enable messaging"
 msgstr "連接 Stripe 以啟用消息功能"
 
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Connect to Stripe"
 msgstr "連接到 Stripe"
 
@@ -2785,6 +2808,10 @@ msgstr "無法還原問題。"
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:83
 msgid "Could not reuse questions."
 msgstr "無法重用問題。"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:73
+msgid "Could not save processing fees. Please try again."
+msgstr ""
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:68
 msgid "Could not update attendee."
@@ -3519,6 +3546,11 @@ msgstr "捐款"
 msgid "Donation / Pay what you'd like product"
 msgstr "捐贈 / 自由定價產品"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:85
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:168
+msgid "Donations"
+msgstr ""
+
 #: src/components/modals/CheckInListSuccessModal/index.tsx:59
 #: src/components/modals/CreateOrganizerWebhookModal/index.tsx:72
 #: src/components/modals/CreateWebhookModal/index.tsx:72
@@ -4198,6 +4230,10 @@ msgstr "確認更改電子郵件時出錯"
 msgid "Error loading logs"
 msgstr "加載日誌時出錯"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:115
+msgid "est. after fees"
+msgstr ""
+
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:68
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:30
 msgid "EU VAT-registered businesses: Reverse charge mechanism applies (0% - Article 196 of VAT Directive 2006/112/EC)"
@@ -4233,7 +4269,7 @@ msgstr "歐元"
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:247
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
-#: src/components/routes/event/EventDashboard/index.tsx:299
+#: src/components/routes/event/EventDashboard/index.tsx:300
 #: src/components/routes/events/Dashboard/index.tsx:184
 #: src/components/routes/organizer/Reports/CheckInSummaryReport/index.tsx:19
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:41
@@ -4371,6 +4407,10 @@ msgstr "活動概覽"
 msgid "Event Page"
 msgstr "活動頁面"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:93
+msgid "Event Reconciliation"
+msgstr ""
+
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:54
 msgid "Event restored successfully"
 msgstr "活動已成功還原"
@@ -4383,7 +4423,7 @@ msgstr "活動設定"
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
 #: src/components/layouts/Event/index.tsx:174
-#: src/components/routes/event/EventDashboard/index.tsx:96
+#: src/components/routes/event/EventDashboard/index.tsx:97
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
 msgstr "活動狀態更新失敗。請稍後再試"
@@ -4391,7 +4431,7 @@ msgstr "活動狀態更新失敗。請稍後再試"
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
 #: src/components/layouts/Event/index.tsx:170
-#: src/components/routes/event/EventDashboard/index.tsx:93
+#: src/components/routes/event/EventDashboard/index.tsx:94
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
 msgstr "事件狀態已更新"
@@ -4879,9 +4919,14 @@ msgstr "費用處理"
 #: src/components/common/InlineOrderSummary/index.tsx:156
 #: src/components/common/OrdersTable/index.tsx:366
 #: src/components/forms/ProductForm/index.tsx:468
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:170
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:54
 msgid "Fees"
 msgstr "費用"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:156
+msgid "fees are editable"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:291
 msgid "Fees are subject to change. You will be notified of any changes to your fee structure."
@@ -4890,6 +4935,10 @@ msgstr "費用可能會變更。如有變更，您將收到通知。"
 #: src/components/routes/admin/Configurations/index.tsx:88
 msgid "Fees Bypassed"
 msgstr "費用已繞過"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:226
+msgid "Fees updated {0}"
+msgstr ""
 
 #: src/constants/eventCategories.ts:5
 msgid "Festival"
@@ -4963,15 +5012,15 @@ msgstr "完成設置"
 msgid "Finish Stripe Setup"
 msgstr "完成 Stripe 設置"
 
-#: src/components/routes/event/EventDashboard/index.tsx:282
+#: src/components/routes/event/EventDashboard/index.tsx:283
 msgid "First 30 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:274
+#: src/components/routes/event/EventDashboard/index.tsx:275
 msgid "First 7 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:290
+#: src/components/routes/event/EventDashboard/index.tsx:291
 msgid "First 90 days from event start"
 msgstr ""
 
@@ -5113,13 +5162,17 @@ msgstr "法語"
 msgid "From question answer"
 msgstr "來自問題答案"
 
-#: src/components/routes/event/EventDashboard/index.tsx:298
+#: src/components/routes/event/EventDashboard/index.tsx:299
 msgid "Full event duration"
 msgstr ""
 
 #: src/components/modals/RefundOrderModal/index.tsx:109
 msgid "Full refund"
 msgstr "全額退款"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:155
+msgid "Funds by Channel"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:146
 msgid "General"
@@ -5166,7 +5219,7 @@ msgstr "開始使用"
 msgid "Get Tickets"
 msgstr "購票"
 
-#: src/components/routes/event/EventDashboard/index.tsx:169
+#: src/components/routes/event/EventDashboard/index.tsx:170
 msgid "Get your event ready"
 msgstr "準備好您的活動"
 
@@ -5222,11 +5275,12 @@ msgid "Gross Revenue"
 msgstr "總收入"
 
 #: src/components/common/StatBoxes/index.tsx:63
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:82
 msgid "Gross sales"
 msgstr "銷售總額"
 
 #: src/components/routes/admin/Dashboard/index.tsx:259
-#: src/components/routes/event/EventDashboard/index.tsx:370
+#: src/components/routes/event/EventDashboard/index.tsx:371
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:119
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:30
 msgid "Gross Sales"
@@ -5294,7 +5348,7 @@ msgstr "呢個係你嘅推廣連結"
 msgid "Here's what to expect:"
 msgstr "預期結果："
 
-#: src/components/routes/event/EventDashboard/index.tsx:121
+#: src/components/routes/event/EventDashboard/index.tsx:122
 msgid "Hi {0} 👋"
 msgstr "你好 {0} 👋"
 
@@ -5460,6 +5514,10 @@ msgstr "這個代碼可以使用多少次？"
 msgid "How to pay offline"
 msgstr "如何離線付款"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:120
+msgid "How we get there"
+msgstr ""
+
 #: src/components/common/Editor/index.tsx:92
 msgid "HTML character limit exceeded: {htmlLength}/{maxLength}"
 msgstr "HTML字符限制已超出：{htmlLength}/{maxLength}"
@@ -5604,7 +5662,7 @@ msgstr "重要通知"
 msgid "Important: Changing your email address will update the link to access this order. You will be redirected to the new order link after saving."
 msgstr "重要提示：更改您的電郵地址將更新存取此訂單的連結。儲存後，您將被重新導向至新的訂單連結。"
 
-#: src/components/routes/event/EventDashboard/index.tsx:137
+#: src/components/routes/event/EventDashboard/index.tsx:138
 msgid "Important: Stripe reconnection required"
 msgstr "重要：需要重新連接 Stripe"
 
@@ -5921,7 +5979,7 @@ msgstr "過去 24 小時"
 
 #: src/components/common/OrganizerReportTable/index.tsx:56
 #: src/components/common/ReportTable/index.tsx:48
-#: src/components/routes/event/EventDashboard/index.tsx:266
+#: src/components/routes/event/EventDashboard/index.tsx:267
 msgid "Last 30 days"
 msgstr "過去 30 天"
 
@@ -6038,7 +6096,7 @@ msgstr "訂單詳情連結"
 msgid "Link to ticket"
 msgstr "門票連結"
 
-#: src/components/routes/event/EventDashboard/index.tsx:238
+#: src/components/routes/event/EventDashboard/index.tsx:239
 msgid "Link your Stripe account to receive funds from ticket sales."
 msgstr "鏈接您的 Stripe 賬户以接收售票資金。"
 
@@ -6162,7 +6220,7 @@ msgstr "在結賬時強制要求填寫賬單地址"
 msgid "Make this question mandatory"
 msgstr "將此問題作為必答題"
 
-#: src/components/routes/event/EventDashboard/index.tsx:192
+#: src/components/routes/event/EventDashboard/index.tsx:193
 msgid "Make your event live"
 msgstr "讓您的活動上線"
 
@@ -6420,7 +6478,7 @@ msgstr "貨幣金額是所有貨幣的大致總和"
 msgid "Monitor and manage failed background jobs"
 msgstr "監控和管理失敗的後台任務"
 
-#: src/components/routes/event/EventDashboard/index.tsx:283
+#: src/components/routes/event/EventDashboard/index.tsx:284
 #: src/components/routes/event/MessageTracking/shared.tsx:58
 msgid "Month"
 msgstr "月"
@@ -6536,10 +6594,27 @@ msgstr ""
 msgid "Needs info — click for details"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:171
+msgid "Net deposit"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:98
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:136
+msgid "Net expected funds"
+msgstr ""
+
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:85
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:36
 msgid "Net Revenue"
 msgstr "淨收入"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:113
+msgid "Net to bank"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:146
+msgid "Net to bank (est.)"
+msgstr ""
 
 #: src/components/common/OrganizerWebhookTable/index.tsx:266
 #: src/components/common/PromoCodeTable/index.tsx:158
@@ -6750,6 +6825,10 @@ msgstr "沒有失敗的任務"
 #: src/components/common/FilterModal/index.tsx:261
 msgid "No filters available"
 msgstr "沒有可用篩選器"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:160
+msgid "No funds recorded for this event yet."
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:167
 msgid "No images matching \"{debouncedQuery}\""
@@ -7012,6 +7091,10 @@ msgstr "沒有 Webhooks"
 #: src/components/layouts/Checkout/index.tsx:322
 msgid "No, keep me here"
 msgstr "否，保留在此"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:217
+msgid "Non-cash credits (no money in the door):"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:69
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:31
@@ -7675,6 +7758,7 @@ msgstr "最初由 {0} {1} 購買"
 #: src/components/common/OrderPaymentManagement/index.tsx:29
 #: src/components/common/OrderPaymentManagement/index.tsx:258
 #: src/components/common/OrdersTable/index.tsx:401
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:33
 #: src/constants/eventCategories.ts:22
 msgid "Other"
 msgstr "其他"
@@ -8316,6 +8400,14 @@ msgstr "處理退款"
 msgid "Processed"
 msgstr "已處理"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:141
+msgid "Processing fees"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:72
+msgid "Processing fees saved"
+msgstr ""
+
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:498
 msgid "Processing order"
 msgstr "處理訂單中"
@@ -8353,7 +8445,7 @@ msgstr "產品刪除成功"
 msgid "Product Price Type"
 msgstr "產品價格類型"
 
-#: src/components/routes/event/EventDashboard/index.tsx:311
+#: src/components/routes/event/EventDashboard/index.tsx:312
 #: src/components/routes/event/Reports/index.tsx:17
 msgid "Product Sales"
 msgstr "產品銷售"
@@ -8390,7 +8482,7 @@ msgstr "已售產品"
 
 #: src/components/routes/admin/Dashboard/index.tsx:258
 #: src/components/routes/admin/Dashboard/index.tsx:355
-#: src/components/routes/event/EventDashboard/index.tsx:332
+#: src/components/routes/event/EventDashboard/index.tsx:333
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:125
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:68
 msgid "Products Sold"
@@ -8489,7 +8581,7 @@ msgstr "供應商事件"
 msgid "Publish"
 msgstr "發佈"
 
-#: src/components/routes/event/EventDashboard/index.tsx:203
+#: src/components/routes/event/EventDashboard/index.tsx:204
 msgid "Publish Event"
 msgstr "發佈活動"
 
@@ -8521,7 +8613,7 @@ msgstr "數量"
 msgid "Quantity Available"
 msgstr "可用數量"
 
-#: src/components/routes/event/EventDashboard/index.tsx:291
+#: src/components/routes/event/EventDashboard/index.tsx:292
 msgid "Quarter"
 msgstr "季度"
 
@@ -8626,7 +8718,7 @@ msgstr ""
 msgid "Receive product updates from {0}."
 msgstr "接收 {0} 的產品更新。"
 
-#: src/components/routes/event/EventDashboard/index.tsx:267
+#: src/components/routes/event/EventDashboard/index.tsx:268
 msgid "Recent"
 msgstr ""
 
@@ -8677,7 +8769,7 @@ msgstr "存在未解決的投遞問題的收件人"
 msgid "Recommended"
 msgstr "推薦"
 
-#: src/components/routes/event/EventDashboard/index.tsx:143
+#: src/components/routes/event/EventDashboard/index.tsx:144
 msgid "Reconnect Stripe →"
 msgstr "重新連接 Stripe →"
 
@@ -8777,6 +8869,8 @@ msgstr "退款"
 msgid "Refunded: {0}"
 msgstr "已退款：{0}"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:83
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:169
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:79
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:42
 msgid "Refunds"
@@ -9105,7 +9199,7 @@ msgstr "已重用"
 #: src/components/common/AffiliateTable/index.tsx:157
 #: src/components/common/EventCard/index.tsx:235
 #: src/components/routes/admin/Attribution/index.tsx:137
-#: src/components/routes/event/EventDashboard/index.tsx:343
+#: src/components/routes/event/EventDashboard/index.tsx:344
 msgid "Revenue"
 msgstr "收入"
 
@@ -9191,6 +9285,7 @@ msgid "Sale starts {0}"
 msgstr "銷售於 {0} 開始"
 
 #: src/components/common/AffiliateTable/index.tsx:145
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:167
 msgid "Sales"
 msgstr "銷售"
 
@@ -9292,6 +9387,10 @@ msgstr "保存更改"
 #: src/components/modals/EditAccountConfigurationModal/index.tsx:115
 msgid "Save Configuration"
 msgstr "儲存配置"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:237
+msgid "Save fees"
+msgstr ""
 
 #: src/components/modals/EditOrganizerModal/index.tsx:70
 msgid "Save Organizer"
@@ -9867,6 +9966,7 @@ msgstr "設定與設計"
 #: src/components/modals/ShareModal/index.tsx:37
 #: src/components/modals/ShareModal/index.tsx:165
 #: src/components/modals/ShareModal/index.tsx:186
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:172
 msgid "Share"
 msgstr "分享"
 
@@ -10100,7 +10200,7 @@ msgstr "出了點問題。請稍後再試。"
 msgid "Something went wrong. Please try again."
 msgstr "出錯了。請重試。"
 
-#: src/components/routes/event/EventDashboard/index.tsx:139
+#: src/components/routes/event/EventDashboard/index.tsx:140
 msgid "Sorry for the inconvenience."
 msgstr "對於給您帶來的不便，我們深表歉意。"
 
@@ -10138,6 +10238,10 @@ msgstr ""
 #: src/constants/eventCategories.ts:8
 msgid "Sports"
 msgstr "體育"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:29
+msgid "Square"
+msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:101
 msgid "Stage removal"
@@ -10242,6 +10346,7 @@ msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:391
 #: src/components/routes/admin/Dashboard/index.tsx:424
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:28
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:85
 msgid "Stripe"
 msgstr "Stripe"
@@ -11412,7 +11517,7 @@ msgstr "總條目"
 msgid "Total Fee"
 msgstr "總費用"
 
-#: src/components/routes/event/EventDashboard/index.tsx:369
+#: src/components/routes/event/EventDashboard/index.tsx:370
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:149
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:97
 msgid "Total Fees"
@@ -11434,11 +11539,11 @@ msgstr "總訂單數"
 msgid "Total refunded"
 msgstr "退款總額"
 
-#: src/components/routes/event/EventDashboard/index.tsx:372
+#: src/components/routes/event/EventDashboard/index.tsx:373
 msgid "Total Refunded"
 msgstr "退款總額"
 
-#: src/components/routes/event/EventDashboard/index.tsx:371
+#: src/components/routes/event/EventDashboard/index.tsx:372
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:143
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:91
 msgid "Total Tax"
@@ -11451,6 +11556,10 @@ msgstr "總用戶數"
 #: src/components/routes/admin/Dashboard/index.tsx:307
 msgid "Total Views"
 msgstr "總瀏覽量"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:204
+msgid "Totals"
+msgstr ""
 
 #: src/components/routes/admin/Attribution/index.tsx:32
 msgid "Track account growth and performance by attribution source"
@@ -11655,7 +11764,7 @@ msgstr "允許無限次使用"
 msgid "Unpaid Order"
 msgstr "未付款訂單"
 
-#: src/components/routes/event/EventDashboard/index.tsx:214
+#: src/components/routes/event/EventDashboard/index.tsx:215
 msgid "Unpublish Event"
 msgstr "取消發佈活動"
 
@@ -12300,7 +12409,7 @@ msgstr "我們正在處理您的訂單。請稍候..."
 msgid "We've officially moved our headquarters to Ireland 🇮🇪. As part of this transition, we're now using Stripe Ireland instead of Stripe Canada. To keep your payouts running smoothly, you'll need to reconnect your Stripe account."
 msgstr "我們已正式將總部遷至愛爾蘭 🇮🇪。作為此次過渡的一部分，我們現在使用 Stripe 愛爾蘭而不是 Stripe 加拿大。為了保持您的付款順利進行，您需要重新連接您的 Stripe 帳戶。"
 
-#: src/components/routes/event/EventDashboard/index.tsx:138
+#: src/components/routes/event/EventDashboard/index.tsx:139
 msgid "We've relocated our headquarters to Ireland. As a result, we need you to reconnect your Stripe account. This quick process takes just a few minutes. Your sales and existing data remain completely unaffected."
 msgstr "我們已將總部搬遷至愛爾蘭。因此，我們需要您重新連接您的 Stripe 帳戶。這個快速過程只需幾分鐘。您的銷售和現有數據完全不受影響。"
 
@@ -12352,7 +12461,7 @@ msgstr "Webhooks"
 msgid "Website"
 msgstr "網站"
 
-#: src/components/routes/event/EventDashboard/index.tsx:275
+#: src/components/routes/event/EventDashboard/index.tsx:276
 #: src/components/routes/event/MessageTracking/shared.tsx:57
 msgid "Week"
 msgstr "週"
@@ -12369,7 +12478,7 @@ msgstr "歡迎加入！請登錄以繼續。"
 msgid "Welcome back"
 msgstr "歡迎回來"
 
-#: src/components/routes/event/EventDashboard/index.tsx:115
+#: src/components/routes/event/EventDashboard/index.tsx:116
 msgid "Welcome back{0} 👋"
 msgstr "歡迎回來{0} 👋"
 
@@ -12416,6 +12525,10 @@ msgstr "咩類型嘅活動？"
 #: src/components/forms/QuestionForm/index.tsx:336
 msgid "What type of question is this?"
 msgstr "這是什麼類型的問題？"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:100
+msgid "what we \"sold\""
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:77
 msgid "What you need to do:"
@@ -12621,6 +12734,10 @@ msgstr "請在此輸入您的訊息..."
 
 #: src/components/common/OrderPaymentManagement/index.tsx:32
 msgid "Write-off"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:220
+msgid "write-offs"
 msgstr ""
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:59
@@ -12873,7 +12990,7 @@ msgstr "您要求將電子郵件更改為<0>{0}</0>的申請正在處理中。�
 msgid "Your event is live!"
 msgstr "您的活動已上線！"
 
-#: src/components/routes/event/EventDashboard/index.tsx:194
+#: src/components/routes/event/EventDashboard/index.tsx:195
 msgid "Your event must be live before you can sell tickets to attendees."
 msgstr "在向與會者銷售門票之前，您的活動必須處於上線狀態。"
 

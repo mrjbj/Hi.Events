@@ -1,8 +1,10 @@
 import {api} from "./client";
 import {
+    ChannelFeeInput,
     CheckInStats,
     Event,
     EventDuplicatePayload,
+    EventReconciliation,
     EventStats,
     GenericDataResponse,
     GenericPaginatedResponse,
@@ -40,6 +42,16 @@ export const eventsClient = {
     getEventStats: async (eventId: IdParam, dateRange?: string) => {
         const params = dateRange ? `?date_range=${dateRange}` : '';
         const response = await api.get<GenericDataResponse<EventStats>>('events/' + eventId + '/stats' + params);
+        return response.data;
+    },
+
+    getEventReconciliation: async (eventId: IdParam) => {
+        const response = await api.get<GenericDataResponse<EventReconciliation>>('events/' + eventId + '/reconciliation');
+        return response.data;
+    },
+
+    updateEventChannelFees: async (eventId: IdParam, fees: ChannelFeeInput[]) => {
+        const response = await api.patch<GenericDataResponse<EventReconciliation>>('events/' + eventId + '/channel-fees', {fees});
         return response.data;
     },
 

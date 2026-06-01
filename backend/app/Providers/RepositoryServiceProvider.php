@@ -21,6 +21,7 @@ use HiEvents\Repository\Eloquent\CheckInListRepository;
 use HiEvents\Repository\Eloquent\EmailSuppressionRepository;
 use HiEvents\Repository\Eloquent\EmailTemplateRepository;
 use HiEvents\Repository\Eloquent\EventDailyStatisticRepository;
+use HiEvents\Repository\Eloquent\EventChannelFeeRepository;
 use HiEvents\Repository\Eloquent\EventRepository;
 use HiEvents\Repository\Eloquent\EventSettingsRepository;
 use HiEvents\Repository\Eloquent\EventStatisticRepository;
@@ -74,6 +75,7 @@ use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
 use HiEvents\Repository\Interfaces\EmailSuppressionRepositoryInterface;
 use HiEvents\Repository\Interfaces\EmailTemplateRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventDailyStatisticRepositoryInterface;
+use HiEvents\Repository\Interfaces\EventChannelFeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventSettingsRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventStatisticRepositoryInterface;
@@ -154,6 +156,7 @@ class RepositoryServiceProvider extends ServiceProvider
         OrderApplicationFeeRepositoryInterface::class => OrderApplicationFeeRepository::class,
         OrderAuditLogRepositoryInterface::class => OrderAuditLogRepository::class,
         OrderPaymentRepositoryInterface::class => OrderPaymentRepository::class,
+        EventChannelFeeRepositoryInterface::class => EventChannelFeeRepository::class,
         OrderPaymentPlatformFeeRepositoryInterface::class => OrderPaymentPlatformFeeRepository::class,
         StripePayoutsRepositoryInterface::class => StripePayoutsRepository::class,
         AccountConfigurationRepositoryInterface::class => AccountConfigurationRepository::class,

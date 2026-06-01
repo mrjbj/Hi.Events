@@ -129,6 +129,10 @@ msgstr "{availableCount} / {totalCount} elérhető"
 msgid "{buyerName} placed this order and these tickets share their email. Is this a new email address for them, or a different person taking this seat?"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:109
+msgid "{collectedPercent}% received"
+msgstr ""
+
 #: src/components/common/Countdown/index.tsx:68
 msgid "{days} days, {hours} hours, {minutes} minutes, and {seconds} seconds"
 msgstr "{days} nap, {hours} óra, {minutes} perc, és {seconds} másodperc"
@@ -1185,12 +1189,12 @@ msgid "Are you sure you want to leave?"
 msgstr "Biztos, hogy el akarsz menni?"
 
 #: src/components/layouts/Event/index.tsx:158
-#: src/components/routes/event/EventDashboard/index.tsx:81
+#: src/components/routes/event/EventDashboard/index.tsx:82
 msgid "Are you sure you want to make this event draft? This will make the event invisible to the public"
 msgstr "Biztosan piszkozatba szeretné tenni ezt az eseményt? Ezzel az esemény láthatatlanná válik a nyilvánosság számára."
 
 #: src/components/layouts/Event/index.tsx:159
-#: src/components/routes/event/EventDashboard/index.tsx:82
+#: src/components/routes/event/EventDashboard/index.tsx:83
 msgid "Are you sure you want to make this event public? This will make the event visible to the public"
 msgstr "Biztosan nyilvánossá szeretné tenni ezt az eseményt? Ezzel az esemény láthatóvá válik a nyilvánosság számára."
 
@@ -1425,7 +1429,7 @@ msgstr "Résztvevők exportálva"
 msgid "Attendees registered"
 msgstr "Regisztrált résztvevők"
 
-#: src/components/routes/event/EventDashboard/index.tsx:333
+#: src/components/routes/event/EventDashboard/index.tsx:334
 msgid "Attendees Registered"
 msgstr "Regisztrált résztvevők"
 
@@ -1617,6 +1621,7 @@ msgstr "Háttér típusa"
 #: src/components/common/OrderDetails/index.tsx:18
 #: src/components/common/OrderPaymentManagement/index.tsx:28
 #: src/components/common/OrderPaymentManagement/index.tsx:257
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:32
 msgid "Bank transfer"
 msgstr ""
 
@@ -1872,6 +1877,7 @@ msgstr ""
 #: src/components/common/OrderDetails/index.tsx:15
 #: src/components/common/OrderPaymentManagement/index.tsx:25
 #: src/components/common/OrderPaymentManagement/index.tsx:254
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:30
 msgid "Cash"
 msgstr ""
 
@@ -1929,6 +1935,10 @@ msgstr ""
 msgid "Changes saved. A notification was sent to {oldEmail}."
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:166
+msgid "Channel"
+msgstr ""
+
 #: src/constants/eventCategories.ts:15
 msgid "Charity"
 msgstr "Jótékonyság"
@@ -1937,6 +1947,7 @@ msgstr "Jótékonyság"
 #: src/components/common/OrderDetails/index.tsx:16
 #: src/components/common/OrderPaymentManagement/index.tsx:26
 #: src/components/common/OrderPaymentManagement/index.tsx:255
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:31
 msgid "Check"
 msgstr ""
 
@@ -2240,6 +2251,10 @@ msgstr "Fizetés beszedése bejelentkezéskor (készpénz/csekk)"
 msgid "Collected"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:103
+msgid "Collected to date"
+msgstr ""
+
 #: src/components/routes/event/HomepageDesigner/index.tsx:217
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:249
 msgid "Color"
@@ -2318,7 +2333,7 @@ msgid "Complete payment online so you don't have to handle it at the door."
 msgstr ""
 
 #: src/components/common/StripeConnectButton/index.tsx:87
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Complete Stripe Setup"
 msgstr "Stripe beállításának befejezése"
 
@@ -2326,7 +2341,7 @@ msgstr "Stripe beállításának befejezése"
 msgid "Complete the setup below to continue"
 msgstr "Fejezze be az alábbi beállítást a folytatáshoz"
 
-#: src/components/routes/event/EventDashboard/index.tsx:171
+#: src/components/routes/event/EventDashboard/index.tsx:172
 msgid "Complete these steps to start selling tickets for your event."
 msgstr "Fejezze be ezeket a lépéseket, hogy elkezdhesse jegyek értékesítését az eseményéhez."
 
@@ -2355,7 +2370,7 @@ msgstr "Befejezett"
 msgid "Completed orders"
 msgstr "Befejezett megrendelések"
 
-#: src/components/routes/event/EventDashboard/index.tsx:331
+#: src/components/routes/event/EventDashboard/index.tsx:332
 msgid "Completed Orders"
 msgstr "Befejezett megrendelések"
 
@@ -2367,6 +2382,14 @@ msgstr "Komponens kód"
 #: src/components/routes/event/messages.tsx:281
 msgid "Compose"
 msgstr "Írás"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:218
+msgid "comps"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:84
+msgid "Comps (forgiven)"
+msgstr ""
 
 #: src/components/routes/event/Settings/Sections/LocationSettings/index.tsx:117
 msgid "Conference Center"
@@ -2508,7 +2531,7 @@ msgstr "Csatlakozás és frissítés"
 msgid "Connect Documentation"
 msgstr "Dokumentáció csatlakoztatása"
 
-#: src/components/routes/event/EventDashboard/index.tsx:236
+#: src/components/routes/event/EventDashboard/index.tsx:237
 msgid "Connect payment processing"
 msgstr "Fizetésfeldolgozás csatlakoztatása"
 
@@ -2525,7 +2548,7 @@ msgstr "Kapcsolja be a Stripe-ot az e-mail sablon szerkesztéséhez"
 msgid "Connect Stripe to enable messaging"
 msgstr "Kapcsolja be a Stripe-ot az üzenetküldéshez"
 
-#: src/components/routes/event/EventDashboard/index.tsx:249
+#: src/components/routes/event/EventDashboard/index.tsx:250
 msgid "Connect to Stripe"
 msgstr "Csatlakozás a Stripe-hoz"
 
@@ -2785,6 +2808,10 @@ msgstr "Nem sikerült visszaállítani a kérdéseket."
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:83
 msgid "Could not reuse questions."
 msgstr "Nem sikerült újrahasznosítani a kérdéseket."
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:73
+msgid "Could not save processing fees. Please try again."
+msgstr ""
 
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:68
 msgid "Could not update attendee."
@@ -3519,6 +3546,11 @@ msgstr "Adomány"
 msgid "Donation / Pay what you'd like product"
 msgstr "Adomány / Fizess, amennyit szeretnél termék"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:85
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:168
+msgid "Donations"
+msgstr ""
+
 #: src/components/modals/CheckInListSuccessModal/index.tsx:59
 #: src/components/modals/CreateOrganizerWebhookModal/index.tsx:72
 #: src/components/modals/CreateWebhookModal/index.tsx:72
@@ -4198,6 +4230,10 @@ msgstr "Hiba az e-mail cím módosításának megerősítésekor"
 msgid "Error loading logs"
 msgstr "Hiba a naplók betöltésekor"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:115
+msgid "est. after fees"
+msgstr ""
+
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:68
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:30
 msgid "EU VAT-registered businesses: Reverse charge mechanism applies (0% - Article 196 of VAT Directive 2006/112/EC)"
@@ -4233,7 +4269,7 @@ msgstr "EUR"
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnlinkedAttendeesSubTab.tsx:247
 #: src/components/routes/contacts/ContactsAdmin/BackfillTab/UnmappedQuestionsSubTab.tsx:200
 #: src/components/routes/contacts/ContactsAdmin/ExtendedAttributesTab/LinkedQuestionsDrawer.tsx:67
-#: src/components/routes/event/EventDashboard/index.tsx:299
+#: src/components/routes/event/EventDashboard/index.tsx:300
 #: src/components/routes/events/Dashboard/index.tsx:184
 #: src/components/routes/organizer/Reports/CheckInSummaryReport/index.tsx:19
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:41
@@ -4371,6 +4407,10 @@ msgstr "Esemény áttekintés"
 msgid "Event Page"
 msgstr "Eseményoldal"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:93
+msgid "Event Reconciliation"
+msgstr ""
+
 #: src/components/routes/event/Settings/Sections/DangerZoneSettings/index.tsx:54
 msgid "Event restored successfully"
 msgstr "Az esemény sikeresen visszaállítva"
@@ -4383,7 +4423,7 @@ msgstr "Esemény beállítások"
 #: src/components/common/EventCard/index.tsx:70
 #: src/components/common/StatusToggle/index.tsx:63
 #: src/components/layouts/Event/index.tsx:174
-#: src/components/routes/event/EventDashboard/index.tsx:96
+#: src/components/routes/event/EventDashboard/index.tsx:97
 #: src/components/routes/event/GettingStarted/index.tsx:68
 msgid "Event status update failed. Please try again later"
 msgstr "Esemény állapotának frissítése sikertelen. Kérjük, próbálja újra később."
@@ -4391,7 +4431,7 @@ msgstr "Esemény állapotának frissítése sikertelen. Kérjük, próbálja új
 #: src/components/common/EventCard/index.tsx:67
 #: src/components/common/StatusToggle/index.tsx:55
 #: src/components/layouts/Event/index.tsx:170
-#: src/components/routes/event/EventDashboard/index.tsx:93
+#: src/components/routes/event/EventDashboard/index.tsx:94
 #: src/components/routes/event/GettingStarted/index.tsx:65
 msgid "Event status updated"
 msgstr "Esemény állapota frissítve"
@@ -4879,9 +4919,14 @@ msgstr "Díjkezelés"
 #: src/components/common/InlineOrderSummary/index.tsx:156
 #: src/components/common/OrdersTable/index.tsx:366
 #: src/components/forms/ProductForm/index.tsx:468
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:170
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:54
 msgid "Fees"
 msgstr "Díjak"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:156
+msgid "fees are editable"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:291
 msgid "Fees are subject to change. You will be notified of any changes to your fee structure."
@@ -4890,6 +4935,10 @@ msgstr "A díjak változhatnak. Értesítést kap minden díjstruktúrájában b
 #: src/components/routes/admin/Configurations/index.tsx:88
 msgid "Fees Bypassed"
 msgstr "Díjak megkerülve"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:226
+msgid "Fees updated {0}"
+msgstr ""
 
 #: src/constants/eventCategories.ts:5
 msgid "Festival"
@@ -4963,15 +5012,15 @@ msgstr "Beállítás befejezése"
 msgid "Finish Stripe Setup"
 msgstr "Stripe beállítás befejezése"
 
-#: src/components/routes/event/EventDashboard/index.tsx:282
+#: src/components/routes/event/EventDashboard/index.tsx:283
 msgid "First 30 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:274
+#: src/components/routes/event/EventDashboard/index.tsx:275
 msgid "First 7 days from event start"
 msgstr ""
 
-#: src/components/routes/event/EventDashboard/index.tsx:290
+#: src/components/routes/event/EventDashboard/index.tsx:291
 msgid "First 90 days from event start"
 msgstr ""
 
@@ -5113,13 +5162,17 @@ msgstr "Francia"
 msgid "From question answer"
 msgstr "Kérdésválaszból"
 
-#: src/components/routes/event/EventDashboard/index.tsx:298
+#: src/components/routes/event/EventDashboard/index.tsx:299
 msgid "Full event duration"
 msgstr ""
 
 #: src/components/modals/RefundOrderModal/index.tsx:109
 msgid "Full refund"
 msgstr "Teljes visszatérítés"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:155
+msgid "Funds by Channel"
+msgstr ""
 
 #: src/components/forms/ProductForm/index.tsx:146
 msgid "General"
@@ -5166,7 +5219,7 @@ msgstr "Kezdés"
 msgid "Get Tickets"
 msgstr "Jegyek vásárlása"
 
-#: src/components/routes/event/EventDashboard/index.tsx:169
+#: src/components/routes/event/EventDashboard/index.tsx:170
 msgid "Get your event ready"
 msgstr "Készítse elő eseményét"
 
@@ -5222,11 +5275,12 @@ msgid "Gross Revenue"
 msgstr "Bruttó bevétel"
 
 #: src/components/common/StatBoxes/index.tsx:63
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:82
 msgid "Gross sales"
 msgstr "Bruttó értékesítés"
 
 #: src/components/routes/admin/Dashboard/index.tsx:259
-#: src/components/routes/event/EventDashboard/index.tsx:370
+#: src/components/routes/event/EventDashboard/index.tsx:371
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:119
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:30
 msgid "Gross Sales"
@@ -5294,7 +5348,7 @@ msgstr "Íme az affiliate linkje"
 msgid "Here's what to expect:"
 msgstr "Mire számíthat:"
 
-#: src/components/routes/event/EventDashboard/index.tsx:121
+#: src/components/routes/event/EventDashboard/index.tsx:122
 msgid "Hi {0} 👋"
 msgstr "Szia {0} 👋"
 
@@ -5460,6 +5514,10 @@ msgstr "Hányszor használható fel ez a kód?"
 msgid "How to pay offline"
 msgstr "Hogyan fizessen offline"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:120
+msgid "How we get there"
+msgstr ""
+
 #: src/components/common/Editor/index.tsx:92
 msgid "HTML character limit exceeded: {htmlLength}/{maxLength}"
 msgstr "HTML karakterkorlát túllépve: {htmlLength}/{maxLength}"
@@ -5604,7 +5662,7 @@ msgstr "Fontos megjegyzés"
 msgid "Important: Changing your email address will update the link to access this order. You will be redirected to the new order link after saving."
 msgstr "Fontos: Az e-mail cím módosítása frissíti a rendeléshez való hozzáférés linkjét. Mentés után átirányítjuk az új rendelési linkre."
 
-#: src/components/routes/event/EventDashboard/index.tsx:137
+#: src/components/routes/event/EventDashboard/index.tsx:138
 msgid "Important: Stripe reconnection required"
 msgstr "Fontos: Stripe újracsatlakozás szükséges"
 
@@ -5921,7 +5979,7 @@ msgstr "Utolsó 24 óra"
 
 #: src/components/common/OrganizerReportTable/index.tsx:56
 #: src/components/common/ReportTable/index.tsx:48
-#: src/components/routes/event/EventDashboard/index.tsx:266
+#: src/components/routes/event/EventDashboard/index.tsx:267
 msgid "Last 30 days"
 msgstr "Utolsó 30 nap"
 
@@ -6038,7 +6096,7 @@ msgstr "Link a rendelés részleteihez"
 msgid "Link to ticket"
 msgstr "Link a jegyhez"
 
-#: src/components/routes/event/EventDashboard/index.tsx:238
+#: src/components/routes/event/EventDashboard/index.tsx:239
 msgid "Link your Stripe account to receive funds from ticket sales."
 msgstr "Linkelje Stripe fiókját, hogy jegyértékesítésből származó bevételeket fogadjon."
 
@@ -6162,7 +6220,7 @@ msgstr "Tegye kötelezővé a számlázási címet a fizetés során"
 msgid "Make this question mandatory"
 msgstr "Tegye kötelezővé ezt a kérdést"
 
-#: src/components/routes/event/EventDashboard/index.tsx:192
+#: src/components/routes/event/EventDashboard/index.tsx:193
 msgid "Make your event live"
 msgstr "Tegye élővé eseményét"
 
@@ -6420,7 +6478,7 @@ msgstr "A pénzértékek az összes pénznem hozzávetőleges összegei"
 msgid "Monitor and manage failed background jobs"
 msgstr "Sikertelen háttérfeladatok figyelése és kezelése"
 
-#: src/components/routes/event/EventDashboard/index.tsx:283
+#: src/components/routes/event/EventDashboard/index.tsx:284
 #: src/components/routes/event/MessageTracking/shared.tsx:58
 msgid "Month"
 msgstr "Hónap"
@@ -6536,10 +6594,27 @@ msgstr ""
 msgid "Needs info — click for details"
 msgstr ""
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:171
+msgid "Net deposit"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:98
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:136
+msgid "Net expected funds"
+msgstr ""
+
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:85
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:36
 msgid "Net Revenue"
 msgstr "Nettó bevétel"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:113
+msgid "Net to bank"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:146
+msgid "Net to bank (est.)"
+msgstr ""
 
 #: src/components/common/OrganizerWebhookTable/index.tsx:266
 #: src/components/common/PromoCodeTable/index.tsx:158
@@ -6750,6 +6825,10 @@ msgstr "Nincs sikertelen feladat"
 #: src/components/common/FilterModal/index.tsx:261
 msgid "No filters available"
 msgstr "Nincsenek elérhető szűrők"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:160
+msgid "No funds recorded for this event yet."
+msgstr ""
 
 #: src/components/common/Editor/Controls/InsertImageControl/BrowseImagesPanel/index.tsx:167
 msgid "No images matching \"{debouncedQuery}\""
@@ -7012,6 +7091,10 @@ msgstr "Nincsenek Webhookok"
 #: src/components/layouts/Checkout/index.tsx:322
 msgid "No, keep me here"
 msgstr "Nem, maradok itt"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:217
+msgid "Non-cash credits (no money in the door):"
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:69
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/VatSettingsModal.tsx:31
@@ -7675,6 +7758,7 @@ msgstr "Eredetileg vásárolta: {0} {1}"
 #: src/components/common/OrderPaymentManagement/index.tsx:29
 #: src/components/common/OrderPaymentManagement/index.tsx:258
 #: src/components/common/OrdersTable/index.tsx:401
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:33
 #: src/constants/eventCategories.ts:22
 msgid "Other"
 msgstr "Egyéb"
@@ -8316,6 +8400,14 @@ msgstr "Visszatérítés feldolgozása"
 msgid "Processed"
 msgstr "Feldolgozva"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:141
+msgid "Processing fees"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:72
+msgid "Processing fees saved"
+msgstr ""
+
 #: src/components/routes/product-widget/OrderSummaryAndProducts/index.tsx:498
 msgid "Processing order"
 msgstr "Rendelés feldolgozása"
@@ -8353,7 +8445,7 @@ msgstr "Termék sikeresen törölve"
 msgid "Product Price Type"
 msgstr "Termék ár típusa"
 
-#: src/components/routes/event/EventDashboard/index.tsx:311
+#: src/components/routes/event/EventDashboard/index.tsx:312
 #: src/components/routes/event/Reports/index.tsx:17
 msgid "Product Sales"
 msgstr "Termék értékesítés"
@@ -8390,7 +8482,7 @@ msgstr "Eladott termékek"
 
 #: src/components/routes/admin/Dashboard/index.tsx:258
 #: src/components/routes/admin/Dashboard/index.tsx:355
-#: src/components/routes/event/EventDashboard/index.tsx:332
+#: src/components/routes/event/EventDashboard/index.tsx:333
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:125
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:68
 msgid "Products Sold"
@@ -8489,7 +8581,7 @@ msgstr "Szolgáltatói események"
 msgid "Publish"
 msgstr "Közzététel"
 
-#: src/components/routes/event/EventDashboard/index.tsx:203
+#: src/components/routes/event/EventDashboard/index.tsx:204
 msgid "Publish Event"
 msgstr "Esemény közzététele"
 
@@ -8521,7 +8613,7 @@ msgstr "Menny."
 msgid "Quantity Available"
 msgstr "Elérhető mennyiség"
 
-#: src/components/routes/event/EventDashboard/index.tsx:291
+#: src/components/routes/event/EventDashboard/index.tsx:292
 msgid "Quarter"
 msgstr "Negyedév"
 
@@ -8626,7 +8718,7 @@ msgstr ""
 msgid "Receive product updates from {0}."
 msgstr "Termékfrissítések fogadása a {0}-től."
 
-#: src/components/routes/event/EventDashboard/index.tsx:267
+#: src/components/routes/event/EventDashboard/index.tsx:268
 msgid "Recent"
 msgstr ""
 
@@ -8677,7 +8769,7 @@ msgstr "Címzettek megoldatlan kézbesítési problémákkal"
 msgid "Recommended"
 msgstr "Ajánlott"
 
-#: src/components/routes/event/EventDashboard/index.tsx:143
+#: src/components/routes/event/EventDashboard/index.tsx:144
 msgid "Reconnect Stripe →"
 msgstr "Stripe újracsatlakoztatása →"
 
@@ -8777,6 +8869,8 @@ msgstr "Visszatérítve"
 msgid "Refunded: {0}"
 msgstr "Visszatérítve: {0}"
 
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:83
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:169
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:79
 #: src/components/routes/organizer/Reports/RevenueSummaryReport/index.tsx:42
 msgid "Refunds"
@@ -9105,7 +9199,7 @@ msgstr "Újrahasznosítva"
 #: src/components/common/AffiliateTable/index.tsx:157
 #: src/components/common/EventCard/index.tsx:235
 #: src/components/routes/admin/Attribution/index.tsx:137
-#: src/components/routes/event/EventDashboard/index.tsx:343
+#: src/components/routes/event/EventDashboard/index.tsx:344
 msgid "Revenue"
 msgstr "Bevétel"
 
@@ -9191,6 +9285,7 @@ msgid "Sale starts {0}"
 msgstr "Értékesítés kezdete {0}"
 
 #: src/components/common/AffiliateTable/index.tsx:145
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:167
 msgid "Sales"
 msgstr "Értékesítések"
 
@@ -9292,6 +9387,10 @@ msgstr "Változások mentése"
 #: src/components/modals/EditAccountConfigurationModal/index.tsx:115
 msgid "Save Configuration"
 msgstr "Konfiguráció mentése"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:237
+msgid "Save fees"
+msgstr ""
 
 #: src/components/modals/EditOrganizerModal/index.tsx:70
 msgid "Save Organizer"
@@ -9867,6 +9966,7 @@ msgstr "Beállítás és tervezés"
 #: src/components/modals/ShareModal/index.tsx:37
 #: src/components/modals/ShareModal/index.tsx:165
 #: src/components/modals/ShareModal/index.tsx:186
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:172
 msgid "Share"
 msgstr "Megosztás"
 
@@ -10100,7 +10200,7 @@ msgstr "Valami hiba történt. Kérjük, próbálja újra később."
 msgid "Something went wrong. Please try again."
 msgstr "Valami hiba történt. Kérjük, próbálja újra."
 
-#: src/components/routes/event/EventDashboard/index.tsx:139
+#: src/components/routes/event/EventDashboard/index.tsx:140
 msgid "Sorry for the inconvenience."
 msgstr "Elnézést a kellemetlenségért."
 
@@ -10138,6 +10238,10 @@ msgstr ""
 #: src/constants/eventCategories.ts:8
 msgid "Sports"
 msgstr "Sport"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:29
+msgid "Square"
+msgstr ""
 
 #: src/components/modals/OptionMigrationModal/index.tsx:101
 msgid "Stage removal"
@@ -10242,6 +10346,7 @@ msgstr ""
 
 #: src/components/common/OrdersTable/index.tsx:391
 #: src/components/routes/admin/Dashboard/index.tsx:424
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:28
 #: src/components/routes/event/Settings/Sections/PaymentSettings/index.tsx:85
 msgid "Stripe"
 msgstr "Stripe"
@@ -11412,7 +11517,7 @@ msgstr "Összes bejegyzés"
 msgid "Total Fee"
 msgstr "Összesített díj"
 
-#: src/components/routes/event/EventDashboard/index.tsx:369
+#: src/components/routes/event/EventDashboard/index.tsx:370
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:149
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:97
 msgid "Total Fees"
@@ -11434,11 +11539,11 @@ msgstr "Összes megrendelés"
 msgid "Total refunded"
 msgstr "Összes visszatérített"
 
-#: src/components/routes/event/EventDashboard/index.tsx:372
+#: src/components/routes/event/EventDashboard/index.tsx:373
 msgid "Total Refunded"
 msgstr "Összes visszatérített"
 
-#: src/components/routes/event/EventDashboard/index.tsx:371
+#: src/components/routes/event/EventDashboard/index.tsx:372
 #: src/components/routes/organizer/OrganizerDashboard/index.tsx:143
 #: src/components/routes/organizer/Reports/EventsPerformanceReport/index.tsx:91
 msgid "Total Tax"
@@ -11451,6 +11556,10 @@ msgstr "Összes felhasználó"
 #: src/components/routes/admin/Dashboard/index.tsx:307
 msgid "Total Views"
 msgstr "Összes megtekintés"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:204
+msgid "Totals"
+msgstr ""
 
 #: src/components/routes/admin/Attribution/index.tsx:32
 msgid "Track account growth and performance by attribution source"
@@ -11655,7 +11764,7 @@ msgstr "Korlátlan felhasználás engedélyezett"
 msgid "Unpaid Order"
 msgstr "Kifizetetlen megrendelés"
 
-#: src/components/routes/event/EventDashboard/index.tsx:214
+#: src/components/routes/event/EventDashboard/index.tsx:215
 msgid "Unpublish Event"
 msgstr "Esemény visszavonása"
 
@@ -12300,7 +12409,7 @@ msgstr "Megrendelését feldolgozzuk. Kérjük, várjon..."
 msgid "We've officially moved our headquarters to Ireland 🇮🇪. As part of this transition, we're now using Stripe Ireland instead of Stripe Canada. To keep your payouts running smoothly, you'll need to reconnect your Stripe account."
 msgstr "Hivatalosan Írországba 🇮🇪 költöztettük a székhelyünket. Ennek az átállásnak részeként most a Stripe Ireland-ot használjuk a Stripe Canada helyett. A kifizetések zökkenőmentes folytatásához újra kell csatlakoztatnia a Stripe fiókját."
 
-#: src/components/routes/event/EventDashboard/index.tsx:138
+#: src/components/routes/event/EventDashboard/index.tsx:139
 msgid "We've relocated our headquarters to Ireland. As a result, we need you to reconnect your Stripe account. This quick process takes just a few minutes. Your sales and existing data remain completely unaffected."
 msgstr "Átköltöztettük a székhelyünket Írországba. Ennek eredményeként újra kell csatlakoztatnia a Stripe fiókját. Ez a gyors folyamat csak néhány percet vesz igénybe. Az értékesítései és meglévő adatai teljesen érintetlenek maradnak."
 
@@ -12352,7 +12461,7 @@ msgstr "Webhookok"
 msgid "Website"
 msgstr "Weboldal"
 
-#: src/components/routes/event/EventDashboard/index.tsx:275
+#: src/components/routes/event/EventDashboard/index.tsx:276
 #: src/components/routes/event/MessageTracking/shared.tsx:57
 msgid "Week"
 msgstr "Hét"
@@ -12369,7 +12478,7 @@ msgstr "Üdv a fedélzeten! Kérjük, jelentkezzen be a folytatáshoz."
 msgid "Welcome back"
 msgstr "Üdvözöljük újra"
 
-#: src/components/routes/event/EventDashboard/index.tsx:115
+#: src/components/routes/event/EventDashboard/index.tsx:116
 msgid "Welcome back{0} 👋"
 msgstr "Üdv újra, {0} 👋"
 
@@ -12416,6 +12525,10 @@ msgstr "Milyen típusú esemény?"
 #: src/components/forms/QuestionForm/index.tsx:336
 msgid "What type of question is this?"
 msgstr "Milyen típusú kérdés ez?"
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:100
+msgid "what we \"sold\""
+msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/VatSettings/index.tsx:77
 msgid "What you need to do:"
@@ -12621,6 +12734,10 @@ msgstr "Írja ide üzenetét..."
 
 #: src/components/common/OrderPaymentManagement/index.tsx:32
 msgid "Write-off"
+msgstr ""
+
+#: src/components/routes/event/EventDashboard/EventReconciliation/index.tsx:220
+msgid "write-offs"
 msgstr ""
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:59
@@ -12873,7 +12990,7 @@ msgstr "E-mail cím módosítási kérelme a következőre: <0>{0}</0> függőbe
 msgid "Your event is live!"
 msgstr "Az eseményed élőben van!"
 
-#: src/components/routes/event/EventDashboard/index.tsx:194
+#: src/components/routes/event/EventDashboard/index.tsx:195
 msgid "Your event must be live before you can sell tickets to attendees."
 msgstr "Eseménye élőnek kell lennie, mielőtt jegyeket értékesíthetne a résztvevőknek."
 

@@ -1,0 +1,50 @@
+{
+  "title": "Smoke Test — Event Reconciliation widget",
+  "subtitle": "Dashboard widget: gross − refunds − comps + donations, with a per-channel breakdown and manually-entered, persisted processing fees.",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Flow": "Login → event dashboard → Event Reconciliation widget → edit + save a channel fee",
+    "Branch": "jbj/local",
+    "Event": "326 (smoke:reversal-fixture, seeded with a 5-order multi-channel ledger)",
+    "Endpoints": "GET /events/{id}/reconciliation · PATCH /events/{id}/channel-fees"
+  },
+  "steps": [
+    {
+      "title": "Login",
+      "description": "Admin login screen (fixture user smoke-reversal@hi.events.test).",
+      "status": "info",
+      "screenshot": "shots/01-login.png"
+    },
+    {
+      "title": "Dashboard loads",
+      "description": "Event dashboard top — existing stat boxes and charts unaffected; the new widget is appended below.",
+      "status": "pass",
+      "screenshot": "shots/02-dashboard-top.png"
+    },
+    {
+      "title": "Event Reconciliation card",
+      "description": "Three headline tiles (Net Expected Funds $395, Collected to date $395 with progress bar, Net to bank $385.90) and the waterfall: Gross $415 − Refunds $20 − Comps $25 + Donations $25 = $395, then − Processing fees $9.10 = Net to bank $385.90.",
+      "status": "pass",
+      "screenshot": "shots/03-reconciliation-card.png",
+      "notes": "Headline math matches the backend unit test exactly (net expected = 19250-style waterfall, here 415 − 20 − 25 + 25 = 395)."
+    },
+    {
+      "title": "Funds by Channel card",
+      "description": "Per-channel rows (Stripe / Square / Cash / Check) with sales, donations, refunds, an editable fee, net deposit and share. Colored channel dots; Stripe & Square fees editable, Cash & Check disabled (no processing fee). Totals reconcile to $385.90 net deposit; comps shown in the non-cash footer.",
+      "status": "pass",
+      "screenshot": "shots/04-funds-by-channel.png"
+    },
+    {
+      "title": "Edit a channel fee (dirty state)",
+      "description": "Changing the Stripe fee from $6.20 to $7.50 enables the Save button.",
+      "status": "pass",
+      "screenshot": "shots/05-fee-edited-dirty.png"
+    },
+    {
+      "title": "Save fee — persisted & recomputed",
+      "description": "Save fires the PATCH; success toast 'Processing fees saved'. Stripe net recomputes to $187.50, totals fee to $10.40 and net deposit to $384.60 — confirming the full round-trip (edit → persist → reconcile → re-render).",
+      "status": "pass",
+      "screenshot": "shots/06-fee-saved-toast.png"
+    }
+  ]
+}
