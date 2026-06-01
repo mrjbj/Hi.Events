@@ -72,5 +72,8 @@ Snapshot for resuming after a context clear. Branch: **`<branch>`** (<pushed?>).
 - **Pull git state live every time** — a handoff with stale commit hashes or a wrong branch is
   worse than none. Never carry forward the previous run's git numbers without re-checking.
 - **Don't bloat it.** Link to design docs for detail; the handoff is a map, not the territory.
+- **The backlog is a separate, durable file** (`docs/design/BACKLOG.md`, owned by `/backlog`).
+  Don't copy its feature ideas into the handoff — the handoff gets rewritten each refresh and
+  would clobber them. Just add a one-line pointer to it so a rehydrating session knows it's there.
 - **A dirty tree is a fact, not a problem to hide** — if there's uncommitted work, say so and
   list it, so the next session doesn't assume a clean slate.

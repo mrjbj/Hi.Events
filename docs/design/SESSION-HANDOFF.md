@@ -135,6 +135,8 @@ display-only; leave-vs-backfill deferred (memory `district11-manually-created-pa
 
 ## Next
 
+> **Feature backlog** (durable, not part of this snapshot): see [`docs/design/BACKLOG.md`](./BACKLOG.md), maintained via `/backlog`.
+
 **Immediate: deploy the split + cleanup to prod** (`b7b51df9`) — see the deploy note in the "DONE"
 section above (backup → `migrate` → verify reconciliation widget). It's the only step between the
 committed work and prod. Everything below is lower-urgency follow-up.
