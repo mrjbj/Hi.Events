@@ -72,13 +72,38 @@ class EventReconciliationService
         $statuses = self::COUNTED_STATUSES;
         $channelExpr = self::ORDER_CHANNEL_SQL;
 
-        // Gross receivable for the event (channel-agnostic top line).
+        // An order counts toward reconciliation if it is an active/expected sale,
+        // OR it actually moved money — e.g. a CANCELLED order whose Stripe charge
+        // was kept (to dodge a double processing fee) or refunded. RESERVED and
+        // ABANDONED carts moved no money and stay out. Counting money-bearing
+        // orders regardless of status is what lets the breakdown tie to the
+        // payment processor's own gross / refund / net figures.
+        $inScope = <<<SQL
+            (
+                o.status IN {$statuses}
+                OR o.total_refunded > 0
+                OR EXISTS (
+                    SELECT 1 FROM stripe_payments sp_scope
+                    WHERE sp_scope.order_id = o.id
+                      AND sp_scope.amount_received > 0
+                      AND sp_scope.deleted_at IS NULL
+                )
+                OR EXISTS (
+                    SELECT 1 FROM order_payments op_scope
+                    WHERE op_scope.order_id = o.id
+                      AND op_scope.deleted_at IS NULL
+                )
+            )
+            SQL;
+
+        // Gross volume for the event (channel-agnostic top line; money-bearing
+        // cancelled orders included, then netted back out by the refunds line).
         $grossTotal = (float) ($this->db->selectOne(<<<SQL
             SELECT COALESCE(SUM(o.total_gross), 0) AS gross
             FROM orders o
             WHERE o.event_id = :eventId
               AND o.deleted_at IS NULL
-              AND o.status IN {$statuses}
+              AND {$inScope}
         SQL, ['eventId' => $eventId])->gross ?? 0);
 
         // Refunds grouped by the order's settling channel.
@@ -88,7 +113,7 @@ class EventReconciliationService
             FROM orders o
             WHERE o.event_id = :eventId
               AND o.deleted_at IS NULL
-              AND o.status IN {$statuses}
+              AND {$inScope}
               AND o.total_refunded > 0
             GROUP BY 1
         SQL, ['eventId' => $eventId]);
@@ -104,7 +129,7 @@ class EventReconciliationService
             WHERE o.event_id = :eventId
               AND op.deleted_at IS NULL
               AND o.deleted_at IS NULL
-              AND o.status IN {$statuses}
+              AND {$inScope}
             GROUP BY op.transaction_type, op.payment_method
         SQL, ['eventId' => $eventId]);
 
@@ -115,7 +140,7 @@ class EventReconciliationService
             INNER JOIN orders o ON o.id = sp.order_id
             WHERE o.event_id = :eventId
               AND o.deleted_at IS NULL
-              AND o.status IN {$statuses}
+              AND {$inScope}
               AND sp.amount_received > 0
         SQL, ['eventId' => $eventId]);
         $stripeReceived = round((float) ($stripeRow->received ?? 0), 2);
