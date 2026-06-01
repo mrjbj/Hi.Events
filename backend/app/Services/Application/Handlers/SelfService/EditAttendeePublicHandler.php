@@ -51,6 +51,7 @@ class EditAttendeePublicHandler
             userAgent: $dto->userAgent,
             seatInfo: $dto->seatInfo,
             confirmAtCheckin: $dto->confirmAtCheckin,
+            notify: $dto->notifyEmailChange,
         );
     }
 }

@@ -16,12 +16,14 @@ export interface EditAttendeeData {
     last_name?: string;
     email?: string;
     confirm_at_checkin?: boolean;
+    notify_email_change?: boolean;
 }
 
 export interface EditOrderData {
     first_name?: string;
     last_name?: string;
     email?: string;
+    notify_email_change?: boolean;
 }
 
 export const selfServiceClient = {

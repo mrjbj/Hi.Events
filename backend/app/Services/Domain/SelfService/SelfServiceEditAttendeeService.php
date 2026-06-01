@@ -17,6 +17,7 @@ use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\SelfService\DTO\EditAttendeeResultDTO;
 use Illuminate\Support\Facades\Mail;
 use Psr\Log\LoggerInterface;
@@ -31,6 +32,7 @@ class SelfServiceEditAttendeeService
         private readonly SendAttendeeTicketService $sendAttendeeTicketService,
         private readonly AttendeeContactLinkResolver $contactLinkResolver,
         private readonly ContactSignedTokenService $contactTokenService,
+        private readonly EmailSuppressionService $emailSuppressionService,
         private readonly LoggerInterface $logger,
     ) {}
 
@@ -42,7 +44,8 @@ class SelfServiceEditAttendeeService
         string $ipAddress,
         ?string $userAgent,
         ?string $seatInfo = null,
-        ?bool $confirmAtCheckin = null
+        ?bool $confirmAtCheckin = null,
+        bool $notify = true
     ): EditAttendeeResultDTO {
         $oldValues = [];
         $newValues = [];
@@ -135,7 +138,7 @@ class SelfServiceEditAttendeeService
             // unassigned/contactless seat has a blank email, and Mail::to('')
             // throws an RFC-compliance exception — mirror the door, which gates
             // the notification on a non-empty old address (notify_email_change).
-            if (trim((string) $oldEmail) !== '') {
+            if ($notify && trim((string) $oldEmail) !== '') {
                 $this->sendChangeNotificationToOldEmail(
                     oldEmail: $oldEmail,
                     attendeeId: $attendee->getId(),
@@ -236,6 +239,10 @@ class SelfServiceEditAttendeeService
         $attendee = $this->attendeeRepository
             ->loadRelation(new Relationship(ProductDomainObject::class, name: 'product'))
             ->findById($attendeeId);
+
+        if ($this->emailSuppressionService->isEmailSuppressed($oldEmail, (int) $event->getAccountId(), 'transactional')) {
+            return;
+        }
 
         $changedFields = $this->formatChangedFields($oldValues, $newValues);
 

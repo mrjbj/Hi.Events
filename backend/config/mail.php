@@ -122,4 +122,23 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Suppressed address patterns
+    |--------------------------------------------------------------------------
+    |
+    | Placeholder / junk addresses that should never receive mail, regardless of
+    | the SES suppression feature flag. Matched with fnmatch (case-insensitive),
+    | so glob wildcards work. Used by EmailSuppressionService::isPlaceholderAddress().
+    |
+    */
+
+    'suppressed_address_patterns' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env(
+            'MAIL_SUPPRESSED_ADDRESS_PATTERNS',
+            'unknown@unknown.com,*@unknown,*@example.com,*@noemail.*',
+        )),
+    ))),
+
 ];

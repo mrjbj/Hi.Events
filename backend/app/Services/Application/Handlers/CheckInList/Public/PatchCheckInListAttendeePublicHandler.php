@@ -18,6 +18,7 @@ use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use Illuminate\Support\Facades\Mail;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -32,6 +33,7 @@ class PatchCheckInListAttendeePublicHandler
         private readonly EventRepositoryInterface $eventRepository,
         private readonly AttendeeContactLinkResolver $contactLinkResolver,
         private readonly ContactSignedTokenService $contactTokenService,
+        private readonly EmailSuppressionService $emailSuppressionService,
         private readonly LoggerInterface $logger,
     ) {}
 
@@ -181,6 +183,10 @@ class PatchCheckInListAttendeePublicHandler
             ->loadRelation(new Relationship(OrganizerDomainObject::class, name: 'organizer'))
             ->loadRelation(EventSettingDomainObject::class)
             ->findById($eventId);
+
+        if ($this->emailSuppressionService->isEmailSuppressed($oldEmail, (int) $event->getAccountId(), 'transactional')) {
+            return;
+        }
 
         $attendee = $this->attendeeRepository
             ->loadRelation(new Relationship(ProductDomainObject::class, name: 'product'))

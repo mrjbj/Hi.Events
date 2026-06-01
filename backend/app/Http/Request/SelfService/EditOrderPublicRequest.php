@@ -12,6 +12,7 @@ class EditOrderPublicRequest extends BaseRequest
             'first_name' => ['sometimes', 'string', 'max:255'],
             'last_name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
+            'notify_email_change' => ['sometimes', 'boolean'],
         ];
     }
 

@@ -31,6 +31,9 @@ class EditOrderPublicAction extends BaseAction
                 'email' => $request->input('email'),
                 'ipAddress' => $this->getClientIp($request),
                 'userAgent' => $request->userAgent(),
+                'notifyEmailChange' => $request->has('notify_email_change')
+                    ? $request->boolean('notify_email_change')
+                    : true,
             ]));
 
             $response = [

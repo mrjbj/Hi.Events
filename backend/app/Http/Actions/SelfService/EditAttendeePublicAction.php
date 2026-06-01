@@ -37,6 +37,9 @@ class EditAttendeePublicAction extends BaseAction
                 'confirmAtCheckin' => $request->has('confirm_at_checkin')
                     ? $request->boolean('confirm_at_checkin')
                     : null,
+                'notifyEmailChange' => $request->has('notify_email_change')
+                    ? $request->boolean('notify_email_change')
+                    : true,
             ]));
 
             $response = [

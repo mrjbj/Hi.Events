@@ -19,17 +19,35 @@ class EmailSuppressionService
     /**
      * Check if an email is suppressed for a given email type.
      *
+     * Always-on (independent of the SES feature flag):
+     * - Placeholder/junk addresses (config('mail.suppressed_address_patterns')) — never email
+     * - An explicit DO_NOT_CONTACT suppression — suppresses ALL email types
+     *
+     * SES-derived (gated behind services.ses.suppression_enabled):
      * - Permanent bounces suppress ALL email types (address doesn't exist)
      * - Complaints suppress only marketing emails (customer may still need transactional)
      * - Transient bounces suppress only marketing emails (may succeed on retry for transactional)
      */
     public function isEmailSuppressed(string $email, ?int $accountId, string $emailType = 'marketing'): bool
     {
-        if (!config('services.ses.suppression_enabled', false)) {
-            return false;
+        $email = strtolower($email);
+
+        if ($this->isPlaceholderAddress($email)) {
+            return true;
         }
 
         $suppressions = $this->emailSuppressionRepository->findByEmail($email, $accountId);
+
+        foreach ($suppressions as $suppression) {
+            /** @var EmailSuppressionDomainObject $suppression */
+            if ($suppression->getReason() === EmailSuppressionReasonEnum::DO_NOT_CONTACT->value) {
+                return true;
+            }
+        }
+
+        if (! config('services.ses.suppression_enabled', false)) {
+            return false;
+        }
 
         if ($suppressions->isEmpty()) {
             return false;
@@ -55,6 +73,29 @@ class EmailSuppressionService
                     return true;
                 }
                 // Transactional emails to complaint addresses still send
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Placeholder / junk addresses (e.g. admin-entered unknown@unknown.com on
+     * bulk-imported orders) are never deliverable, so they're suppressed by
+     * default without needing a DB row. Patterns are configurable and matched
+     * with fnmatch (case-insensitive).
+     */
+    public function isPlaceholderAddress(string $email): bool
+    {
+        $email = strtolower(trim($email));
+
+        if ($email === '') {
+            return false;
+        }
+
+        foreach ((array) config('mail.suppressed_address_patterns', []) as $pattern) {
+            if (fnmatch(strtolower((string) $pattern), $email)) {
+                return true;
             }
         }
 

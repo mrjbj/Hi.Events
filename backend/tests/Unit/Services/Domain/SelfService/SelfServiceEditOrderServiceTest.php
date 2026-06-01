@@ -9,6 +9,7 @@ use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\Mail\Order\OrderDetailsChangedMail;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
 use HiEvents\Services\Domain\SelfService\OrderAuditLogService;
 use HiEvents\Services\Domain\SelfService\SelfServiceEditOrderService;
@@ -35,12 +36,15 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $this->eventRepository = Mockery::mock(EventRepositoryInterface::class);
         $this->orderAuditLogService = Mockery::mock(OrderAuditLogService::class);
         $this->sendOrderDetailsService = Mockery::mock(SendOrderDetailsService::class);
+        $emailSuppressionService = Mockery::mock(EmailSuppressionService::class);
+        $emailSuppressionService->shouldReceive('isEmailSuppressed')->byDefault()->andReturn(false);
 
         $this->service = new SelfServiceEditOrderService(
             $this->orderRepository,
             $this->eventRepository,
             $this->orderAuditLogService,
-            $this->sendOrderDetailsService
+            $this->sendOrderDetailsService,
+            $emailSuppressionService,
         );
     }
 
@@ -71,6 +75,7 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -150,6 +155,7 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -264,6 +270,7 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -350,6 +357,7 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')
@@ -408,6 +416,7 @@ class SelfServiceEditOrderServiceTest extends TestCase
         $mockEvent = Mockery::mock(EventDomainObject::class);
         $mockEvent->shouldReceive('getEventSettings')->andReturn($mockEventSettings);
         $mockEvent->shouldReceive('getOrganizer')->andReturn($mockOrganizer);
+        $mockEvent->shouldReceive('getAccountId')->andReturn(1);
 
         $this->eventRepository
             ->shouldReceive('loadRelation')

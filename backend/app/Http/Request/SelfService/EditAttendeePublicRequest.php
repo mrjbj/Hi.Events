@@ -14,6 +14,7 @@ class EditAttendeePublicRequest extends BaseRequest
             'email' => ['sometimes', 'email', 'max:255'],
             'seat_info' => ['sometimes', 'nullable', 'string', 'max:100'],
             'confirm_at_checkin' => ['sometimes', 'boolean'],
+            'notify_email_change' => ['sometimes', 'boolean'],
         ];
     }
 

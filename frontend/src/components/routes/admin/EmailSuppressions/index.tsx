@@ -86,6 +86,8 @@ const EmailSuppressions = () => {
                 return 'red';
             case 'complaint':
                 return 'orange';
+            case 'do_not_contact':
+                return 'grape';
             default:
                 return 'gray';
         }
@@ -142,10 +144,11 @@ const EmailSuppressions = () => {
                         data={[
                             {value: 'bounce', label: t`Bounce`},
                             {value: 'complaint', label: t`Complaint`},
+                            {value: 'do_not_contact', label: t`Do not contact`},
                         ]}
                         value={reasonFilter}
                         onChange={setReasonFilter}
-                        w={150}
+                        w={170}
                     />
                     <Select
                         placeholder={t`Source`}
@@ -268,6 +271,7 @@ const EmailSuppressions = () => {
                             data={[
                                 {value: 'bounce', label: t`Bounce`},
                                 {value: 'complaint', label: t`Complaint`},
+                                {value: 'do_not_contact', label: t`Do not contact`},
                             ]}
                             {...form.getInputProps('reason')}
                         />

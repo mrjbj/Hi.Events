@@ -16,6 +16,7 @@ use HiEvents\Services\Domain\Attendee\SendAttendeeTicketService;
 use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\DTO\AttendeeContactResolutionDTO;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\SelfService\OrderAuditLogService;
 use HiEvents\Services\Domain\SelfService\SelfServiceEditAttendeeService;
 use Illuminate\Support\Facades\Mail;
@@ -66,6 +67,9 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             ->byDefault()
             ->andReturn(new AttendeeContactResolutionDTO(AttendeeContactResolutionAction::UNCHANGED, null, false));
 
+        $emailSuppressionService = Mockery::mock(EmailSuppressionService::class);
+        $emailSuppressionService->shouldReceive('isEmailSuppressed')->byDefault()->andReturn(false);
+
         $this->service = new SelfServiceEditAttendeeService(
             $this->attendeeRepository,
             $this->eventRepository,
@@ -73,6 +77,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
             $this->sendAttendeeTicketService,
             $this->contactLinkResolver,
             $this->contactTokenService,
+            $emailSuppressionService,
             $this->logger,
         );
     }
@@ -380,6 +385,7 @@ class SelfServiceEditAttendeeServiceTest extends TestCase
         $event = Mockery::mock(EventDomainObject::class);
         $event->shouldReceive('getEventSettings')->andReturn($eventSettings);
         $event->shouldReceive('getOrganizer')->andReturn($organizer);
+        $event->shouldReceive('getAccountId')->andReturn(1);
         $event->shouldReceive('getAccountId')->andReturn(1);
 
         return $event;

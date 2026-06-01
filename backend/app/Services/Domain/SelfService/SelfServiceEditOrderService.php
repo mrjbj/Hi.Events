@@ -15,6 +15,7 @@ use HiEvents\Mail\Order\OrderDetailsChangedMail;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use HiEvents\Services\Domain\Mail\SendOrderDetailsService;
 use HiEvents\Services\Domain\SelfService\DTO\EditOrderResultDTO;
 use Illuminate\Support\Facades\Mail;
@@ -26,6 +27,7 @@ class SelfServiceEditOrderService
         private readonly EventRepositoryInterface $eventRepository,
         private readonly OrderAuditLogService $orderAuditLogService,
         private readonly SendOrderDetailsService $sendOrderDetailsService,
+        private readonly EmailSuppressionService $emailSuppressionService,
     ) {}
 
     public function editOrder(
@@ -34,7 +36,8 @@ class SelfServiceEditOrderService
         ?string $lastName,
         ?string $email,
         string $ipAddress,
-        ?string $userAgent
+        ?string $userAgent,
+        bool $notify = true
     ): EditOrderResultDTO {
         $oldValues = [];
         $newValues = [];
@@ -86,12 +89,14 @@ class SelfServiceEditOrderService
                 $this->sendConfirmationToNewEmail($order->getId(), $event);
             }
 
-            $this->sendChangeNotificationToOldEmail(
-                oldEmail: $oldEmail,
-                event: $event,
-                oldValues: $oldValues,
-                newValues: $newValues
-            );
+            if ($notify && trim((string) $oldEmail) !== '') {
+                $this->sendChangeNotificationToOldEmail(
+                    oldEmail: $oldEmail,
+                    event: $event,
+                    oldValues: $oldValues,
+                    newValues: $newValues
+                );
+            }
 
             $this->orderAuditLogService->logOrderUpdate(
                 order: $order,
@@ -144,6 +149,10 @@ class SelfServiceEditOrderService
         array $oldValues,
         array $newValues
     ): void {
+        if ($this->emailSuppressionService->isEmailSuppressed($oldEmail, (int) $event->getAccountId(), 'transactional')) {
+            return;
+        }
+
         $changedFields = $this->formatChangedFields($oldValues, $newValues);
 
         Mail::to($oldEmail)->queue(new OrderDetailsChangedMail(

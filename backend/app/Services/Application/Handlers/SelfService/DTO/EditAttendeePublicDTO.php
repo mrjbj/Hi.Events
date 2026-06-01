@@ -17,6 +17,7 @@ class EditAttendeePublicDTO extends BaseDataObject
         public readonly ?string $userAgent,
         public readonly ?string $seatInfo = null,
         public readonly ?bool $confirmAtCheckin = null,
+        public readonly bool $notifyEmailChange = true,
     ) {
     }
 }

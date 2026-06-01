@@ -19,6 +19,7 @@ use HiEvents\Services\Domain\Attendee\BundleSeatInfoPropagationService;
 use HiEvents\Services\Domain\Contact\AttendeeContactLinkResolver;
 use HiEvents\Services\Domain\Contact\ContactSignedTokenService;
 use HiEvents\Services\Domain\Contact\DTO\AttendeeContactResolutionDTO;
+use HiEvents\Services\Domain\Email\EmailSuppressionService;
 use Illuminate\Support\Facades\Mail;
 use Mockery as m;
 use Psr\Log\LoggerInterface;
@@ -59,6 +60,9 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
         $this->logger = m::mock(LoggerInterface::class);
         $this->logger->shouldReceive('warning')->byDefault();
 
+        $emailSuppressionService = m::mock(EmailSuppressionService::class);
+        $emailSuppressionService->shouldReceive('isEmailSuppressed')->byDefault()->andReturn(false);
+
         $this->handler = new PatchCheckInListAttendeePublicHandler(
             $this->attendeeRepository,
             $this->checkInListRepository,
@@ -66,6 +70,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
             $this->eventRepository,
             $this->contactLinkResolver,
             $this->contactTokenService,
+            $emailSuppressionService,
             $this->logger,
         );
     }
@@ -356,6 +361,7 @@ class PatchCheckInListAttendeePublicHandlerTest extends TestCase
         $event = m::mock(EventDomainObject::class);
         $event->shouldReceive('getAccountId')->andReturn(1);
         $event->shouldReceive('getOrganizer')->andReturn($organizer);
+        $event->shouldReceive('getAccountId')->andReturn(1);
         $event->shouldReceive('getEventSettings')->andReturn($eventSettings);
 
         $refreshedAttendee = m::mock(AttendeeDomainObject::class);

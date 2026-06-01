@@ -30,7 +30,8 @@ class EditOrderPublicHandler
             lastName: $dto->lastName,
             email: $dto->email,
             ipAddress: $dto->ipAddress,
-            userAgent: $dto->userAgent
+            userAgent: $dto->userAgent,
+            notify: $dto->notifyEmailChange,
         );
     }
 }

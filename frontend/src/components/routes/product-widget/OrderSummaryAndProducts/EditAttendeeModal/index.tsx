@@ -50,7 +50,7 @@ interface EditAttendeeModalProps {
      * to a different contact due to an email change). The modal then uses that
      * token to save registration-question attributes against the new contact.
      */
-    editAttendeeAsync: (data: { first_name?: string; last_name?: string; email?: string; confirm_at_checkin?: boolean }) => Promise<SelfServiceUpdateResult>;
+    editAttendeeAsync: (data: { first_name?: string; last_name?: string; email?: string; confirm_at_checkin?: boolean; notify_email_change?: boolean }) => Promise<SelfServiceUpdateResult>;
 }
 
 /**
@@ -77,6 +77,7 @@ export const EditAttendeeModal = ({
                                   }: EditAttendeeModalProps) => {
     const queryClient = useQueryClient();
     const [submitting, setSubmitting] = useState(false);
+    const [notifyEmailChange, setNotifyEmailChange] = useState(true);
     const form = useForm({
         initialValues: {
             first_name: attendee.first_name,
@@ -114,8 +115,9 @@ export const EditAttendeeModal = ({
 
         // Mirror the check-in door: when the email actually changes and there
         // was a previous address on file, warn that the old address will be
-        // notified before we send anything.
-        if (emailChanged && oldEmail) {
+        // notified before we send anything — unless the operator turned the
+        // notification off.
+        if (emailChanged && oldEmail && notifyEmailChange) {
             confirmationDialog(
                 t`The current address (${oldEmail}) will be emailed to let them know the ticket's email address has changed. Continue?`,
                 () => void performSave(values),
@@ -139,6 +141,7 @@ export const EditAttendeeModal = ({
                 last_name: values.last_name,
                 email: values.email,
                 confirm_at_checkin: values.confirm_at_checkin,
+                notify_email_change: notifyEmailChange,
             });
 
             // 2. If we have any contact token (the new one from the response,
@@ -212,6 +215,16 @@ export const EditAttendeeModal = ({
                         description={t`When on, check-in staff are prompted to confirm this attendee's details at the door.`}
                         {...form.getInputProps('confirm_at_checkin', {type: 'checkbox'})}
                     />
+
+                    {!!form.values.email && form.values.email !== attendee.email && (
+                        <Switch
+                            mt="md"
+                            label={t`Notify the previous email address`}
+                            description={t`When on, the current address is emailed that the ticket's email changed. Turn off for silent back-office corrections.`}
+                            checked={notifyEmailChange}
+                            onChange={(e) => setNotifyEmailChange(e.currentTarget.checked)}
+                        />
+                    )}
 
                     {profileEntry && attributeDefinitions.length > 0 && (
                         <>

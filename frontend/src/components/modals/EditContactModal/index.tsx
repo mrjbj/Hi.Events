@@ -9,7 +9,9 @@ import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHa
 import {showSuccess} from "../../../utilites/notifications.tsx";
 import {t} from "@lingui/macro";
 import {useGetContactAttributeDefinitions} from "../../../queries/useGetContactAttributeDefinitions.ts";
+import {useIsCurrentUserSuperAdmin} from "../../../hooks/useIsCurrentUserAdmin.ts";
 import {AttributeHistoryPanel} from "./AttributeHistoryPanel";
+import {ContactNeverEmailToggle} from "./ContactNeverEmailToggle";
 import classes from "./EditContactModal.module.scss";
 
 interface EditContactModalProps extends GenericModalProps {
@@ -20,6 +22,7 @@ export const EditContactModal = ({contact, onClose}: EditContactModalProps) => {
     const updateMutation = useUpdateContact();
     const formErrorHandler = useFormErrorResponseHandler();
     const {data: definitionsData} = useGetContactAttributeDefinitions();
+    const isSuperAdmin = useIsCurrentUserSuperAdmin();
     const activeDefinitions = definitionsData?.data?.filter(d => d.is_active) ?? [];
     // Guard against legacy double-encoded history values (rare prod data) that
     // arrive as a string — accessing .length on a string returns its char
@@ -86,6 +89,9 @@ export const EditContactModal = ({contact, onClose}: EditContactModalProps) => {
                         disabled
                         mb="sm"
                     />
+                    {isSuperAdmin && contact.email && (
+                        <ContactNeverEmailToggle email={contact.email}/>
+                    )}
                     <TextInput
                         label={t`First Name`}
                         placeholder={t`First Name`}

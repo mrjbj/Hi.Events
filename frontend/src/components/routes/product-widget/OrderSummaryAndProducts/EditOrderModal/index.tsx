@@ -1,5 +1,5 @@
 import {t} from "@lingui/macro";
-import {Alert, Button, Group, Modal, Text, TextInput} from "@mantine/core";
+import {Alert, Button, Group, Modal, Switch, Text, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {IconInfoCircle} from "@tabler/icons-react";
 import {Order} from "../../../../../types";
@@ -24,6 +24,7 @@ export const EditOrderModal = ({
             first_name: order.first_name,
             last_name: order.last_name,
             email: order.email,
+            notify_email_change: true,
         },
         validate: {
             first_name: (value) => !value ? t`First name is required` : null,
@@ -78,6 +79,15 @@ export const EditOrderModal = ({
                                 {t`Important: Changing your email address will update the link to access this order. You will be redirected to the new order link after saving.`}
                             </Text>
                         </Alert>
+                    )}
+
+                    {emailChanged && (
+                        <Switch
+                            mb="md"
+                            label={t`Notify the previous email address`}
+                            description={t`When on, the current address is emailed that the order's email changed. Turn off for silent back-office corrections.`}
+                            {...form.getInputProps('notify_email_change', {type: 'checkbox'})}
+                        />
                     )}
 
                     <Group justify="flex-end" gap="sm" mt="md">
