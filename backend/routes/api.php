@@ -344,6 +344,7 @@ $router->middleware(['auth:api'])->group(
         $router->get('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\GetContactAction::class);
         $router->put('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\UpdateContactAction::class);
         $router->delete('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\DeleteContactAction::class);
+        $router->post('/accounts/{account_id}/contacts/{contact_id}/merge', \HiEvents\Http\Actions\Contacts\MergeContactsAction::class);
         $router->get('/accounts/{account_id}/contacts/backfill/summary', \HiEvents\Http\Actions\Contacts\GetBackfillSummaryAction::class);
         $router->get('/accounts/{account_id}/contacts/backfill/unlinked-attendees', \HiEvents\Http\Actions\Contacts\GetUnlinkedAttendeesBackfillAction::class);
         $router->get('/accounts/{account_id}/contacts/backfill/unmapped-questions', \HiEvents\Http\Actions\Contacts\GetUnmappedQuestionsBackfillAction::class);

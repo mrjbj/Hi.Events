@@ -27,6 +27,13 @@ export const contactClient = {
     delete: async (accountId: IdParam, contactId: IdParam) => {
         return await api.delete(`accounts/${accountId}/contacts/${contactId}`);
     },
+    merge: async (accountId: IdParam, survivorId: IdParam, sourceContactId: IdParam) => {
+        const response = await api.post<GenericDataResponse<Contact>>(
+            `accounts/${accountId}/contacts/${survivorId}/merge`,
+            {source_contact_id: sourceContactId},
+        );
+        return response.data;
+    },
     backfillSummary: async (accountId: IdParam): Promise<{ data: ContactBackfillSummary }> => {
         const response = await api.get<{ data: ContactBackfillSummary }>(
             `accounts/${accountId}/contacts/backfill/summary`,

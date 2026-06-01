@@ -1,7 +1,7 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
 import {ActionIcon, Alert, Button, Group, Select, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
-import {IconPencil, IconSearch, IconSortAscending, IconSortDescending, IconTrash} from "@tabler/icons-react";
+import {IconArrowMerge, IconPencil, IconSearch, IconSortAscending, IconSortDescending, IconTrash} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
 import {Card} from "../../../common/Card";
 import {Pagination} from "../../../common/Pagination";
@@ -15,6 +15,7 @@ import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
 import {confirmationDialog} from "../../../../utilites/confirmationDialog.tsx";
 import {CreateContactModal} from "../../../modals/CreateContactModal";
 import {EditContactModal} from "../../../modals/EditContactModal";
+import {MergeContactModal} from "../../../modals/MergeContactModal";
 
 interface SortableThProps {
     label: string;
@@ -45,6 +46,7 @@ export const ContactsTab = () => {
     const [sortDir, setSortDir] = useState('desc');
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
     const [editModalOpen, {open: openEditModal, close: closeEditModal}] = useDisclosure(false);
+    const [mergeModalOpen, {open: openMergeModal, close: closeMergeModal}] = useDisclosure(false);
     const [selectedContact, setSelectedContact] = useState<Contact>();
 
     const eventsQuery = useGetEvents({pageNumber: 1, perPage: 100});
@@ -92,6 +94,11 @@ export const ContactsTab = () => {
     const handleEdit = (contact: Contact) => {
         setSelectedContact(contact);
         openEditModal();
+    };
+
+    const handleMerge = (contact: Contact) => {
+        setSelectedContact(contact);
+        openMergeModal();
     };
 
     const handleDelete = (contact: Contact) => {
@@ -177,6 +184,15 @@ export const ContactsTab = () => {
                                                         <IconPencil size={16}/>
                                                     </ActionIcon>
                                                 </Tooltip>
+                                                <Tooltip label={t`Merge duplicate`}>
+                                                    <ActionIcon
+                                                        variant="subtle"
+                                                        onClick={() => handleMerge(contact)}
+                                                        aria-label={t`Merge duplicate into this contact`}
+                                                    >
+                                                        <IconArrowMerge size={16}/>
+                                                    </ActionIcon>
+                                                </Tooltip>
                                                 <Tooltip label={t`Delete`}>
                                                     <ActionIcon
                                                         variant="subtle"
@@ -207,6 +223,7 @@ export const ContactsTab = () => {
 
             {createModalOpen && <CreateContactModal onClose={closeCreateModal}/>}
             {editModalOpen && selectedContact && <EditContactModal contact={selectedContact} onClose={closeEditModal}/>}
+            {mergeModalOpen && selectedContact && <MergeContactModal survivor={selectedContact} onClose={closeMergeModal}/>}
         </>
     );
 };

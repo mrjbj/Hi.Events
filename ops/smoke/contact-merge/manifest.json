@@ -1,0 +1,44 @@
+{
+  "title": "Smoke Test — Contact merge (with database before/after)",
+  "subtitle": "User story: an operator folds a duplicate contact into the survivor. Shows the survivor-wins gap-fill preview, the merge audit entry, and the exact database key/relationship changes — including the attendee 'merged away' from the duplicate onto the survivor (its order history follows).",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Branch": "jbj/local",
+    "User": "playwright@hi-events.test (ADMIN on account 39)",
+    "Fixture": "survivor #658 (Roark, no last name, empty County) · duplicate #659 (Roark Jones, County=Hall, Role=Volunteer) · attendee #305 'ana joens' (order #226) linked to the duplicate",
+    "Story": "Search duplicates → Merge on the survivor → pick the duplicate → preview gap-fills → confirm → duplicate gone + history entry + DB relationships rewired",
+    "DB checks": "attendee.contact_id 659→658 · survivor last_name null→Jones, County ''→Hall, Role ∅→Volunteer · survivor attributes_history 0→1 (merge marker) · duplicate.deleted_at set (soft-deleted, email freed)"
+  },
+  "steps": [
+    {
+      "title": "1 · Two duplicate contacts",
+      "description": "Searching 'roark' surfaces the survivor (roark.survivor@realmail.test, no last name) and the duplicate (roark.dup@realmail.test, 'Jones'). The operator clicks the merge icon on the survivor row.",
+      "status": "info",
+      "screenshot": "shots/02-contacts-before.png"
+    },
+    {
+      "title": "2 · Merge preview (survivor-wins, fill gaps)",
+      "description": "Pick the duplicate to fold in. The preview spells out exactly what changes: the survivor keeps its own values and only its EMPTY fields are filled from the duplicate — Last name: Jones, Role: Volunteer, County: Hall. It also states the duplicate's attendees/order history move over and the duplicate is removed.",
+      "status": "pass",
+      "screenshot": "shots/03-merge-preview.png"
+    },
+    {
+      "title": "3 · Duplicate removed",
+      "description": "After confirming, re-searching 'roark' shows only the survivor — the duplicate is soft-deleted and gone from the list (its email is freed for reuse). The survivor's Last Name now reads 'Jones' (gap-filled).",
+      "status": "pass",
+      "screenshot": "shots/04-contacts-after.png"
+    },
+    {
+      "title": "4 · Merge recorded in the survivor's history",
+      "description": "The survivor's History tab gains a 'Merged from duplicate' entry (Source: Merge), recording the duplicate's email and the fields it filled (last_name, Role, County) for the audit trail.",
+      "status": "pass",
+      "screenshot": "shots/05-survivor-history.png"
+    },
+    {
+      "title": "5 · Database — exactly what changed",
+      "description": "The payoff: the attendee that belonged to the duplicate (#305) has its contact_id rewired 659→658, so its order (#226) history now hangs off the survivor. The survivor's empty fields are gap-filled, it gains a merge history event, and the duplicate's deleted_at is set (soft delete). Green cells are the values the merge changed.",
+      "status": "pass",
+      "screenshot": "shots/01-db-diff.png"
+    }
+  ]
+}

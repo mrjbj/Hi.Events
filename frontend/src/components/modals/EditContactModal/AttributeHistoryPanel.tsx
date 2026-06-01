@@ -17,6 +17,7 @@ interface HistoryRow {
     changedBy: number | null;
     sourceQuestionAnswerIds?: number[];
     isEmailChange?: boolean;
+    isMerge?: boolean;
     reason?: string;
 }
 
@@ -58,6 +59,24 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
         const history: ContactAttributeChange[] = Array.isArray(raw) ? raw : [];
         const emitted: HistoryRow[] = [];
         history.forEach(change => {
+            // Merge entries record that a duplicate contact was folded in:
+            // {type:'merge', merged_email, gap_fills, at}.
+            const mergeChange = change as unknown as {type?: string; merged_email?: string; gap_fills?: string[]; at?: string};
+            if (mergeChange.type === 'merge') {
+                const fills = mergeChange.gap_fills ?? [];
+                emitted.push({
+                    changedAt: mergeChange.at ?? change.changed_at ?? '',
+                    attributeName: '__merge__',
+                    attributeLabel: t`Merged from duplicate`,
+                    isDefinitionMissing: false,
+                    oldValue: mergeChange.merged_email ?? null,
+                    newValue: fills.length > 0 ? fills.join(', ') : t`(no fields filled)`,
+                    changedBy: null,
+                    isMerge: true,
+                });
+                return;
+            }
+
             // Email-change entries use a flat {field, old_value, new_value, reason}
             // shape rather than the attribute old_values/new_values map.
             if (change.field === 'email') {
@@ -193,7 +212,9 @@ export const AttributeHistoryPanel = ({contact}: { contact: Contact }) => {
                                     </Tooltip>
                                 </Table.Td>
                                 <Table.Td>
-                                    {row.isEmailChange ? (
+                                    {row.isMerge ? (
+                                        <Badge size="sm" variant="light" color="grape">{t`Merge`}</Badge>
+                                    ) : row.isEmailChange ? (
                                         <Tooltip label={row.reason ? t`Reason: ${row.reason}` : t`Email address change`} withArrow>
                                             <Badge size="sm" variant="light" color="violet">{t`Email change`}</Badge>
                                         </Tooltip>
