@@ -15,6 +15,8 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 
 - [ ] **Admin email suppression** — let admins stop outbound notifications when editing email addresses. Re-scoped after a code dig: admin back-office edits already send no email, so only a **per-action toggle** on the public self-service edit modals + check-in door is needed; the global session kill-switch was dropped as a footgun. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (2026-05-31)
 
+- [ ] **Persistent email-suppression flag (address-keyed)** — a suppression list that marks specific addresses as "never email", honored across **both** marketing/announcements and transactional sends. Placeholder addresses (e.g. `unknown@unknown.com`) should be suppressed always/by default. Distinct from the per-action toggle above; complements the existing SES bounce/complaint suppression in `TransactionalEmailTrackingService`. ([design](./backlog-designs.md#8-persistent-email-suppression-flag-address-keyed)) (2026-06-01)
+
 - [ ] **Bug: kebab click injects a stray char into the Orders filter** — intermittently, after setting a filter on the Orders page, clicking the "Manage order" kebab drops a random character into the *start* of the filter input (as if typed), which re-filters and hides the row the operator was acting on; they must re-enter the filter. Works on the next try. Likely a focus/keydown leak — the kebab-trigger keypress (or an autofocus stealing the event) is routed into the still-focused search field. ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (2026-05-31)
 
 ## Shipped

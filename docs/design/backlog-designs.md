@@ -419,6 +419,112 @@ mechanism is confirmed — almost certainly hypothesis 1.
 
 ---
 
+## 8. Persistent email-suppression flag (address-keyed)
+
+**Problem.** Need a durable, address-keyed **"never email this address"** list that holds
+across **both** marketing and transactional sends, plus default suppression of placeholder
+junk (e.g. `unknown@unknown.com` from the bulk admin-entered orders). Distinct from the
+per-action toggle (§5, "don't fire *this* notification") and complementary to the existing
+SES bounce/complaint suppression.
+
+**Decisions (confirmed 2026-06-01).** Extend the existing SUPERADMIN suppressions screen
+with a "Do not contact" reason **and** add an inline "Never email this address" toggle on
+the Contact edit modal · do-not-contact/placeholder suppression is **always-on** (decoupled
+from the SES feature flag) · placeholder set is a **configurable pattern list**.
+
+**This is mostly an *extend*, not a *build* — the infra already exists:**
+- `email_suppressions` table (`account_id` nullable, soft-delete, unique on
+  `email + account_id + reason`).
+- `EmailSuppressionReasonEnum` (`BOUNCE`, `COMPLAINT`) ·
+  `EmailSuppressionSourceEnum` (`SES_NOTIFICATION`, `MANUAL`, `MANUAL_RESOLVE`).
+- `EmailSuppressionService::isEmailSuppressed()` / `suppressEmail()` / `removeSuppression()`
+  (`app/Services/Domain/Email/EmailSuppressionService.php`).
+- SUPERADMIN endpoints `GET/POST/DELETE /admin/email-suppressions`
+  (`app/Http/Actions/Admin/EmailSuppressions/*`); `CreateEmailSuppressionAction` currently
+  restricts `reason` to bounce|complaint and creates a **global** (`account_id = null`),
+  `source = manual` row.
+- Chokepoints already consult suppression: `TransactionalEmailTrackingService::recordAndSend()`
+  (`:40`, type `transactional`), `SendEventEmailJob` (`:41`, `marketing`),
+  `SendEventEmailMessagesService::sendMessage()` (`:433`, `marketing`).
+- **Gaps:** no clean "do not contact" reason (today you'd fake a Permanent bounce); all
+  suppression is gated behind `config('services.ses.suppression_enabled')`; three
+  change-notification sends bypass suppression entirely (same as §5):
+  `SelfServiceEditAttendeeService:242`, `SelfServiceEditOrderService:149`,
+  `PatchCheckInListAttendeePublicHandler:189`. No system-generated placeholder emails exist
+  (blank emails are simply skipped), so "placeholders" = admin-entered junk addresses.
+
+**Approach — backend.**
+1. **New reason** `DO_NOT_CONTACT = 'do_not_contact'` on `EmailSuppressionReasonEnum`.
+2. **`isEmailSuppressed()` — suppress-all + decouple from the SES flag.** Restructure so the
+   flag gates *only* the bounce/complaint evaluation; the new checks run unconditionally:
+   ```
+   $email = strtolower($email);
+   if ($this->isPlaceholderAddress($email)) return true;          // always-on
+   if ($this->hasReason($email, $accountId, DO_NOT_CONTACT)) return true; // always-on, all types
+   if (! config('services.ses.suppression_enabled')) return false;
+   … existing bounce/complaint logic …                            // unchanged
+   ```
+   `DO_NOT_CONTACT` suppresses both `marketing` and `transactional` (like a Permanent
+   bounce), independent of `bounce_type`.
+3. **Placeholder check** `isPlaceholderAddress(string $email): bool` — glob-match against a
+   config list `config('mail.suppressed_address_patterns')`, defaulting to
+   `['unknown@unknown.com', '*@unknown', '*@example.com', '*@noemail.*']` (lowercased;
+   `fnmatch`-style). No DB row needed. Keep the default conservative so it can't match real
+   addresses.
+4. **Close the three bypass sites** for the persistent list: wrap each `Mail::...->queue()`
+   in `if (! $this->emailSuppressionService->isEmailSuppressed($oldEmail, $accountId, 'transactional'))`.
+   A placeholder/do-not-contact old address should never be mailed even a change-notice.
+   (Each site already has the account in scope; pass `null` if not — global/placeholder
+   still match.) Note this overlaps §5's three sites; do whichever feature lands first and
+   the other reuses the guard.
+5. **Admin create endpoint** — extend `CreateEmailSuppressionAction` + its request to accept
+   `reason = do_not_contact` (bounce_type/complaint_type N/A for it); keep `source = manual`,
+   `account_id = null` (global) to match today. (Per-account scoping is a deliberate
+   follow-up, below.)
+
+**Approach — frontend.**
+1. **Superadmin suppressions screen** (the React screen backing `/admin/email-suppressions`):
+   add "Do not contact" to the reason filter and the create-form reason dropdown. Translate
+   immediately (English only).
+2. **Contact edit modal** (`EditContactModal`, email field is read-only): add a **"Never
+   email this address"** switch acting on the contact's email. A small query reports current
+   `do_not_contact` state; toggling on → `POST` a do-not-contact suppression, off → `DELETE`
+   it. New `useToggleEmailSuppression` mutation + a state query; `showSuccess`/`showError`.
+
+**Edge cases & caveats.**
+- **Suppress-all blocks transactional too** — including password-reset and order-confirmation
+  emails. That's the point for placeholders; for a *real* do-not-contact address it means no
+  receipts/resets either. Acceptable per the spec; call it out in the toggle's helper text.
+- **Permission scope:** the contact toggle reuses the **SUPERADMIN-only** admin endpoints —
+  fine for District11's superadmin operator, but a non-superadmin account admin couldn't use
+  it. A per-account suppression endpoint + per-account `account_id` rows is the multi-tenant
+  follow-up (deliberately out of scope here).
+- **Coexistence:** `unique(email, account_id, reason)` lets a `do_not_contact` row coexist
+  with SES `bounce`/`complaint` rows for the same address — don't collapse them.
+- **Attendee→contact fallback:** `resolveAttendeeEmail()` already checks transactional
+  suppression; a `do_not_contact` on the contact email correctly suppresses the fallback too.
+- **Un-suppress** = soft-delete via `removeSuppression()`; the toggle-off path must target the
+  `do_not_contact` reason specifically (not the address's bounce rows).
+- Case-insensitive throughout (service already lowercases).
+
+**Test plan** (Unit, Mockery / `DatabaseTransactions`):
+- `do_not_contact` row → suppresses both `marketing` and `transactional`, **even when
+  `ses.suppression_enabled = false`**.
+- `isPlaceholderAddress` matches each default pattern, is case-insensitive, and does **not**
+  match a normal address; placeholder returns suppressed with **no DB row** and regardless of
+  the flag.
+- Existing bounce/complaint behaviour unchanged when the flag is on; gated off when off —
+  while do-not-contact/placeholder still suppress.
+- `CreateEmailSuppressionRequest` accepts `do_not_contact`.
+- Each of the three bypass sites: no mail queued when the old email is placeholder /
+  do-not-contact.
+
+**Effort.** ~1.5–2 days (enum + service restructure + config + 3 bypass guards + endpoint/
+request extension + superadmin UI option + contact toggle/mutation/query + tests). Smaller if
+§5 already landed the three bypass guards.
+
+---
+
 ## Suggested build order
 
 1. **Esc-clears-filters** and **settled-guard** — small, frontend-only, ship together.
