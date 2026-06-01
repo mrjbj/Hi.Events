@@ -36,9 +36,16 @@ first — §5 status matrix, §10 phase log).
     correction Phase A (see "Next" below).
 14. `skills update` (`6f566456`).
 15. `feat(dashboard): Event Reconciliation widget with by-channel breakdown` (`a2c0ec34`) — gross
-    vs payments vs cash-expected, per-channel. **Last committed work. NOTE: its
-    `EventReconciliationService` still reads `orders.offline_payment_method` in raw SQL — this is
-    the blocker described in the in-flight section below.**
+    vs payments vs cash-expected, per-channel.
+16. `refactor(orders): split ledger transaction_type/payment_method + drop legacy offline columns`
+    (`b7b51df9`) — **the split + offline-column cleanup, landed as one unit** (see below). Splits
+    `order_payments.type` into `transaction_type` (PAYMENT|DONATION|COMP|WRITE_OFF) + `payment_method`
+    (CASH|CHECK|CREDIT_CARD|BANK_TRANSFER|OTHER, null for comp/write-off), renames enum
+    `OrderPaymentType`→`PaymentTransactionType`, rewrites `EventReconciliationService` to derive
+    channel from the ledger `payment_method`, and drops `orders.offline_payment_method`/
+    `offline_payment_reference` + the dead `order_payment_adjustments` table.
+17. `ops(sql): archive District11 brunch order-total recovery script` (`3297f60a`) — moved the
+    one-off `2026-05-30_brunch-cleanup.sql` into `ops/sql/` as history. **Last committed work.**
 
 ## Status
 
@@ -68,13 +75,14 @@ first — §5 status matrix, §10 phase log).
   struck-through + "Reversed" badge; `useReverseOrderPayment`. Also accentuated the low-emphasis
   "Comp remaining" control (dashed border + gift icon). Tests: `ReverseOrderPaymentServiceTest` (7),
   `ReverseOrderPaymentRequestTest` (2); full Unit suite **627 green**. Smoke (6 steps, all pass):
-  `ops/smoke/payment-reversal/`. **Note:** running `generate-domain-objects` regenerated the
-  `OrderPaymentAdjustment*` domain-object classes (table not yet dropped — §8.1); they were deleted
-  from this commit and will keep reappearing until the table is dropped.
+  `ops/smoke/payment-reversal/`. (The `OrderPaymentAdjustment*` domain-object classes that used to
+  regenerate are gone for good now that the table was dropped in `b7b51df9`.)
 - **Migrations are schema-only** (operator preference) — data backfill/cleanup is manual:
   - Run `ops/sql/backfill_order_payments.sql` by hand on prod for the few pre-ledger
     pay-at-check-in orders (else their balance reads as fully outstanding).
-  - Drop the `order_payment_adjustments` table by hand when ready (§8.1 of the design doc).
+  - (The `order_payment_adjustments` table is now dropped via migration `2026_06_01_000100` in
+    `b7b51df9` — no longer a manual step. The type-split migration `2026_06_02_000000` *does* backfill
+    `order_payments` rows automatically, the one exception to schema-only.)
 - **Locked decisions:** refunds stay in their own lane (`order_refunds` + `orders.total_refunded`
   cached rollup; balance reads the rollup ONLY — never sums both); rich payment UX (comp/
   donation/arbitrary) is **authenticated Manage-Order only**, NOT the unauthenticated public
@@ -82,55 +90,39 @@ first — §5 status matrix, §10 phase log).
 - **Verified:** full Unit suite 610 green; 125 Order tests across unit+feature; live browser
   smoke of record-payment + comp-remainder round trip.
 
-## In-flight: `order_payments` type-split + offline-column cleanup (DIRTY TREE — do NOT commit yet)
+## DONE: `order_payments` type-split + offline-column cleanup (landed `b7b51df9`, 2026-05-31)
 
-**As of 2026-05-31 the working tree mixes TWO intermingled, uncommitted efforts in one checkout.
-Do not commit or stash until the split (#1) is complete and validated — a stash would capture
-both, and a commit would ship a broken intermediate.**
+**The two formerly-intermingled efforts landed together as one coherent commit (`b7b51df9`).** The
+working tree is clean; nothing here is in-flight. What shipped:
 
-1. **`order_payments` type-split (parallel session — the primary in-flight refactor).** Splits the
-   overloaded `order_payments.type` into **`transaction_type`** (PAYMENT|DONATION|COMP|WRITE_OFF) +
-   **`payment_method`** (CASH|CHECK|CARD|BANK_TRANSFER|OTHER, nullable for comp/write-off). Renames
-   enum `OrderPaymentType` → `PaymentTransactionType`. Migration
-   `2026_06_02_000000_split_order_payments_type_into_transaction_type_and_method.php`. Touches every
-   ledger writer/reader: `OrderBalanceService`, `RecordOrderPaymentService`(+Action/Request/DTO/
-   Handler), `ReverseOrderPaymentService`, `CreateAttendeeCheckInService`, `OrderPaymentResource`,
-   `MarkOrderAsPaidService`, `EventReconciliationService`, `OrderPaymentManagement`, `types.ts`.
-   Locked decisions: reversals stay negative-amount + `reverses_payment_id` (**no** REFUND type);
-   DONATION **requires** a `payment_method`; full end-to-end build. **This rewrites
-   `EventReconciliationService::ORDER_CHANNEL_SQL` to derive channel from the ledger `payment_method`
-   instead of `orders.offline_payment_method` — which is exactly what unblocks the column drop (#2).**
+1. **`order_payments` type-split.** The overloaded `order_payments.type` is now two orthogonal axes:
+   **`transaction_type`** (PAYMENT|DONATION|COMP|WRITE_OFF, not null) + **`payment_method`**
+   (CASH|CHECK|CREDIT_CARD|BANK_TRANSFER|OTHER, null for comp/write-off — the `OfflinePaymentMethod`
+   enum is reused for this axis). Enum `OrderPaymentType` renamed to `PaymentTransactionType` (and the
+   old CARD↔CREDIT_CARD conversion is gone). Migration `2026_06_02_000000_split_…`. Reversals copy
+   both axes (negative amount + `reverses_payment_id`; **no** REFUND type); DONATION **requires** a
+   `payment_method`. `EventReconciliationService` now derives channel from the ledger `payment_method`
+   — that removed the last reader of the offline columns, which is what unblocked the drop (#2).
 
-2. **Offline-column + adjustments-table cleanup (this thread).** Drops fork-only
-   `orders.offline_payment_method` + `offline_payment_reference` and the dead
-   `order_payment_adjustments` table. Migrations `2026_06_01_000000_drop_offline_payment_columns_from_orders_table.php`
-   + `2026_06_01_000100_drop_order_payment_adjustments_table.php` (**both already run in the dev DB**).
-   Code edits: `OrderResource` (drop 2 fields), `MarkOrderAsPaidService` (drop the offline-column
-   writes; rename `updateOrderStatusAndMethod`→`updateOrderStatusAndProvider`), `OrderDomainObjectAbstract`
-   (regenerated — offline getters/consts gone), `MarkOrderAsPaidServiceTest` (assertions re-homed to
-   the ledger row — 3/3 green), `OrderDetails/index.tsx` (drop helper + display blocks). The `types.ts`
-   offline-field removal already rode into commit `a2c0ec34`. Orphaned `OrderPaymentAdjustment*`
-   domain-object files deleted. Validation done in isolation: pint clean, unit test green, my two
-   frontend files add zero `tsc` errors (frontend baseline has ~92 pre-existing dep/WIP errors).
+2. **Offline-column + adjustments-table cleanup.** Dropped fork-only `orders.offline_payment_method`
+   + `offline_payment_reference` and the dead `order_payment_adjustments` table. Migrations
+   `2026_06_01_000000_drop_offline_payment_columns…` + `2026_06_01_000100_drop_order_payment_adjustments…`.
+   `OrderResource` / `OrderDetails` lost the 2 fields + display blocks; `MarkOrderAsPaidService` no
+   longer writes the offline columns.
 
-**Why blocked / sequencing:** dropping `orders.offline_payment_method` **500s the reconciliation
-widget** while `EventReconciliationService::ORDER_CHANNEL_SQL` (raw SQL, ~lines 38-44) still reads it.
-The split (#1) removes that last reader. So **land + validate the split first, then the column drop is
-safe.** Also `SmokeReversalFixtureCommand.php:175` still *writes* `offline_payment_method='CASH'` —
-fix/remove before the drop. The `order_payment_adjustments` drop is independent and safe anytime.
+**Validation (combined tree):** zero `offline_payment_method`/`offline_payment_reference` refs in
+`backend/app`; zero old `OrderPaymentType` refs; no `OrderPaymentAdjustment*` files linger; pint clean
+on hand-written files (the two `Generated/` abstracts flag `class_attributes_separation`, a
+generator-wide quirk — never hand-edit them); 67 focused Order/Check-in/Reconciliation units green +
+the parallel session's full **634 Unit green** + `tsc` clean on this checkout. Locales re-extracted
+(English populated, non-English left empty per convention).
 
-**Remaining steps to finish the cleanup (after the split lands):**
-1. `grep -rn 'offline_payment_method\|offline_payment_reference' backend/app` → must be **zero** (the
-   reconciliation raw SQL + `SmokeReversalFixtureCommand` are the known holdouts; the
-   `EventSetting` `offline_payment_instructions` field is a different, unrelated column — leave it).
-2. Confirm `EventReconciliationService` channel + donation/comp breakdowns derive from
-   `transaction_type`/`payment_method`; `EventReconciliationServiceTest` green.
-3. Keep migrations `2026_06_01_000000` + `000100`; re-run `migrate` + `generate-domain-objects`;
-   verify `OrderDomainObjectAbstract` has no offline fields and no `OrderPaymentAdjustment*` files
-   reappear (they regenerate while the table exists — drop runs in `000100`).
-4. `pint --test` + Unit suite green; frontend `tsc` (only that my files add no new errors).
-5. Commit the cleanup **with or after** the split as one coherent unit. Deploy: backup → `migrate`
-   (drops the 2 columns + `order_payment_adjustments` **incl. its 5 prod rows** — intended) → verify.
+**⚠️ NOT YET DEPLOYED — these are live schema migrations.** Prod deploy (the only remaining step):
+backup → `migrate` (runs `2026_06_01_000000` drop-offline-columns, `2026_06_01_000100`
+drop-`order_payment_adjustments` **incl. its 5 prod recovery rows — intended**, `2026_06_02_000000`
+type-split + backfill of existing `order_payments` rows) → verify the reconciliation widget loads.
+The split's backfill maps each existing `type` to the new two-axis pair, so post-migrate balances and
+channel attribution should be unchanged.
 
 **District11 prod data cleanup — DONE & verified (2026-05-31).** The 5 adjustment-mangled door orders
 had totals restored to the canonical $15 (600/669/671/674 via hand SQL; 599 already $15), then those 5
@@ -143,7 +135,11 @@ display-only; leave-vs-backfill deferred (memory `district11-manually-created-pa
 
 ## Next
 
-Money-correction plan (agreed this session) — **A → B → C**, A & B done, C deferred:
+**Immediate: deploy the split + cleanup to prod** (`b7b51df9`) — see the deploy note in the "DONE"
+section above (backup → `migrate` → verify reconciliation widget). It's the only step between the
+committed work and prod. Everything below is lower-urgency follow-up.
+
+Money-correction plan (agreed earlier) — **A → B → C**, A & B done, C deferred:
 
 - **A (DONE, `b33a7db4`) — relocate the existing Refund UX into the payments panel.** Surfaced
   `RefundOrderModal` (unchanged: partial + full + notify + cancel) inside `OrderPaymentManagement`
@@ -224,21 +220,18 @@ not yarn. `mix assets.build`/`ash.migrate` global notes do NOT apply here (Larav
 ## Revival prompt (paste after `/clear`)
 
 > Resume the Hi.Events payments-ledger work on branch `jbj/local`. Read
-> `docs/design/SESSION-HANDOFF.md` — **especially the "In-flight: `order_payments` type-split +
-> offline-column cleanup" section** — and `docs/design/payment-at-checkin-ledger.md` first.
-> **The working tree is DIRTY with TWO intermingled, uncommitted efforts. Do NOT commit or stash
-> until you confirm the split below is complete and validated.** (1) A parallel session is
-> splitting `order_payments.type` into `transaction_type` + `payment_method` (renames enum
-> `OrderPaymentType`→`PaymentTransactionType`, migration `2026_06_02_000000…`, and rewrites
-> `EventReconciliationService` to derive channel from the ledger). (2) This thread drops fork-only
-> `orders.offline_payment_method`/`offline_payment_reference` + the `order_payment_adjustments`
-> table (migrations `2026_06_01_000000`/`000100`, already run in dev). The column drop is
-> **sequenced behind** the split: dropping `offline_payment_method` 500s the reconciliation widget
-> until the split removes the last raw-SQL reader of it (and `SmokeReversalFixtureCommand.php:175`,
-> which still writes it). District11 prod data cleanup (9 door orders re-recorded into the ledger,
-> $215 + one comp) is **DONE & verified**; the 80 Aug-2025 BBQ "owing" orders are an imported-data
-> display artifact, deferred. **Confirm current state from `git log` AND `git status` before
-> acting** (the tree changes as the parallel session works), then finish cleanup #2 via the
-> "Remaining steps" checklist once the split has landed. Prior context still applies: money-
-> correction plan A & B done / C deferred; Phase 5 reporting parked; smoke testing has a two-tier
-> model (see "Smoke-report capability").
+> `docs/design/SESSION-HANDOFF.md` and `docs/design/payment-at-checkin-ledger.md` first. **The
+> `order_payments` type-split + offline-column cleanup are DONE and committed** as one coherent unit
+> (`b7b51df9` — `transaction_type`/`payment_method` split, enum `OrderPaymentType`→
+> `PaymentTransactionType`, reconciliation derives channel from the ledger, and
+> `orders.offline_payment_method`/`offline_payment_reference` + the `order_payment_adjustments` table
+> dropped via migrations `2026_06_01_000000`/`000100`/`2026_06_02_000000`). A follow-up commit
+> (`3297f60a`) archived the District11 brunch recovery SQL into `ops/sql/`. The working tree is clean;
+> full validation green (634 Unit + tsc + pint on hand-written files). **The one remaining step is the
+> PROD DEPLOY of those live schema migrations** (backup → `migrate` → verify the reconciliation widget
+> loads — note the `order_payment_adjustments` drop also removes its 5 prod recovery rows, intended).
+> District11 prod data cleanup (9 door orders re-recorded, $215 + one comp) is DONE & verified; the 80
+> Aug-2025 BBQ "owing" orders are an imported-data display artifact, deferred. **Confirm current state
+> from `git log` AND `git status` before acting.** Prior context still applies: money-correction plan
+> A & B done / C deferred; Phase 5 reporting parked; smoke testing has a two-tier model (see
+> "Smoke-report capability").
