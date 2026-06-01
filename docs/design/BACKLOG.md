@@ -19,13 +19,13 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 
 - [ ] **Escape-clears-filters everywhere** — the check-in page already clears filters on `Esc`; factor that into a shared hook applied to Orders, Contacts, and Attendees too. (SSR — guard `document`/keyboard listeners.) ([design](./backlog-designs.md#1-escape-clears-filters-everywhere)) (2026-05-31)
 
-- [ ] **Guard the payment card when an order is fully settled** — on the "Manage orders" payment panel, lock the add-transaction form once `payment_balance.isSettled`; clicking the lock pops a confirm and only then unlocks, making a second transaction deliberate. Frontend-only. ([design](./backlog-designs.md#2-guard-the-payment-card-when-an-order-is-fully-settled)) (2026-05-31)
-
-- [ ] **Check-in overpayment → donation prompt** — when a recorded payment exceeds outstanding, prompt "Record the extra as a donation?" (door + Manage-Payments) and on yes write a second `DONATION` row for the excess with the same method. Schema prerequisite landed `b7b51df9`. ([design](./backlog-designs.md#3-check-in-overpayment--donation-prompt)) (2026-05-31)
-
 - [ ] **Bug: kebab click injects a stray char into the Orders filter** — intermittently, after setting a filter on the Orders page, clicking the "Manage order" kebab drops a random character into the *start* of the filter input (as if typed), which re-filters and hides the row the operator was acting on; they must re-enter the filter. Works on the next try. Likely a focus/keydown leak — the kebab-trigger keypress (or an autofocus stealing the event) is routed into the still-focused search field. ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (2026-05-31)
 
 ## Shipped
+
+- [x] **Check-in overpayment → donation prompt** — payment exceeding outstanding prompts to record the excess as a `DONATION` row with the same method; wired through both the check-in door and the Manage-Payments panel, with backend split + unit tests. ([design](./backlog-designs.md#3-check-in-overpayment--donation-prompt)) (`42c26ad9`, 2026-05-31)
+
+- [x] **Guard the payment card when an order is fully settled** — the Manage-Payments add-transaction form locks once `payment_balance.isSettled`; an explicit confirm unlocks it so a second transaction is deliberate. ([design](./backlog-designs.md#2-guard-the-payment-card-when-an-order-is-fully-settled)) (`42c26ad9`, 2026-05-31)
 
 - [x] **Dashboard card layout + Funds-by-Channel alignment polish** — reordered cards (charts → reconciliation pair → mini-cards), vertically centered + narrowed the editable Fees input, shortened Channel/Fees columns so all 7 columns fit, stopped reconciliation tile labels wrapping. (`6889e6ac`, 2026-06-01)
 
