@@ -1,7 +1,7 @@
 import {TextInput, TextInputProps} from '@mantine/core';
 import {IconSearch, IconX} from '@tabler/icons-react';
 import classes from './SearchBar.module.scss';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {SortSelector, SortSelectorProps} from "../SortSelector";
 import {t} from "@lingui/macro";
 import classNames from "classnames";
@@ -53,9 +53,18 @@ export const SearchBarWrapper = ({setSearchParams, searchParams, pagination, pla
 
 export const SearchBar = ({sortProps, onClear, value, onChange, inputRef, ...props}: SearchBarProps) => {
     const [searchValue, setSearchValue] = useState<typeof value>(value);
+    const isFocused = useRef(false);
 
+    // The parent `value` is URL-backed and debounced (~300ms), so we mirror it
+    // into local state for instant typing. But never overwrite local state from
+    // that lagging value WHILE the field is focused — otherwise a value that
+    // arrives mid-interaction (e.g. when a row menu re-renders the page) can
+    // clobber what the user is typing. Deliberate clears (empty value) still
+    // apply even when focused.
     useEffect(() => {
-        setSearchValue(value);
+        if (!isFocused.current || !value) {
+            setSearchValue(value);
+        }
     }, [value])
 
     return (
@@ -68,6 +77,15 @@ export const SearchBar = ({sortProps, onClear, value, onChange, inputRef, ...pro
                 value={searchValue}
                 ref={inputRef}
                 {...props}
+                onFocus={(event) => {
+                    isFocused.current = true;
+                    props.onFocus?.(event);
+                }}
+                onBlur={(event) => {
+                    isFocused.current = false;
+                    setSearchValue(value);
+                    props.onBlur?.(event);
+                }}
                 onChange={(event) => {
                     setSearchValue(event.currentTarget.value);
                     if (onChange) {
