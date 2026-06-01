@@ -232,8 +232,8 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                     fixedDecimalScale
                                     prefix={getCurrencySymbol(currency)}
                                     hideControls
+                                    classNames={{input: classes.moneyInput}}
                                     styles={{
-                                        input: {textAlign: 'right', margin: 0},
                                         wrapper: {margin: 0},
                                         root: {maxWidth: 110},
                                     }}
@@ -319,10 +319,10 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                         prefix={getCurrencySymbol(currency)}
                                         disabled={!FEE_BEARING.includes(channel.channel)}
                                         hideControls
+                                        classNames={{input: classes.moneyInput}}
                                         styles={{
-                                            input: {textAlign: 'right', margin: 0},
                                             wrapper: {margin: 0},
-                                            root: {maxWidth: 90, marginInlineStart: 'auto'},
+                                            root: {maxWidth: 96, marginInlineStart: 'auto'},
                                         }}
                                     />
                                 </div>

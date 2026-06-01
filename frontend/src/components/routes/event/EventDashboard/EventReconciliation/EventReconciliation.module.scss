@@ -219,6 +219,19 @@
   font-weight: 600;
 }
 
+/* Editable money input that visually lines up with the static number cells:
+   compact height (so it centres with the row text) and near-zero right padding
+   so the figure's right edge sits on the column's right edge like the text. */
+.moneyInput {
+  height: 26px;
+  min-height: 26px;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding-left: 8px;
+  padding-right: 0;
+}
+
 .dot {
   width: 9px;
   height: 9px;
