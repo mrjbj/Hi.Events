@@ -6,6 +6,18 @@
 -- Order-level fields repeat on each row. Dynamically pivots ORDER-level
 -- questions into one column per question title.
 --
+-- Reconciliation columns (channel, collected, comped, balance) mirror the
+-- dashboard's OrderBalanceService / EventReconciliationService exactly:
+--   collected = offline ledger receipts (PAYMENT+DONATION, signed) + Stripe
+--               amount_received − total_refunded
+--   comped    = COMP + WRITE_OFF ledger rows
+--   balance   = total_gross − receipts − comps + total_refunded  (a refund
+--               re-opens the balance; an overpayment shows negative)
+--   channel   = STRIPE for Stripe orders, else the largest settling payment
+--               method (a card receipt reconciles under SQUARE)
+-- These are ORDER-level and REPEAT on every line — dedupe by order_id before
+-- summing in Excel. (The dropped offline_payment_* columns are no longer used.)
+--
 -- Usage in pgAdmin:
 --   SELECT export_orders(5);
 --   SELECT * FROM orders_export;
@@ -84,6 +96,12 @@ BEGIN
         || E'       oi.total_gross  AS item_gross,\n'
         || E'       o.total_gross                  AS order_gross,\n'
         || E'       o.total_refunded               AS order_refund,\n'
+        -- Reconciliation (order-level; mirrors OrderBalanceService / dashboard).
+        -- These repeat on every line of an order — dedupe by order_id before summing.
+        || E'       ch.channel                     AS channel,\n'
+        || E'       ROUND(bal.cash_receipts + sr.stripe_receipts - o.total_refunded, 2)                          AS collected,\n'
+        || E'       ROUND(bal.comps, 2)                                                                          AS comped,\n'
+        || E'       ROUND(o.total_gross - (bal.cash_receipts + sr.stripe_receipts) - bal.comps + o.total_refunded, 2) AS balance,\n'
         || E'       o.currency,\n'
         -- Check-in summary
         || E'       COALESCE(ci.total_attendees, 0)  AS registered,\n'
@@ -105,6 +123,39 @@ BEGIN
         || E'        WHERE  a2.order_id   = o.id\n'
         || E'          AND  a2.deleted_at IS NULL\n'
         || E'    ) ci ON true\n'
+        -- Offline ledger receipts + comps per order (signed; reversals net out)
+        || E'    LEFT JOIN LATERAL (\n'
+        || E'        SELECT\n'
+        || E'            COALESCE(SUM(op.amount) FILTER (WHERE op.transaction_type IN (''PAYMENT'',''DONATION'')), 0) AS cash_receipts,\n'
+        || E'            COALESCE(SUM(op.amount) FILTER (WHERE op.transaction_type IN (''COMP'',''WRITE_OFF'')), 0)   AS comps\n'
+        || E'        FROM   order_payments op\n'
+        || E'        WHERE  op.order_id = o.id AND op.deleted_at IS NULL\n'
+        || E'    ) bal ON true\n'
+        -- Confirmed Stripe receipts (amount_received is in minor units)
+        || E'    LEFT JOIN LATERAL (\n'
+        || E'        SELECT COALESCE(SUM(sp.amount_received), 0) / 100.0 AS stripe_receipts\n'
+        || E'        FROM   stripe_payments sp\n'
+        || E'        WHERE  sp.order_id = o.id AND sp.deleted_at IS NULL AND sp.amount_received > 0\n'
+        || E'    ) sr ON true\n'
+        -- Reconciliation channel: Stripe orders are STRIPE; else the largest
+        -- settling payment method (a card receipt reconciles under Square)
+        || E'    LEFT JOIN LATERAL (\n'
+        || E'        SELECT CASE\n'
+        || E'            WHEN o.payment_provider = ''STRIPE'' THEN ''STRIPE''\n'
+        || E'            ELSE COALESCE((\n'
+        || E'                SELECT CASE op2.payment_method\n'
+        || E'                           WHEN ''CREDIT_CARD''   THEN ''SQUARE''\n'
+        || E'                           WHEN ''CASH''          THEN ''CASH''\n'
+        || E'                           WHEN ''CHECK''         THEN ''CHECK''\n'
+        || E'                           WHEN ''BANK_TRANSFER'' THEN ''BANK_TRANSFER''\n'
+        || E'                           ELSE ''OTHER''\n'
+        || E'                       END\n'
+        || E'                FROM   order_payments op2\n'
+        || E'                WHERE  op2.order_id = o.id AND op2.transaction_type = ''PAYMENT'' AND op2.amount > 0 AND op2.deleted_at IS NULL\n'
+        || E'                ORDER BY op2.amount DESC LIMIT 1\n'
+        || E'            ), ''OTHER'')\n'
+        || E'        END AS channel\n'
+        || E'    ) ch ON true\n'
         -- Dynamic question joins
         || v_q_joins
         || format(E'\nWHERE  o.event_id   = %s', p_event_id)
