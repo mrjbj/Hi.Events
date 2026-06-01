@@ -14,10 +14,8 @@ class RecordOrderPaymentHandler
 {
     public function __construct(
         private readonly RecordOrderPaymentService $recordOrderPaymentService,
-        private readonly LoggerInterface           $logger,
-    )
-    {
-    }
+        private readonly LoggerInterface $logger,
+    ) {}
 
     /**
      * @throws ResourceConflictException|ResourceNotFoundException|Throwable
@@ -27,7 +25,8 @@ class RecordOrderPaymentHandler
         $this->logger->info(__('Recording order payment'), [
             'orderId' => $dto->orderId,
             'eventId' => $dto->eventId,
-            'type' => $dto->type->value,
+            'transactionType' => $dto->transactionType->value,
+            'paymentMethod' => $dto->paymentMethod?->value,
         ]);
 
         return $this->recordOrderPaymentService->record($dto);

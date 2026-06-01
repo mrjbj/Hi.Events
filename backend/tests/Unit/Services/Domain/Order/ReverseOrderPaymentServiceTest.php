@@ -2,7 +2,8 @@
 
 namespace Tests\Unit\Services\Domain\Order;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderPaymentDomainObject;
@@ -56,7 +57,7 @@ class ReverseOrderPaymentServiceTest extends TestCase
     public function test_reverses_payment_with_negative_amount_of_the_same_type(): void
     {
         $order = $this->order(OrderStatus::COMPLETED->name);
-        $original = $this->payment(id: 11, orderId: 7, type: OrderPaymentType::CASH->value, amount: 40.0);
+        $original = $this->payment(id: 11, orderId: 7, transactionType: PaymentTransactionType::PAYMENT->value, paymentMethod: OfflinePaymentMethod::CASH->value, amount: 40.0);
 
         $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->orderRepository->shouldReceive('findFirstWhere')->once()->andReturn($order);
@@ -72,7 +73,8 @@ class ReverseOrderPaymentServiceTest extends TestCase
         $this->orderPaymentRepository->shouldReceive('create')->once()
             ->with(Mockery::on(fn (array $a) => $a[OrderPaymentDomainObjectAbstract::ORDER_ID] === 7
                 && $a[OrderPaymentDomainObjectAbstract::REVERSES_PAYMENT_ID] === 11
-                && $a[OrderPaymentDomainObjectAbstract::TYPE] === OrderPaymentType::CASH->value
+                && $a[OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE] === PaymentTransactionType::PAYMENT->value
+                && $a[OrderPaymentDomainObjectAbstract::PAYMENT_METHOD] === OfflinePaymentMethod::CASH->value
                 && $a[OrderPaymentDomainObjectAbstract::AMOUNT] === -40.0
                 && $a[OrderPaymentDomainObjectAbstract::NOTE] === 'mistyped amount'));
 
@@ -127,7 +129,7 @@ class ReverseOrderPaymentServiceTest extends TestCase
     public function test_throws_when_payment_belongs_to_a_different_order(): void
     {
         $order = $this->order(OrderStatus::COMPLETED->name);
-        $original = $this->payment(id: 11, orderId: 999, type: OrderPaymentType::CASH->value, amount: 40.0);
+        $original = $this->payment(id: 11, orderId: 999, transactionType: PaymentTransactionType::PAYMENT->value, paymentMethod: OfflinePaymentMethod::CASH->value, amount: 40.0);
 
         $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->orderRepository->shouldReceive('findFirstWhere')->once()->andReturn($order);
@@ -145,7 +147,7 @@ class ReverseOrderPaymentServiceTest extends TestCase
     public function test_throws_when_payment_is_itself_a_reversal(): void
     {
         $order = $this->order(OrderStatus::COMPLETED->name);
-        $original = $this->payment(id: 11, orderId: 7, type: OrderPaymentType::CASH->value, amount: -40.0, reversesPaymentId: 5);
+        $original = $this->payment(id: 11, orderId: 7, transactionType: PaymentTransactionType::PAYMENT->value, paymentMethod: OfflinePaymentMethod::CASH->value, amount: -40.0, reversesPaymentId: 5);
 
         $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->orderRepository->shouldReceive('findFirstWhere')->once()->andReturn($order);
@@ -163,8 +165,8 @@ class ReverseOrderPaymentServiceTest extends TestCase
     public function test_throws_when_payment_already_reversed(): void
     {
         $order = $this->order(OrderStatus::COMPLETED->name);
-        $original = $this->payment(id: 11, orderId: 7, type: OrderPaymentType::CASH->value, amount: 40.0);
-        $existingReversal = $this->payment(id: 12, orderId: 7, type: OrderPaymentType::CASH->value, amount: -40.0, reversesPaymentId: 11);
+        $original = $this->payment(id: 11, orderId: 7, transactionType: PaymentTransactionType::PAYMENT->value, paymentMethod: OfflinePaymentMethod::CASH->value, amount: 40.0);
+        $existingReversal = $this->payment(id: 12, orderId: 7, transactionType: PaymentTransactionType::PAYMENT->value, paymentMethod: OfflinePaymentMethod::CASH->value, amount: -40.0, reversesPaymentId: 11);
 
         $this->orderRepository->shouldReceive('loadRelation')->andReturnSelf();
         $this->orderRepository->shouldReceive('findFirstWhere')->once()->andReturn($order);
@@ -194,14 +196,16 @@ class ReverseOrderPaymentServiceTest extends TestCase
     private function payment(
         int $id,
         int $orderId,
-        string $type,
+        string $transactionType,
+        ?string $paymentMethod,
         float $amount,
         ?int $reversesPaymentId = null,
     ): OrderPaymentDomainObject|MockInterface {
         $payment = Mockery::mock(OrderPaymentDomainObject::class);
         $payment->shouldReceive('getId')->andReturn($id);
         $payment->shouldReceive('getOrderId')->andReturn($orderId);
-        $payment->shouldReceive('getType')->andReturn($type);
+        $payment->shouldReceive('getTransactionType')->andReturn($transactionType);
+        $payment->shouldReceive('getPaymentMethod')->andReturn($paymentMethod);
         $payment->shouldReceive('getAmount')->andReturn($amount);
         $payment->shouldReceive('getCurrency')->andReturn('USD');
         $payment->shouldReceive('getReference')->andReturn(null);

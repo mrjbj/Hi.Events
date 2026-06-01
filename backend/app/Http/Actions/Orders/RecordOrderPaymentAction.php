@@ -2,7 +2,8 @@
 
 namespace HiEvents\Http\Actions\Orders;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Exceptions\ResourceNotFoundException;
@@ -18,9 +19,7 @@ class RecordOrderPaymentAction extends BaseAction
 {
     public function __construct(
         private readonly RecordOrderPaymentHandler $recordOrderPaymentHandler,
-    )
-    {
-    }
+    ) {}
 
     public function __invoke(int $eventId, int $orderId, RecordOrderPaymentRequest $request): JsonResponse|Response
     {
@@ -32,8 +31,11 @@ class RecordOrderPaymentAction extends BaseAction
             $order = $this->recordOrderPaymentHandler->handle(new RecordOrderPaymentDTO(
                 eventId: $eventId,
                 orderId: $orderId,
-                type: OrderPaymentType::from($validated['type']),
-                amount: (float)$validated['amount'],
+                transactionType: PaymentTransactionType::from($validated['transaction_type']),
+                amount: (float) $validated['amount'],
+                paymentMethod: isset($validated['payment_method'])
+                    ? OfflinePaymentMethod::from($validated['payment_method'])
+                    : null,
                 reference: $validated['reference'] ?? null,
                 note: $validated['note'] ?? null,
                 recordedByUserId: $this->getAuthenticatedUser()->getId(),

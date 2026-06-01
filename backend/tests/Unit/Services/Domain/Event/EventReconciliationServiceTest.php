@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services\Domain\Event;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
 use HiEvents\DomainObjects\Enums\PaymentChannel;
 use HiEvents\Repository\Interfaces\EventChannelFeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
@@ -36,21 +35,22 @@ class EventReconciliationServiceTest extends TestCase
         $dto = $this->service->assemble(
             currency: 'USD',
             grossTotal: 19250.0,
-            refundsByChannel: [
-                PaymentChannel::STRIPE->value => 680.0,
-                PaymentChannel::SQUARE->value => 300.0,
+            salesByChannel: [
+                PaymentChannel::STRIPE->value => 12400.0,
+                PaymentChannel::SQUARE->value => 3100.0,
+                PaymentChannel::CASH->value => 1985.0,
+                PaymentChannel::CHECK->value => 400.0,
             ],
-            offlineByType: [
-                OrderPaymentType::CARD->value => 3100.0,
-                OrderPaymentType::CASH->value => 1985.0,
-                OrderPaymentType::CHECK->value => 400.0,
-                OrderPaymentType::COMP->value => 240.0,
-            ],
-            stripeReceived: 12400.0,
             donationsByChannel: [
                 PaymentChannel::STRIPE->value => 300.0,
                 PaymentChannel::SQUARE->value => 100.0,
             ],
+            refundsByChannel: [
+                PaymentChannel::STRIPE->value => 680.0,
+                PaymentChannel::SQUARE->value => 300.0,
+            ],
+            comps: 240.0,
+            writeOffs: 0.0,
             feesByChannel: [
                 PaymentChannel::STRIPE->value => 390.0,
                 PaymentChannel::SQUARE->value => 95.0,
@@ -96,10 +96,11 @@ class EventReconciliationServiceTest extends TestCase
         $dto = $this->service->assemble(
             currency: 'USD',
             grossTotal: 0.0,
-            refundsByChannel: [],
-            offlineByType: [],
-            stripeReceived: 0.0,
+            salesByChannel: [],
             donationsByChannel: [],
+            refundsByChannel: [],
+            comps: 0.0,
+            writeOffs: 0.0,
             feesByChannel: [],
         );
 
@@ -113,10 +114,11 @@ class EventReconciliationServiceTest extends TestCase
         $dto = $this->service->assemble(
             currency: 'USD',
             grossTotal: 0.0,
-            refundsByChannel: [],
-            offlineByType: [],
-            stripeReceived: 0.0,
+            salesByChannel: [],
             donationsByChannel: [],
+            refundsByChannel: [],
+            comps: 0.0,
+            writeOffs: 0.0,
             feesByChannel: [PaymentChannel::OTHER->value => 10.0],
         );
 
@@ -132,14 +134,13 @@ class EventReconciliationServiceTest extends TestCase
         $dto = $this->service->assemble(
             currency: 'USD',
             grossTotal: 1000.0,
-            refundsByChannel: [],
-            offlineByType: [
-                OrderPaymentType::CASH->value => 600.0,
-                OrderPaymentType::COMP->value => 250.0,
-                OrderPaymentType::WRITE_OFF->value => 150.0,
+            salesByChannel: [
+                PaymentChannel::CASH->value => 600.0,
             ],
-            stripeReceived: 0.0,
             donationsByChannel: [],
+            refundsByChannel: [],
+            comps: 250.0,
+            writeOffs: 150.0,
             feesByChannel: [],
         );
 

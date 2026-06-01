@@ -13,7 +13,6 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const ID = 'id';
     final public const ORDER_ID = 'order_id';
     final public const REVERSES_PAYMENT_ID = 'reverses_payment_id';
-    final public const TYPE = 'type';
     final public const AMOUNT = 'amount';
     final public const CURRENCY = 'currency';
     final public const REFERENCE = 'reference';
@@ -23,11 +22,12 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const CREATED_AT = 'created_at';
     final public const UPDATED_AT = 'updated_at';
     final public const DELETED_AT = 'deleted_at';
+    final public const TRANSACTION_TYPE = 'transaction_type';
+    final public const PAYMENT_METHOD = 'payment_method';
 
     protected int $id;
     protected int $order_id;
     protected ?int $reverses_payment_id = null;
-    protected string $type;
     protected float $amount;
     protected string $currency;
     protected ?string $reference = null;
@@ -37,6 +37,8 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     protected ?string $created_at = null;
     protected ?string $updated_at = null;
     protected ?string $deleted_at = null;
+    protected string $transaction_type;
+    protected ?string $payment_method = null;
 
     public function toArray(): array
     {
@@ -44,7 +46,6 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
                     'id' => $this->id ?? null,
                     'order_id' => $this->order_id ?? null,
                     'reverses_payment_id' => $this->reverses_payment_id ?? null,
-                    'type' => $this->type ?? null,
                     'amount' => $this->amount ?? null,
                     'currency' => $this->currency ?? null,
                     'reference' => $this->reference ?? null,
@@ -54,6 +55,8 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
                     'created_at' => $this->created_at ?? null,
                     'updated_at' => $this->updated_at ?? null,
                     'deleted_at' => $this->deleted_at ?? null,
+                    'transaction_type' => $this->transaction_type ?? null,
+                    'payment_method' => $this->payment_method ?? null,
                 ];
     }
 
@@ -88,17 +91,6 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     public function getReversesPaymentId(): ?int
     {
         return $this->reverses_payment_id;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
-
-    public function getType(): string
-    {
-        return $this->type;
     }
 
     public function setAmount(float $amount): self
@@ -198,5 +190,27 @@ abstract class OrderPaymentDomainObjectAbstract extends \HiEvents\DomainObjects\
     public function getDeletedAt(): ?string
     {
         return $this->deleted_at;
+    }
+
+    public function setTransactionType(string $transaction_type): self
+    {
+        $this->transaction_type = $transaction_type;
+        return $this;
+    }
+
+    public function getTransactionType(): string
+    {
+        return $this->transaction_type;
+    }
+
+    public function setPaymentMethod(?string $payment_method): self
+    {
+        $this->payment_method = $payment_method;
+        return $this;
+    }
+
+    public function getPaymentMethod(): ?string
+    {
+        return $this->payment_method;
     }
 }

@@ -57,7 +57,8 @@ export interface RefundOrderPayload {
 }
 
 export interface RecordOrderPaymentPayload {
-    type: string;
+    transaction_type: string;
+    payment_method?: string | null;
     amount: number;
     reference?: string | null;
     note?: string | null;

@@ -2,7 +2,8 @@
 
 namespace Tests\Unit\Services\Domain\Order;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
@@ -65,12 +66,13 @@ class RecordOrderPaymentServiceTest extends TestCase
 
         $this->orderPaymentRepository->shouldReceive('create')->once()
             ->with(Mockery::on(fn (array $a) => $a[OrderPaymentDomainObjectAbstract::ORDER_ID] === 7
-                && $a[OrderPaymentDomainObjectAbstract::TYPE] === OrderPaymentType::CASH->value
+                && $a[OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE] === PaymentTransactionType::PAYMENT->value
+                && $a[OrderPaymentDomainObjectAbstract::PAYMENT_METHOD] === OfflinePaymentMethod::CASH->value
                 && $a[OrderPaymentDomainObjectAbstract::AMOUNT] === 40.0));
 
         $this->applyOrderBalanceStatusService->shouldReceive('apply')->once()->with($order);
 
-        $result = $this->service->record($this->dto(OrderPaymentType::CASH, 40.0));
+        $result = $this->service->record($this->dto(PaymentTransactionType::PAYMENT, 40.0));
 
         $this->assertSame($order, $result);
     }
@@ -82,7 +84,7 @@ class RecordOrderPaymentServiceTest extends TestCase
 
         $this->expectException(ResourceNotFoundException::class);
 
-        $this->service->record($this->dto(OrderPaymentType::CASH, 40.0));
+        $this->service->record($this->dto(PaymentTransactionType::PAYMENT, 40.0));
     }
 
     public function test_throws_when_order_in_uneditable_status(): void
@@ -97,16 +99,17 @@ class RecordOrderPaymentServiceTest extends TestCase
 
         $this->expectException(ResourceConflictException::class);
 
-        $this->service->record($this->dto(OrderPaymentType::CASH, 40.0));
+        $this->service->record($this->dto(PaymentTransactionType::PAYMENT, 40.0));
     }
 
-    private function dto(OrderPaymentType $type, float $amount): RecordOrderPaymentDTO
+    private function dto(PaymentTransactionType $transactionType, float $amount): RecordOrderPaymentDTO
     {
         return new RecordOrderPaymentDTO(
             eventId: 3,
             orderId: 7,
-            type: $type,
+            transactionType: $transactionType,
             amount: $amount,
+            paymentMethod: OfflinePaymentMethod::CASH,
             reference: 'ref-1',
             note: null,
             recordedByUserId: 9,

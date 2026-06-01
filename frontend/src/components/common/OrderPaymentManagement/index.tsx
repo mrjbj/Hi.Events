@@ -5,7 +5,7 @@ import {useState} from "react";
 import {t, Trans} from "@lingui/macro";
 import {IconArrowBackUp, IconGift, IconReceiptRefund} from "@tabler/icons-react";
 import {useParams} from "react-router";
-import {Order, OrderPayment, OrderPaymentType} from "../../../types.ts";
+import {Order, OrderPayment, OrderPaymentMethod, OrderPaymentTransactionType} from "../../../types.ts";
 import {formatCurrency} from "../../../utilites/currency.ts";
 import {useRecordOrderPayment} from "../../../mutations/useRecordOrderPayment.ts";
 import {useReverseOrderPayment} from "../../../mutations/useReverseOrderPayment.ts";
@@ -21,23 +21,37 @@ interface OrderPaymentManagementProps {
     onUpdated: () => void;
 }
 
-const paymentTypeLabels = (): Record<OrderPaymentType, string> => ({
-    CASH: t`Cash`,
-    CHECK: t`Check`,
-    CARD: t`Card`,
-    BANK_TRANSFER: t`Bank transfer`,
-    OTHER: t`Other`,
+const transactionTypeLabels = (): Record<OrderPaymentTransactionType, string> => ({
+    PAYMENT: t`Payment`,
     DONATION: t`Donation`,
     COMP: t`Comp`,
     WRITE_OFF: t`Write-off`,
 });
+
+const paymentMethodLabels = (): Record<OrderPaymentMethod, string> => ({
+    CASH: t`Cash`,
+    CHECK: t`Check`,
+    CREDIT_CARD: t`Credit card`,
+    BANK_TRANSFER: t`Bank transfer`,
+    OTHER: t`Other`,
+});
+
+const describePayment = (payment: OrderPayment): string => {
+    const txnLabels = transactionTypeLabels();
+    const methodLabels = paymentMethodLabels();
+    const method = payment.payment_method ? methodLabels[payment.payment_method] : null;
+    if (payment.transaction_type === 'PAYMENT') {
+        return method ?? txnLabels.PAYMENT;
+    }
+    const txn = txnLabels[payment.transaction_type];
+    return method ? `${txn} · ${method}` : txn;
+};
 
 export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymentManagementProps) => {
     const {eventId} = useParams();
     const recordPayment = useRecordOrderPayment();
     const reversePayment = useReverseOrderPayment();
     const errorHandler = useFormErrorResponseHandler();
-    const labels = paymentTypeLabels();
 
     const balance = order.payment_balance;
     const currency = order.currency;
@@ -59,7 +73,8 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
 
     const form = useForm({
         initialValues: {
-            type: 'CASH',
+            transaction_type: 'PAYMENT',
+            payment_method: 'CASH',
             amount: outstanding,
             reference: '',
             note: '',
@@ -71,7 +86,8 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
             eventId,
             orderId: order.id,
             payload: {
-                type: values.type,
+                transaction_type: values.transaction_type,
+                payment_method: values.payment_method,
                 amount: Number(values.amount),
                 reference: values.reference.trim() === '' ? null : values.reference.trim(),
                 note: values.note.trim() === '' ? null : values.note.trim(),
@@ -129,7 +145,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
         recordPayment.mutate({
             eventId,
             orderId: order.id,
-            payload: {type: 'COMP', amount: outstanding, note: compReason.trim()},
+            payload: {transaction_type: 'COMP', amount: outstanding, note: compReason.trim()},
         }, {
             onSuccess: () => {
                 showSuccess(t`Remaining balance comped`);
@@ -193,7 +209,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                                             <Group gap={6} wrap="nowrap">
                                                 {isReversal && <IconArrowBackUp size={14} color="var(--mantine-color-dimmed)"/>}
                                                 <Text size="sm" c={isReversal ? 'dimmed' : undefined}>
-                                                    {isReversal ? t`Reversal` : (labels[payment.type] ?? payment.type)}
+                                                    {isReversal ? t`Reversal` : describePayment(payment)}
                                                 </Text>
                                                 {isReversed && (
                                                     <Badge size="xs" color="gray" variant="light">{t`Reversed`}</Badge>
@@ -249,17 +265,25 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                     <Stack gap="xs">
                         <Group grow align="flex-start">
                             <Select
+                                label={t`Type`}
+                                data={[
+                                    {value: 'PAYMENT', label: t`Payment`},
+                                    {value: 'DONATION', label: t`Donation`},
+                                ]}
+                                allowDeselect={false}
+                                {...form.getInputProps('transaction_type')}
+                            />
+                            <Select
                                 label={t`Method`}
                                 data={[
                                     {value: 'CASH', label: t`Cash`},
                                     {value: 'CHECK', label: t`Check`},
-                                    {value: 'CARD', label: t`Card`},
+                                    {value: 'CREDIT_CARD', label: t`Credit card`},
                                     {value: 'BANK_TRANSFER', label: t`Bank transfer`},
                                     {value: 'OTHER', label: t`Other`},
-                                    {value: 'DONATION', label: t`Donation`},
                                 ]}
                                 allowDeselect={false}
-                                {...form.getInputProps('type')}
+                                {...form.getInputProps('payment_method')}
                             />
                             <NumberInput
                                 label={<Trans>Amount ({currency})</Trans>}
@@ -352,7 +376,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                         <Text size="sm" c="dimmed">
                             <Trans>
                                 This books a correcting entry of {formatCurrency(-reverseTarget.amount, reverseTarget.currency)} against
-                                the {labels[reverseTarget.type] ?? reverseTarget.type} payment. The original entry is kept for the
+                                the {describePayment(reverseTarget)} payment. The original entry is kept for the
                                 audit trail. Reversing offline money assumes the cash or check is returned in person; it does not
                                 issue a refund.
                             </Trans>

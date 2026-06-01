@@ -8,7 +8,7 @@ use HiEvents\DomainObjects\AttendeeDomainObject;
 use HiEvents\DomainObjects\CheckInListDomainObject;
 use HiEvents\DomainObjects\Enums\AttendeeCheckInActionType;
 use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\Status\AttendeeStatus;
@@ -114,7 +114,8 @@ class CreateAttendeeCheckInServiceTest extends TestCase
             ->shouldReceive('record')
             ->once()
             ->with(Mockery::on(fn (RecordOrderPaymentDTO $dto) => $dto->amount === 40.0
-                && $dto->type === OrderPaymentType::CASH
+                && $dto->transactionType === PaymentTransactionType::PAYMENT
+                && $dto->paymentMethod === OfflinePaymentMethod::CASH
                 && $dto->recordedByIp === '10.0.0.1'));
         $this->markOrderAsPaidService->shouldNotReceive('markOrderAsPaid');
 

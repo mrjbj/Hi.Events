@@ -6,9 +6,8 @@ use Brick\Math\Exception\MathException;
 use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 use HiEvents\DomainObjects\AccountDomainObject;
 use HiEvents\DomainObjects\AttendeeDomainObject;
-use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
 use HiEvents\DomainObjects\Enums\PaymentProviders;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
@@ -43,20 +42,18 @@ use Throwable;
 class MarkOrderAsPaidService
 {
     public function __construct(
-        private readonly OrderRepositoryInterface                  $orderRepository,
-        private readonly DatabaseManager                           $databaseManager,
-        private readonly AffiliateRepositoryInterface              $affiliateRepository,
-        private readonly InvoiceRepositoryInterface                $invoiceRepository,
-        private readonly AttendeeRepositoryInterface               $attendeeRepository,
-        private readonly DomainEventDispatcherService              $domainEventDispatcherService,
-        private readonly OrderApplicationFeeCalculationService     $orderApplicationFeeCalculationService,
-        private readonly EventRepositoryInterface                  $eventRepository,
-        private readonly OrderApplicationFeeService                $orderApplicationFeeService,
-        private readonly SendOrderDetailsService                   $sendOrderDetailsService,
-        private readonly OrderPaymentRepositoryInterface           $orderPaymentRepository,
-    )
-    {
-    }
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly DatabaseManager $databaseManager,
+        private readonly AffiliateRepositoryInterface $affiliateRepository,
+        private readonly InvoiceRepositoryInterface $invoiceRepository,
+        private readonly AttendeeRepositoryInterface $attendeeRepository,
+        private readonly DomainEventDispatcherService $domainEventDispatcherService,
+        private readonly OrderApplicationFeeCalculationService $orderApplicationFeeCalculationService,
+        private readonly EventRepositoryInterface $eventRepository,
+        private readonly OrderApplicationFeeService $orderApplicationFeeService,
+        private readonly SendOrderDetailsService $sendOrderDetailsService,
+        private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
+    ) {}
 
     /**
      * @throws ResourceConflictException|Throwable
@@ -85,7 +82,7 @@ class MarkOrderAsPaidService
 
             $this->recordSettlementPayment($order, $dto);
 
-            $this->updateOrderStatusAndMethod($dto, $order);
+            $this->updateOrderStatusAndProvider($order);
 
             $this->updateOrderInvoice($dto->orderId);
 
@@ -156,7 +153,7 @@ class MarkOrderAsPaidService
     {
         $amount = $dto->amountReceived !== null
             ? round($dto->amountReceived, 2)
-            : round((float)$order->getTotalGross(), 2);
+            : round((float) $order->getTotalGross(), 2);
 
         if ($amount <= 0.0) {
             return;
@@ -164,7 +161,8 @@ class MarkOrderAsPaidService
 
         $this->orderPaymentRepository->create([
             OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
-            OrderPaymentDomainObjectAbstract::TYPE => OrderPaymentType::fromOfflinePaymentMethod($dto->paymentMethod)->value,
+            OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE => PaymentTransactionType::PAYMENT->value,
+            OrderPaymentDomainObjectAbstract::PAYMENT_METHOD => $dto->paymentMethod->value,
             OrderPaymentDomainObjectAbstract::AMOUNT => $amount,
             OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
             OrderPaymentDomainObjectAbstract::REFERENCE => $dto->paymentReference,
@@ -175,16 +173,14 @@ class MarkOrderAsPaidService
         ]);
     }
 
-    private function updateOrderStatusAndMethod(MarkOrderAsPaidDTO $dto, OrderDomainObject $order): void
+    private function updateOrderStatusAndProvider(OrderDomainObject $order): void
     {
         $attributes = [
             OrderDomainObjectAbstract::STATUS => OrderStatus::COMPLETED->name,
             OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::PAYMENT_RECEIVED->name,
-            OrderDomainObjectAbstract::OFFLINE_PAYMENT_METHOD => $dto->paymentMethod->value,
-            OrderDomainObjectAbstract::OFFLINE_PAYMENT_REFERENCE => $dto->paymentReference,
         ];
 
-        if (!$order->getPaymentProvider()) {
+        if (! $order->getPaymentProvider()) {
             $attributes[OrderDomainObjectAbstract::PAYMENT_PROVIDER] = PaymentProviders::OFFLINE->value;
         }
 

@@ -3,7 +3,7 @@
 namespace HiEvents\Services\Domain\Order;
 
 use HiEvents\DataTransferObjects\OrderBalanceDTO;
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderPaymentDomainObject;
@@ -27,9 +27,7 @@ class OrderBalanceService
 {
     public function __construct(
         private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
-    )
-    {
-    }
+    ) {}
 
     public function getBalanceForOrder(OrderDomainObject $order): OrderBalanceDTO
     {
@@ -41,25 +39,25 @@ class OrderBalanceService
     }
 
     /**
-     * @param Collection<int, OrderPaymentDomainObject> $orderPayments
+     * @param  Collection<int, OrderPaymentDomainObject>  $orderPayments
      */
     public function calculate(OrderDomainObject $order, Collection $orderPayments): OrderBalanceDTO
     {
-        $owed = round((float)$order->getTotalGross(), 2);
+        $owed = round((float) $order->getTotalGross(), 2);
 
-        $cashTypes = array_map(static fn(OrderPaymentType $t) => $t->value, OrderPaymentType::cashReceiptTypes());
-        $compTypes = array_map(static fn(OrderPaymentType $t) => $t->value, OrderPaymentType::compTypes());
+        $cashTypes = array_map(static fn (PaymentTransactionType $t) => $t->value, PaymentTransactionType::cashReceiptTypes());
+        $compTypes = array_map(static fn (PaymentTransactionType $t) => $t->value, PaymentTransactionType::compTypes());
 
         $cashReceipts = 0.0;
         $comps = 0.0;
 
         foreach ($orderPayments as $payment) {
-            $amount = round((float)$payment->getAmount(), 2);
-            $type = $payment->getType();
+            $amount = round((float) $payment->getAmount(), 2);
+            $transactionType = $payment->getTransactionType();
 
-            if (in_array($type, $compTypes, true)) {
+            if (in_array($transactionType, $compTypes, true)) {
                 $comps += $amount;
-            } elseif (in_array($type, $cashTypes, true)) {
+            } elseif (in_array($transactionType, $cashTypes, true)) {
                 $cashReceipts += $amount;
             }
         }
@@ -69,7 +67,7 @@ class OrderBalanceService
             ? round($stripePayment->getAmountReceived() / 100, 2)
             : 0.0;
 
-        $refunds = round((float)$order->getTotalRefunded(), 2);
+        $refunds = round((float) $order->getTotalRefunded(), 2);
         $grossReceipts = round($cashReceipts + $stripeReceipts, 2);
         $collected = round($grossReceipts - $refunds, 2);
         $balance = round($owed - $grossReceipts - $comps + $refunds, 2);

@@ -41,33 +41,31 @@ class OrderResource extends BaseResource
             'address' => $this->getAddress(),
             'notes' => $this->getNotes(),
             'payment_provider' => $this->getPaymentProvider(),
-            'offline_payment_method' => $this->getOfflinePaymentMethod(),
-            'offline_payment_reference' => $this->getOfflinePaymentReference(),
             'promo_code' => $this->getPromoCode(),
             'event_id' => $this->getEventId(),
             'order_items' => $this->when(
-                !is_null($this->getOrderItems()),
-                fn() => OrderItemResource::collection($this->getOrderItems())
+                ! is_null($this->getOrderItems()),
+                fn () => OrderItemResource::collection($this->getOrderItems())
             ),
             'attendees' => $this->when(
-                !is_null($this->getAttendees()),
-                fn() => AttendeeResource::collection($this->getAttendees())
+                ! is_null($this->getAttendees()),
+                fn () => AttendeeResource::collection($this->getAttendees())
             ),
             'question_answers' => $this->when(
-                !is_null($this->getQuestionAndAnswerViews()),
-                fn() => QuestionAnswerViewResource::collection($this->getQuestionAndAnswerViews()),
+                ! is_null($this->getQuestionAndAnswerViews()),
+                fn () => QuestionAnswerViewResource::collection($this->getQuestionAndAnswerViews()),
             ),
             'latest_invoice' => $this->when(
-                !is_null($this->getLatestInvoice()),
-                fn() => (new InvoiceResource($this->getLatestInvoice()))->toArray($request),
+                ! is_null($this->getLatestInvoice()),
+                fn () => (new InvoiceResource($this->getLatestInvoice()))->toArray($request),
             ),
             'payments' => $this->when(
-                !is_null($this->getOrderPayments()),
-                fn() => OrderPaymentResource::collection($this->getOrderPayments()),
+                ! is_null($this->getOrderPayments()),
+                fn () => OrderPaymentResource::collection($this->getOrderPayments()),
             ),
             'payment_balance' => $this->when(
-                !is_null($this->getPaymentBalance()),
-                fn() => $this->getPaymentBalance()->toArray(),
+                ! is_null($this->getPaymentBalance()),
+                fn () => $this->getPaymentBalance()->toArray(),
             ),
         ];
     }

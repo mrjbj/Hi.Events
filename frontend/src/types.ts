@@ -715,13 +715,15 @@ export interface Order {
     payment_balance?: OrderBalance;
 }
 
-export type OrderPaymentType =
-    'CASH' | 'CHECK' | 'CARD' | 'BANK_TRANSFER' | 'OTHER' | 'DONATION' | 'COMP' | 'WRITE_OFF';
+export type OrderPaymentTransactionType = 'PAYMENT' | 'DONATION' | 'COMP' | 'WRITE_OFF';
+
+export type OrderPaymentMethod = 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface OrderPayment {
     id: number;
     reverses_payment_id?: number | null;
-    type: OrderPaymentType;
+    transaction_type: OrderPaymentTransactionType;
+    payment_method?: OrderPaymentMethod | null;
     amount: number;
     currency: string;
     reference?: string | null;

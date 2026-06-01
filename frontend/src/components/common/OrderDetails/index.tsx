@@ -10,17 +10,6 @@ import {formatAddress} from "../../../utilites/addressUtilities.ts";
 import React from "react";
 import {capitalize} from "../../../utilites/stringHelper.ts";
 
-const formatOfflinePaymentMethod = (method: string): string => {
-    switch (method) {
-        case 'CASH': return t`Cash`;
-        case 'CHECK': return t`Check`;
-        case 'CREDIT_CARD': return t`Credit card`;
-        case 'BANK_TRANSFER': return t`Bank transfer`;
-        case 'OTHER': return t`Other`;
-        default: return method;
-    }
-};
-
 export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {}}: {
     order: Order,
     event: Event,
@@ -88,26 +77,6 @@ export const OrderDetails = ({order, event, cardVariant = 'lightGray', style = {
                     </div>
                     <div className={classes.amount}>
                         {capitalize(order.payment_provider)}
-                    </div>
-                </div>
-            )}
-            {order.offline_payment_method && (
-                <div className={classes.block}>
-                    <div className={classes.title}>
-                        {t`Offline payment method`}
-                    </div>
-                    <div className={classes.amount}>
-                        {formatOfflinePaymentMethod(order.offline_payment_method)}
-                    </div>
-                </div>
-            )}
-            {order.offline_payment_reference && (
-                <div className={classes.block}>
-                    <div className={classes.title}>
-                        {t`Payment reference`}
-                    </div>
-                    <div className={classes.amount}>
-                        {order.offline_payment_reference}
                     </div>
                 </div>
             )}

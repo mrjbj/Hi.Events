@@ -5,14 +5,14 @@ namespace Tests\Unit\Services\Domain\Order;
 use HiEvents\DomainObjects\AccountConfigurationDomainObject;
 use HiEvents\DomainObjects\AccountDomainObject;
 use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\EventDomainObject;
 use HiEvents\DomainObjects\EventSettingDomainObject;
-use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
+use HiEvents\DomainObjects\OrganizerDomainObject;
 use HiEvents\DomainObjects\Status\OrderStatus;
 use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Repository\Interfaces\AffiliateRepositoryInterface;
@@ -129,7 +129,9 @@ class MarkOrderAsPaidServiceTest extends TestCase
             ->once()
             ->with(Mockery::on(function (array $attrs) {
                 return $attrs[OrderPaymentDomainObjectAbstract::AMOUNT] === 25.0
-                    && $attrs[OrderPaymentDomainObjectAbstract::TYPE] === OrderPaymentType::CASH->value;
+                    && $attrs[OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE] === PaymentTransactionType::PAYMENT->value
+                    && $attrs[OrderPaymentDomainObjectAbstract::PAYMENT_METHOD] === OfflinePaymentMethod::CASH->value
+                    && $attrs[OrderPaymentDomainObjectAbstract::REFERENCE] === 'check-ref-1';
             }));
 
         $this->orderRepository
@@ -137,9 +139,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
             ->once()
             ->with(99, Mockery::on(function (array $attrs) {
                 return $attrs[OrderDomainObjectAbstract::STATUS] === OrderStatus::COMPLETED->name
-                    && $attrs[OrderDomainObjectAbstract::OFFLINE_PAYMENT_METHOD] === 'CASH'
-                    && $attrs[OrderDomainObjectAbstract::OFFLINE_PAYMENT_REFERENCE] === 'check-ref-1'
-                    && !array_key_exists(OrderDomainObjectAbstract::TOTAL_GROSS, $attrs);
+                    && ! array_key_exists(OrderDomainObjectAbstract::TOTAL_GROSS, $attrs);
             }));
 
         $this->service->markOrderAsPaid($this->buildDto(
@@ -203,6 +203,7 @@ class MarkOrderAsPaidServiceTest extends TestCase
         $item = Mockery::mock(OrderItemDomainObject::class);
         $item->shouldReceive('getId')->andReturn($id);
         $item->shouldReceive('getTotalGross')->andReturn($totalGross);
+
         return $item;
     }
 

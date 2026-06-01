@@ -27,13 +27,11 @@ use Throwable;
 class RecordOrderPaymentService
 {
     public function __construct(
-        private readonly OrderRepositoryInterface        $orderRepository,
+        private readonly OrderRepositoryInterface $orderRepository,
         private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
-        private readonly ApplyOrderBalanceStatusService  $applyOrderBalanceStatusService,
-        private readonly DatabaseManager                 $databaseManager,
-    )
-    {
-    }
+        private readonly ApplyOrderBalanceStatusService $applyOrderBalanceStatusService,
+        private readonly DatabaseManager $databaseManager,
+    ) {}
 
     /**
      * @throws ResourceConflictException|ResourceNotFoundException|Throwable
@@ -53,7 +51,7 @@ class RecordOrderPaymentService
                 throw new ResourceNotFoundException(__('Order not found'));
             }
 
-            if (!in_array($order->getStatus(), [OrderStatus::AWAITING_OFFLINE_PAYMENT->name, OrderStatus::COMPLETED->name], true)) {
+            if (! in_array($order->getStatus(), [OrderStatus::AWAITING_OFFLINE_PAYMENT->name, OrderStatus::COMPLETED->name], true)) {
                 throw new ResourceConflictException(
                     __('Payments can only be recorded against completed or offline-pending orders')
                 );
@@ -61,7 +59,8 @@ class RecordOrderPaymentService
 
             $this->orderPaymentRepository->create([
                 OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
-                OrderPaymentDomainObjectAbstract::TYPE => $dto->type->value,
+                OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE => $dto->transactionType->value,
+                OrderPaymentDomainObjectAbstract::PAYMENT_METHOD => $dto->paymentMethod?->value,
                 OrderPaymentDomainObjectAbstract::AMOUNT => round($dto->amount, 2),
                 OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
                 OrderPaymentDomainObjectAbstract::REFERENCE => $dto->reference,

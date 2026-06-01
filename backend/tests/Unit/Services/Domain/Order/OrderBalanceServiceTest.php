@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services\Domain\Order;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderPaymentDomainObject;
 use HiEvents\DomainObjects\StripePaymentDomainObject;
@@ -43,7 +43,7 @@ class OrderBalanceServiceTest extends TestCase
     public function test_exact_cash_payment_settles_order(): void
     {
         $balance = $this->service->calculate($this->order(100.0), collect([
-            $this->payment(OrderPaymentType::CASH, 100.0),
+            $this->payment(PaymentTransactionType::PAYMENT, 100.0),
         ]));
 
         $this->assertSame(0.0, $balance->balance);
@@ -55,7 +55,7 @@ class OrderBalanceServiceTest extends TestCase
     public function test_partial_payment_leaves_outstanding_balance(): void
     {
         $balance = $this->service->calculate($this->order(100.0), collect([
-            $this->payment(OrderPaymentType::CASH, 15.0),
+            $this->payment(PaymentTransactionType::PAYMENT, 15.0),
         ]));
 
         $this->assertSame(85.0, $balance->balance);
@@ -66,8 +66,8 @@ class OrderBalanceServiceTest extends TestCase
     public function test_comp_remainder_settles_without_counting_as_cash(): void
     {
         $balance = $this->service->calculate($this->order(100.0), collect([
-            $this->payment(OrderPaymentType::CASH, 15.0),
-            $this->payment(OrderPaymentType::COMP, 85.0),
+            $this->payment(PaymentTransactionType::PAYMENT, 15.0),
+            $this->payment(PaymentTransactionType::COMP, 85.0),
         ]));
 
         $this->assertSame(0.0, $balance->balance);
@@ -79,7 +79,7 @@ class OrderBalanceServiceTest extends TestCase
     public function test_overpayment_surfaces_as_donation(): void
     {
         $balance = $this->service->calculate($this->order(100.0), collect([
-            $this->payment(OrderPaymentType::CASH, 120.0),
+            $this->payment(PaymentTransactionType::PAYMENT, 120.0),
         ]));
 
         $this->assertSame(-20.0, $balance->balance);
@@ -128,11 +128,12 @@ class OrderBalanceServiceTest extends TestCase
         return $order;
     }
 
-    private function payment(OrderPaymentType $type, float $amount): OrderPaymentDomainObject
+    private function payment(PaymentTransactionType $transactionType, float $amount): OrderPaymentDomainObject
     {
         $payment = Mockery::mock(OrderPaymentDomainObject::class);
-        $payment->shouldReceive('getType')->andReturn($type->value);
+        $payment->shouldReceive('getTransactionType')->andReturn($transactionType->value);
         $payment->shouldReceive('getAmount')->andReturn($amount);
+
         return $payment;
     }
 }

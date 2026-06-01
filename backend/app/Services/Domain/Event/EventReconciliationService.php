@@ -2,8 +2,8 @@
 
 namespace HiEvents\Services\Domain\Event;
 
-use HiEvents\DomainObjects\Enums\OrderPaymentType;
 use HiEvents\DomainObjects\Enums\PaymentChannel;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\EventChannelFeeDomainObject;
 use HiEvents\DomainObjects\Generated\EventChannelFeeDomainObjectAbstract;
 use HiEvents\Repository\Interfaces\EventChannelFeeRepositoryInterface;
@@ -21,26 +21,40 @@ use Illuminate\Database\DatabaseManager;
  *   net expected = gross − refunds − comps − write-offs + donations
  *
  * Only COMPLETED and AWAITING_OFFLINE_PAYMENT orders are counted (a sale we still
- * expect to collect). Refunds come from the authoritative orders.total_refunded
- * rollup; they are never ledger rows. Channel labels are translated on the
- * frontend — the backend emits the raw PaymentChannel value.
+ * expect to collect). Money is attributed to a channel from the ledger row's own
+ * payment method (an in-person card reconciles under SQUARE); Stripe receipts are
+ * the STRIPE channel. Refunds are an order-level rollup with no method of their
+ * own, so each order's refund is attributed to the channel of its largest
+ * settling payment. Channel labels are translated on the frontend.
  */
 class EventReconciliationService
 {
     private const COUNTED_STATUSES = "('COMPLETED', 'AWAITING_OFFLINE_PAYMENT')";
 
     /**
-     * Maps an order to its channel from the payment provider / offline method.
-     * An in-person card (CREDIT_CARD) reconciles under the SQUARE channel.
+     * Channel of an order, used to attribute its refund. Stripe orders are the
+     * STRIPE channel; everything else takes the channel of its largest settling
+     * ledger payment (a CREDIT_CARD receipt reconciles under SQUARE).
      */
     private const ORDER_CHANNEL_SQL = <<<'SQL'
         CASE
             WHEN o.payment_provider = 'STRIPE' THEN 'STRIPE'
-            WHEN o.offline_payment_method = 'CREDIT_CARD' THEN 'SQUARE'
-            WHEN o.offline_payment_method = 'CASH' THEN 'CASH'
-            WHEN o.offline_payment_method = 'CHECK' THEN 'CHECK'
-            WHEN o.offline_payment_method = 'BANK_TRANSFER' THEN 'BANK_TRANSFER'
-            ELSE 'OTHER'
+            ELSE COALESCE((
+                SELECT CASE op2.payment_method
+                           WHEN 'CREDIT_CARD' THEN 'SQUARE'
+                           WHEN 'CASH' THEN 'CASH'
+                           WHEN 'CHECK' THEN 'CHECK'
+                           WHEN 'BANK_TRANSFER' THEN 'BANK_TRANSFER'
+                           ELSE 'OTHER'
+                       END
+                FROM order_payments op2
+                WHERE op2.order_id = o.id
+                  AND op2.transaction_type = 'PAYMENT'
+                  AND op2.amount > 0
+                  AND op2.deleted_at IS NULL
+                ORDER BY op2.amount DESC
+                LIMIT 1
+            ), 'OTHER')
         END
     SQL;
 
@@ -58,45 +72,41 @@ class EventReconciliationService
         $statuses = self::COUNTED_STATUSES;
         $channelExpr = self::ORDER_CHANNEL_SQL;
 
-        // Gross receivable and refunds, grouped by the order's channel.
-        $orderRows = $this->db->select(<<<SQL
-            SELECT {$channelExpr} AS channel,
-                   COALESCE(SUM(o.total_gross), 0)    AS gross,
-                   COALESCE(SUM(o.total_refunded), 0) AS refunds
+        // Gross receivable for the event (channel-agnostic top line).
+        $grossTotal = (float) ($this->db->selectOne(<<<SQL
+            SELECT COALESCE(SUM(o.total_gross), 0) AS gross
             FROM orders o
             WHERE o.event_id = :eventId
               AND o.deleted_at IS NULL
               AND o.status IN {$statuses}
-            GROUP BY 1
-        SQL, ['eventId' => $eventId]);
+        SQL, ['eventId' => $eventId])->gross ?? 0);
 
-        // Offline receipts grouped by ledger type (CARD reconciles under SQUARE).
-        $ledgerRows = $this->db->select(<<<SQL
-            SELECT op.type AS type,
-                   COALESCE(SUM(op.amount), 0) AS amount
-            FROM order_payments op
-            INNER JOIN orders o ON o.id = op.order_id
-            WHERE o.event_id = :eventId
-              AND op.deleted_at IS NULL
-              AND o.deleted_at IS NULL
-              AND o.status IN {$statuses}
-            GROUP BY op.type
-        SQL, ['eventId' => $eventId]);
-
-        // Donations grouped by the order's channel (a DONATION row carries the
-        // purpose, not the method, so we attribute it to the order's channel).
-        $donationRows = $this->db->select(<<<SQL
+        // Refunds grouped by the order's settling channel.
+        $refundRows = $this->db->select(<<<SQL
             SELECT {$channelExpr} AS channel,
+                   COALESCE(SUM(o.total_refunded), 0) AS amount
+            FROM orders o
+            WHERE o.event_id = :eventId
+              AND o.deleted_at IS NULL
+              AND o.status IN {$statuses}
+              AND o.total_refunded > 0
+            GROUP BY 1
+        SQL, ['eventId' => $eventId]);
+
+        // Ledger receipts grouped by transaction type and method. PAYMENT/DONATION
+        // carry a method (the channel); COMP/WRITE_OFF settle without money.
+        $ledgerRows = $this->db->select(<<<SQL
+            SELECT op.transaction_type AS transaction_type,
+                   op.payment_method   AS payment_method,
                    COALESCE(SUM(op.amount), 0) AS amount
             FROM order_payments op
             INNER JOIN orders o ON o.id = op.order_id
             WHERE o.event_id = :eventId
-              AND op.type = :donationType
               AND op.deleted_at IS NULL
               AND o.deleted_at IS NULL
               AND o.status IN {$statuses}
-            GROUP BY 1
-        SQL, ['eventId' => $eventId, 'donationType' => OrderPaymentType::DONATION->value]);
+            GROUP BY op.transaction_type, op.payment_method
+        SQL, ['eventId' => $eventId]);
 
         // Confirmed Stripe receipts (amount_received is in minor units).
         $stripeRow = $this->db->selectOne(<<<SQL
@@ -108,6 +118,30 @@ class EventReconciliationService
               AND o.status IN {$statuses}
               AND sp.amount_received > 0
         SQL, ['eventId' => $eventId]);
+        $stripeReceived = round((float) ($stripeRow->received ?? 0), 2);
+
+        $salesByChannel = [];
+        $donationsByChannel = [];
+        $comps = 0.0;
+        $writeOffs = 0.0;
+
+        foreach ($ledgerRows as $row) {
+            $amount = round((float) $row->amount, 2);
+            $channel = self::channelForMethod($row->payment_method);
+
+            match ($row->transaction_type) {
+                PaymentTransactionType::PAYMENT->value => $salesByChannel[$channel] = round(($salesByChannel[$channel] ?? 0) + $amount, 2),
+                PaymentTransactionType::DONATION->value => $donationsByChannel[$channel] = round(($donationsByChannel[$channel] ?? 0) + $amount, 2),
+                PaymentTransactionType::COMP->value => $comps += $amount,
+                PaymentTransactionType::WRITE_OFF->value => $writeOffs += $amount,
+                default => null,
+            };
+        }
+
+        // Stripe receipts are the STRIPE channel; they are not ledger rows.
+        if ($stripeReceived > 0) {
+            $salesByChannel[PaymentChannel::STRIPE->value] = round(($salesByChannel[PaymentChannel::STRIPE->value] ?? 0) + $stripeReceived, 2);
+        }
 
         $fees = $this->eventChannelFeeRepository->findWhere([
             EventChannelFeeDomainObjectAbstract::EVENT_ID => $eventId,
@@ -115,11 +149,12 @@ class EventReconciliationService
 
         return $this->assemble(
             currency: $currency,
-            grossTotal: array_sum(array_map(static fn ($r) => (float) $r->gross, $orderRows)),
-            refundsByChannel: $this->indexByChannel($orderRows, 'refunds'),
-            offlineByType: $this->indexLedger($ledgerRows),
-            stripeReceived: round((float) ($stripeRow->received ?? 0), 2),
-            donationsByChannel: $this->indexByChannel($donationRows, 'amount'),
+            grossTotal: $grossTotal,
+            salesByChannel: $salesByChannel,
+            donationsByChannel: $donationsByChannel,
+            refundsByChannel: $this->indexByChannel($refundRows, 'amount'),
+            comps: round($comps, 2),
+            writeOffs: round($writeOffs, 2),
             feesByChannel: $fees->mapWithKeys(static fn (EventChannelFeeDomainObject $f) => [$f->getChannel() => round((float) $f->getFeeAmount(), 2)])->all(),
             feesUpdatedAt: $fees->max(static fn (EventChannelFeeDomainObject $f) => $f->getUpdatedAt()) ?: null,
             feesUpdatedBy: $fees->isNotEmpty() ? $fees->sortByDesc(static fn (EventChannelFeeDomainObject $f) => $f->getUpdatedAt())->first()->getRecordedByUserId() : null,
@@ -130,38 +165,30 @@ class EventReconciliationService
      * Pure assembly of the reconciliation totals and per-channel breakdown.
      * Kept free of database access so the money math is unit-testable directly.
      *
-     * @param  array<string, float>  $refundsByChannel
-     * @param  array<string, float>  $offlineByType  keyed by OrderPaymentType value
+     * @param  array<string, float>  $salesByChannel  PaymentChannel value => money received (incl. Stripe)
      * @param  array<string, float>  $donationsByChannel
+     * @param  array<string, float>  $refundsByChannel
      * @param  array<string, float>  $feesByChannel
      */
     public function assemble(
         string $currency,
         float $grossTotal,
-        array $refundsByChannel,
-        array $offlineByType,
-        float $stripeReceived,
+        array $salesByChannel,
         array $donationsByChannel,
+        array $refundsByChannel,
+        float $comps,
+        float $writeOffs,
         array $feesByChannel,
         ?string $feesUpdatedAt = null,
         ?int $feesUpdatedBy = null,
     ): EventReconciliationResponseDTO {
-        $comps = round((float) ($offlineByType[OrderPaymentType::COMP->value] ?? 0), 2);
-        $writeOffs = round((float) ($offlineByType[OrderPaymentType::WRITE_OFF->value] ?? 0), 2);
-
-        $salesByChannel = [
-            PaymentChannel::STRIPE->value => round($stripeReceived, 2),
-            PaymentChannel::SQUARE->value => round((float) ($offlineByType[OrderPaymentType::CARD->value] ?? 0), 2),
-            PaymentChannel::CASH->value => round((float) ($offlineByType[OrderPaymentType::CASH->value] ?? 0), 2),
-            PaymentChannel::CHECK->value => round((float) ($offlineByType[OrderPaymentType::CHECK->value] ?? 0), 2),
-            PaymentChannel::BANK_TRANSFER->value => round((float) ($offlineByType[OrderPaymentType::BANK_TRANSFER->value] ?? 0), 2),
-            PaymentChannel::OTHER->value => round((float) ($offlineByType[OrderPaymentType::OTHER->value] ?? 0), 2),
-        ];
+        $comps = round($comps, 2);
+        $writeOffs = round($writeOffs, 2);
 
         $totalReceived = 0.0;
         foreach (PaymentChannel::displayOrder() as $channel) {
             $key = $channel->value;
-            $totalReceived += $salesByChannel[$key] + round((float) ($donationsByChannel[$key] ?? 0), 2);
+            $totalReceived += round((float) ($salesByChannel[$key] ?? 0), 2) + round((float) ($donationsByChannel[$key] ?? 0), 2);
         }
         $totalReceived = round($totalReceived, 2);
 
@@ -172,7 +199,7 @@ class EventReconciliationService
 
         foreach (PaymentChannel::displayOrder() as $channel) {
             $key = $channel->value;
-            $sales = $salesByChannel[$key];
+            $sales = round((float) ($salesByChannel[$key] ?? 0), 2);
             $donations = round((float) ($donationsByChannel[$key] ?? 0), 2);
             $refunds = round((float) ($refundsByChannel[$key] ?? 0), 2);
             $fee = round((float) ($feesByChannel[$key] ?? 0), 2);
@@ -224,6 +251,21 @@ class EventReconciliationService
     }
 
     /**
+     * Maps a ledger row's payment method to its reconciliation channel. A null
+     * method (a legacy donation, or a comp/write-off) falls to OTHER.
+     */
+    private static function channelForMethod(?string $method): string
+    {
+        return match ($method) {
+            'CREDIT_CARD' => PaymentChannel::SQUARE->value,
+            'CASH' => PaymentChannel::CASH->value,
+            'CHECK' => PaymentChannel::CHECK->value,
+            'BANK_TRANSFER' => PaymentChannel::BANK_TRANSFER->value,
+            default => PaymentChannel::OTHER->value,
+        };
+    }
+
+    /**
      * @param  array<int, object>  $rows
      * @return array<string, float>
      */
@@ -232,20 +274,6 @@ class EventReconciliationService
         $indexed = [];
         foreach ($rows as $row) {
             $indexed[$row->channel] = round((float) $row->{$field}, 2);
-        }
-
-        return $indexed;
-    }
-
-    /**
-     * @param  array<int, object>  $rows
-     * @return array<string, float>
-     */
-    private function indexLedger(array $rows): array
-    {
-        $indexed = [];
-        foreach ($rows as $row) {
-            $indexed[$row->type] = round((float) $row->amount, 2);
         }
 
         return $indexed;

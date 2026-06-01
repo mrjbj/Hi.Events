@@ -65,7 +65,8 @@ class ReverseOrderPaymentService
             $this->orderPaymentRepository->create([
                 OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
                 OrderPaymentDomainObjectAbstract::REVERSES_PAYMENT_ID => $original->getId(),
-                OrderPaymentDomainObjectAbstract::TYPE => $original->getType(),
+                OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE => $original->getTransactionType(),
+                OrderPaymentDomainObjectAbstract::PAYMENT_METHOD => $original->getPaymentMethod(),
                 OrderPaymentDomainObjectAbstract::AMOUNT => round($original->getAmount() * -1, 2),
                 OrderPaymentDomainObjectAbstract::CURRENCY => $original->getCurrency(),
                 OrderPaymentDomainObjectAbstract::REFERENCE => $original->getReference(),

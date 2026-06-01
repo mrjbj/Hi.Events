@@ -172,7 +172,6 @@ class SmokeReversalFixtureCommand extends Command
             'status' => 'AWAITING_OFFLINE_PAYMENT',
             'payment_status' => 'AWAITING_OFFLINE_PAYMENT',
             'payment_provider' => 'OFFLINE',
-            'offline_payment_method' => 'CASH',
             'is_manually_created' => true,
             'locale' => 'en',
             'created_at' => now(),

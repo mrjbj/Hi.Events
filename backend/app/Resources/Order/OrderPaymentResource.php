@@ -16,7 +16,8 @@ class OrderPaymentResource extends BaseResource
         return [
             'id' => $this->getId(),
             'reverses_payment_id' => $this->getReversesPaymentId(),
-            'type' => $this->getType(),
+            'transaction_type' => $this->getTransactionType(),
+            'payment_method' => $this->getPaymentMethod(),
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrency(),
             'reference' => $this->getReference(),
