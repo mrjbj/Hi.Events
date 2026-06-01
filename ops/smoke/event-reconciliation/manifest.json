@@ -1,14 +1,15 @@
 {
-  "title": "Smoke Test — Event Reconciliation widget (post transaction_type/payment_method split)",
-  "subtitle": "Re-validates the dashboard reconciliation widget now that order_payments stores transaction_type (PAYMENT/DONATION/COMP/WRITE_OFF) and payment_method (CASH/CHECK/CREDIT_CARD/BANK_TRANSFER) as two orthogonal columns instead of the old overloaded type.",
+  "title": "Smoke Test — Event Reconciliation dashboard (side-by-side layout + money-bearing scope fix)",
+  "subtitle": "Re-validates the reconciliation widget after two changes: the two cards now sit side by side in a flex row (961d86aa), and reconciliation scope was widened so an order that moved money still counts even when CANCELLED (63788383) — so the breakdown ties to the processor's own gross/refund/net.",
   "meta": {
     "App URL": "https://localhost:8443",
-    "Flow": "Login → event 327 dashboard → Event Reconciliation widget → edit + save a channel fee",
+    "Flow": "Login → event 328 dashboard → Event Reconciliation + Funds by Channel cards → edit + save a Stripe channel fee",
     "Branch": "jbj/local",
-    "Schema change": "order_payments.type → transaction_type + payment_method; orders.offline_payment_* and order_payment_adjustments dropped (all confirmed live)",
-    "Event": "327 (smoke:reversal-fixture) enriched with a 7-order multi-channel ledger that exercises every transaction_type x payment_method axis",
+    "Layout change": "961d86aa — Reconciliation and Funds-by-Channel wrapped in a flex row (channel table gets more room); stacks below the md breakpoint",
+    "Scope fix": "63788383 — orders count if an active/expected sale OR they actually moved money (kept/refunded Stripe charge, or ledger rows); RESERVED/ABANDONED still drop out",
+    "Event": "328 (smoke:reversal-fixture) enriched with an 8-order ledger: every transaction_type x payment_method axis PLUS a CANCELLED Stripe order whose $100 charge was kept and $40 refunded",
     "Endpoints": "GET /events/{id}/reconciliation · PATCH /events/{id}/channel-fees",
-    "Backend unit tests": "EventReconciliationServiceTest — 4 passed, 31 assertions"
+    "Service check": "EventReconciliationService::reconcile(328) printed gross=551.57 refunds=60 comps=25 write_offs=10 donations=25 net_expected=481.57 collected=480 — matches the cards exactly"
   },
   "steps": [
     {
@@ -18,37 +19,44 @@
       "screenshot": "shots/01-login.png"
     },
     {
-      "title": "Dashboard loads",
-      "description": "Event dashboard top — existing stat boxes and charts unaffected; the Event Reconciliation widget is appended below.",
+      "title": "Event dashboard loads",
+      "description": "Event 328 dashboard top — existing stat boxes and the sales chart are unaffected; the reconciliation cards are appended below them.",
       "status": "pass",
       "screenshot": "shots/02-dashboard-top.png"
     },
     {
-      "title": "Event Reconciliation card — waterfall ties out",
-      "description": "Three headline tiles (Net expected funds $446.57, Collected to date $420.00 with a 94% progress bar, Net to bank $420.00) and the waterfall: Gross $476.57 − Refunds $20.00 − Comps (forgiven) $35.00 + Donations $25.00 = Net expected $446.57.",
+      "title": "Two cards now sit side by side",
+      "description": "The new flex row: Event Reconciliation on the left, the wider Funds by Channel table on the right. The whole story reads in one viewport — waterfall on the left ties to the per-channel breakdown on the right.",
       "status": "pass",
-      "screenshot": "shots/03-reconciliation-card.png",
-      "notes": "The $35.00 'Comps (forgiven)' line merges the COMP ($25) and WRITE_OFF ($10) transaction_types — both settle without money. Gross is $476.57 = the seeded $475 plus the fixture's untouched $1.57 awaiting-payment order. Backend service output matches this card exactly."
+      "screenshot": "shots/03-cards-side-by-side.png",
+      "notes": "Below the md breakpoint these stack vertically (not captured here). This side-by-side arrangement is the layout change in 961d86aa."
     },
     {
-      "title": "Funds by Channel — payment_method drives the channel",
-      "description": "Per-channel rows derived purely from the ledger's new columns: CREDIT_CARD→Square ($100 sales + $10 donation, −$20 refund), CASH→Cash ($50 + $15 donation), CHECK→Check ($40), BANK_TRANSFER→Bank transfer ($25); Stripe ($200) comes from stripe_payments, not the ledger. Totals reconcile to $415 sales / $25 donations / −$20 refunds / $420 net deposit / 100%.",
+      "title": "Reconciliation card — waterfall ties out",
+      "description": "Three tiles (Net expected $481.57, Collected $480.00 @ 100%, Net to bank $480.00) over the waterfall: Gross $551.57 − Refunds $60.00 − Comps (forgiven) $35.00 + Donations $25.00 = Net expected $481.57.",
       "status": "pass",
-      "screenshot": "shots/04-funds-by-channel.png",
-      "notes": "Validates the split end to end: PAYMENT rows → sales, DONATION rows → donations, COMP+WRITE_OFF → the 'Non-cash credits' footer ($25.00 comps · $10.00 write-offs, no money in the door). The $20 refund attributes to Square — the channel of the order's largest settling CREDIT_CARD payment. Cash & Check fee inputs are disabled (no processing fee); Stripe, Square and Bank transfer are editable."
+      "screenshot": "shots/04-reconciliation-card.png",
+      "notes": "Comps (forgiven) $35.00 merges COMP ($25) + WRITE_OFF ($10). Gross $551.57 = the seeded $550 of in-scope orders plus the fixture's untouched $1.57 awaiting-payment order (the $1.57 uncollected gap rounds the progress bar to 100%). The $551.57 gross now INCLUDES the cancelled order's $100 — netted back out by the refunds line — which is exactly the 63788383 scope fix."
+    },
+    {
+      "title": "Funds by Channel — cancelled-but-paid Stripe order reconciles",
+      "description": "Per-channel rows: Stripe $300.00 sales / − / −$40.00 refund, Square $100.00 / $10.00 / −$20.00, Cash $50.00 / $15.00, Check $40.00, Bank transfer $25.00. Totals $515.00 sales / $25.00 donations / −$60.00 refunds / 100%.",
+      "status": "pass",
+      "screenshot": "shots/05-funds-by-channel.png",
+      "notes": "KEY VALIDATION of 63788383: Stripe $300 = $200 from a COMPLETED order + $100 from a CANCELLED order whose charge was kept; its $40 refund is the Stripe −$40.00. Under the old COMPLETED/AWAITING-only scope that order vanished entirely and Stripe would read $200 with no refund — failing to tie to the processor. PAYMENT rows -> sales, DONATION rows -> donations, COMP+WRITE_OFF -> the footer ($25 comps · $10 write-offs). Cash & Check fee inputs are disabled (no processing fee); Stripe, Square, Bank transfer are editable."
     },
     {
       "title": "Edit a channel fee (dirty state)",
       "description": "Setting the Stripe fee from $0.00 to $7.50 enables the 'Save fees' button.",
       "status": "pass",
-      "screenshot": "shots/05-fee-edited-dirty.png"
+      "screenshot": "shots/06-fee-edited-dirty.png"
     },
     {
       "title": "Save fee — persisted, recorded & recomputed",
-      "description": "Save fires the PATCH and recomputes: Stripe net deposit $200 → $192.50, the waterfall's Processing fees line → −$7.50, Net to bank (est.) → $412.50, Totals fee → $7.50. Footer stamps 'Fees updated May 31, 2026' and the Save button returns to disabled.",
+      "description": "Save fires the PATCH and recomputes across both cards: Stripe fee $7.50 -> Totals fee $7.50, the waterfall's Processing fees line -> −$7.50, Net to bank (est.) -> $472.50. Footer stamps 'Fees updated May 31, 2026' and the Save button returns to disabled.",
       "status": "pass",
-      "screenshot": "shots/06-fee-saved-toast.png",
-      "notes": "DB confirms the round-trip: event_channel_fees upserted all five channels, STRIPE fee_amount=7.50, recorded_by_user_id=545. Full edit → persist → reconcile → re-render cycle works on the new schema."
+      "screenshot": "shots/07-fee-saved-recomputed.png",
+      "notes": "DB confirms the round-trip: event_channel_fees upserted all five channels, STRIPE fee_amount=7.50, recorded_by_user_id=546. Full edit -> persist -> reconcile -> re-render cycle works, and the recomputed total flows into the left card's waterfall, not just the right card's table."
     }
   ]
 }
