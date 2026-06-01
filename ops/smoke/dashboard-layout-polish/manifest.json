@@ -1,0 +1,40 @@
+{
+  "title": "Smoke Test — Dashboard layout + Funds-by-Channel alignment polish",
+  "subtitle": "Visual verification of commit 6889e6ac: charts side-by-side, reconciliation/funds pair, aligned editable Fees column, and the legacy mini stat-cards moved to the bottom.",
+  "meta": {
+    "App URL": "https://localhost:8443",
+    "Branch": "jbj/local",
+    "Commit": "6889e6ac feat(dashboard): reorder cards + align Funds-by-Channel fees column",
+    "User": "playwright@hi-events.test (ADMIN on account 39)",
+    "Event": "10 (Developer-02) — used instead of the requested 272 because 272's Funds-by-Channel has no fee-bearing channel rows; event 10 has a Stripe channel so the editable Fees cell renders",
+    "Flow": "Login → event 10 dashboard → observe reordered cards + aligned Funds-by-Channel table",
+    "Note": "Shots 03/04 use a narrowed viewport so the stacked Funds-by-Channel card renders the table full-width and legible; the side-by-side layout is shown in shots 01–02 at 1440px."
+  },
+  "steps": [
+    {
+      "title": "1 · Product Sales + Revenue charts side by side",
+      "description": "The two charts now share one row at the top of the dashboard (was: stacked). Stacks below the 992px breakpoint.",
+      "status": "pass",
+      "screenshot": "shots/01-charts-side-by-side.png"
+    },
+    {
+      "title": "2 · Event Reconciliation + Funds by Channel pair",
+      "description": "The reconciliation waterfall and the Funds-by-Channel table sit side by side below the charts; the legacy mini stat-cards render below the pair.",
+      "status": "pass",
+      "screenshot": "shots/02-reconciliation-pair.png"
+    },
+    {
+      "title": "3 · Funds-by-Channel: aligned Fees input, all 7 columns fit",
+      "description": "Channel / Sales / Donations / Refunds / Fees / Net Deposit / Share all fit with no horizontal scroll. The editable Fees NumberInput (Stripe row, $0.00) is vertically centered with the row's numeric cells and narrowed for fees ≤ $999.99.",
+      "status": "pass",
+      "screenshot": "shots/03-funds-by-channel-table.png",
+      "notes": "Stripe row Fees cell is the white input box, right-aligned and on the same baseline as $3.14 / Net Deposit."
+    },
+    {
+      "title": "4 · Legacy mini stat-cards at the bottom",
+      "description": "Attendees / Products Sold / Refunded / Gross Sales / Page Views / Completed Orders now render at the bottom of the dashboard, below the charts and reconciliation pair.",
+      "status": "pass",
+      "screenshot": "shots/04-mini-cards-bottom.png"
+    }
+  ]
+}
