@@ -15,6 +15,8 @@ _Nothing open right now — everything designed in [backlog-designs.md](./backlo
 
 ## Shipped
 
+- [x] **Reconciliation: editable Expenses + Gain/(Loss)** — a per-event manual Expenses figure on the Event Reconciliation card with `Gain/(Loss) = net_to_bank − expenses`. New `event_reconciliation_settings` table + `PATCH /events/{id}/reconciliation/expenses`; editable input added to the waterfall (right-aligned with the column, accounting parens + red for a loss) with a dirty-gated Save. (`a9fa8b9a`, alignment polish `0e4e0393`, 2026-06-01)
+
 - [x] **Contact merge** — `MergeContactsAction → Handler → Service`: reassign the duplicate's attendees to the survivor, survivor-wins/fill-gaps for name + attributes, union question-id sets, merge history with a `merge` marker, soft-delete the dup (freeing its email). Merge modal with a gap-fill preview; history panel renders the merge entry. ([design](./backlog-designs.md#6-contact-merge)) (`a4fb43db`, 2026-06-01)
 
 - [x] **Admin email suppression (per-action toggle)** — a "notify the previous address" toggle (default on) on the public self-service Edit Attendee / Edit Order modals; the check-in door already had its flag. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (`92e521da`, 2026-06-01)
