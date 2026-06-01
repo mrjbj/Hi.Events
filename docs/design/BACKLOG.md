@@ -11,8 +11,6 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 
 ## Open ideas
 
-- [ ] **Dashboard card layout + Funds-by-Channel alignment polish** — (1) fix the vertical misalignment of the editable **Fees** text input vs. the other numeric cells in "Funds by Channel" (likely input margin), and narrow the Fees column assuming fees ≤ $999.99; (2) tighten the "Channel" column too, freeing width so "Event Reconciliation" can render its three nested cards with aligned numbers and a non-wrapping "Net Expected Funds" title; (3) reorder the dashboard — put "Product Sales" + "Product Revenue" side-by-side on one row at the top, then "Event Reconciliation" + "Funds by Channel", then the legacy mini-cards below. (2026-06-01)
-
 - [ ] **Contact merge** — merge two duplicate contacts into one canonical record, reassigning their orders/attendees/history to the survivor and retiring the dup. Should be silenceable (see admin email suppression). ([design](./backlog-designs.md#6-contact-merge)) (2026-05-31)
 
 - [ ] **Admin email suppression** — let admins stop outbound notifications when editing email addresses. Re-scoped after a code dig: admin back-office edits already send no email, so only a **per-action toggle** on the public self-service edit modals + check-in door is needed; the global session kill-switch was dropped as a footgun. ([design](./backlog-designs.md#5-admin-email-suppression--per-action-toggle-scoped-down)) (2026-05-31)
@@ -28,5 +26,7 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 - [ ] **Bug: kebab click injects a stray char into the Orders filter** — intermittently, after setting a filter on the Orders page, clicking the "Manage order" kebab drops a random character into the *start* of the filter input (as if typed), which re-filters and hides the row the operator was acting on; they must re-enter the filter. Works on the next try. Likely a focus/keydown leak — the kebab-trigger keypress (or an autofocus stealing the event) is routed into the still-focused search field. ([design](./backlog-designs.md#7-bug-kebab-click-injects-a-stray-char-into-the-orders-filter)) (2026-05-31)
 
 ## Shipped
+
+- [x] **Dashboard card layout + Funds-by-Channel alignment polish** — reordered cards (charts → reconciliation pair → mini-cards), vertically centered + narrowed the editable Fees input, shortened Channel/Fees columns so all 7 columns fit, stopped reconciliation tile labels wrapping. (`6889e6ac`, 2026-06-01)
 
 - [x] **`order_payments` type-split + offline-column cleanup** — split the overloaded `type` column into `transaction_type` + `payment_method`, dropped legacy offline columns. (`b7b51df9`, 2026-05-31)
