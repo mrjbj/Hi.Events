@@ -152,8 +152,6 @@ export const EventDashboard = () => {
             )}
 
             {event && (<>
-                <StatBoxes/>
-
                 {shouldShowChecklist && (
                     <Card className={classes.setupCard}>
                         <div
@@ -307,6 +305,7 @@ export const EventDashboard = () => {
                     />
                 </div>
 
+                <div className={classes.chartRow}>
                 <Card className={classes.chartCard}>
                     <div className={classes.chartCardTitle}>
                         <h2>{t`Product Sales`}</h2>
@@ -377,8 +376,11 @@ export const EventDashboard = () => {
                         areaChartProps={{syncId: 'events'}}
                     />
                 </Card>
+                </div>
 
                 <EventReconciliation eventId={eventId} timezone={event.timezone}/>
+
+                <StatBoxes/>
             </>)}
         </PageBody>
     )

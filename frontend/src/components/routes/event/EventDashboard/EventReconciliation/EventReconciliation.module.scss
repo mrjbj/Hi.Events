@@ -16,11 +16,11 @@
   }
 
   > *:first-child {
-    flex: 1 1 0;
+    flex: 1.1 1 0;
   }
 
   > *:last-child {
-    flex: 1.35 1 0;
+    flex: 1.15 1 0;
   }
 
   @include mixins.respond-below(md) {
@@ -66,11 +66,12 @@
 }
 
 .tileLabel {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--hi-color-gray-dark);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .tileNumber {
@@ -174,13 +175,13 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr 1.2fr 1fr 0.6fr;
+  grid-template-columns: 1.1fr 1fr 1fr 1fr 0.9fr 1fr 0.6fr;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f1f3f5;
   font-size: 0.9rem;
-  min-width: 720px;
+  min-width: 480px;
 }
 
 .headerRow {
@@ -203,6 +204,9 @@
 }
 
 .colFee {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
 }
 
