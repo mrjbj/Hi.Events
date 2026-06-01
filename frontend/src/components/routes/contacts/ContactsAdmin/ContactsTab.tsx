@@ -8,6 +8,7 @@ import {Pagination} from "../../../common/Pagination";
 import {TableSkeleton} from "../../../common/TableSkeleton";
 import {Contact, QueryFilterOperator, QueryFilters} from "../../../../types.ts";
 import {useGetContacts} from "../../../../queries/useGetContacts.ts";
+import {useEscapeClearsFilters} from "../../../../hooks/useEscapeClearsFilters.ts";
 import {useGetEvents} from "../../../../queries/useGetEvents.ts";
 import {useDeleteContact} from "../../../../mutations/useDeleteContact.ts";
 import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
@@ -80,6 +81,13 @@ export const ContactsTab = () => {
     const contacts = contactsQuery.data?.data;
     const pagination = contactsQuery.data?.meta;
     const deleteMutation = useDeleteContact();
+
+    useEscapeClearsFilters({
+        steps: [
+            {isActive: () => query !== '', clear: () => { setQuery(''); setPage(1); }},
+            {isActive: () => eventFilter !== null, clear: () => { setEventFilter(null); setPage(1); }},
+        ],
+    });
 
     const handleEdit = (contact: Contact) => {
         setSelectedContact(contact);

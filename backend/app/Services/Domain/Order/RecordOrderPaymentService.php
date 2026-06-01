@@ -3,6 +3,7 @@
 namespace HiEvents\Services\Domain\Order;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\Generated\OrderPaymentDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
@@ -30,6 +31,7 @@ class RecordOrderPaymentService
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly OrderPaymentRepositoryInterface $orderPaymentRepository,
         private readonly ApplyOrderBalanceStatusService $applyOrderBalanceStatusService,
+        private readonly OrderBalanceService $orderBalanceService,
         private readonly DatabaseManager $databaseManager,
     ) {}
 
@@ -57,19 +59,9 @@ class RecordOrderPaymentService
                 );
             }
 
-            $this->orderPaymentRepository->create([
-                OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
-                OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE => $dto->transactionType->value,
-                OrderPaymentDomainObjectAbstract::PAYMENT_METHOD => $dto->paymentMethod?->value,
-                OrderPaymentDomainObjectAbstract::AMOUNT => round($dto->amount, 2),
-                OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
-                OrderPaymentDomainObjectAbstract::REFERENCE => $dto->reference,
-                OrderPaymentDomainObjectAbstract::NOTE => $dto->note,
-                OrderPaymentDomainObjectAbstract::RECORDED_BY_USER_ID => $dto->recordedByUserId,
-                OrderPaymentDomainObjectAbstract::RECORDED_BY_IP => $dto->recordedByIp,
-                OrderPaymentDomainObjectAbstract::CREATED_AT => now()->toDateTimeString(),
-                OrderPaymentDomainObjectAbstract::UPDATED_AT => now()->toDateTimeString(),
-            ]);
+            foreach ($this->resolvePaymentRows($order, $dto) as $row) {
+                $this->orderPaymentRepository->create($row);
+            }
 
             $this->applyOrderBalanceStatusService->apply($order);
 
@@ -78,5 +70,58 @@ class RecordOrderPaymentService
                 ->loadRelation(AttendeeDomainObject::class)
                 ->findById($order->getId());
         });
+    }
+
+    /**
+     * A PAYMENT that exceeds the outstanding balance can be split into the
+     * settling receipt plus a DONATION row for the excess (same method), so an
+     * over-the-counter overpayment is recorded as a donation rather than left as
+     * an unattributed "overpaid". Any other transaction type, or a payment that
+     * doesn't actually overshoot, records a single row as-is.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolvePaymentRows(OrderDomainObject $order, RecordOrderPaymentDTO $dto): array
+    {
+        $amount = round($dto->amount, 2);
+
+        if ($dto->splitExcessAsDonation && $dto->transactionType === PaymentTransactionType::PAYMENT) {
+            $outstanding = round(max(0.0, $this->orderBalanceService->getBalanceForOrder($order)->balance), 2);
+            $excess = round($amount - $outstanding, 2);
+
+            if ($outstanding > 0.0 && $excess > 0.0) {
+                return [
+                    $this->buildRow($order, $dto, PaymentTransactionType::PAYMENT, $outstanding, $dto->note),
+                    $this->buildRow($order, $dto, PaymentTransactionType::DONATION, $excess, $dto->note ?? __('Overpayment recorded as donation')),
+                ];
+            }
+        }
+
+        return [$this->buildRow($order, $dto, $dto->transactionType, $amount, $dto->note)];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildRow(
+        OrderDomainObject $order,
+        RecordOrderPaymentDTO $dto,
+        PaymentTransactionType $transactionType,
+        float $amount,
+        ?string $note,
+    ): array {
+        return [
+            OrderPaymentDomainObjectAbstract::ORDER_ID => $order->getId(),
+            OrderPaymentDomainObjectAbstract::TRANSACTION_TYPE => $transactionType->value,
+            OrderPaymentDomainObjectAbstract::PAYMENT_METHOD => $dto->paymentMethod?->value,
+            OrderPaymentDomainObjectAbstract::AMOUNT => round($amount, 2),
+            OrderPaymentDomainObjectAbstract::CURRENCY => $order->getCurrency(),
+            OrderPaymentDomainObjectAbstract::REFERENCE => $dto->reference,
+            OrderPaymentDomainObjectAbstract::NOTE => $note,
+            OrderPaymentDomainObjectAbstract::RECORDED_BY_USER_ID => $dto->recordedByUserId,
+            OrderPaymentDomainObjectAbstract::RECORDED_BY_IP => $dto->recordedByIp,
+            OrderPaymentDomainObjectAbstract::CREATED_AT => now()->toDateTimeString(),
+            OrderPaymentDomainObjectAbstract::UPDATED_AT => now()->toDateTimeString(),
+        ];
     }
 }

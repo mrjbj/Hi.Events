@@ -244,14 +244,30 @@ class CreateAttendeeCheckInService
         }
 
         if ($amount >= $outstanding - 0.001) {
+            $excess = round($amount - $outstanding, 2);
+            $splitDonation = $attendeeAction->split_excess_as_donation && $outstanding > 0.0 && $excess > 0.0;
+
             $this->markOrderAsPaidService->markOrderAsPaid(new MarkOrderAsPaidDTO(
                 eventId: $attendee->getEventId(),
                 orderId: $attendee->getOrderId(),
                 paymentMethod: $method,
                 paymentReference: $attendeeAction->payment_reference,
-                amountReceived: $amount,
+                amountReceived: $splitDonation ? $outstanding : $amount,
                 recordedByIp: $checkInUserIpAddress,
             ));
+
+            if ($splitDonation) {
+                $this->recordOrderPaymentService->record(new RecordOrderPaymentDTO(
+                    eventId: $attendee->getEventId(),
+                    orderId: $attendee->getOrderId(),
+                    transactionType: PaymentTransactionType::DONATION,
+                    amount: $excess,
+                    paymentMethod: $method,
+                    reference: $attendeeAction->payment_reference,
+                    note: __('Overpayment recorded as donation'),
+                    recordedByIp: $checkInUserIpAddress,
+                ));
+            }
 
             return;
         }

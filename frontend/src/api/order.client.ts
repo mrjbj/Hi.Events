@@ -62,6 +62,7 @@ export interface RecordOrderPaymentPayload {
     amount: number;
     reference?: string | null;
     note?: string | null;
+    split_excess_as_donation?: boolean;
 }
 
 export interface ReverseOrderPaymentPayload {

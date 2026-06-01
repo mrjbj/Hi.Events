@@ -18,5 +18,6 @@ class RecordOrderPaymentDTO extends BaseDataObject
         public readonly ?string $note = null,
         public readonly ?int $recordedByUserId = null,
         public readonly ?string $recordedByIp = null,
+        public readonly bool $splitExcessAsDonation = false,
     ) {}
 }

@@ -23,6 +23,7 @@ class CreateAttendeeCheckInPublicRequest extends BaseRequest
             ],
             'attendees.*.payment_reference' => ['nullable', 'string', 'max:255'],
             'attendees.*.amount' => ['nullable', 'numeric', 'gt:0'],
+            'attendees.*.split_excess_as_donation' => ['nullable', 'boolean'],
         ];
     }
 }

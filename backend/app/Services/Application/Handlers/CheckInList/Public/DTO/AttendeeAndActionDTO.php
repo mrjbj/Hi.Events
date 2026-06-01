@@ -14,6 +14,7 @@ class AttendeeAndActionDTO extends Data
         public ?OfflinePaymentMethod      $payment_method = null,
         public ?string                    $payment_reference = null,
         public ?float                     $amount = null,
+        public bool                       $split_excess_as_donation = false,
     )
     {
     }

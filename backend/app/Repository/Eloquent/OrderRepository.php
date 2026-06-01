@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace HiEvents\Repository\Eloquent;
 
 use HiEvents\DomainObjects\AttendeeDomainObject;
+use HiEvents\DomainObjects\Enums\OfflinePaymentMethod;
+use HiEvents\DomainObjects\Enums\PaymentTransactionType;
 use HiEvents\DomainObjects\Generated\OrderDomainObjectAbstract;
 use HiEvents\DomainObjects\OrderDomainObject;
 use HiEvents\DomainObjects\OrderItemDomainObject;
@@ -57,6 +59,11 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         // whereHas('order_items', ...) clause.
         $this->applyProductIdFilter($params);
 
+        // payment_type spans the order_payments ledger (method/transaction_type)
+        // plus the separate stripe_payments table, so it can't be a generic
+        // allowed-field either. Route each selected value to the right column.
+        $this->applyPaymentTypeFilter($params);
+
         if (!empty($params->filter_fields)) {
             $this->applyFilterFields($params, OrderDomainObject::getAllowedFilterFields());
         }
@@ -102,6 +109,79 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
         $this->model = $this->model->whereHas('order_items', static function (Builder $q) use ($productIds) {
             $q->whereIn('product_id', $productIds);
         });
+    }
+
+    /**
+     * Filter orders by how they were paid. The single combined "payment_type"
+     * filter carries a mix of offline methods (CASH/CHECK/CREDIT_CARD/...),
+     * ledger transaction types (COMP/DONATION) and STRIPE — each routed to its
+     * own column or relation. Selecting several is a union: an order matches if
+     * it has a live (non-reversed) ledger row of any chosen method/type, or a
+     * confirmed Stripe payment when STRIPE is chosen.
+     */
+    private function applyPaymentTypeFilter(QueryParamsDTO $params): void
+    {
+        $filterFields = $params->filter_fields;
+        if (!$filterFields || $filterFields->isEmpty()) {
+            return;
+        }
+
+        $filter = $filterFields->first(static fn ($f) => $f->field === 'payment_type');
+        if (!$filter) {
+            return;
+        }
+
+        $values = is_array($filter->value)
+            ? $filter->value
+            : explode(',', (string) $filter->value);
+        $values = array_values(array_filter(array_map(
+            static fn ($v) => strtoupper(trim((string) $v)),
+            $values,
+        )));
+
+        if (empty($values)) {
+            return;
+        }
+
+        $methodValues = array_map(static fn (OfflinePaymentMethod $m) => $m->value, OfflinePaymentMethod::cases());
+        $methods = array_values(array_intersect($values, $methodValues));
+        $transactionTypes = array_values(array_intersect(
+            $values,
+            [PaymentTransactionType::COMP->value, PaymentTransactionType::DONATION->value],
+        ));
+        $includeStripe = in_array('STRIPE', $values, true);
+
+        if (empty($methods) && empty($transactionTypes) && ! $includeStripe) {
+            return;
+        }
+
+        $this->model = $this->model->where(function (Builder $query) use ($methods, $transactionTypes, $includeStripe) {
+            if (!empty($methods)) {
+                $query->orWhereHas('order_payments', fn (Builder $q) => $this->scopeLivePayments($q)->whereIn('payment_method', $methods));
+            }
+            if (!empty($transactionTypes)) {
+                $query->orWhereHas('order_payments', fn (Builder $q) => $this->scopeLivePayments($q)->whereIn('transaction_type', $transactionTypes));
+            }
+            if ($includeStripe) {
+                $query->orWhereHas('stripe_payment', static fn (Builder $q) => $q->where('amount_received', '>', 0));
+            }
+        });
+    }
+
+    /**
+     * Restrict to ledger rows that still count: not a reversal entry, and not
+     * itself reversed by a later entry.
+     */
+    private function scopeLivePayments(Builder $query): Builder
+    {
+        return $query
+            ->whereNull('reverses_payment_id')
+            ->whereNotExists(static function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('order_payments as reversals')
+                    ->whereColumn('reversals.reverses_payment_id', 'order_payments.id')
+                    ->whereNull('reversals.deleted_at');
+            });
     }
 
     public function findByOrganizerId(int $organizerId, int $accountId, QueryParamsDTO $params): LengthAwarePaginator

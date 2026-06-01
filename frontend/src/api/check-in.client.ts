@@ -45,6 +45,7 @@ export const publicCheckInClient = {
             payment_method: string;
             payment_reference?: string | null;
             amount?: number | null;
+            split_excess_as_donation?: boolean;
         },
     ) => {
         const attendeePayload: Record<string, unknown> = {
@@ -55,6 +56,7 @@ export const publicCheckInClient = {
             attendeePayload.payment_method = payment.payment_method;
             attendeePayload.payment_reference = payment.payment_reference ?? null;
             attendeePayload.amount = payment.amount ?? null;
+            attendeePayload.split_excess_as_donation = payment.split_excess_as_donation ?? false;
         }
         const response = await publicApi.post<GenericDataResponse<PublicCheckIn[]>>(
             `/check-in-lists/${checkInListShortId}/check-ins`,

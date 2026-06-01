@@ -13,6 +13,7 @@ import {SearchBarWrapper} from "../../common/SearchBar";
 import {Pagination} from "../../common/Pagination";
 import {ToolBar} from "../../common/ToolBar";
 import {useFilterQueryParamSync} from "../../../hooks/useFilterQueryParamSync";
+import {useEscapeClearsFilters} from "../../../hooks/useEscapeClearsFilters";
 import {IdParam, QueryFilterCondition, QueryFilterOperator, QueryFilters} from "../../../types";
 import {TableSkeleton} from "../../common/TableSkeleton";
 import {orderClient} from "../../../api/order.client";
@@ -29,6 +30,17 @@ const orderStatuses = [
 const refundStatuses = [
     {label: t`Refunded`, value: 'REFUNDED'},
     {label: t`Partially Refunded`, value: 'PARTIALLY_REFUNDED'},
+];
+
+const paymentTypes = [
+    {label: t`Cash`, value: 'CASH'},
+    {label: t`Check`, value: 'CHECK'},
+    {label: t`Card`, value: 'CREDIT_CARD'},
+    {label: t`Bank transfer`, value: 'BANK_TRANSFER'},
+    {label: t`Other`, value: 'OTHER'},
+    {label: t`Comp`, value: 'COMP'},
+    {label: t`Donation`, value: 'DONATION'},
+    {label: t`Stripe`, value: 'STRIPE'},
 ];
 
 export const Orders: React.FC = () => {
@@ -64,6 +76,12 @@ export const Orders: React.FC = () => {
             label: t`Tickets / Products`,
             type: 'multi-select',
             options: productOptions
+        },
+        {
+            field: 'payment_type',
+            label: t`Payment Type`,
+            type: 'multi-select',
+            options: paymentTypes
         }
     ];
 
@@ -80,6 +98,9 @@ export const Orders: React.FC = () => {
                     : undefined,
                 product_id: values.product_id?.length > 0
                     ? {operator: QueryFilterOperator.In, value: values.product_id}
+                    : undefined,
+                payment_type: values.payment_type?.length > 0
+                    ? {operator: QueryFilterOperator.In, value: values.payment_type}
                     : undefined
             }
         };
@@ -94,6 +115,19 @@ export const Orders: React.FC = () => {
         };
         setSearchParams(clearedFilters as QueryFilters, true); // Added true to replace instead of merge
     };
+
+    useEscapeClearsFilters({
+        steps: [
+            {
+                isActive: () => !!searchParams.query,
+                clear: () => setSearchParams({query: '', pageNumber: 1}),
+            },
+            {
+                isActive: () => Object.keys(searchParams.filterFields || {}).length > 0,
+                clear: handleResetFilters,
+            },
+        ],
+    });
 
     const handleExport = async (eventId: IdParam) => {
         await withLoadingNotification(async () => {
@@ -126,7 +160,8 @@ export const Orders: React.FC = () => {
     const currentFilters = {
         status: filterFields?.status?.value || [],
         refund_status: filterFields?.refund_status?.value || [],
-        product_id: filterFields?.product_id?.value || []
+        product_id: filterFields?.product_id?.value || [],
+        payment_type: filterFields?.payment_type?.value || []
     };
 
     return (

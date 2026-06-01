@@ -23,6 +23,7 @@ class RecordOrderPaymentRequest extends FormRequest
                 Rule::in(OfflinePaymentMethod::valuesArray()),
             ],
             'amount' => ['required', 'numeric', 'gt:0'],
+            'split_excess_as_donation' => ['nullable', 'boolean'],
             'reference' => ['nullable', 'string', 'max:255'],
             'note' => [
                 Rule::requiredIf(fn () => in_array($this->input('transaction_type'), $forgivenessTypes, true)),

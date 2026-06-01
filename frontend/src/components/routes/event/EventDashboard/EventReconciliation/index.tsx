@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {t, Trans} from "@lingui/macro";
-import {Button, NumberInput, Skeleton} from "@mantine/core";
-import {IconDownload} from "@tabler/icons-react";
+import {Button, Menu, NumberInput, Skeleton} from "@mantine/core";
+import {IconChevronDown, IconDownload} from "@tabler/icons-react";
 import {Card} from "../../../../common/Card";
 import classes from "./EventReconciliation.module.scss";
 import {useGetEventReconciliation} from "../../../../../queries/useGetEventReconciliation.ts";
@@ -11,6 +11,7 @@ import {showError, showSuccess} from "../../../../../utilites/notifications.tsx"
 import {ChannelFeeInput, EventReconciliationChannel, IdParam, PaymentChannel} from "../../../../../types.ts";
 import {formatDateWithLocale} from "../../../../../utilites/dates.ts";
 import {orderClient} from "../../../../../api/order.client.ts";
+import {attendeesClient} from "../../../../../api/attendee.client.ts";
 import {downloadBinary} from "../../../../../utilites/download.ts";
 import {withLoadingNotification} from "../../../../../utilites/withLoadingNotification.tsx";
 
@@ -47,24 +48,26 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
     const [feeDrafts, setFeeDrafts] = useState<Record<string, number | string>>({});
     const [exportPending, setExportPending] = useState(false);
 
-    const handleExport = async () => {
+    const handleExport = async (type: 'orders' | 'attendees') => {
         await withLoadingNotification(async () => {
                 setExportPending(true);
-                const blob = await orderClient.exportOrders(eventId);
-                downloadBinary(blob, 'orders.xlsx');
+                const blob = type === 'orders'
+                    ? await orderClient.exportOrders(eventId)
+                    : await attendeesClient.export(eventId);
+                downloadBinary(blob, `${type}.xlsx`);
             },
             {
                 loading: {
-                    title: t`Exporting orders`,
-                    message: t`Please wait while we prepare your orders for export...`,
+                    title: t`Exporting`,
+                    message: t`Please wait while we prepare your export...`,
                 },
                 success: {
-                    title: t`Orders exported`,
-                    message: t`Your orders have been exported successfully.`,
+                    title: t`Export ready`,
+                    message: t`Your download should begin shortly.`,
                     onRun: () => setExportPending(false),
                 },
                 error: {
-                    title: t`Failed to export orders`,
+                    title: t`Export failed`,
                     message: t`Please try again.`,
                     onRun: () => setExportPending(false),
                 },
@@ -120,16 +123,28 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
             <Card className={classes.card}>
                 <div className={classes.cardTitle}>
                     <h2><Trans>Event Reconciliation</Trans></h2>
-                    <Button
-                        size="xs"
-                        variant="light"
-                        radius="md"
-                        loading={exportPending}
-                        onClick={handleExport}
-                        rightSection={<IconDownload size={14}/>}
-                    >
-                        <Trans>Export orders</Trans>
-                    </Button>
+                    <Menu shadow="md" position="bottom-end" withinPortal>
+                        <Menu.Target>
+                            <Button
+                                size="xs"
+                                variant="light"
+                                radius="md"
+                                loading={exportPending}
+                                leftSection={<IconDownload size={14}/>}
+                                rightSection={<IconChevronDown size={14}/>}
+                            >
+                                <Trans>Export</Trans>
+                            </Button>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                            <Menu.Item onClick={() => handleExport('orders')}>
+                                <Trans>Orders</Trans>
+                            </Menu.Item>
+                            <Menu.Item onClick={() => handleExport('attendees')}>
+                                <Trans>Attendees</Trans>
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
                 </div>
 
                 <div className={classes.tiles}>

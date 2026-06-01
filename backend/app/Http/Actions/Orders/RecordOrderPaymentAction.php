@@ -40,6 +40,7 @@ class RecordOrderPaymentAction extends BaseAction
                 note: $validated['note'] ?? null,
                 recordedByUserId: $this->getAuthenticatedUser()->getId(),
                 recordedByIp: $request->ip(),
+                splitExcessAsDonation: (bool) ($validated['split_excess_as_donation'] ?? false),
             ));
         } catch (ResourceConflictException $e) {
             return $this->errorResponse($e->getMessage(), Response::HTTP_CONFLICT);

@@ -148,6 +148,56 @@ class CreateAttendeeCheckInServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function test_overpayment_with_split_settles_and_records_donation(): void
+    {
+        $this->arrangeCheckIn(outstandingBalance: 100.0);
+
+        // Agent collected $120 on a $100 balance and chose to record the extra
+        // $20 as a donation: the order settles for the $100 owed, and a separate
+        // DONATION row captures the $20 excess (same method).
+        $this->markOrderAsPaidService
+            ->shouldReceive('markOrderAsPaid')
+            ->once()
+            ->with(Mockery::on(fn (MarkOrderAsPaidDTO $dto) => $dto->amountReceived === 100.0));
+        $this->recordOrderPaymentService
+            ->shouldReceive('record')
+            ->once()
+            ->with(Mockery::on(fn (RecordOrderPaymentDTO $dto) => $dto->transactionType === PaymentTransactionType::DONATION
+                && $dto->amount === 20.0
+                && $dto->paymentMethod === OfflinePaymentMethod::CASH
+                && $dto->recordedByIp === '10.0.0.1'));
+
+        $this->service->checkInAttendees(
+            'cil_uuid',
+            '10.0.0.1',
+            $this->actions(amount: 120.0, splitExcess: true),
+        );
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_overpayment_without_split_records_full_amount(): void
+    {
+        $this->arrangeCheckIn(outstandingBalance: 100.0);
+
+        // Same $120 overpayment but the donation split was not requested — the
+        // full amount settles via mark-as-paid (overpaid is derived later), with
+        // no donation row written.
+        $this->markOrderAsPaidService
+            ->shouldReceive('markOrderAsPaid')
+            ->once()
+            ->with(Mockery::on(fn (MarkOrderAsPaidDTO $dto) => $dto->amountReceived === 120.0));
+        $this->recordOrderPaymentService->shouldNotReceive('record');
+
+        $this->service->checkInAttendees(
+            'cil_uuid',
+            '10.0.0.1',
+            $this->actions(amount: 120.0),
+        );
+
+        $this->addToAssertionCount(1);
+    }
+
     private function arrangeCheckIn(float $outstandingBalance): void
     {
         $checkInList = Mockery::mock(CheckInListDomainObject::class);
@@ -194,7 +244,7 @@ class CreateAttendeeCheckInServiceTest extends TestCase
         );
     }
 
-    private function actions(?float $amount): Collection
+    private function actions(?float $amount, bool $splitExcess = false): Collection
     {
         return collect([
             new AttendeeAndActionDTO(
@@ -203,6 +253,7 @@ class CreateAttendeeCheckInServiceTest extends TestCase
                 payment_method: OfflinePaymentMethod::CASH,
                 payment_reference: 'collected by J. Doe',
                 amount: $amount,
+                split_excess_as_donation: $splitExcess,
             ),
         ]);
     }

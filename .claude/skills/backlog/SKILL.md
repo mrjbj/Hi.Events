@@ -19,6 +19,37 @@ The user's phrasing picks the mode:
   the open ideas; don't edit.
 - **Ship** ("mark X shipped", "X landed") — move that entry from **Open ideas** to
   **Shipped**, flip `- [ ]` to `- [x]`, and append the commit hash if known.
+- **Triage / design** ("design the backlog", "flesh these out", "review the list") — read
+  the open ideas and produce a design for each. See **Triage/design mode** below.
+
+## Triage/design mode
+
+These entries were *jotted down mid-flow* — quick captures, not deliberative specs. Treat
+them more skeptically than a normal prompt: the user has explicitly said some ideas may be
+half-formed, quirky, or plain bad, and wants you to push back, not just comply.
+
+1. **Map before you design.** Read each idea's linked `project-*` memory, then verify the
+   premise against the actual code (fan out `Explore` agents over the subsystems each idea
+   touches). Quick captures often assume something the codebase contradicts — find that gap
+   *before* writing a design.
+2. **Challenge the premise.** For each idea ask: does the problem it describes actually
+   exist in the code? Is there a simpler fix, or an existing mechanism that already covers
+   it? Is it a footgun (a blunt global switch, a silent data mutation, an irreversible
+   merge)? Say so plainly — "this may be unnecessary because …" is a valid design outcome.
+   Recommend *not* building, or building smaller, when that's the honest call.
+3. **Ask the blocking forks, default the rest.** Where an answer materially changes scope
+   (conflict-resolution depth, global-vs-targeted, UI shape), ask via `AskUserQuestion`
+   (lead with your recommended option). Where a sensible default exists, take it and note it
+   — don't interrogate.
+4. **Write designs to a doc, not the backlog.** Keep `BACKLOG.md` a terse list. Put the
+   per-feature designs in `docs/design/backlog-designs.md` (problem · decision · approach
+   backend/frontend · files to touch · edge cases · test plan · rough effort). Link each
+   `BACKLOG.md` entry to its design section once written.
+5. **Respect the house rules** (`CLAUDE.md`): Action→Handler→Service→Repository, no Eloquent
+   outside repositories, `BaseAction` response helpers, `__()` on strings, DTOs extend
+   `BaseDataObject`, `mix ash.migrate`-style generated migrations are N/A here (this is
+   Laravel — use `php artisan make:migration` + `generate-domain-objects`), unit tests in
+   `backend/tests/Unit/`. A design that violates these is wrong on arrival.
 
 ## Adding an entry
 

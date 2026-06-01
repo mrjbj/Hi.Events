@@ -10,6 +10,7 @@ import {IconDownload, IconPlus} from "@tabler/icons-react";
 import {ToolBar} from "../../common/ToolBar";
 import {TableSkeleton} from "../../common/TableSkeleton";
 import {useFilterQueryParamSync} from "../../../hooks/useFilterQueryParamSync.ts";
+import {useEscapeClearsFilters} from "../../../hooks/useEscapeClearsFilters.ts";
 import {IdParam, ProductType, QueryFilterOperator, QueryFilters} from "../../../types.ts";
 import {useDisclosure} from "@mantine/hooks";
 import {CreateAttendeeModal} from "../../modals/CreateAttendeeModal";
@@ -141,6 +142,19 @@ const Attendees = () => {
             pageNumber: 1
         } as QueryFilters, true);
     };
+
+    useEscapeClearsFilters({
+        steps: [
+            {
+                isActive: () => !!searchParams.query,
+                clear: () => setSearchParams({query: '', pageNumber: 1}),
+            },
+            {
+                isActive: () => Object.keys(searchParams.filterFields || {}).length > 0,
+                clear: handleResetFilters,
+            },
+        ],
+    });
 
     const handleExport = async (eventId: IdParam) => {
         await withLoadingNotification(async () => {

@@ -24,6 +24,7 @@ import Truncate from "../../common/Truncate";
 import {Header} from "../../common/Header";
 import {publicCheckInClient} from "../../../api/check-in.client.ts";
 import {isSsr} from "../../../utilites/helpers.ts";
+import {useEscapeClearsFilters} from "../../../hooks/useEscapeClearsFilters.ts";
 import {AttendeeList} from "../../common/CheckIn/AttendeeList";
 import {CheckInOptionsModal} from "../../common/CheckIn/CheckInOptionsModal";
 import {AttendeeProfileModal} from "../../common/CheckIn/AttendeeProfileModal";
@@ -179,31 +180,14 @@ const CheckIn = () => {
     }, [checkInList?.short_id]);
 
     // Document-level Escape handler so the search-clear / filter-clear shortcut
-    // works regardless of which control on the page currently has focus. We
-    // bail when any modal is open so Mantine's modal-close-on-Escape behavior
-    // wins (the user expects Esc to close a modal first).
-    useEffect(() => {
-        const onKey = (event: KeyboardEvent) => {
-            if (event.key !== 'Escape') return;
-            if (typeof document !== 'undefined' && document.querySelector('[role="dialog"]')) {
-                return;
-            }
-            if (searchQuery !== '') {
-                event.preventDefault();
-                setSearchQuery('');
-                focusSearch();
-                return;
-            }
-            if (attendeeFilter !== null) {
-                event.preventDefault();
-                setAttendeeFilter(null);
-                focusSearch();
-            }
-        };
-        if (typeof document === 'undefined') return;
-        document.addEventListener('keydown', onKey);
-        return () => document.removeEventListener('keydown', onKey);
-    }, [searchQuery, attendeeFilter, focusSearch]);
+    // works regardless of which control on the page currently has focus.
+    useEscapeClearsFilters({
+        steps: [
+            {isActive: () => searchQuery !== '', clear: () => setSearchQuery('')},
+            {isActive: () => attendeeFilter !== null, clear: () => setAttendeeFilter(null)},
+        ],
+        onCleared: focusSearch,
+    });
 
     // Save sound preference to localStorage
     useEffect(() => {
@@ -250,6 +234,7 @@ const CheckIn = () => {
             payment_method: string;
             payment_reference?: string | null;
             amount?: number | null;
+            split_excess_as_donation?: boolean;
         },
     ): Promise<void> => new Promise<void>((resolve) => {
         checkInMutation.mutate({

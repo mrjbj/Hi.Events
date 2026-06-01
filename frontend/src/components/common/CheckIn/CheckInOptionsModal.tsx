@@ -1,4 +1,4 @@
-import {Alert, Button, Group, Modal, NumberInput, Select, Stack, Text, TextInput} from "@mantine/core";
+import {Alert, Button, Checkbox, Group, Modal, NumberInput, Select, Stack, Text, TextInput} from "@mantine/core";
 import {IconAlertCircle, IconCreditCard, IconUserCheck} from "@tabler/icons-react";
 import {t, Trans} from "@lingui/macro";
 import {useEffect, useState} from "react";
@@ -11,6 +11,7 @@ export interface MarkAsPaidPayload {
     payment_method: OfflinePaymentMethod;
     payment_reference?: string | null;
     amount?: number | null;
+    split_excess_as_donation?: boolean;
 }
 
 interface CheckInOptionsModalProps {
@@ -33,9 +34,11 @@ export const CheckInOptionsModal = ({
     const [showPaymentForm, setShowPaymentForm] = useState(false);
     const [method, setMethod] = useState<OfflinePaymentMethod>('CASH');
     const [reference, setReference] = useState('');
+    const [splitExcessAsDonation, setSplitExcessAsDonation] = useState(true);
     const owed = attendee?.order_total_gross ?? 0;
     const currency = attendee?.order_currency ?? 'USD';
     const [amount, setAmount] = useState<number | ''>(owed);
+    const excess = amount === '' ? 0 : Math.max(0, Number(amount) - owed);
 
     // Default the amount-received field to the full order total whenever the
     // modal is (re)opened for an attendee — the agent overrides with the cash
@@ -50,6 +53,7 @@ export const CheckInOptionsModal = ({
         setShowPaymentForm(false);
         setMethod('CASH');
         setReference('');
+        setSplitExcessAsDonation(true);
         setAmount(owed);
     };
 
@@ -63,6 +67,7 @@ export const CheckInOptionsModal = ({
             payment_method: method,
             payment_reference: reference.trim() === '' ? null : reference.trim(),
             amount: amount === '' ? null : Number(amount),
+            split_excess_as_donation: excess > 0 ? splitExcessAsDonation : undefined,
         });
     };
 
@@ -137,6 +142,13 @@ export const CheckInOptionsModal = ({
                             value={amount}
                             onChange={(val) => setAmount(val === '' ? '' : Number(val))}
                         />
+                        {excess > 0 && (
+                            <Checkbox
+                                checked={splitExcessAsDonation}
+                                onChange={(e) => setSplitExcessAsDonation(e.currentTarget.checked)}
+                                label={<Trans>Record the extra {formatCurrency(excess, currency)} as a donation</Trans>}
+                            />
+                        )}
                         <TextInput
                             label={t`Reference (optional)`}
                             placeholder={t`e.g. collected by J. Doe, Square #1234`}

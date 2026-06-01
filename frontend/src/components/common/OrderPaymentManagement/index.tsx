@@ -1,9 +1,10 @@
 import {ActionIcon, Badge, Box, Divider, Group, Modal, NumberInput, Select, Stack, Table, Text, TextInput, Textarea, Tooltip} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useDisclosure} from "@mantine/hooks";
+import {modals} from "@mantine/modals";
 import {useState} from "react";
 import {t, Trans} from "@lingui/macro";
-import {IconArrowBackUp, IconGift, IconReceiptRefund} from "@tabler/icons-react";
+import {IconArrowBackUp, IconGift, IconLock, IconReceiptRefund} from "@tabler/icons-react";
 import {useParams} from "react-router";
 import {Order, OrderPayment, OrderPaymentMethod, OrderPaymentTransactionType} from "../../../types.ts";
 import {formatCurrency} from "../../../utilites/currency.ts";
@@ -65,6 +66,10 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
     const [reverseReason, setReverseReason] = useState('');
     const [reverseReasonError, setReverseReasonError] = useState<string | null>(null);
     const [refundOpen, refundHandlers] = useDisclosure(false);
+    const [unlocked, setUnlocked] = useState(false);
+
+    const isSettled = !!balance?.isSettled;
+    const formLocked = isSettled && !unlocked;
 
     const isRefundable = !order.is_free_order
         && order.status !== 'AWAITING_OFFLINE_PAYMENT'
@@ -81,7 +86,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
         },
     });
 
-    const submit = (values: typeof form.values) => {
+    const doRecord = (values: typeof form.values, splitExcessAsDonation: boolean) => {
         recordPayment.mutate({
             eventId,
             orderId: order.id,
@@ -91,14 +96,50 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                 amount: Number(values.amount),
                 reference: values.reference.trim() === '' ? null : values.reference.trim(),
                 note: values.note.trim() === '' ? null : values.note.trim(),
+                split_excess_as_donation: splitExcessAsDonation || undefined,
             },
         }, {
             onSuccess: () => {
                 showSuccess(t`Payment recorded`);
                 form.reset();
+                setUnlocked(false);
                 onUpdated();
             },
             onError: (error) => errorHandler(form, error),
+        });
+    };
+
+    const submit = (values: typeof form.values) => {
+        const amount = Number(values.amount);
+        const excess = amount - outstanding;
+        if (values.transaction_type === 'PAYMENT' && outstanding > 0 && excess > 0) {
+            modals.openConfirmModal({
+                title: t`Record overpayment as donation?`,
+                children: (
+                    <Text size="sm">
+                        <Trans>
+                            This is {formatCurrency(excess, currency)} more than the {formatCurrency(outstanding, currency)} owed.
+                            Record the extra {formatCurrency(excess, currency)} as a donation?
+                        </Trans>
+                    </Text>
+                ),
+                labels: {confirm: t`Yes, record as donation`, cancel: t`No, leave as overpayment`},
+                onConfirm: () => doRecord(values, true),
+                onCancel: () => doRecord(values, false),
+            });
+            return;
+        }
+        doRecord(values, false);
+    };
+
+    const confirmUnlock = () => {
+        modals.openConfirmModal({
+            title: t`Add another transaction?`,
+            children: (
+                <Text size="sm">{t`This order is fully settled. Add another transaction anyway?`}</Text>
+            ),
+            labels: {confirm: t`Add transaction`, cancel: t`Cancel`},
+            onConfirm: () => setUnlocked(true),
         });
     };
 
@@ -261,6 +302,20 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
 
                 <Divider label={t`Record a payment`} labelPosition="left"/>
 
+                {formLocked && (
+                    <Group justify="space-between" wrap="nowrap" p="sm"
+                           style={{border: '1px dashed var(--mantine-color-gray-4)', borderRadius: 'var(--mantine-radius-sm)'}}>
+                        <Group gap={8} wrap="nowrap">
+                            <IconLock size={16} color="var(--mantine-color-dimmed)"/>
+                            <Text size="sm" c="dimmed">{t`Fully settled — add-transaction form is locked.`}</Text>
+                        </Group>
+                        <Button variant="subtle" color="gray" size="compact-sm" onClick={confirmUnlock}>
+                            {t`Add another transaction`}
+                        </Button>
+                    </Group>
+                )}
+
+                {!formLocked && (
                 <form onSubmit={form.onSubmit(submit)}>
                     <Stack gap="xs">
                         <Group grow align="flex-start">
@@ -330,6 +385,7 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                         </Group>
                     </Stack>
                 </form>
+                )}
             </Stack>
 
             <Modal

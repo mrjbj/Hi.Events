@@ -15,6 +15,7 @@ export const useCreateCheckInPublic = (pagination: QueryFilters) => {
                 payment_method: string;
                 payment_reference?: string | null;
                 amount?: number | null;
+                split_excess_as_donation?: boolean;
             },
         }) =>
             publicCheckInClient.createCheckIn(checkInListShortId, attendeePublicId, action, payment),
