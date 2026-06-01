@@ -87,7 +87,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
     const maxWaterfall = Math.max(reconciliation.gross_sales, 1);
 
     return (
-        <>
+        <div className={classes.cardRow}>
             <Card className={classes.card}>
                 <div className={classes.cardTitle}>
                     <h2><Trans>Event Reconciliation</Trans></h2>
@@ -239,6 +239,6 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                     </div>
                 </div>
             </Card>
-        </>
+        </div>
     );
 };

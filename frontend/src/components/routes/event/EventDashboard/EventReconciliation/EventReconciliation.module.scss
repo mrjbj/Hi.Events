@@ -5,6 +5,29 @@
   padding: 1.5rem !important;
 }
 
+/* Two reconciliation cards side by side on wide screens; stacked on small. */
+.cardRow {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+
+  > * {
+    min-width: 0;
+  }
+
+  > *:first-child {
+    flex: 1 1 0;
+  }
+
+  > *:last-child {
+    flex: 1.35 1 0;
+  }
+
+  @include mixins.respond-below(md) {
+    display: block;
+  }
+}
+
 .cardTitle {
   display: flex;
   align-items: baseline;
