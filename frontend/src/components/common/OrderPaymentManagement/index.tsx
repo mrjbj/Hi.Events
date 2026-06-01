@@ -225,11 +225,18 @@ export const OrderPaymentManagement = ({order, timezone, onUpdated}: OrderPaymen
                         ) : <span/>}
                         {isRefundable && (
                             <Button
-                                variant="light"
-                                color="red"
+                                variant="subtle"
+                                color="gray"
                                 size="compact-sm"
                                 leftSection={<IconReceiptRefund size={14}/>}
                                 onClick={refundHandlers.open}
+                                disabled={formLocked}
+                                styles={{
+                                    root: {
+                                        fontWeight: 400,
+                                        border: '1px dashed var(--mantine-color-gray-4)',
+                                    },
+                                }}
                             >
                                 {t`Refund`}
                             </Button>
