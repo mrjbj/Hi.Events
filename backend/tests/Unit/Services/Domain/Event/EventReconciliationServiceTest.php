@@ -71,6 +71,10 @@ class EventReconciliationServiceTest extends TestCase
         $this->assertSame(485.0, $dto->total_fees);
         $this->assertSame(16820.0, $dto->net_to_bank);
 
+        // No expenses recorded → gain/(loss) equals net to bank.
+        $this->assertSame(0.0, $dto->expenses);
+        $this->assertSame(16820.0, $dto->gain_loss);
+
         // Four active channels, in display order
         $this->assertCount(4, $dto->channels);
         $this->assertSame(PaymentChannel::STRIPE->value, $dto->channels[0]->channel);
@@ -89,6 +93,44 @@ class EventReconciliationServiceTest extends TestCase
 
         // Shares sum to ~1
         $this->assertEqualsWithDelta(1.0, array_sum(array_map(static fn ($c) => $c->share, $dto->channels)), 0.001);
+    }
+
+    public function test_expenses_yield_gain(): void
+    {
+        $dto = $this->service->assemble(
+            currency: 'USD',
+            grossTotal: 1000.0,
+            salesByChannel: [PaymentChannel::CASH->value => 1000.0],
+            donationsByChannel: [],
+            refundsByChannel: [],
+            comps: 0.0,
+            writeOffs: 0.0,
+            feesByChannel: [],
+            expenses: 150.0,
+        );
+
+        // net_to_bank 1000 − expenses 150 = gain 850
+        $this->assertSame(1000.0, $dto->net_to_bank);
+        $this->assertSame(150.0, $dto->expenses);
+        $this->assertSame(850.0, $dto->gain_loss);
+    }
+
+    public function test_expenses_exceeding_net_yield_a_loss(): void
+    {
+        $dto = $this->service->assemble(
+            currency: 'USD',
+            grossTotal: 100.0,
+            salesByChannel: [PaymentChannel::CASH->value => 100.0],
+            donationsByChannel: [],
+            refundsByChannel: [],
+            comps: 0.0,
+            writeOffs: 0.0,
+            feesByChannel: [],
+            expenses: 250.0,
+        );
+
+        $this->assertSame(100.0, $dto->net_to_bank);
+        $this->assertSame(-150.0, $dto->gain_loss);
     }
 
     public function test_empty_event_is_all_zero(): void

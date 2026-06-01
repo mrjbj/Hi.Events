@@ -381,9 +381,12 @@ export interface EventReconciliation {
     collected: number;
     total_fees: number;
     net_to_bank: number;
+    expenses: number;
+    gain_loss: number;
     channels: EventReconciliationChannel[];
     fees_updated_at: string | null;
     fees_updated_by_user_id: number | null;
+    expenses_updated_at: string | null;
 }
 
 export interface ChannelFeeInput {

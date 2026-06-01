@@ -24,11 +24,16 @@ class EventReconciliationResponseDTO extends BaseDataObject
         public readonly float $total_fees,
         public readonly float $net_to_bank,
 
+        // Manually-entered expenses and the resulting gain/(loss) = net_to_bank − expenses.
+        public readonly float $expenses,
+        public readonly float $gain_loss,
+
         /** @var array<int, EventReconciliationChannelDTO> */
         #[DataCollectionOf(EventReconciliationChannelDTO::class)]
         public readonly array $channels,
 
         public readonly ?string $fees_updated_at,
         public readonly ?int $fees_updated_by_user_id,
+        public readonly ?string $expenses_updated_at,
     ) {}
 }

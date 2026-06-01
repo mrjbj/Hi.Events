@@ -172,6 +172,10 @@ class EventReconciliationService
             EventChannelFeeDomainObjectAbstract::EVENT_ID => $eventId,
         ]);
 
+        $expensesRow = $this->db->table('event_reconciliation_settings')
+            ->where('event_id', $eventId)
+            ->first();
+
         return $this->assemble(
             currency: $currency,
             grossTotal: $grossTotal,
@@ -183,6 +187,8 @@ class EventReconciliationService
             feesByChannel: $fees->mapWithKeys(static fn (EventChannelFeeDomainObject $f) => [$f->getChannel() => round((float) $f->getFeeAmount(), 2)])->all(),
             feesUpdatedAt: $fees->max(static fn (EventChannelFeeDomainObject $f) => $f->getUpdatedAt()) ?: null,
             feesUpdatedBy: $fees->isNotEmpty() ? $fees->sortByDesc(static fn (EventChannelFeeDomainObject $f) => $f->getUpdatedAt())->first()->getRecordedByUserId() : null,
+            expenses: round((float) ($expensesRow->expenses ?? 0), 2),
+            expensesUpdatedAt: $expensesRow->updated_at ?? null,
         );
     }
 
@@ -206,6 +212,8 @@ class EventReconciliationService
         array $feesByChannel,
         ?string $feesUpdatedAt = null,
         ?int $feesUpdatedBy = null,
+        float $expenses = 0.0,
+        ?string $expensesUpdatedAt = null,
     ): EventReconciliationResponseDTO {
         $comps = round($comps, 2);
         $writeOffs = round($writeOffs, 2);
@@ -256,6 +264,8 @@ class EventReconciliationService
         $totalDonations = round($totalDonations, 2);
 
         $collected = round($totalReceived - $totalRefunds, 2);
+        $netToBank = round($collected - $totalFees, 2);
+        $expenses = round($expenses, 2);
 
         return new EventReconciliationResponseDTO(
             currency: $currency,
@@ -268,10 +278,13 @@ class EventReconciliationService
             total_received: $totalReceived,
             collected: $collected,
             total_fees: $totalFees,
-            net_to_bank: round($collected - $totalFees, 2),
+            net_to_bank: $netToBank,
+            expenses: $expenses,
+            gain_loss: round($netToBank - $expenses, 2),
             channels: $channels,
             fees_updated_at: $feesUpdatedAt,
             fees_updated_by_user_id: $feesUpdatedBy,
+            expenses_updated_at: $expensesUpdatedAt,
         );
     }
 

@@ -55,6 +55,11 @@ export const eventsClient = {
         return response.data;
     },
 
+    updateEventExpenses: async (eventId: IdParam, expenses: number) => {
+        const response = await api.patch<GenericDataResponse<EventReconciliation>>('events/' + eventId + '/reconciliation/expenses', {expenses});
+        return response.data;
+    },
+
     getEventCheckInStats: async (eventId: IdParam) => {
         const response = await api.get<GenericDataResponse<CheckInStats>>('events/' + eventId + '/check_in_stats');
         return response.data;

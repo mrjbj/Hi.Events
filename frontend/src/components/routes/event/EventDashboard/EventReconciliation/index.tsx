@@ -6,6 +6,7 @@ import {Card} from "../../../../common/Card";
 import classes from "./EventReconciliation.module.scss";
 import {useGetEventReconciliation} from "../../../../../queries/useGetEventReconciliation.ts";
 import {useUpdateEventChannelFees} from "../../../../../mutations/useUpdateEventChannelFees.ts";
+import {useUpdateEventExpenses} from "../../../../../mutations/useUpdateEventExpenses.ts";
 import {formatCurrency, getCurrencySymbol} from "../../../../../utilites/currency.ts";
 import {showError, showSuccess} from "../../../../../utilites/notifications.tsx";
 import {ChannelFeeInput, EventReconciliationChannel, IdParam, PaymentChannel} from "../../../../../types.ts";
@@ -44,8 +45,10 @@ const FEE_BEARING: PaymentChannel[] = ['STRIPE', 'SQUARE', 'BANK_TRANSFER', 'OTH
 export const EventReconciliation = ({eventId, timezone}: EventReconciliationProps) => {
     const {data: reconciliation, isLoading} = useGetEventReconciliation(eventId);
     const updateFees = useUpdateEventChannelFees();
+    const updateExpenses = useUpdateEventExpenses();
 
     const [feeDrafts, setFeeDrafts] = useState<Record<string, number | string>>({});
+    const [expensesDraft, setExpensesDraft] = useState<number | string>(0);
     const [exportPending, setExportPending] = useState(false);
 
     const handleExport = async (type: 'orders' | 'attendees') => {
@@ -81,6 +84,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                 drafts[channel.channel] = channel.fee;
             });
             setFeeDrafts(drafts);
+            setExpensesDraft(reconciliation.expenses);
         }
     }, [reconciliation]);
 
@@ -109,6 +113,18 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
     const isDirty = reconciliation.channels.some(
         (channel) => Number(feeDrafts[channel.channel] ?? 0) !== channel.fee,
     );
+
+    const expensesValue = Number(expensesDraft ?? 0) || 0;
+    const expensesDirty = expensesValue !== reconciliation.expenses;
+    // Live gain/(loss) reflects the draft so it updates as the operator types.
+    const gainLoss = Math.round((reconciliation.net_to_bank - expensesValue) * 100) / 100;
+
+    const handleSaveExpenses = () => {
+        updateExpenses.mutate({eventId, expenses: expensesValue}, {
+            onSuccess: () => showSuccess(t`Expenses saved`),
+            onError: () => showError(t`Could not save expenses. Please try again.`),
+        });
+    };
 
     const waterfall = [
         {label: t`Gross sales`, value: reconciliation.gross_sales, sign: '+' as const, base: true},
@@ -200,6 +216,63 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                         <div className={classes.waterfallLabel}><Trans>Net to bank (est.)</Trans></div>
                         <div className={classes.waterfallBarTrack}/>
                         <div className={classes.waterfallValue}>= {money(reconciliation.net_to_bank)}</div>
+                    </div>
+                    <div className={classes.waterfallRow}>
+                        <div className={classes.waterfallLabel}><Trans>Expenses</Trans></div>
+                        <div className={classes.waterfallBarTrack}/>
+                        <div className={classes.waterfallValue}>
+                            <span style={{display: 'inline-flex', alignItems: 'center', gap: 4}}>
+                                −
+                                <NumberInput
+                                    size="xs"
+                                    value={expensesDraft}
+                                    onChange={(value) => setExpensesDraft(value)}
+                                    min={0}
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    prefix={getCurrencySymbol(currency)}
+                                    hideControls
+                                    styles={{
+                                        input: {textAlign: 'right', margin: 0},
+                                        wrapper: {margin: 0},
+                                        root: {maxWidth: 110},
+                                    }}
+                                />
+                            </span>
+                        </div>
+                    </div>
+                    <div className={`${classes.waterfallRow} ${classes.waterfallTotal}`}>
+                        <div className={classes.waterfallLabel}><Trans>Gain / (Loss)</Trans></div>
+                        <div className={classes.waterfallBarTrack}/>
+                        <div
+                            className={classes.waterfallValue}
+                            style={{color: gainLoss < 0 ? 'var(--mantine-color-red-7)' : undefined}}
+                        >
+                            = {gainLoss < 0 ? `(${money(Math.abs(gainLoss))})` : money(gainLoss)}
+                        </div>
+                    </div>
+                </div>
+
+                <div className={classes.footer}>
+                    <div className={classes.credits}>
+                        <Trans>Enter expenses from your own records to see the bottom line.</Trans>
+                    </div>
+                    <div className={classes.saveBar}>
+                        {reconciliation.expenses_updated_at && (
+                            <span className={classes.stamp}>
+                                <Trans>Expenses updated {formatDateWithLocale(reconciliation.expenses_updated_at, 'shortDate', timezone ?? 'UTC')}</Trans>
+                            </span>
+                        )}
+                        <Button
+                            size="sm"
+                            variant="light"
+                            radius="md"
+                            disabled={!expensesDirty}
+                            loading={updateExpenses.isPending}
+                            onClick={handleSaveExpenses}
+                        >
+                            <Trans>Save expenses</Trans>
+                        </Button>
                     </div>
                 </div>
             </Card>
