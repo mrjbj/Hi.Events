@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {t, Trans} from "@lingui/macro";
 import {Button, Menu, NumberInput, Skeleton} from "@mantine/core";
 import {IconChevronDown, IconDownload} from "@tabler/icons-react";
@@ -19,6 +19,8 @@ import {withLoadingNotification} from "../../../../../utilites/withLoadingNotifi
 interface EventReconciliationProps {
     eventId: IdParam;
     timezone?: string;
+    // Extra cards (Product Sales, Revenue) stacked beneath Funds by Channel in the right column.
+    children?: ReactNode;
 }
 
 const CHANNEL_COLORS: Record<PaymentChannel, string> = {
@@ -42,7 +44,7 @@ const channelLabel = (channel: PaymentChannel): string => ({
 // Channels that carry a processing fee worth entering; others default to none.
 const FEE_BEARING: PaymentChannel[] = ['STRIPE', 'SQUARE', 'BANK_TRANSFER', 'OTHER'];
 
-export const EventReconciliation = ({eventId, timezone}: EventReconciliationProps) => {
+export const EventReconciliation = ({eventId, timezone, children}: EventReconciliationProps) => {
     const {data: reconciliation, isLoading} = useGetEventReconciliation(eventId);
     const updateFees = useUpdateEventChannelFees();
     const updateExpenses = useUpdateEventExpenses();
@@ -94,6 +96,8 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
 
     const currency = reconciliation.currency;
     const money = (value: number) => formatCurrency(value, currency);
+    // Zero figures render as a dash placeholder across the reconciliation card.
+    const moneyOrDash = (value: number) => (value === 0 ? '—' : money(value));
     const collectedPercent = reconciliation.net_expected_funds > 0
         ? Math.min(100, Math.round((reconciliation.collected / reconciliation.net_expected_funds) * 100))
         : 0;
@@ -129,14 +133,15 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
     const waterfall = [
         {label: t`Gross sales`, value: reconciliation.gross_sales, sign: '+' as const, base: true},
         {label: t`Refunds`, value: reconciliation.refunds, sign: '−' as const},
-        {label: t`Comps (forgiven)`, value: reconciliation.comps + reconciliation.write_offs, sign: '−' as const},
+        {label: t`Comps (forgiven)`, value: reconciliation.comps + reconciliation.write_offs, sign: '−' as const, danger: true},
         {label: t`Donations`, value: reconciliation.donations, sign: '+' as const},
     ];
     const maxWaterfall = Math.max(reconciliation.gross_sales, 1);
 
     return (
-        <div className={classes.cardRow}>
-            <Card className={classes.card}>
+        <div className={classes.dashGrid}>
+            <div className={classes.mainColumn}>
+            <Card className={`${classes.card} ${classes.reconCard}`}>
                 <div className={classes.cardTitle}>
                     <h2><Trans>Event Reconciliation</Trans></h2>
                     <Menu shadow="md" position="bottom-end" withinPortal>
@@ -166,12 +171,12 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                 <div className={classes.tiles}>
                     <div className={classes.tile}>
                         <div className={classes.tileLabel}><Trans>Net expected funds</Trans></div>
-                        <div className={classes.tileNumber}>{money(reconciliation.net_expected_funds)}</div>
+                        <div className={classes.tileNumber}>{moneyOrDash(reconciliation.net_expected_funds)}</div>
                         <div className={classes.tileSub}><Trans>what we "sold"</Trans></div>
                     </div>
                     <div className={classes.tile}>
                         <div className={classes.tileLabel}><Trans>Collected to date</Trans></div>
-                        <div className={classes.tileNumber}>{money(reconciliation.collected)}</div>
+                        <div className={classes.tileNumber}>{moneyOrDash(reconciliation.collected)}</div>
                         <div className={classes.progressTrack}>
                             <div className={classes.progressFill} style={{width: `${collectedPercent}%`}}/>
                         </div>
@@ -181,47 +186,67 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                     </div>
                     <div className={classes.tile}>
                         <div className={classes.tileLabel}><Trans>Net to bank</Trans></div>
-                        <div className={classes.tileNumber}>{money(reconciliation.net_to_bank)}</div>
+                        <div className={classes.tileNumber}>{moneyOrDash(reconciliation.net_to_bank)}</div>
                         <div className={classes.tileSub}><Trans>est. after fees</Trans></div>
                     </div>
                 </div>
 
                 <div className={classes.waterfall}>
                     <div className={classes.waterfallHeading}><Trans>How we get there</Trans></div>
-                    {waterfall.map((row) => (
-                        <div className={classes.waterfallRow} key={row.label}>
-                            <div className={classes.waterfallLabel}>{row.label}</div>
-                            <div className={classes.waterfallBarTrack}>
-                                <div
-                                    className={`${classes.waterfallBar} ${row.sign === '−' ? classes.barNegative : ''}`}
-                                    style={{width: `${Math.min(100, (row.value / maxWaterfall) * 100)}%`}}
-                                />
+                    {waterfall.map((row) => {
+                        const dangerColor = row.danger && row.value !== 0 ? 'var(--mantine-color-red-7)' : undefined;
+                        return (
+                            <div className={classes.waterfallRow} key={row.label}>
+                                <div className={classes.waterfallLabel} style={{color: dangerColor}}>{row.label}</div>
+                                <div className={classes.waterfallBarTrack}>
+                                    <div
+                                        className={`${classes.waterfallBar} ${row.sign === '−' ? classes.barNegative : ''}`}
+                                        style={{width: `${Math.min(100, (row.value / maxWaterfall) * 100)}%`}}
+                                    />
+                                </div>
+                                <div className={classes.waterfallValue} style={{color: dangerColor}}>
+                                    {row.value === 0 ? '—' : <>{row.sign}&nbsp;{money(row.value)}</>}
+                                </div>
                             </div>
-                            <div className={classes.waterfallValue}>
-                                {row.sign}&nbsp;{money(row.value)}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     <div className={`${classes.waterfallRow} ${classes.waterfallTotal}`}>
                         <div className={classes.waterfallLabel}><Trans>Net expected funds</Trans></div>
                         <div className={classes.waterfallBarTrack}/>
-                        <div className={classes.waterfallValue}>= {money(reconciliation.net_expected_funds)}</div>
+                        <div className={classes.waterfallValue}>
+                            {reconciliation.net_expected_funds === 0 ? '—' : <>= {money(reconciliation.net_expected_funds)}</>}
+                        </div>
                     </div>
                     <div className={classes.waterfallRow}>
-                        <div className={classes.waterfallLabel}><Trans>Processing fees</Trans></div>
+                        <div
+                            className={classes.waterfallLabel}
+                            style={{color: reconciliation.total_fees !== 0 ? 'var(--mantine-color-red-7)' : undefined}}
+                        ><Trans>Processing fees</Trans></div>
                         <div className={classes.waterfallBarTrack}/>
-                        <div className={classes.waterfallValue}>− {money(reconciliation.total_fees)}</div>
+                        <div
+                            className={classes.waterfallValue}
+                            style={{color: reconciliation.total_fees !== 0 ? 'var(--mantine-color-red-7)' : undefined}}
+                        >
+                            {reconciliation.total_fees === 0 ? '—' : <>− {money(reconciliation.total_fees)}</>}
+                        </div>
                     </div>
                     <div className={`${classes.waterfallRow} ${classes.waterfallTotal}`}>
                         <div className={classes.waterfallLabel}><Trans>Net to bank (est.)</Trans></div>
                         <div className={classes.waterfallBarTrack}/>
-                        <div className={classes.waterfallValue}>= {money(reconciliation.net_to_bank)}</div>
+                        <div className={classes.waterfallValue}>
+                            {reconciliation.net_to_bank === 0 ? '—' : <>= {money(reconciliation.net_to_bank)}</>}
+                        </div>
                     </div>
                     <div className={classes.waterfallRow}>
                         <div className={classes.waterfallLabel}><Trans>Expenses</Trans></div>
                         <div className={classes.waterfallBarTrack}/>
                         <div className={classes.waterfallValue}>
-                            <span style={{display: 'inline-flex', alignItems: 'center', gap: 4}}>
+                            <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                color: expensesValue !== 0 ? 'var(--mantine-color-red-7)' : undefined,
+                            }}>
                                 −
                                 <NumberInput
                                     size="xs"
@@ -236,6 +261,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                     styles={{
                                         wrapper: {margin: 0},
                                         root: {maxWidth: 110, marginBottom: 0},
+                                        input: {color: expensesValue !== 0 ? 'var(--mantine-color-red-7)' : undefined},
                                     }}
                                 />
                             </span>
@@ -248,7 +274,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                             className={classes.waterfallValue}
                             style={{color: gainLoss < 0 ? 'var(--mantine-color-red-7)' : undefined}}
                         >
-                            = {gainLoss < 0 ? `(${money(Math.abs(gainLoss))})` : money(gainLoss)}
+                            {gainLoss === 0 ? '—' : <>= {gainLoss < 0 ? `(${money(Math.abs(gainLoss))})` : money(gainLoss)}</>}
                         </div>
                     </div>
                 </div>
@@ -277,7 +303,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                 </div>
             </Card>
 
-            <Card className={classes.card}>
+            <Card className={`${classes.card} ${classes.fundsCard}`}>
                 <div className={classes.cardTitle}>
                     <h2><Trans>Funds by Channel</Trans></h2>
                     <span className={classes.hint}><Trans>fees are editable</Trans></span>
@@ -322,7 +348,8 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                         classNames={{input: classes.moneyInput}}
                                         styles={{
                                             wrapper: {margin: 0},
-                                            root: {maxWidth: 96, marginInlineStart: 'auto', marginBottom: 0},
+                                            root: {maxWidth: 96, marginInlineStart: 'auto', marginBottom: 0, transform: 'translateX(12px)'},
+                                            input: {color: Number(feeDrafts[channel.channel] ?? 0) !== 0 ? 'var(--mantine-color-red-7)' : undefined},
                                         }}
                                     />
                                 </div>
@@ -336,7 +363,12 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                             <div className={classes.colNum}>{money(reconciliation.total_received - reconciliation.donations)}</div>
                             <div className={classes.colNum}>{money(reconciliation.donations)}</div>
                             <div className={classes.colNum}>− {money(reconciliation.refunds)}</div>
-                            <div className={classes.colFee}>{money(reconciliation.total_fees)}</div>
+                            <div
+                                className={classes.colFee}
+                                style={{color: reconciliation.total_fees !== 0 ? 'var(--mantine-color-red-7)' : undefined}}
+                            >
+                                {reconciliation.total_fees === 0 ? '—' : money(reconciliation.total_fees)}
+                            </div>
                             <div className={`${classes.colNum} ${classes.net}`}>{money(reconciliation.net_to_bank)}</div>
                             <div className={classes.colShare}>100%</div>
                         </div>
@@ -370,6 +402,11 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                     </div>
                 </div>
             </Card>
+            </div>
+
+            <div className={classes.sideColumn}>
+            {children}
+            </div>
         </div>
     );
 };

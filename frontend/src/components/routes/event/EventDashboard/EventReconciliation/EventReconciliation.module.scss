@@ -5,27 +5,58 @@
   padding: 1.5rem !important;
 }
 
-/* Two reconciliation cards side by side on wide screens; stacked on small. */
-.cardRow {
-  display: flex;
+/* Two-column dashboard: Event Reconciliation fills column 1; column 2 stacks
+   Funds by Channel + the injected chart cards. Both columns stretch to equal
+   height. Collapses to a single column on small screens. */
+.dashGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px;
-  align-items: flex-start;
-
-  > * {
-    min-width: 0;
-  }
-
-  > *:first-child {
-    flex: 1.1 1 0;
-  }
-
-  > *:last-child {
-    flex: 1.15 1 0;
-  }
+  align-items: stretch;
+  margin-top: 20px;
+  margin-bottom: 20px;
 
   @include mixins.respond-below(md) {
-    display: block;
+    grid-template-columns: 1fr;
   }
+}
+
+/* Column 1: Event Reconciliation stacked above Funds by Channel. Its natural
+   height drives the row, so the right-hand charts size to match. */
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+
+  > * {
+    margin: 0 !important;
+    min-width: 0;
+  }
+}
+
+/* Column 2: Product Sales + Revenue. The cards grow equally to fill whatever
+   height the left column needs. */
+.sideColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+
+  > * {
+    margin: 0 !important;
+    min-width: 0;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+}
+
+.reconCard {
+  margin: 0 !important;
+}
+
+.fundsCard {
+  margin: 0 !important;
 }
 
 .cardTitle {

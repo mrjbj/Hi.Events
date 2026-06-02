@@ -20,7 +20,7 @@ import {useUpdateEventStatus} from "../../../../mutations/useUpdateEventStatus.t
 import {confirmationDialog} from "../../../../utilites/confirmationDialog.tsx";
 import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
 import {useEffect, useRef, useState} from 'react';
-import {EventLifecycleStatus, EventStatus, StripePlatform} from "../../../../types.ts";
+import {StripePlatform} from "../../../../types.ts";
 import {isHiEvents} from "../../../../utilites/helpers.ts";
 import {StripeConnectButton} from "../../../common/StripeConnectButton";
 import {trackEvent, AnalyticsEvents} from "../../../../utilites/analytics.ts";
@@ -42,11 +42,10 @@ export const EventDashboard = () => {
     const event = eventQuery?.data;
     const defaultDateRangeRef = useRef<string | null>(null);
     if (event && !defaultDateRangeRef.current) {
-        defaultDateRangeRef.current = (event.lifecycle_status === EventLifecycleStatus.ENDED
-            || event.status === EventStatus.ARCHIVED) ? 'event' : 'last_30_days';
+        defaultDateRangeRef.current = 'event';
     }
     const [dateRange, setDateRange] = useState<string | null>(null);
-    const effectiveDateRange = dateRange ?? defaultDateRangeRef.current ?? 'last_30_days';
+    const effectiveDateRange = dateRange ?? defaultDateRangeRef.current ?? 'event';
 
     const eventStatsQuery = useGetEventStats(eventId, effectiveDateRange, !!defaultDateRangeRef.current);
     const {data: eventStats} = eventStatsQuery;
@@ -111,19 +110,73 @@ export const EventDashboard = () => {
 
     return (
         <PageBody>
-            <PageTitle style={{marginBottom: 0}}>
-                {!isMobile && (
-                    <Trans>
-                        Welcome back{me?.first_name && ', ' + me?.first_name} 👋
-                    </Trans>
-                )}
+            <div className={classes.dashboardHeader}>
+                <PageTitle style={{marginBottom: 0}}>
+                    {!isMobile && (
+                        <Trans>
+                            Welcome back{me?.first_name && ', ' + me?.first_name} 👋
+                        </Trans>
+                    )}
 
-                {isMobile && (
-                    <Trans>
-                        Hi {me?.first_name && me?.first_name} 👋
-                    </Trans>
+                    {isMobile && (
+                        <Trans>
+                            Hi {me?.first_name && me?.first_name} 👋
+                        </Trans>
+                    )}
+                </PageTitle>
+
+                {event && (
+                    <div className={classes.dateRangeSelector}>
+                        <SegmentedControl
+                            value={effectiveDateRange}
+                            onChange={setDateRange}
+                            data={[
+                                {
+                                    label: (
+                                        <Tooltip label={t`Last 30 days`} withArrow>
+                                            <span>{t`Recent`}</span>
+                                        </Tooltip>
+                                    ),
+                                    value: 'last_30_days',
+                                },
+                                {
+                                    label: (
+                                        <Tooltip label={t`First 7 days from event start`} withArrow>
+                                            <span>{t`Week`}</span>
+                                        </Tooltip>
+                                    ),
+                                    value: 'week',
+                                },
+                                {
+                                    label: (
+                                        <Tooltip label={t`First 30 days from event start`} withArrow>
+                                            <span>{t`Month`}</span>
+                                        </Tooltip>
+                                    ),
+                                    value: 'month',
+                                },
+                                {
+                                    label: (
+                                        <Tooltip label={t`First 90 days from event start`} withArrow>
+                                            <span>{t`Quarter`}</span>
+                                        </Tooltip>
+                                    ),
+                                    value: 'quarter',
+                                },
+                                {
+                                    label: (
+                                        <Tooltip label={t`Full event duration`} withArrow>
+                                            <span>{t`Event`}</span>
+                                        </Tooltip>
+                                    ),
+                                    value: 'event',
+                                },
+                            ]}
+                            size="sm"
+                        />
+                    </div>
                 )}
-            </PageTitle>
+            </div>
 
             {!event && <DashBoardSkeleton/>}
 
@@ -255,57 +308,7 @@ export const EventDashboard = () => {
                     </Card>
                 )}
 
-                <div className={classes.dateRangeSelector}>
-                    <SegmentedControl
-                        value={effectiveDateRange}
-                        onChange={setDateRange}
-                        data={[
-                            {
-                                label: (
-                                    <Tooltip label={t`Last 30 days`} withArrow>
-                                        <span>{t`Recent`}</span>
-                                    </Tooltip>
-                                ),
-                                value: 'last_30_days',
-                            },
-                            {
-                                label: (
-                                    <Tooltip label={t`First 7 days from event start`} withArrow>
-                                        <span>{t`Week`}</span>
-                                    </Tooltip>
-                                ),
-                                value: 'week',
-                            },
-                            {
-                                label: (
-                                    <Tooltip label={t`First 30 days from event start`} withArrow>
-                                        <span>{t`Month`}</span>
-                                    </Tooltip>
-                                ),
-                                value: 'month',
-                            },
-                            {
-                                label: (
-                                    <Tooltip label={t`First 90 days from event start`} withArrow>
-                                        <span>{t`Quarter`}</span>
-                                    </Tooltip>
-                                ),
-                                value: 'quarter',
-                            },
-                            {
-                                label: (
-                                    <Tooltip label={t`Full event duration`} withArrow>
-                                        <span>{t`Event`}</span>
-                                    </Tooltip>
-                                ),
-                                value: 'event',
-                            },
-                        ]}
-                        size="sm"
-                    />
-                </div>
-
-                <div className={classes.chartRow}>
+                <EventReconciliation eventId={eventId} timezone={event.timezone}>
                 <Card className={classes.chartCard}>
                     <div className={classes.chartCardTitle}>
                         <h2>{t`Product Sales`}</h2>
@@ -315,8 +318,9 @@ export const EventDashboard = () => {
                         </span>
                         </div>
                     </div>
+                    <div className={classes.chartArea}>
                     <AreaChart
-                        h={300}
+                        h="100%"
                         data={eventStats?.daily_stats.map(stat => ({
                             date: formatDateWithLocale(stat.date, 'chartDate', event.timezone),
                             orders_created: stat.orders_created,
@@ -336,6 +340,7 @@ export const EventDashboard = () => {
                         tickLine="none"
                         areaChartProps={{syncId: 'events'}}
                     />
+                    </div>
                 </Card>
 
                 <Card className={classes.chartCard}>
@@ -348,8 +353,9 @@ export const EventDashboard = () => {
                         </div>
                     </div>
 
+                    <div className={classes.chartArea}>
                     <AreaChart
-                        h={300}
+                        h="100%"
                         pl={40}
                         pr={40}
                         data={eventStats?.daily_stats.map(stat => {
@@ -375,10 +381,9 @@ export const EventDashboard = () => {
                         tickLine="none"
                         areaChartProps={{syncId: 'events'}}
                     />
+                    </div>
                 </Card>
-                </div>
-
-                <EventReconciliation eventId={eventId} timezone={event.timezone}/>
+                </EventReconciliation>
 
                 <StatBoxes/>
             </>)}

@@ -1,33 +1,15 @@
-/* Product Sales + Revenue charts side by side on wide screens; stacked on small. */
-.chartRow {
-  display: flex;
-  gap: 20px;
-  align-items: stretch;
-  margin-top: 20px;
-
-  > * {
-    flex: 1 1 0;
-    min-width: 0;
-    margin-top: 0;
-  }
-
-  @media (max-width: 992px) {
-    display: block;
-
-    > * + * {
-      margin-top: 20px;
-    }
-  }
-}
-
 .chartCard {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 
   .chartCardTitle {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    flex-shrink: 0;
 
     h2 {
       margin: 0;
@@ -43,10 +25,32 @@
   }
 }
 
+/* Chart fills the remaining card height so Product Sales + Revenue together
+   match the height of the left column. Floored so charts stay readable when
+   the left column is short. */
+.chartArea {
+  flex: 1 1 0;
+  min-height: 280px;
+}
+
+/* Welcome heading and the date-range control share one row. */
+.dashboardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--hi-spacing-md);
+
+  /* PageTitle carries its own bottom margin; drop it so it centres against the control. */
+  > :first-child {
+    margin-bottom: 0;
+  }
+}
+
 .dateRangeSelector {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
 }
 
 .setupCard {
