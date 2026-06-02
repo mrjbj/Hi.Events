@@ -11,7 +11,7 @@ exists, the entry points at the deeper note. Designs for all open ideas live in
 
 ## Open ideas
 
-_Nothing open right now — everything designed in [backlog-designs.md](./backlog-designs.md) has shipped (see below)._
+- [ ] **SaaS multi-tenant Stripe Connect migration** — flip `APP_SAAS_MODE_ENABLED` and onboard each account as its own Stripe Connect (Express) account, so a second org gets its own Stripe destination; validate in dev first, flip prod only when the 2nd org is imminent, zero platform fee. Refund de-risking patch already shipped. ([design](./backlog-designs.md#9-saas-multi-tenant-stripe-connect-migration)) (2026-06-02)
 
 ## Shipped
 

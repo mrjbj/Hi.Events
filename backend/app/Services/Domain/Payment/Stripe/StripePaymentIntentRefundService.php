@@ -6,7 +6,7 @@ use Brick\Math\Exception\MathException;
 use HiEvents\DomainObjects\StripePaymentDomainObject;
 use HiEvents\Values\MoneyValue;
 use Illuminate\Config\Repository;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Refund;
 use Stripe\StripeClient;
@@ -14,26 +14,25 @@ use Stripe\StripeClient;
 class StripePaymentIntentRefundService
 {
     public function __construct(
-        private readonly Repository   $config,
-    )
-    {
-    }
+        private readonly Repository $config,
+        private readonly LoggerInterface $logger,
+    ) {}
 
     /**
      * @throws ApiErrorException
      * @throws MathException
+     *
      * @todo - catch and handle stripe errors
      */
     public function refundPayment(
-        MoneyValue                $amount,
+        MoneyValue $amount,
         StripePaymentDomainObject $payment,
-        StripeClient              $stripeClient,
-    ): Refund
-    {
+        StripeClient $stripeClient,
+    ): Refund {
         return $stripeClient->refunds->create(
             params: [
                 'payment_intent' => $payment->getPaymentIntentId(),
-                'amount' => $amount->toMinorUnit()
+                'amount' => $amount->toMinorUnit(),
             ],
             opts: $this->getStripeAccountData($payment),
         );
@@ -41,16 +40,19 @@ class StripePaymentIntentRefundService
 
     private function getStripeAccountData(StripePaymentDomainObject $payment): array
     {
-        if ($this->config->get('app.saas_mode_enabled')) {
-            if ($payment->getConnectedAccountId() === null) {
-                throw new RuntimeException(
-                    __('Cannot Refund: Stripe connect account not found and saas_mode_enabled is enabled')
-                );
-            }
+        $connectedAccountId = $payment->getConnectedAccountId();
 
+        if ($connectedAccountId !== null) {
             return [
-                'stripe_account' => $payment->getConnectedAccountId(),
+                'stripe_account' => $connectedAccountId,
             ];
+        }
+
+        if ($this->config->get('app.saas_mode_enabled')) {
+            $this->logger->warning(
+                'Refunding a payment without a connected account while saas_mode_enabled is true; refunding via the platform account.',
+                ['payment_intent_id' => $payment->getPaymentIntentId()]
+            );
         }
 
         return [];

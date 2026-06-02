@@ -525,6 +525,74 @@ request extension + superadmin UI option + contact toggle/mutation/query + tests
 
 ---
 
+## 9. SaaS multi-tenant Stripe Connect migration
+
+**Problem.** Today District11 runs with `APP_SAAS_MODE_ENABLED=false`: a single global
+`STRIPE_SECRET_KEY` charges every order directly. We anticipate a second Hi.Events account
+(another org) that needs its *own* Stripe account. Non-SaaS mode supports exactly one global
+key, so a second Stripe destination forces the move to SaaS / Stripe Connect — there is no
+other path short of running a second instance.
+
+**Decision.** Migrate deliberately: validate the full flow in **dev** first, then flip prod
+only when the second org is actually imminent. Do **not** flip prod speculatively — see the
+gotchas. The refund de-risking patch (below) has **already shipped** independently so the
+eventual switch is safe for historical orders.
+
+**Current state (verified in code).**
+- Gated by `app.saas_mode_enabled` (`config/app.php`). When false, the payment intent omits
+  the `stripe_account` param entirely (`StripePaymentIntentCreationService::getStripeAccountData`).
+- Per-account connected accounts live in `account_stripe_platforms` (`stripe_account_id`,
+  `stripe_setup_completed_at`, `stripe_connect_platform`). `AccountDomainObject::getActiveStripeAccountId()`
+  is the lookup. **Scoping is account-level — not per-organizer, not per-event.**
+- Onboarding: `POST /accounts/{account_id}/stripe/connect` → `CreateStripeConnectAccountHandler`
+  calls `accounts->create(['type'=>'express'])` (mints a **new** Express account) then
+  `accountLinks->create(...'account_onboarding')`. The `account.updated` webhook (`AccountUpdateHandler`
+  → `StripeAccountSyncService`) marks setup complete. UI entry: Account Settings → **Payment & Plan**
+  tab (only shown when `isUserAdmin && account.is_saas_mode_enabled`).
+- **No OAuth "link my existing standalone account" flow exists** — the only onboarding path
+  provisions a fresh Express connected account under the platform key.
+- Webhooks: single endpoint `POST /webhooks/stripe`; handler tries every configured secret
+  until one verifies (`getAllWebhookSecrets`). Enabling Connect needs a **Connect webhook**
+  registered in the Stripe dashboard (connected-account events carry an `account` field).
+- Zero fees: set `account_configuration.bypass_application_fees = true` (migration
+  `2026_01_21_000000`) or `application_fees` JSON to `{percentage:0, fixed:0}`. The intent
+  omits `application_fee_amount` when null/bypassed.
+
+**Approach (mostly ops/config — minimal code).**
+- *Config:* `APP_SAAS_MODE_ENABLED=true`; set each account's `bypass_application_fees=true`
+  (we charge no platform fee); confirm `APP_STRIPE_CONNECT_ACCOUNT_TYPE` (express default).
+- *Onboard each account* (incl. District11) through the existing Connect flow — this mints a
+  connected account; existing customers/history on the old standalone account do **not** migrate.
+- *Stripe dashboard:* add a Connect webhook → `POST /webhooks/stripe`; set the matching
+  `STRIPE_WEBHOOK_SECRET`.
+- *Optional helper:* a console command to register an existing `acct_…` into
+  `account_stripe_platforms` (only valid if that account is genuinely a connected account of
+  the platform) to skip Express onboarding where appropriate.
+
+**Dev validation checklist.** Flip the flag in dev → onboard a test Express account (Stripe
+test mode) → take a charge → refund it → **also refund a pre-flip direct charge** to confirm
+the refund patch → confirm `account.updated` + `payment_intent.succeeded` webhooks land.
+
+**Gotchas / out of scope.**
+- **Historical refunds — RESOLVED.** `StripePaymentIntentRefundService::getStripeAccountData`
+  now routes by the *payment's* `connected_account_id` (passes `stripe_account` if present,
+  else platform), not the global flag — so pre-flip direct charges still refund. Shipped with
+  unit test `StripePaymentIntentRefundServiceTest`.
+- **Per-event / per-organizer Stripe is NOT supported** and is a larger, separate effort:
+  move the linkage off `account_stripe_platforms` down to `organizers`/`events` and thread an
+  org/event-level `stripeAccountId` through `CreatePaymentIntentHandler` (plus payout, refund,
+  customer-dedup, webhook-attribution implications). Only pursue if a single account must host
+  multiple promoters with distinct payout destinations.
+- `stripe_customers` is keyed by `stripe_account_id` — customer dedup is per connected account.
+- The platform account = whatever `STRIPE_SECRET_KEY` belongs to; in Connect mode the platform
+  doesn't take the charge, the connected account does.
+
+**Effort.** ~1 day dev validation + ~half-day prod cutover and per-account onboarding. Code
+work is minimal (config + optional console command) *unless* per-event Stripe is wanted, which
+is a multi-day fork project on its own.
+
+---
+
 ## Suggested build order
 
 1. **Esc-clears-filters** and **settled-guard** — small, frontend-only, ship together.

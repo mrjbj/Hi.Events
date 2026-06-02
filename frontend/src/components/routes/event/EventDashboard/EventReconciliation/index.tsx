@@ -235,7 +235,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                     classNames={{input: classes.moneyInput}}
                                     styles={{
                                         wrapper: {margin: 0},
-                                        root: {maxWidth: 110},
+                                        root: {maxWidth: 110, marginBottom: 0},
                                     }}
                                 />
                             </span>
@@ -322,7 +322,7 @@ export const EventReconciliation = ({eventId, timezone}: EventReconciliationProp
                                         classNames={{input: classes.moneyInput}}
                                         styles={{
                                             wrapper: {margin: 0},
-                                            root: {maxWidth: 96, marginInlineStart: 'auto'},
+                                            root: {maxWidth: 96, marginInlineStart: 'auto', marginBottom: 0},
                                         }}
                                     />
                                 </div>

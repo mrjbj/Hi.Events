@@ -221,10 +221,14 @@
 
 /* Editable money input that visually lines up with the static number cells:
    compact height (so it centres with the row text) and near-zero right padding
-   so the figure's right edge sits on the column's right edge like the text. */
+   so the figure's right edge sits on the column's right edge like the text.
+   line-height must track the box height (height − 2px borders) — Mantine's base
+   rule leaves it at the default 28px, which overflows the 26px box and sags the
+   text below centre. */
 .moneyInput {
   height: 26px;
   min-height: 26px;
+  line-height: 24px;
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
   text-align: right;

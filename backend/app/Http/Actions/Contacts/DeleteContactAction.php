@@ -3,6 +3,7 @@
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Services\Application\Handlers\Contact\DeleteContactHandler;
 use Illuminate\Http\Response;
@@ -15,7 +16,7 @@ class DeleteContactAction extends BaseAction
 
     public function __invoke(int $accountId, int $contactId): Response
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         $this->handler->handle($contactId, $this->getAuthenticatedAccountId());
 

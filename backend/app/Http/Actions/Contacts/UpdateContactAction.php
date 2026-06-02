@@ -3,6 +3,7 @@
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Exceptions\ContactEmailConflictException;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\Request\Contact\UpdateContactRequest;
@@ -20,7 +21,7 @@ class UpdateContactAction extends BaseAction
 
     public function __invoke(UpdateContactRequest $request, int $accountId, int $contactId): JsonResponse
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         try {
             $contact = $this->handler->handle(

@@ -1,14 +1,16 @@
 import {t} from "@lingui/macro";
 import {useMemo, useState} from "react";
-import {ActionIcon, Alert, Button, Group, Select, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
+import {ActionIcon, Alert, Button, Group, Select, Switch, Table, Text, TextInput, Tooltip, UnstyledButton} from "@mantine/core";
 import {IconArrowMerge, IconPencil, IconSearch, IconSortAscending, IconSortDescending, IconTrash} from "@tabler/icons-react";
 import {useDisclosure} from "@mantine/hooks";
 import {Card} from "../../../common/Card";
 import {Pagination} from "../../../common/Pagination";
 import {TableSkeleton} from "../../../common/TableSkeleton";
-import {Contact, QueryFilterOperator, QueryFilters} from "../../../../types.ts";
+import {SuppressionBadge} from "../../../common/SuppressionBadge";
+import {Contact, EventLifecycleStatus, EventStatus, QueryFilterOperator, QueryFilters} from "../../../../types.ts";
 import {useGetContacts} from "../../../../queries/useGetContacts.ts";
 import {useEscapeClearsFilters} from "../../../../hooks/useEscapeClearsFilters.ts";
+import {useIsCurrentUserAdmin} from "../../../../hooks/useIsCurrentUserAdmin.ts";
 import {useGetEvents} from "../../../../queries/useGetEvents.ts";
 import {useDeleteContact} from "../../../../mutations/useDeleteContact.ts";
 import {showError, showSuccess} from "../../../../utilites/notifications.tsx";
@@ -42,6 +44,8 @@ export const ContactsTab = () => {
     const [page, setPage] = useState(1);
     const [query, setQuery] = useState('');
     const [eventFilter, setEventFilter] = useState<string | null>(null);
+    const [includePastEvents, setIncludePastEvents] = useState(false);
+    const [suppressionFilter, setSuppressionFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState('created_at');
     const [sortDir, setSortDir] = useState('desc');
     const [createModalOpen, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
@@ -52,8 +56,13 @@ export const ContactsTab = () => {
     const eventsQuery = useGetEvents({pageNumber: 1, perPage: 100});
     const eventOptions = useMemo(() => {
         const events = eventsQuery.data?.data ?? [];
-        return events.map((e: any) => ({value: String(e.id), label: e.title}));
-    }, [eventsQuery.data]);
+        // "Active" = not yet ended and not archived; the toggle widens to all.
+        const visible = includePastEvents
+            ? events
+            : events.filter((e: any) =>
+                e.lifecycle_status !== EventLifecycleStatus.ENDED && e.status !== EventStatus.ARCHIVED);
+        return visible.map((e: any) => ({value: String(e.id), label: e.title}));
+    }, [eventsQuery.data, includePastEvents]);
 
     const handleSort = (field: string) => {
         if (sortBy === field) {
@@ -69,6 +78,9 @@ export const ContactsTab = () => {
     if (eventFilter) {
         filterFields.event_id = {operator: QueryFilterOperator.Equals, value: eventFilter};
     }
+    if (suppressionFilter) {
+        filterFields.suppression_status = {operator: QueryFilterOperator.Equals, value: suppressionFilter};
+    }
 
     const searchParams: QueryFilters = {
         pageNumber: page,
@@ -83,11 +95,15 @@ export const ContactsTab = () => {
     const contacts = contactsQuery.data?.data;
     const pagination = contactsQuery.data?.meta;
     const deleteMutation = useDeleteContact();
+    // Organizers get a read-only browse view; create/edit/merge/delete are admin-only.
+    const isAdmin = useIsCurrentUserAdmin();
 
     useEscapeClearsFilters({
         steps: [
             {isActive: () => query !== '', clear: () => { setQuery(''); setPage(1); }},
+            {isActive: () => suppressionFilter !== null, clear: () => { setSuppressionFilter(null); setPage(1); }},
             {isActive: () => eventFilter !== null, clear: () => { setEventFilter(null); setPage(1); }},
+            {isActive: () => includePastEvents, clear: () => setIncludePastEvents(false)},
         ],
     });
 
@@ -128,6 +144,19 @@ export const ContactsTab = () => {
                         style={{flex: 1, minWidth: 220, marginBottom: 0}}
                     />
                     <Select
+                        placeholder={t`Sends`}
+                        data={[
+                            {value: 'active', label: t`Always`},
+                            {value: 'marketing_only', label: t`Transactional`},
+                            {value: 'always', label: t`Never`},
+                        ]}
+                        value={suppressionFilter}
+                        onChange={(val) => { setSuppressionFilter(val); setPage(1); }}
+                        clearable
+                        size="sm"
+                        style={{width: 170, marginBottom: 0}}
+                    />
+                    <Select
                         placeholder={t`Filter by event`}
                         data={eventOptions}
                         value={eventFilter}
@@ -137,9 +166,19 @@ export const ContactsTab = () => {
                         size="sm"
                         style={{width: 240, marginBottom: 0}}
                     />
-                    <Button onClick={openCreateModal} size="sm">
-                        {t`Add Contact`}
-                    </Button>
+                    <Switch
+                        label={t`Include past events`}
+                        checked={includePastEvents}
+                        onChange={(e) => { setIncludePastEvents(e.currentTarget.checked); setEventFilter(null); setPage(1); }}
+                        size="sm"
+                        h={36}
+                        styles={{body: {height: '100%', alignItems: 'center'}}}
+                    />
+                    {isAdmin && (
+                        <Button onClick={openCreateModal} size="sm">
+                            {t`Add Contact`}
+                        </Button>
+                    )}
                 </Group>
 
                 {contactsQuery.isLoading && <TableSkeleton isVisible/>}
@@ -160,51 +199,57 @@ export const ContactsTab = () => {
                             <Table.Thead>
                                 <Table.Tr>
                                     <SortableTh label={t`Email`} field="email" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
+                                    <Table.Th>{t`Sends`}</Table.Th>
                                     <SortableTh label={t`First Name`} field="first_name" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                     <SortableTh label={t`Last Name`} field="last_name" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                                     <SortableTh label={t`Created`} field="created_at" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
-                                    <Table.Th/>
+                                    {isAdmin && <Table.Th/>}
                                 </Table.Tr>
                             </Table.Thead>
                             <Table.Tbody>
                                 {contacts.map((contact) => (
                                     <Table.Tr key={contact.id}>
                                         <Table.Td>{contact.email}</Table.Td>
+                                        <Table.Td>
+                                            <SuppressionBadge status={contact.suppression_status} detail={contact.suppression_detail}/>
+                                        </Table.Td>
                                         <Table.Td>{contact.first_name || '-'}</Table.Td>
                                         <Table.Td>{contact.last_name || '-'}</Table.Td>
                                         <Table.Td>{contact.created_at ? new Date(contact.created_at).toLocaleDateString() : '-'}</Table.Td>
-                                        <Table.Td>
-                                            <Group gap={4} wrap="nowrap">
-                                                <Tooltip label={t`Edit`}>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        onClick={() => handleEdit(contact)}
-                                                        aria-label={t`Edit contact`}
-                                                    >
-                                                        <IconPencil size={16}/>
-                                                    </ActionIcon>
-                                                </Tooltip>
-                                                <Tooltip label={t`Merge duplicate`}>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        onClick={() => handleMerge(contact)}
-                                                        aria-label={t`Merge duplicate into this contact`}
-                                                    >
-                                                        <IconArrowMerge size={16}/>
-                                                    </ActionIcon>
-                                                </Tooltip>
-                                                <Tooltip label={t`Delete`}>
-                                                    <ActionIcon
-                                                        variant="subtle"
-                                                        color="red"
-                                                        onClick={() => handleDelete(contact)}
-                                                        aria-label={t`Delete contact`}
-                                                    >
-                                                        <IconTrash size={16}/>
-                                                    </ActionIcon>
-                                                </Tooltip>
-                                            </Group>
-                                        </Table.Td>
+                                        {isAdmin && (
+                                            <Table.Td>
+                                                <Group gap={4} wrap="nowrap">
+                                                    <Tooltip label={t`Edit`}>
+                                                        <ActionIcon
+                                                            variant="subtle"
+                                                            onClick={() => handleEdit(contact)}
+                                                            aria-label={t`Edit contact`}
+                                                        >
+                                                            <IconPencil size={16}/>
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                    <Tooltip label={t`Merge duplicate`}>
+                                                        <ActionIcon
+                                                            variant="subtle"
+                                                            onClick={() => handleMerge(contact)}
+                                                            aria-label={t`Merge duplicate into this contact`}
+                                                        >
+                                                            <IconArrowMerge size={16}/>
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                    <Tooltip label={t`Delete`}>
+                                                        <ActionIcon
+                                                            variant="subtle"
+                                                            color="red"
+                                                            onClick={() => handleDelete(contact)}
+                                                            aria-label={t`Delete contact`}
+                                                        >
+                                                            <IconTrash size={16}/>
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                </Group>
+                                            </Table.Td>
+                                        )}
                                     </Table.Tr>
                                 ))}
                             </Table.Tbody>

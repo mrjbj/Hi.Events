@@ -10,6 +10,10 @@ class ContactDomainObject extends Generated\ContactDomainObjectAbstract implemen
 {
     private ?Collection $attendees = null;
 
+    private ?string $suppressionStatus = null;
+
+    private ?string $suppressionDetail = null;
+
     public static function getAllowedSorts(): AllowedSorts
     {
         return new AllowedSorts(
@@ -46,7 +50,7 @@ class ContactDomainObject extends Generated\ContactDomainObjectAbstract implemen
 
     public function getFullName(): string
     {
-        return trim(($this->getFirstName() ?? '') . ' ' . ($this->getLastName() ?? ''));
+        return trim(($this->getFirstName() ?? '').' '.($this->getLastName() ?? ''));
     }
 
     public function getAttendees(): ?Collection
@@ -57,6 +61,31 @@ class ContactDomainObject extends Generated\ContactDomainObjectAbstract implemen
     public function setAttendees(?Collection $attendees): self
     {
         $this->attendees = $attendees;
+
+        return $this;
+    }
+
+    public function getSuppressionStatus(): ?string
+    {
+        return $this->suppressionStatus;
+    }
+
+    public function setSuppressionStatus(?string $suppressionStatus): self
+    {
+        $this->suppressionStatus = $suppressionStatus;
+
+        return $this;
+    }
+
+    public function getSuppressionDetail(): ?string
+    {
+        return $this->suppressionDetail;
+    }
+
+    public function setSuppressionDetail(?string $suppressionDetail): self
+    {
+        $this->suppressionDetail = $suppressionDetail;
+
         return $this;
     }
 }

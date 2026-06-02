@@ -141,8 +141,6 @@ use HiEvents\Http\Actions\Orders\GetOrdersAction;
 use HiEvents\Http\Actions\Orders\MarkOrderAsPaidAction;
 use HiEvents\Http\Actions\Orders\MessageOrderAction;
 use HiEvents\Http\Actions\Orders\Payment\RefundOrderAction;
-use HiEvents\Http\Actions\Orders\RecordOrderPaymentAction;
-use HiEvents\Http\Actions\Orders\ReverseOrderPaymentAction;
 use HiEvents\Http\Actions\Orders\Payment\Stripe\CreatePaymentIntentActionPublic;
 use HiEvents\Http\Actions\Orders\Payment\Stripe\GetPaymentIntentActionPublic;
 use HiEvents\Http\Actions\Orders\Public\AbandonOrderActionPublic;
@@ -151,7 +149,9 @@ use HiEvents\Http\Actions\Orders\Public\CreateOrderActionPublic;
 use HiEvents\Http\Actions\Orders\Public\DownloadOrderInvoicePublicAction;
 use HiEvents\Http\Actions\Orders\Public\GetOrderActionPublic;
 use HiEvents\Http\Actions\Orders\Public\TransitionOrderToOfflinePaymentPublicAction;
+use HiEvents\Http\Actions\Orders\RecordOrderPaymentAction;
 use HiEvents\Http\Actions\Orders\ResendOrderConfirmationAction;
+use HiEvents\Http\Actions\Orders\ReverseOrderPaymentAction;
 use HiEvents\Http\Actions\Organizers\CreateOrganizerAction;
 use HiEvents\Http\Actions\Organizers\DeleteOrganizerAction;
 use HiEvents\Http\Actions\Organizers\EditOrganizerAction;
@@ -343,6 +343,7 @@ $router->middleware(['auth:api'])->group(
         $router->post('/accounts/{account_id}/contacts', \HiEvents\Http\Actions\Contacts\CreateContactAction::class);
         $router->get('/accounts/{account_id}/contacts', \HiEvents\Http\Actions\Contacts\GetContactsAction::class);
         $router->get('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\GetContactAction::class);
+        $router->get('/accounts/{account_id}/contacts/{contact_id}/activity', \HiEvents\Http\Actions\Contacts\GetContactActivityAction::class);
         $router->put('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\UpdateContactAction::class);
         $router->delete('/accounts/{account_id}/contacts/{contact_id}', \HiEvents\Http\Actions\Contacts\DeleteContactAction::class);
         $router->post('/accounts/{account_id}/contacts/{contact_id}/merge', \HiEvents\Http\Actions\Contacts\MergeContactsAction::class);
@@ -361,6 +362,11 @@ $router->middleware(['auth:api'])->group(
         $router->post('/accounts/{account_id}/contacts/backfill/apply-stale-value-remaps', \HiEvents\Http\Actions\Contacts\ApplyStaleValueRemapsAction::class);
         $router->get('/accounts/{account_id}/contacts/backfill/email-changes', \HiEvents\Http\Actions\Contacts\GetEmailChangesBackfillAction::class);
         $router->post('/accounts/{account_id}/contacts/backfill/apply-email-change-decisions', \HiEvents\Http\Actions\Contacts\ApplyEmailChangeDecisionsAction::class);
+
+        // Account-scoped email suppressions (ADMIN; superadmin manages platform-wide rows under /admin)
+        $router->get('/accounts/{account_id}/email-suppressions', \HiEvents\Http\Actions\Accounts\EmailSuppressions\GetAccountEmailSuppressionsAction::class);
+        $router->post('/accounts/{account_id}/email-suppressions', \HiEvents\Http\Actions\Accounts\EmailSuppressions\CreateAccountEmailSuppressionAction::class);
+        $router->delete('/accounts/{account_id}/email-suppressions/{suppression_id}', \HiEvents\Http\Actions\Accounts\EmailSuppressions\DeleteAccountEmailSuppressionAction::class);
 
         // Contact Attribute Definitions
         $router->post('/accounts/{account_id}/contact-attribute-definitions', \HiEvents\Http\Actions\ContactAttributeDefinitions\CreateContactAttributeDefinitionAction::class);

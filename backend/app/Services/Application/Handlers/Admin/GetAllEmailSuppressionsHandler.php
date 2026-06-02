@@ -21,7 +21,7 @@ class GetAllEmailSuppressionsHandler
             ->whereNull('email_suppressions.deleted_at');
 
         if ($dto->search) {
-            $query->where('email_suppressions.email', 'ilike', '%' . $dto->search . '%');
+            $query->where('email_suppressions.email', 'ilike', '%'.$dto->search.'%');
         }
 
         if ($dto->reason) {
@@ -32,10 +32,25 @@ class GetAllEmailSuppressionsHandler
             $query->where('email_suppressions.source', $dto->source);
         }
 
+        if ($dto->bounceType) {
+            $query->where('email_suppressions.bounce_type', $dto->bounceType);
+        }
+
+        if ($dto->accountId !== null) {
+            $query->where('email_suppressions.account_id', $dto->accountId);
+        }
+
+        if ($dto->accountScopeId !== null) {
+            $query->where(function ($q) use ($dto) {
+                $q->where('email_suppressions.account_id', $dto->accountScopeId)
+                    ->orWhereNull('email_suppressions.account_id');
+            });
+        }
+
         $sortColumn = in_array($dto->sortBy, self::ALLOWED_SORT_COLUMNS, true) ? $dto->sortBy : 'created_at';
         $sortDirection = in_array(strtolower($dto->sortDirection ?? 'desc'), ['asc', 'desc']) ? $dto->sortDirection : 'desc';
 
-        $query->orderBy('email_suppressions.' . $sortColumn, $sortDirection);
+        $query->orderBy('email_suppressions.'.$sortColumn, $sortDirection);
 
         return $query->paginate($dto->perPage);
     }

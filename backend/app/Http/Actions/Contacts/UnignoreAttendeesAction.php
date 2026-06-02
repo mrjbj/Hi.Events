@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Services\Application\Handlers\Contact\UnignoreAttendeesHandler;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +23,7 @@ class UnignoreAttendeesAction extends BaseAction
      */
     public function __invoke(Request $request, int $accountId): JsonResponse
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         $validated = $request->validate([
             'attendee_ids' => ['required', 'array', 'min:1'],

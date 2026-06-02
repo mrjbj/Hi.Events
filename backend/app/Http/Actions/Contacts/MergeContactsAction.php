@@ -3,6 +3,7 @@
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Exceptions\ContactMergeException;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Resources\Contact\ContactResource;
@@ -19,7 +20,7 @@ class MergeContactsAction extends BaseAction
 
     public function __invoke(int $accountId, int $contactId, Request $request): JsonResponse
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         $validated = $request->validate([
             'source_contact_id' => ['required', 'integer'],

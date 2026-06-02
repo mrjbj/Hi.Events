@@ -3,11 +3,13 @@ import {PageTitle} from "../../../common/PageTitle";
 import {PageBody} from "../../../common/PageBody";
 import {ActionIcon, Group, Tabs, Tooltip} from "@mantine/core";
 import {useCallback, useState} from "react";
-import {IconAddressBook, IconForms, IconRefresh, IconRefreshDot} from "@tabler/icons-react";
+import {IconAddressBook, IconForms, IconMailOff, IconRefresh, IconRefreshDot} from "@tabler/icons-react";
 import {useQueryClient} from "@tanstack/react-query";
 import {ContactsTab} from "./ContactsTab";
 import {ExtendedAttributesTab} from "./ExtendedAttributesTab";
 import {BackfillTab} from "./BackfillTab";
+import {SuppressionsTab} from "./SuppressionsTab";
+import {GET_ACCOUNT_EMAIL_SUPPRESSIONS_QUERY_KEY} from "../../../../queries/useGetAccountEmailSuppressions.ts";
 import {BackfillHelpPopover} from "./BackfillTab/BackfillHelpPanel";
 import {GET_CONTACTS_QUERY_KEY} from "../../../../queries/useGetContacts.ts";
 import {GET_CONTACT_ATTRIBUTE_DEFINITIONS_QUERY_KEY} from "../../../../queries/useGetContactAttributeDefinitions.ts";
@@ -17,16 +19,21 @@ import {GET_BACKFILL_UNMAPPED_QUESTIONS_QUERY_KEY} from "../../../../queries/use
 import {GET_BACKFILL_CONFLICTS_QUERY_KEY} from "../../../../queries/useGetBackfillConflicts.ts";
 import {GET_BACKFILL_STALE_VALUES_QUERY_KEY} from "../../../../queries/useGetBackfillStaleValues.ts";
 import {GET_BACKFILL_EMAIL_CHANGES_QUERY_KEY} from "../../../../queries/useGetBackfillEmailChanges.ts";
+import {useIsCurrentUserAdmin} from "../../../../hooks/useIsCurrentUserAdmin.ts";
 
 const ContactsAdmin = () => {
     const [activeTab, setActiveTab] = useState<string | null>('contacts');
     const [spinning, setSpinning] = useState(false);
     const queryClient = useQueryClient();
+    // Organizers browse contacts (read-only); attribute/sync/suppression management
+    // is admin-only.
+    const isAdmin = useIsCurrentUserAdmin();
 
     const handleRefresh = useCallback(() => {
         const keys: string[] = (() => {
             if (activeTab === 'contacts') return [GET_CONTACTS_QUERY_KEY];
             if (activeTab === 'attributes') return [GET_CONTACT_ATTRIBUTE_DEFINITIONS_QUERY_KEY];
+            if (activeTab === 'suppressions') return [GET_ACCOUNT_EMAIL_SUPPRESSIONS_QUERY_KEY];
             if (activeTab === 'backfill') {
                 return [
                     GET_BACKFILL_SUMMARY_QUERY_KEY,
@@ -66,23 +73,41 @@ const ContactsAdmin = () => {
                     <Tabs.Tab value="contacts" leftSection={<IconAddressBook size={16}/>}>
                         {t`Contacts`}
                     </Tabs.Tab>
-                    <Tabs.Tab value="attributes" leftSection={<IconForms size={16}/>}>
-                        {t`Extended Attributes`}
-                    </Tabs.Tab>
-                    <Tabs.Tab value="backfill" leftSection={<IconRefreshDot size={16}/>}>
-                        {t`Sync`}
-                    </Tabs.Tab>
+                    {isAdmin && (
+                        <Tabs.Tab value="attributes" leftSection={<IconForms size={16}/>}>
+                            {t`Extended Attributes`}
+                        </Tabs.Tab>
+                    )}
+                    {isAdmin && (
+                        <Tabs.Tab value="backfill" leftSection={<IconRefreshDot size={16}/>}>
+                            {t`Sync`}
+                        </Tabs.Tab>
+                    )}
+                    {isAdmin && (
+                        <Tabs.Tab value="suppressions" leftSection={<IconMailOff size={16}/>}>
+                            {t`Suppressions`}
+                        </Tabs.Tab>
+                    )}
                 </Tabs.List>
 
                 <Tabs.Panel value="contacts">
                     <ContactsTab/>
                 </Tabs.Panel>
-                <Tabs.Panel value="attributes">
-                    <ExtendedAttributesTab/>
-                </Tabs.Panel>
-                <Tabs.Panel value="backfill">
-                    <BackfillTab/>
-                </Tabs.Panel>
+                {isAdmin && (
+                    <Tabs.Panel value="attributes">
+                        <ExtendedAttributesTab/>
+                    </Tabs.Panel>
+                )}
+                {isAdmin && (
+                    <Tabs.Panel value="backfill">
+                        <BackfillTab/>
+                    </Tabs.Panel>
+                )}
+                {isAdmin && (
+                    <Tabs.Panel value="suppressions">
+                        {activeTab === 'suppressions' && <SuppressionsTab/>}
+                    </Tabs.Panel>
+                )}
             </Tabs>
         </PageBody>
     );

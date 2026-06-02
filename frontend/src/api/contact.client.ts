@@ -17,6 +17,12 @@ export const contactClient = {
         const response = await api.get<GenericDataResponse<Contact>>(`accounts/${accountId}/contacts/${contactId}`);
         return response.data;
     },
+    activity: async (accountId: IdParam, contactId: IdParam): Promise<{ data: ContactActivity }> => {
+        const response = await api.get<{ data: ContactActivity }>(
+            `accounts/${accountId}/contacts/${contactId}/activity`,
+        );
+        return response.data;
+    },
     update: async (accountId: IdParam, contactId: IdParam, payload: Partial<Contact>) => {
         const response = await api.put<GenericDataResponse<Contact>>(
             `accounts/${accountId}/contacts/${contactId}`,
@@ -195,6 +201,33 @@ export const contactClient = {
         return response.data;
     },
 };
+
+export interface ContactAttendedEvent {
+    id: number;
+    title: string;
+    start_date: string | null;
+    status: string | null;
+    tickets_count: number;
+}
+
+export interface ContactOrderSummary {
+    id: number;
+    short_id: string | null;
+    public_id: string | null;
+    status: string | null;
+    payment_status: string | null;
+    refund_status: string | null;
+    total_gross: number;
+    currency: string | null;
+    created_at: string | null;
+    event_id: number;
+    event_title: string | null;
+}
+
+export interface ContactActivity {
+    events: ContactAttendedEvent[];
+    orders: ContactOrderSummary[];
+}
 
 export interface ContactBackfillSummary {
     unlinked_attendees_count: number;

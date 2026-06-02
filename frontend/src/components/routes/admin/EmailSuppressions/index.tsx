@@ -3,6 +3,7 @@ import {t} from "@lingui/macro";
 import {IconSearch, IconMailOff, IconTrash, IconPlus} from "@tabler/icons-react";
 import {useState, useEffect} from "react";
 import {useGetEmailSuppressions} from "../../../../queries/useGetEmailSuppressions";
+import {useGetAllAccounts} from "../../../../queries/useGetAllAccounts";
 import {useDeleteEmailSuppression} from "../../../../mutations/useDeleteEmailSuppression";
 import {useCreateEmailSuppression} from "../../../../mutations/useCreateEmailSuppression";
 import {relativeDate} from "../../../../utilites/dates";
@@ -19,7 +20,12 @@ const EmailSuppressions = () => {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [reasonFilter, setReasonFilter] = useState<string | null>(null);
     const [sourceFilter, setSourceFilter] = useState<string | null>(null);
+    const [typeFilter, setTypeFilter] = useState<string | null>(null);
+    const [accountFilter, setAccountFilter] = useState<string | null>(null);
     const [createModalOpened, {open: openCreateModal, close: closeCreateModal}] = useDisclosure(false);
+
+    const {data: accountsData} = useGetAllAccounts({per_page: 100});
+    const accountOptions = (accountsData?.data ?? []).map((a) => ({value: String(a.id), label: a.name}));
 
     const {data: suppressionsData, isLoading} = useGetEmailSuppressions({
         page,
@@ -27,6 +33,8 @@ const EmailSuppressions = () => {
         search: debouncedSearch,
         reason: reasonFilter || undefined,
         source: sourceFilter || undefined,
+        bounce_type: typeFilter || undefined,
+        account_id: accountFilter || undefined,
     });
 
     const deleteMutation = useDeleteEmailSuppression();
@@ -160,6 +168,27 @@ const EmailSuppressions = () => {
                         value={sourceFilter}
                         onChange={setSourceFilter}
                         w={150}
+                    />
+                    <Select
+                        placeholder={t`Type`}
+                        clearable
+                        data={[
+                            {value: 'Permanent', label: t`Permanent`},
+                            {value: 'Transient', label: t`Transient`},
+                            {value: 'Undetermined', label: t`Undetermined`},
+                        ]}
+                        value={typeFilter}
+                        onChange={(val) => { setTypeFilter(val); setPage(1); }}
+                        w={150}
+                    />
+                    <Select
+                        placeholder={t`Account`}
+                        clearable
+                        searchable
+                        data={accountOptions}
+                        value={accountFilter}
+                        onChange={(val) => { setAccountFilter(val); setPage(1); }}
+                        w={200}
                     />
                 </Group>
 

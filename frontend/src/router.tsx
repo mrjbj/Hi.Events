@@ -328,6 +328,13 @@ export const router: RouteObject[] = [
                 }
             },
             {
+                path: "contacts",
+                async lazy() {
+                    const ContactsAdmin = await import("./components/routes/contacts/ContactsAdmin");
+                    return { Component: ContactsAdmin.default };
+                }
+            },
+            {
                 path: "organizer-homepage-designer",
                 async lazy() {
                     const OrganizerHomepageDesigner = await import("./components/routes/organizer/OrganizerHomepageDesigner");

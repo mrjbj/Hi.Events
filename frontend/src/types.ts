@@ -1252,7 +1252,11 @@ export interface Contact {
     created_at?: string;
     updated_at?: string;
     attendees?: Attendee[];
+    suppression_status?: SuppressionStatus;
+    suppression_detail?: string | null;
 }
+
+export type SuppressionStatus = 'active' | 'marketing_only' | 'always';
 
 export interface ContactAttributeChange {
     changed_at: string;

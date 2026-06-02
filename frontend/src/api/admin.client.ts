@@ -381,6 +381,8 @@ export interface GetAllEmailSuppressionsParams {
     search?: string;
     reason?: string;
     source?: string;
+    bounce_type?: string;
+    account_id?: IdParam;
     sort_by?: string;
     sort_direction?: 'asc' | 'desc';
 }
@@ -642,6 +644,8 @@ export const adminClient = {
                 search: params.search || undefined,
                 reason: params.reason || undefined,
                 source: params.source || undefined,
+                bounce_type: params.bounce_type || undefined,
+                account_id: params.account_id ?? undefined,
                 sort_by: params.sort_by || 'created_at',
                 sort_direction: params.sort_direction || 'desc',
             }

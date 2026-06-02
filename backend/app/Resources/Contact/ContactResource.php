@@ -23,7 +23,11 @@ class ContactResource extends BaseResource
             'attributes_history' => $this->getAttributesHistory(),
             'created_at' => $this->getCreatedAt(),
             'updated_at' => $this->getUpdatedAt(),
-            $this->mergeWhen($this->getAttendees() !== null, fn() => [
+            $this->mergeWhen($this->getSuppressionStatus() !== null, fn () => [
+                'suppression_status' => $this->getSuppressionStatus(),
+                'suppression_detail' => $this->getSuppressionDetail(),
+            ]),
+            $this->mergeWhen($this->getAttendees() !== null, fn () => [
                 'attendees' => AttendeeResource::collection($this->getAttendees()),
             ]),
         ];

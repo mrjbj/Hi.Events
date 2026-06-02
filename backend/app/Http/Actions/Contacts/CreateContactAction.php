@@ -3,6 +3,7 @@
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Exceptions\ResourceConflictException;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\Request\Contact\CreateContactRequest;
@@ -24,7 +25,7 @@ class CreateContactAction extends BaseAction
      */
     public function __invoke(CreateContactRequest $request, int $accountId): JsonResponse
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         try {
             $contact = $this->handler->handle(UpsertContactDTO::from(array_merge(

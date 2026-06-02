@@ -252,6 +252,14 @@ const Attendees = () => {
 
                 {(!!attendees) && <AttendeeTable openCreateModal={openCreateModal}
                                                  attendees={attendees}
+                                                 onFilterByOrder={(orderId) => setSearchParams({
+                                                     ...searchParams,
+                                                     filterFields: {
+                                                         ...(searchParams.filterFields || {}),
+                                                         order_id: {operator: QueryFilterOperator.Equals, value: String(orderId)},
+                                                     },
+                                                     pageNumber: 1,
+                                                 })}
                 />}
 
                 {!!attendees?.length

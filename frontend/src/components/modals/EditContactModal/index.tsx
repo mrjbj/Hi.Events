@@ -3,7 +3,7 @@ import {useForm} from "@mantine/form";
 import {Contact, GenericModalProps} from "../../../types.ts";
 import {Modal} from "../../common/Modal";
 import {Button, Divider, Group, MultiSelect, Select, Tabs, TextInput} from "@mantine/core";
-import {IconForms, IconHistory} from "@tabler/icons-react";
+import {IconForms, IconHistory, IconReceipt} from "@tabler/icons-react";
 import {useUpdateContact} from "../../../mutations/useUpdateContact.ts";
 import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
 import {showSuccess} from "../../../utilites/notifications.tsx";
@@ -11,6 +11,7 @@ import {t} from "@lingui/macro";
 import {useGetContactAttributeDefinitions} from "../../../queries/useGetContactAttributeDefinitions.ts";
 import {useIsCurrentUserSuperAdmin} from "../../../hooks/useIsCurrentUserAdmin.ts";
 import {AttributeHistoryPanel} from "./AttributeHistoryPanel";
+import {ContactActivityPanel} from "./ContactActivityPanel";
 import {ContactNeverEmailToggle} from "./ContactNeverEmailToggle";
 import classes from "./EditContactModal.module.scss";
 
@@ -76,6 +77,9 @@ export const EditContactModal = ({contact, onClose}: EditContactModalProps) => {
                 <Tabs.List mb="md">
                     <Tabs.Tab value="details" leftSection={<IconForms size={14}/>}>
                         {t`Details`}
+                    </Tabs.Tab>
+                    <Tabs.Tab value="activity" leftSection={<IconReceipt size={14}/>}>
+                        {t`Orders & Attendance`}
                     </Tabs.Tab>
                     <Tabs.Tab value="history" leftSection={<IconHistory size={14}/>}>
                         {historyCount > 0 ? t`History (${historyCount})` : t`History`}
@@ -182,6 +186,15 @@ export const EditContactModal = ({contact, onClose}: EditContactModalProps) => {
                         </Button>
                         <Button loading={updateMutation.isPending} onClick={handleSubmit}>
                             {updateMutation.isPending ? t`Working...` : t`Update Contact`}
+                        </Button>
+                    </Group>
+                </Tabs.Panel>
+
+                <Tabs.Panel value="activity">
+                    {activeTab === 'activity' && <ContactActivityPanel contactId={contact.id} contactEmail={contact.email}/>}
+                    <Group justify="flex-end" mt="xl" mb="md">
+                        <Button variant="default" onClick={onClose}>
+                            {t`Close`}
                         </Button>
                     </Group>
                 </Tabs.Panel>

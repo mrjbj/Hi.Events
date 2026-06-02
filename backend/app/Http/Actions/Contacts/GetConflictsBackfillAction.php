@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace HiEvents\Http\Actions\Contacts;
 
 use HiEvents\DomainObjects\AccountDomainObject;
+use HiEvents\DomainObjects\Enums\Role;
 use HiEvents\Http\Actions\BaseAction;
 use HiEvents\Http\DTO\QueryParamsDTO;
 use HiEvents\Services\Domain\Contact\ContactBackfillService;
@@ -19,7 +20,7 @@ class GetConflictsBackfillAction extends BaseAction
 
     public function __invoke(Request $request, int $accountId): JsonResponse
     {
-        $this->isActionAuthorized($accountId, AccountDomainObject::class);
+        $this->isActionAuthorized($accountId, AccountDomainObject::class, Role::ADMIN);
 
         $includeProcessed = $request->boolean('include_processed');
 

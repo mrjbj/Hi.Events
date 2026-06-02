@@ -5,16 +5,13 @@ namespace HiEvents\Services\Domain\Email;
 use HiEvents\DomainObjects\EmailSuppressionDomainObject;
 use HiEvents\DomainObjects\Generated\EmailSuppressionDomainObjectAbstract;
 use HiEvents\DomainObjects\Status\EmailSuppressionReasonEnum;
-use HiEvents\DomainObjects\Status\EmailSuppressionSourceEnum;
 use HiEvents\Repository\Interfaces\EmailSuppressionRepositoryInterface;
 
 class EmailSuppressionService
 {
     public function __construct(
         private readonly EmailSuppressionRepositoryInterface $emailSuppressionRepository,
-    )
-    {
-    }
+    ) {}
 
     /**
      * Check if an email is suppressed for a given email type.
@@ -103,17 +100,16 @@ class EmailSuppressionService
     }
 
     public function suppressEmail(
-        string  $email,
-        string  $reason,
-        string  $source,
-        ?int    $accountId = null,
+        string $email,
+        string $reason,
+        string $source,
+        ?int $accountId = null,
         ?string $bounceType = null,
         ?string $bounceSubType = null,
         ?string $complaintType = null,
         ?string $snsMessageId = null,
-        mixed   $rawPayload = null,
-    ): EmailSuppressionDomainObject
-    {
+        mixed $rawPayload = null,
+    ): EmailSuppressionDomainObject {
         return $this->emailSuppressionRepository->findOrCreateSuppression(
             uniqueAttributes: [
                 EmailSuppressionDomainObjectAbstract::EMAIL => strtolower($email),
@@ -134,6 +130,31 @@ class EmailSuppressionService
     public function removeSuppressionById(int $id): void
     {
         $this->emailSuppressionRepository->deleteById($id);
+    }
+
+    /**
+     * Remove a suppression only if it belongs to the given account. Platform-wide
+     * rows (account_id === null) and rows owned by another account are never
+     * removable here — those are reserved for superadmin management. Returns
+     * false when the row is absent or not owned by $accountId.
+     */
+    public function removeAccountSuppressionById(int $id, int $accountId): bool
+    {
+        // Matching on account_id folds the ownership check into the lookup and
+        // naturally excludes platform-wide rows (account_id is null), which never
+        // equal a concrete account id.
+        $suppression = $this->emailSuppressionRepository->findFirstWhere([
+            EmailSuppressionDomainObjectAbstract::ID => $id,
+            EmailSuppressionDomainObjectAbstract::ACCOUNT_ID => $accountId,
+        ]);
+
+        if ($suppression === null) {
+            return false;
+        }
+
+        $this->emailSuppressionRepository->deleteById($id);
+
+        return true;
     }
 
     public function removeSuppression(string $email, ?int $accountId = null, ?string $reason = null): void

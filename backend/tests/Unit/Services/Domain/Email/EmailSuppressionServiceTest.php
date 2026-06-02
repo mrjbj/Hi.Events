@@ -184,4 +184,30 @@ class EmailSuppressionServiceTest extends TestCase
 
         $this->service->removeSuppression('real@acme.test', null, 'do_not_contact');
     }
+
+    public function testRemoveAccountSuppressionDeletesWhenOwnedByAccount(): void
+    {
+        $suppression = m::mock(EmailSuppressionDomainObject::class);
+
+        $this->repository->shouldReceive('findFirstWhere')
+            ->once()
+            ->with(['id' => 42, 'account_id' => 7])
+            ->andReturn($suppression);
+        $this->repository->shouldReceive('deleteById')->once()->with(42);
+
+        $this->assertTrue($this->service->removeAccountSuppressionById(42, 7));
+    }
+
+    public function testRemoveAccountSuppressionRefusesRowNotOwnedByAccount(): void
+    {
+        // Covers both another account's row and a platform-wide (null account_id)
+        // row: neither matches the {id, account_id} lookup, so nothing is returned.
+        $this->repository->shouldReceive('findFirstWhere')
+            ->once()
+            ->with(['id' => 42, 'account_id' => 7])
+            ->andReturn(null);
+        $this->repository->shouldNotReceive('deleteById');
+
+        $this->assertFalse($this->service->removeAccountSuppressionById(42, 7));
+    }
 }

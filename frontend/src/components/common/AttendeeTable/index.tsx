@@ -1,4 +1,4 @@
-import {ActionIcon, Anchor, Avatar, Button, Group, Popover, Tooltip} from '@mantine/core';
+import {ActionIcon, Anchor, Avatar, Badge, Button, Group, Popover, Tooltip} from '@mantine/core';
 import {Attendee, IdParam, MessageType} from "../../../types.ts";
 import {
     IconCheck,
@@ -8,6 +8,7 @@ import {
     IconMailForward,
     IconNote,
     IconPlus,
+    IconReceipt2,
     IconSend,
     IconTrash,
     IconUserCog,
@@ -41,9 +42,10 @@ import classes from './AttendeeTable.module.scss';
 interface AttendeeTableProps {
     attendees: Attendee[];
     openCreateModal: () => void;
+    onFilterByOrder?: (orderId: IdParam) => void;
 }
 
-export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) => {
+export const AttendeeTable = ({attendees, openCreateModal, onFilterByOrder}: AttendeeTableProps) => {
     const {eventId} = useParams();
     const [isMessageModalOpen, messageModal] = useDisclosure(false);
     const [isViewModalOpen, viewModalOpen] = useDisclosure(false);
@@ -256,12 +258,17 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                     />
                                 </div>
                                 <div className={classes.orderId}>
-                                    <Anchor
-                                        onClick={() => handleOrderClick(info.row.original.order_id)}
-                                        style={{cursor: 'pointer', color: 'inherit', textDecoration: 'none'}}
-                                    >
-                                        {info.row.original.order?.public_id}
-                                    </Anchor>
+                                    <Tooltip label={t`Show all attendees on this order`} withArrow position="top">
+                                        <Badge
+                                            variant="light"
+                                            color="gray"
+                                            size="sm"
+                                            style={{cursor: onFilterByOrder ? 'pointer' : 'default', textTransform: 'none', fontWeight: 500}}
+                                            onClick={() => onFilterByOrder?.(info.row.original.order_id)}
+                                        >
+                                            {info.row.original.order?.public_id}
+                                        </Badge>
+                                    </Tooltip>
                                 </div>
                                 {info.row.original.order?.created_at && event?.timezone && (
                                     <div className={classes.registrationDate}>
@@ -355,6 +362,11 @@ export const AttendeeTable = ({attendees, openCreateModal}: AttendeeTableProps) 
                                             label: t`Manage attendee`,
                                             icon: <IconUserCog size={14}/>,
                                             onClick: () => handleModalClick(info.row.original, viewModalOpen),
+                                        },
+                                        {
+                                            label: t`View order`,
+                                            icon: <IconReceipt2 size={14}/>,
+                                            onClick: () => handleOrderClick(info.row.original.order_id),
                                         },
                                         {
                                             label: t`Message attendee`,
