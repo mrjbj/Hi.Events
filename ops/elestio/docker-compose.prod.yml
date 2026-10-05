@@ -1,0 +1,96 @@
+# Production compose as deployed on district11 (Elestio): ~/elestio_app_directory/hi-events/docker-compose.yml
+# Copied 2026-10-05 for version history. Values come from that directory's .env on the server (no sops on district11).
+# Editing this copy does NOT change prod; edit on the server, then re-copy here.
+services:
+  all-in-one:
+    image: ghcr.io/mrjbj/hi-events-all-in-one:latest
+    # i'm adding a new line to force change in this file to see if it triggers refetch from mrjbj fork. 
+    # image: daveearley/hi.events-all-in-one:${SOFTWARE_VERSION_TAG}
+    restart: always
+    # DOMAIN=hi-events-u50358.vm.elestio.app -- safe keeping
+    # Mount host ./hi-storage/app/public to container /app/backend/storage/app/public for public files
+    # Ensures Laravel symlink (public/storage -> storage/app/public) serves files like logos correctly
+    # reachable from browser via http://events.foo.com/storage/file.html
+    # - ./hi-storage/app/public:/app/backend/storage/app/public
+    # - ./custom-assets/logo-dark.png:/app/frontend/public/logo-dark.png
+    # - ./custom-assets/11thDistrictLogo.png:/app/frontend/public/11thDistrictLogo.png
+    # - VITE_APP_LOGO_LIGHT=https://events.district11ga.org/storage/11th-100px.png
+    # - VITE_APP_LOGO_DARK=https://events.district11ga.org/storage/11th-100px.png
+    
+    volumes:
+      - ./hi-storage/app/public:/app/backend/storage/app/public
+    ports:
+      - "172.17.0.1:13336:80"
+    environment:
+      - VITE_FRONTEND_URL=https://${DOMAIN}
+      - APP_EMAIL_LOGO_URL=https://events.district11ga.org/storage/11th.png
+      - APP_FRONTEND_URL=https://${DOMAIN}
+      - VITE_API_URL_CLIENT=https://${DOMAIN}/api
+      - VITE_API_URL_SERVER=http://localhost:80/api
+      - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_PUBLIC_KEY=${STRIPE_PUBLIC_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - CORS_ALLOWED_ORIGINS=https://events.district11ga.org,https://hi-events-u50358.vm.elestio.app
+      - LOG_CHANNEL=stderr
+      - QUEUE_CONNECTION=sync
+      - MAIL_MAILER=array
+      - APP_KEY=${APP_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - FILESYSTEM_PUBLIC_DISK=public
+      - FILESYSTEM_PRIVATE_DISK=local
+      - APP_CDN_URL=https://${DOMAIN}/storage
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - MAIL_MAILER=${MAIL_MAILER}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
+    # - AWS SES SNS Integration  
+      - AWS_SNS_TOPIC_ARN=${AWS_SNS_TOPIC_ARN}
+      - SES_CONFIGURATION_SET=${SES_CONFIGURATION_SET}
+      - SES_SUPPRESSION_ENABLED=${SES_SUPPRESSION_ENABLED}
+      - AWS_SNS_VERIFY_SIGNATURE=${AWS_SNS_VERIFY_SIGNATURE}
+    # - Public Email Lookup  
+      - CONTACT_LOOKUP_ENABLED=${CONTACT_LOOKUP_ENABLED}
+      - CONTACT_LOOKUP_RESPONSE_DELAY_MS=500
+      # cloudflare turnstile form/bot protection
+      - TURNSTILE_ENABLED=${TURNSTILE_ENABLED}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+      - VITE_TURNSTILE_SITE_KEY=${VITE_TURNSTILE_SITE_KEY}
+      # PHP worker config 
+      - PHP_FPM_PM_CONTROL=${PHP_FPM_PM_CONTROL}
+      - PHP_FPM_PM_START_SERVERS=${PHP_FPM_PM_START_SERVERS}
+      - PHP_FPM_PM_MIN_SPARE_SERVERS=${PHP_FPM_PM_MIN_SPARE_SERVERS}
+      - PHP_FPM_PM_MAX_SPARE_SERVERS=${PHP_FPM_PM_MAX_SPARE_SERVERS}
+      - PHP_FPM_PM_MAX_CHILDREN=${PHP_FPM_PM_MAX_CHILDREN}
+      - PHP_FPM_PM_MAX_REQUESTS=${PHP_FPM_PM_MAX_REQUESTS}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: elestio/postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 172.17.0.1:43360:5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: elestio/pgadmin:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${ADMIN_PASSWORD}
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - "172.17.0.1:31829:8080"
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+      - ./pgadmin:/var/lib/pgadmin/storage

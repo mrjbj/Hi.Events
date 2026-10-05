@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Build and run the production-shaped all-in-one image locally: http://localhost:8123
+# Use it to validate a release build without the GitHub Actions -> GHCR -> Elestio cycle.
+# Secrets (APP_KEY, JWT_SECRET, STRIPE_*) come from `use sops hi-events`; the
+# config below is local-only (prod config lives in ops/elestio/docker-compose.prod.yml).
+# Extra args go to `docker compose` (default: up -d --build).
+# Examples: bin/aio-up        bin/aio-up logs -f all-in-one        bin/aio-up down
+set -euo pipefail
+repo=$(cd "$(dirname "$0")/.." && pwd)
+cd "$repo/docker/all-in-one"
+
+export VITE_FRONTEND_URL=http://localhost:8123
+export VITE_API_URL_CLIENT=http://localhost:8123/api
+export VITE_API_URL_SERVER=http://localhost:80/api
+export VITE_APP_NAME=Hi.Events
+export APP_FRONTEND_URL=http://localhost:8123
+export APP_CDN_URL=http://localhost:8123/storage
+export APP_DISABLE_REGISTRATION=false
+export APP_SAAS_MODE_ENABLED=false
+export APP_SAAS_STRIPE_APPLICATION_FEE_PERCENT=0
+export APP_SAAS_STRIPE_APPLICATION_FEE_FIXED=0
+export LOG_CHANNEL=stderr
+export QUEUE_CONNECTION=sync
+export MAIL_MAILER=log
+export MAIL_FROM_ADDRESS=noreply@localhost
+export MAIL_FROM_NAME=Hi.Events-local
+export FILESYSTEM_PUBLIC_DISK=public
+export FILESYSTEM_PRIVATE_DISK=local
+
+[[ $# -eq 0 ]] && set -- up -d --build
+# direnv exec loads .envrc (secrets + STRIPE_PUBLIC_KEY); the exports above are kept.
+exec direnv exec "$repo" bash -c '
+  export VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY:-$STRIPE_PUBLIC_KEY}
+  : "${APP_KEY:?run from the repo so direnv loads use sops hi-events}"
+  exec docker compose "$@"' aio "$@"
