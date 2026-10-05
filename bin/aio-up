@@ -26,6 +26,9 @@ export MAIL_FROM_ADDRESS=noreply@localhost
 export MAIL_FROM_NAME=Hi.Events-local
 export FILESYSTEM_PUBLIC_DISK=public
 export FILESYSTEM_PRIVATE_DISK=local
+# Unused locally (MAIL_MAILER=log; no email logo). Set empty so compose doesn't warn.
+export MAIL_DRIVER= MAIL_HOST= MAIL_PORT= MAIL_USERNAME= MAIL_PASSWORD= MAIL_ENCRYPTION=
+export APP_EMAIL_LOGO_URL= APP_EMAIL_LOGO_LINK_URL=
 
 [[ $# -eq 0 ]] && set -- up -d --build
 # direnv exec loads .envrc (secrets + STRIPE_PUBLIC_KEY); the exports above are kept.
