@@ -44,6 +44,18 @@ RUN mkdir -p /app/backend/bootstrap/cache \
         --prefer-dist \
     && chmod -R 755 /app/backend/vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 
+# Distrust the compromised emSign/eMudhra CAs (Oct 2026), even if Alpine's ca-certificates isn't patched yet.
+# stripe-php pins its own vendored bundle via CURLOPT_CAINFO, so point it at the system bundle.
+COPY ./docker/all-in-one/scripts/check-no-emsign.php /tmp/check-no-emsign.php
+RUN apk upgrade --no-cache ca-certificates \
+    && find /usr/share/ca-certificates -iname '*emsign*' -delete \
+    && if [ -f /etc/ca-certificates.conf ]; then sed -i 's|^\([^!].*emSign\)|!\1|' /etc/ca-certificates.conf; fi \
+    && update-ca-certificates \
+    && find /etc/ssl/certs -iname '*emsign*' -delete \
+    && ln -sf /etc/ssl/certs/ca-certificates.crt /app/backend/vendor/stripe/stripe-php/data/ca-certificates.crt \
+    && php /tmp/check-no-emsign.php /etc/ssl/certs/ca-certificates.crt /app/backend/vendor/stripe/stripe-php/data/ca-certificates.crt \
+    && rm /tmp/check-no-emsign.php
+
 COPY ./docker/all-in-one/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/all-in-one/supervisor/supervisord.conf /etc/supervisord.conf
 
